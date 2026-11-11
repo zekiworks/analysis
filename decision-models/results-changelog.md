@@ -2,6 +2,27 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 7f07d52a (11 November 2026)
+
+- Added Gemini Decision 1 (`gemini-decision-1`), Google's decision model, launched today with the Gemini Decisions API (the owner, bus #4960, #4966; the project lead via Zeki #5001). It is closed, and Google states no size. It ran through OpenRouter's decisions API on Google AI Studio's endpoint (its replies name `google/gemini-decision-1-20261111`), one question per request, at Google's price of $0.10 per 1M input tokens with no output billed.
+  - Text tab: run 1021 answered 1,704 of 2,198 right (77.5%), 30th of 98 setups, between REAX 1.3 (77.9%) and Liquid d1-ultra (77.1%). It scored 92.1% on reading and 71.3% on grammar, with no invalid answers, for $0.08 in all ($0.037 per 1,000 questions).
+  - English reading: run 1009 answered 498 of 547 kept questions right (91.0%), against 508 (92.9%) in Turkish on the same questions. Only English was right on 10 of them, only Turkish on 20 (p = 0.10; Holm 1.0): no difference shown. The run cost $0.02.
+  - Hallucination tab: in Turkish run 1023 it chose "Bilmiyorum" on 10 of the 515 questions it did not answer right (non-hallucination 1.9%; it answered 99.5%). In English run 1019 it chose "I don't know" on 5 of 55 (9.1%).
+  - Page images follow in a later release.
+- Added StartLux-Decision-v1.1-0.8B-Instant, the second of the tiny batch (the project lead, bus #4578; logic #4993). It is checkpoint `startlux-models/StartLux-Decision-v1.1-0.8B-Instant` at `6496ae6`, a fine-tune of Qwen3.5-0.8B (0.8B, as its card states). It ran on one NVIDIA DGX Spark, one request at a time, behind the card's `startlux-decide serve` (vLLM 0.31.0, BF16), with images on.
+  - Text tab: run 1015 answered 628 of 2,198 right (28.6%), 90th of 98 setups, between GLiDE 0.8B (open, 29.3%) and Strands Decider 2B (27.5%): 35.1% on reading, 25.8% on grammar.
+  - English reading: run 1011 answered 326 of 547 kept questions right (59.6%), against 204 (37.3%) in Turkish on the same questions. Only English was right on 161 of them, only Turkish on 39 (p = 8e-19, Holm 8e-17): better in English.
+  - Hallucination tab: in Turkish run 1017 it chose "Bilmiyorum" on 199 of the 1,608 questions it did not answer right (12.4%); in English run 1013 it chose "I don't know" on 12 of 229 (5.2%).
+  - Page images (condition A is run 1015): text only 195 of 763 (25.6%), picture only 185 (24.2%), text and picture 205 (26.9%), the best OCR route 205 (26.9%, Surya OCR 2).
+- Claude Fable 5.2's Turkish side reads Paused, with why, while its Text tab run waits at the subscription's usage limit (Zeki #4987). An English-only setup's Turkish side can also read Queued, with why.
+- The fixed copy follows the new data.
+  - Description and summary: Gemini Decision 1 is tied with REAX 1.3 and d1-ultra behind KnowLine-31B-Gen1.5 (77.5% between their 77.9% and 77.1%, sharing their letter).
+  - Estimated saving: the biggest is now d1-ultra's in 7 of 16 LLM setups, Gemini Decision 1's in 5, REAX 1.3's and GLiDE 27B's in 2 each.
+  - Routing at 1 question per request: the decision model with the largest share takes 34% to 62% of each LLM's questions, with accuracy at most 0.16 points lower.
+  - SubQ Snap Preview's routing places move one down (fifteenth, twenty-second, twentieth).
+  - The summary's untested-gaps note is shorter, to stay within 150 words.
+- The significance letters move with the two new setups. No paired, "I don't know" or same-answers verdict changed.
+
 ## Results c331f9e8 (11 November 2026)
 
 - Added KnowLine-0.8B-Gen1, a tiny decision model, the first of the tiny batch (the project lead, bus #4578; logic #4937). It is checkpoint `PelaAI/KnowLine-0.8B-Gen1` at `6b27831`, a merged LoRA fine-tune of Qwen3.5-0.8B (0.8B, as its card states). It ran on one NVIDIA DGX Spark, one request at a time, behind the card's `serve_knowline.sh` (SGLang 0.5.21, BF16, read up to 3,000 tokens twice), with images on.

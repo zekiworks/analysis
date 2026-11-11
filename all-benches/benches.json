@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-11T19:19:16Z",
+    "updated": "2026-11-11T20:09:31Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -944,6 +944,38 @@
      {
       "repo": null,
       "commit": null,
+      "model_key": "gemini-decision-1",
+      "name": "Gemini Decision 1",
+      "display_name": "Gemini Decision 1",
+      "tag": "20261111",
+      "class_label": "Closed · Efficient",
+      "base_model": null,
+      "setup_label": "Gemini Decision 1",
+      "maker": "Google",
+      "kind": "decision",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 37.55555555555555,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5004444444444445,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.03088609070996079,
+      "improvement_points": null,
+      "runs": [
+       "logic:gemini-decision-1_en",
+       "logic:gemini-decision-1_en_dontknow"
+      ],
+      "notes": "hosted API via OpenRouter",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
       "model_key": "jev-1.14.0",
       "name": "Jev 1.14",
       "display_name": "Jev 1.14",
@@ -1742,6 +1774,38 @@
       "gpu_cost_usd": 0.002246410386449002
      },
      {
+      "repo": "startlux-models/StartLux-Decision-v1.1-0.8B-Instant",
+      "commit": "6496ae641cc71b149ce9dad69bd97f2a44e7bf11",
+      "model_key": "startlux-decision-v1.1-0.8b-instant",
+      "name": "StartLux-Decision-v1.1-0.8B-Instant",
+      "display_name": "StartLux-Decision-v1.1-0.8B-Instant",
+      "tag": "",
+      "class_label": "Open · 0.8B",
+      "base_model": "Qwen3.5-0.8B",
+      "setup_label": "StartLux-Decision-v1.1-0.8B-Instant",
+      "maker": "StartLux",
+      "kind": "decision",
+      "params_total": 0.8,
+      "params_active": 0.8,
+      "quantization": "BF16",
+      "score_0_100": 5.8888888888888875,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.24711111111111111,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.07773130108783036,
+      "improvement_points": null,
+      "runs": [
+       "logic:startlux-0.8b_en",
+       "logic:startlux-0.8b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.009444444444444445,
+      "gpu_cost_usd": 0.0020099461352438438
+     },
+     {
       "repo": "fastino/GLiDE-0.4B",
       "commit": "6bda7ab91aeb36dcad6d27828a8871e548c7fc71",
       "model_key": "glide-0.4b",
@@ -1816,7 +1880,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-11T19:19:16Z",
+    "updated": "2026-11-11T20:09:31Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2268,6 +2332,38 @@
       "gpu_cost_usd": 0.76775
      },
      {
+      "repo": "ecloudtech/Erk-14B",
+      "commit": "8584b14a829d5cc803bc227f44e9012e36e8ad04",
+      "model_key": "erk-14b",
+      "name": "Erk-14B",
+      "display_name": "Erk-14B",
+      "tag": "off · chat",
+      "class_label": "Open · 15B",
+      "base_model": null,
+      "setup_label": "Erk-14B (chat, reasoning off, on our GPU)",
+      "maker": "eCloud Technology",
+      "kind": "chat",
+      "params_total": 14.77,
+      "params_active": 14.77,
+      "quantization": "BF16",
+      "score_0_100": 88.44197873324086,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.907535829865927,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:erk-14b_en",
+       "math:erk-14b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.2311111111111111,
+      "gpu_cost_usd": 0.5754666666666668
+     },
+     {
       "repo": "decisionmodels/REAX-1.3",
       "commit": "fa4bf7ee3bb56a8bc421dad090631be1c5845c2d",
       "model_key": "reax-1.3",
@@ -2458,6 +2554,37 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.07694444444444444,
       "gpu_cost_usd": 0.19159166666666666
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gemini-decision-1",
+      "name": "Gemini Decision 1",
+      "display_name": "Gemini Decision 1",
+      "tag": "20261111",
+      "class_label": "Closed · Efficient",
+      "base_model": null,
+      "setup_label": "Gemini Decision 1",
+      "maker": "Google",
+      "kind": "decision",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 64.1701340730467,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7133610725843735,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.024586229897428504,
+      "improvement_points": null,
+      "runs": [
+       "math:gemini-decision-1_en"
+      ],
+      "notes": "hosted API via OpenRouter; no complete 'I don't know' run",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
      },
      {
       "repo": null,
@@ -3484,6 +3611,38 @@
       "gpu_cost_usd": 0.0027784549516606076
      },
      {
+      "repo": "startlux-models/StartLux-Decision-v1.1-0.8B-Instant",
+      "commit": "6496ae641cc71b149ce9dad69bd97f2a44e7bf11",
+      "model_key": "startlux-decision-v1.1-0.8b-instant",
+      "name": "StartLux-Decision-v1.1-0.8B-Instant",
+      "display_name": "StartLux-Decision-v1.1-0.8B-Instant",
+      "tag": "",
+      "class_label": "Open · 0.8B",
+      "base_model": "Qwen3.5-0.8B",
+      "setup_label": "StartLux-Decision-v1.1-0.8B-Instant",
+      "maker": "StartLux",
+      "kind": "decision",
+      "params_total": 0.8,
+      "params_active": 0.8,
+      "quantization": "BF16",
+      "score_0_100": 12.101248266296807,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.29680998613037446,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.04765301858447206,
+      "improvement_points": null,
+      "runs": [
+       "math:startlux-0.8b_en",
+       "math:startlux-0.8b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.015555555555555555,
+      "gpu_cost_usd": 0.003310499516872213
+     },
+     {
       "repo": "StrandsAgents/strands-decider-2B-hobson-v21",
       "commit": "2b52a6235c1b8306bbfa30b00b9d4b74b63a39f5",
       "model_key": "strands-decider-2b",
@@ -3590,7 +3749,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-11T19:19:16Z",
+    "updated": "2026-11-11T20:09:31Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -4035,6 +4194,40 @@
       "gpu_cost_usd": 6.290016666666668
      },
      {
+      "repo": "ecloudtech/Erk-14B",
+      "commit": "8584b14a829d5cc803bc227f44e9012e36e8ad04",
+      "model_key": "erk-14b",
+      "name": "Erk-14B",
+      "display_name": "Erk-14B",
+      "tag": "off · chat",
+      "class_label": "Open · 15B",
+      "base_model": null,
+      "setup_label": "Erk-14B (chat, reasoning off, on our GPU)",
+      "maker": "eCloud Technology",
+      "kind": "chat",
+      "params_total": 14.77,
+      "params_active": 14.77,
+      "quantization": "BF16",
+      "score_0_100": 72.81782238442821,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7825425790754258,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:erk-14b_en",
+       "math:erk-14b_en",
+       "logic:erk-14b_en_dontknow",
+       "math:erk-14b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.4072222222222222,
+      "gpu_cost_usd": 1.0139833333333335
+     },
+     {
       "repo": "decisionmodels/REAX-1.3",
       "commit": "fa4bf7ee3bb56a8bc421dad090631be1c5845c2d",
       "model_key": "reax-1.3",
@@ -4439,6 +4632,38 @@
        "math:decider-v1.2_en_dontknow"
       ],
       "notes": "hosted API (the maker's service); other setups of this model under its row, not in this entry: Perplexity Decider 27B v1.2 (NVIDIA RTX PRO 6000 Blackwell)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gemini-decision-1",
+      "name": "Gemini Decision 1",
+      "display_name": "Gemini Decision 1",
+      "tag": "20261111",
+      "class_label": "Closed · Efficient",
+      "base_model": null,
+      "setup_label": "Gemini Decision 1",
+      "maker": "Google",
+      "kind": "decision",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 55.06386861313869,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6405109489051095,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.020467706279056145,
+      "improvement_points": null,
+      "runs": [
+       "logic:gemini-decision-1_en",
+       "math:gemini-decision-1_en"
+      ],
+      "notes": "hosted API via OpenRouter; no complete 'I don't know' run",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -5327,6 +5552,40 @@
       "gpu_cost_usd": 0.004551936835699293
      },
      {
+      "repo": "startlux-models/StartLux-Decision-v1.1-0.8B-Instant",
+      "commit": "6496ae641cc71b149ce9dad69bd97f2a44e7bf11",
+      "model_key": "startlux-decision-v1.1-0.8b-instant",
+      "name": "StartLux-Decision-v1.1-0.8B-Instant",
+      "display_name": "StartLux-Decision-v1.1-0.8B-Instant",
+      "tag": "",
+      "class_label": "Open · 0.8B",
+      "base_model": "Qwen3.5-0.8B",
+      "setup_label": "StartLux-Decision-v1.1-0.8B-Instant",
+      "maker": "StartLux",
+      "kind": "decision",
+      "params_total": 0.8,
+      "params_active": 0.8,
+      "quantization": "BF16",
+      "score_0_100": 9.975669099756688,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.2798053527980535,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.05794440174027441,
+      "improvement_points": null,
+      "runs": [
+       "logic:startlux-0.8b_en",
+       "math:startlux-0.8b_en",
+       "logic:startlux-0.8b_en_dontknow",
+       "math:startlux-0.8b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.025,
+      "gpu_cost_usd": 0.005320445652116057
+     },
+     {
       "repo": "PelaAI/KnowLine-0.8B-Gen1",
       "commit": "6b27831f7b783c03278bd946d4d8f4f7a98a3798",
       "model_key": "knowline-0.8b-gen1",
@@ -5591,12 +5850,12 @@
      {
       "calibration_error": null,
       "commit": null,
-      "improvement_points": null,
+      "improvement_points": 7.0,
       "kind": "chat",
       "maker": "Anthropic",
       "model_key": "claude-sonnet-5.5",
       "name": "Claude Sonnet 5.5",
-      "notes": "League 2; calibration definition pending Ümit; hosted (API or subscription); setting: high",
+      "notes": "League 2; calibration definition pending Ümit; hosted (API or subscription); setting: high; improvement_points: change in risks found, percentage points of risk-pays decisions (with lessons minus no memory)",
       "params_active": null,
       "params_total": null,
       "quantization": null,
@@ -6444,7 +6703,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-11T19:20Z",
+    "updated": "2026-11-11T20:02Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }

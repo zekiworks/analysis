@@ -35,7 +35,7 @@ from sitebuild.english_reading import (NO_OPTION, NO_RATE, NOT_RUN, PATH as COMP
                                        experiments_note, group_models, idk_key, label, limit_line, limit_note,
                                        measure_card, measure_cell, measure_heads, missing_note, missing_side, name_html,
                                        noun, only_anchor, setup_families, setup_icon, setup_key, setup_run,
-                                       turkish_running, under_way)
+                                       turkish_paused, turkish_running, under_way)
 from sitebuild import holding_back as hold
 from sitebuild.site import (GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, measure_rows, more_link, pct,
                             rel, shown)
@@ -279,12 +279,14 @@ def build(site: Site) -> dict[str, str]:
         labels = [f"{head} ({note})" for head, note in heads]
         rows = []
         members = english_members(site, data, group)
-        running = turkish_running(site, data)
+        running, paused = turkish_running(site, data), turkish_paused(site, data)
         for model in members:
             values = [
                 f'{pct(model["english"]["accuracy"], digits)}<span class="small">{model["english"]["right"]:,} of {total:,} right</span>',
                 f'{pct(model["turkish"]["accuracy"], digits)}<span class="small">{model["turkish"]["right"]:,} of {total:,} right</span>'
                 if "turkish_run" in model else
+                f'<span class="nm">{paused[model["model"]][0]}</span><span class="small">its Text tab run {esc(paused[model["model"]][1])}</span>'
+                if model["model"] in paused else
                 f'{RUNNING}<span class="small">its Text tab run is still running</span>' if model["model"] in running else
                 f'{NOT_RUN}<span class="small">English only, no Text tab run</span>',
             ]
@@ -323,7 +325,11 @@ def build(site: Site) -> dict[str, str]:
                 f"setup's Text tab run on the same {total:,} questions, for context"
                 + (" (Not run: an English-only setup, with no Text tab run"
                    + ("; Running: its Text tab run is still under way, shown when it is in"
-                      if any(model["model"] in running for model in alone) else "") + ")" if alone else "")
+                      if any(model["model"] in running and model["model"] not in paused for model in alone) else "")
+                   + ("; Paused: its Text tab run is stopped for now, as its row says"
+                      if any(paused.get(model["model"], ("",))[0] == "Paused" for model in alone) else "")
+                   + ("; Queued: its Text tab run has not started yet, as its row says"
+                      if any(paused.get(model["model"], ("",))[0] == "Queued" for model in alone) else "") + ")" if alone else "")
                 + f'; the paired comparison is on <a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ '
                 f"{cost_per()}, with its basis under it; English latency: the median time per request, with the request "
                 "size and the requests in flight under it, each from the first English run (Cost and Latency above)."

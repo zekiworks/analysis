@@ -90,11 +90,11 @@ INTRO = (
 DESCRIPTION = (
     "We tested {decision} decision models on a reading comprehension and grammar test in native Turkish (not "
     "translated): {questions} questions. "
-    "No model led on every measure. KnowLine-31B-Gen1.5 got the most answers right, ahead of REAX 1.3 and Liquid's "
-    "d1-ultra, which tied. Of the decision "
+    "No model led on every measure. KnowLine-31B-Gen1.5 got the most answers right, ahead of REAX 1.3, Gemini Decision 1 "
+    "and Liquid's d1-ultra, which tied. Of the decision "
     "models with no observed mistakes at 99% confidence, Perplexity's Decider v1.2, run on our hardware, kept the most "
     "answers. With every model at 1 question per request, the decision model "
-    "with the largest share took 34% to 56% of each LLM's questions, with accuracy at most 0.27 points lower, in a "
+    "with the largest share took 34% to 62% of each LLM's questions, with accuracy at most 0.16 points lower, in a "
     "replay of recorded answers."
 )
 
@@ -121,7 +121,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: KnowLine-31B-Gen1.5 clearly ahead at 81.8%; REAX 1.3 and Liquid's d1-ultra, tied at 77.9% and 77.1%; GLiDE 27B at 71.1%; then Decider v1.2 with web search, GLiDE v1.2, hosted GLiDE, d3 and d3-ultra, Drex Max and Drex Max v1.1, Mammoth-1, Decider v1.1 and Decider v1.2 on our DGX Spark, at 66.9% to 68.7%."
+SUMMARY_ACCURACY = "Accuracy: KnowLine-31B-Gen1.5 clearly ahead at 81.8%; REAX 1.3, Gemini Decision 1 and Liquid's d1-ultra, tied at 77.9%, 77.5% and 77.1%; GLiDE 27B at 71.1%; then Decider v1.2 with web search, GLiDE v1.2, hosted GLiDE, d3 and d3-ultra, Drex Max and Drex Max v1.1, Mammoth-1, Decider v1.1 and Decider v1.2 on our DGX Spark, at 66.9% to 68.7%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
@@ -873,11 +873,14 @@ def copy_checks(data: Data) -> list[str]:
     check("Stability: every repeated setup ran 5 times", all(len(item["runs"]) == 5 for item in results["repeats"]))
     best = max(decision, key=lambda run: accuracy(run)[0])
     knowline = data.by_name("PelaAI/KnowLine-31B-Gen1.5")
-    check("KnowLine-31B-Gen1.5 got the most answers right (among decision models), ahead of REAX 1.3 and Liquid's "
-          "d1-ultra, which tied",
-          best is knowline and not any(letter in (run.get("group") or "") for run in (reax, ultra)
+    gemini = data.by_name("google/gemini-decision-1")
+    tied = (reax, gemini, ultra)
+    check("KnowLine-31B-Gen1.5 got the most answers right (among decision models), ahead of REAX 1.3, Gemini Decision 1 "
+          "and Liquid's d1-ultra, which tied",
+          best is knowline and not any(letter in (run.get("group") or "") for run in tied
                                        for letter in (knowline.get("group") or ""))
-          and any(letter in (ultra.get("group") or "") for letter in (reax.get("group") or "")))
+          and all(any(letter in (other.get("group") or "") for letter in (run.get("group") or ""))
+                  for run in tied for other in tied))
     # No observed mistakes needs answers kept: a setup with none kept at 99% is in no such claim (Ümit #4665).
     flawless = [run for run in decision if 0 < run["confidence"]["sure"]["questions"] == run["confidence"]["sure"]["correct"]]
     flawless_kept = sorted((run["confidence"]["sure"]["questions"], run["run"]) for run in flawless)
@@ -891,9 +894,9 @@ def copy_checks(data: Data) -> list[str]:
         frontier = data.named(key, 1)["run"]
         best_first.append(max((cascades[(run["run"], frontier)]["held_out"] for run in decision if (run["run"], frontier) in cascades),
                               key=lambda item: item["answered"]))
-    check("the decision model with the largest share took 34% to 56% of each LLM's questions",
-          (round(100 * min(item["answered"] for item in best_first)), round(100 * max(item["answered"] for item in best_first))) == (34, 56))
-    check("accuracy at most 0.27 points lower", round(-100 * min(item["difference"] for item in best_first), 2) == 0.27)
+    check("the decision model with the largest share took 34% to 62% of each LLM's questions",
+          (round(100 * min(item["answered"] for item in best_first)), round(100 * max(item["answered"] for item in best_first))) == (34, 62))
+    check("accuracy at most 0.16 points lower", round(-100 * min(item["difference"] for item in best_first), 2) == 0.16)
     check("every decision model at 1 question per request", all(run["questions_per_request"] == 1 for run in decision))
     # Better than chance: an overall AUROC above 0.5. Laya and Laya multilingual rank below it.
     for run in decision:
@@ -918,9 +921,9 @@ def copy_checks(data: Data) -> list[str]:
     check("and accuracy falls 0.16 points (replay)", round(-100 * one["difference"], 2) == 0.16)
     order = sorted((run for run in decision if (run["run"], sonnet16["run"]) in cascades),
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
-    check("SubQ Snap Preview fourteenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 13)
+    check("SubQ Snap Preview fifteenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 14)
     for size in (16, 1):
-        for key, place, word in (("opus", 21, "twenty-first"), ("astra", 19, "nineteenth")):
+        for key, place, word in (("opus", 22, "twenty-second"), ("astra", 20, "twentieth")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
@@ -943,14 +946,14 @@ def copy_checks(data: Data) -> list[str]:
     check("Stability note: the other chat models were repeated on a sample of 200",
           all(item["questions"] == 200 for item in chat_repeats if not item["whole_bank"]))
     # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
-    # replayed): KnowLine-31B-Gen1.5 leads on accuracy, sharing a letter with no other decision model; then REAX 1.3 and
-    # d1-ultra, sharing a letter with each other and with no other decision model; then GLiDE 27B; then Decider v1.2 with
-    # web search (through its API), GLiDE v1.2, hosted GLiDE, d3 and d3-ultra (tied on right answers), Drex Max and Drex
-    # Max v1.1, Mammoth-1, and Decider v1.1 and Decider v1.2 on our DGX Spark, in that order, at 66.9% to 68.7%;
-    # d1.1 has the smallest calibration gap as shipped; hosted Perplexity Decider 27B v1.2 scores highest on Better than a
-    # flat guess, then Open-Jev-27B-v1.1, then
-    # SubQ Snap 1.1 and Decider v1.1 (equal to one decimal); d1-ultra gives the biggest estimated saving in 10 of the 16
-    # LLM setups and REAX 1.3 in the other 6 (every routing LLM at each request size we ran it at).
+    # replayed): KnowLine-31B-Gen1.5 leads on accuracy, sharing a letter with no other decision model; then REAX 1.3,
+    # Gemini Decision 1 and d1-ultra, sharing a letter with each other and with no other decision model; then GLiDE 27B;
+    # then Decider v1.2 with web search (through its API), GLiDE v1.2, hosted GLiDE, d3 and d3-ultra (tied on right
+    # answers), Drex Max and Drex Max v1.1, Mammoth-1, and Decider v1.1 and Decider v1.2 on our DGX Spark, in that order, at
+    # 66.9% to 68.7%; d1.1 has the smallest calibration gap as shipped; hosted Perplexity Decider 27B v1.2 scores highest
+    # on Better than a flat guess, then Open-Jev-27B-v1.1, then SubQ Snap 1.1 and Decider v1.1 (equal to one decimal);
+    # d1-ultra gives the biggest estimated saving in 7 of the 16 LLM setups, Gemini Decision 1 in 5, REAX 1.3 and GLiDE
+    # 27B in 2 each (every routing LLM at each request size we ran it at).
     ranked = sorted(decision, key=lambda run: -accuracy(run)[0])
 
     def shares(first: dict[str, Any], second: dict[str, Any]) -> bool:
@@ -964,24 +967,25 @@ def copy_checks(data: Data) -> list[str]:
           "a letter with no other decision model",
           ranked[0] is knowline and percent(knowline) == "81.8"
           and not any(shares(knowline, run) for run in decision if run is not knowline))
-    check("Summary: REAX 1.3 and d1-ultra next, tied at 77.9% and 77.1%: they share a letter with each other and "
-          "with no other decision model",
-          ranked[1] is reax and ranked[2] is ultra and percent(reax) == "77.9" and percent(ultra) == "77.1"
-          and shares(reax, ultra)
-          and not any(shares(lead, run) for lead in (reax, ultra) for run in decision if run is not reax and run is not ultra))
+    check("Summary: REAX 1.3, Gemini Decision 1 and d1-ultra next, tied at 77.9%, 77.5% and 77.1%: they share a letter "
+          "with each other and with no other decision model",
+          ranked[1] is reax and ranked[2] is gemini and ranked[3] is ultra
+          and (percent(reax), percent(gemini), percent(ultra)) == ("77.9", "77.5", "77.1")
+          and all(shares(run, other) for run in tied for other in tied)
+          and not any(shares(lead, run) for lead in tied for run in decision if not any(run is item for item in tied)))
     with_web = data.by_name("pplx-decider-v1.2", "perplexity", "web_grounding")
     hosted = data.by_name("pplx-decider-v1.2", "perplexity", None)
     glide27 = data.by_name("glide-27b")
-    check("Summary: GLiDE 27B at 71.1%", ranked[3] is glide27 and percent(glide27) == "71.1")
+    check("Summary: GLiDE 27B at 71.1%", ranked[4] is glide27 and percent(glide27) == "71.1")
     check("Summary: then Decider v1.2 with web search (through its API), GLiDE v1.2, hosted GLiDE, d3 and d3-ultra "
           "(tied on right answers), Drex Max and Drex Max v1.1, Mammoth-1, Decider v1.1 and Decider v1.2 on our DGX Spark, "
           "in that order",
           "DGX Spark" in (decider12.get("hardware") or "") and with_web["billing"] == "api" and decider["billing"] == "api"
           and glide["billing"] == "api"
-          and ranked[4] is with_web and ranked[5] is glide12 and ranked[6] is glide
-          and {run["run"] for run in ranked[7:9]} == {d3["run"], d3_ultra["run"]}
-          and accuracy(d3) == accuracy(d3_ultra) and ranked[9] is drex_v1 and ranked[10] is drex_11 and ranked[11] is mammoth
-          and {run["run"] for run in ranked[12:14]} == {decider["run"], decider12["run"]})
+          and ranked[5] is with_web and ranked[6] is glide12 and ranked[7] is glide
+          and {run["run"] for run in ranked[8:10]} == {d3["run"], d3_ultra["run"]}
+          and accuracy(d3) == accuracy(d3_ultra) and ranked[10] is drex_v1 and ranked[11] is drex_11 and ranked[12] is mammoth
+          and {run["run"] for run in ranked[13:15]} == {decider["run"], decider12["run"]})
     near = (with_web, glide12, glide, d3, d3_ultra, drex_v1, drex_11, mammoth, decider, decider12)
     check("Summary: at 66.9% to 68.7%",
           min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.7")
@@ -1042,9 +1046,11 @@ def copy_checks(data: Data) -> list[str]:
                        for run in decision if (run["run"], frontier["run"]) in cascades]
             winners.append(max(savings)[1])
     tally = Counter(winners)
-    check(f"Summary: d1-ultra gave the biggest estimated saving in 8 of the 16 LLM setups, REAX 1.3 in 6, GLiDE 27B "
-          f"in the other 2 ({len(winners)} setups: {dict((data.by_id[run]['name'], times) for run, times in tally.items())})",
-          len(winners) == 16 and tally == Counter({ultra["run"]: 8, reax["run"]: 6, data.by_name("glide-27b")["run"]: 2}))
+    check(f"Summary: d1-ultra gave the biggest estimated saving in 7 of the 16 LLM setups, Gemini Decision 1 in 5, "
+          f"REAX 1.3 in 2, GLiDE 27B in the other 2 ({len(winners)} setups: "
+          f"{dict((data.by_id[run]['name'], times) for run, times in tally.items())})",
+          len(winners) == 16 and tally == Counter({ultra["run"]: 7, gemini["run"]: 5, reax["run"]: 2,
+                                                   data.by_name("glide-27b")["run"]: 2}))
     return found
 
 

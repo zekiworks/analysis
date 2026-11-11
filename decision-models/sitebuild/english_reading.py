@@ -145,6 +145,20 @@ def turkish_running(site: Site, data: dict[str, Any]) -> set[str]:
     return listed
 
 
+def turkish_paused(site: Site, data: dict[str, Any]) -> dict[str, tuple[str, str]]:
+    """The English-only setups whose Text tab run is stopped for now or not started yet (page_config.json
+    english_reading.turkish_running's paused and queued: model id to why, Zeki #4987, #5001): model id to (Paused or
+    Queued, why); their Turkish side reads that with the reason, not Running. The build stops on such a model that
+    turkish_running does not list."""
+    config = site.config["english_reading"].get("turkish_running") or {}
+    states = {model: ("Paused", why) for model, why in config.get("paused", {}).items()}
+    states.update({model: ("Queued", why) for model, why in config.get("queued", {}).items()})
+    stray = sorted(set(states) - turkish_running(site, data))
+    if stray:
+        raise SystemExit(f"page_config.json english_reading.turkish_running paused/queued: {', '.join(stray)} is not in its models")
+    return states
+
+
 def setup_key(model: dict[str, Any]) -> int:
     """An English reading entry's key on the English pages: its Text tab run, or an English-only setup's first English
     run (run ids are unique across the report, so the two never collide)."""
@@ -815,10 +829,12 @@ def english_only_list(site: Site, data: dict[str, Any], group: str) -> str:
     alone = [model for model in english_only(data) if site.in_group(setup_run(site, model), group)]
     if not alone:
         return ""
-    running = turkish_running(site, data)
+    running, paused = turkish_running(site, data), turkish_paused(site, data)
     items = joined([f'<a href="{href(site, model)}">{esc(label(site, model))}</a>: English '
                     f'{pct(model["english"]["accuracy"], digits)} ({model["english"]["right"]:,} of {data["questions"]:,} '
-                    f"right), Turkish {'still running' if model['model'] in running else 'Not run'}" for model in alone])
+                    f"right), Turkish "
+                    + (f"{paused[model['model']][0].lower()} ({esc(paused[model['model']][1])})" if model["model"] in paused else
+                       "still running" if model["model"] in running else "Not run") for model in alone])
     return (f'<p class="note" {shown(group)}>English-only setups (no Turkish run, so in no paired test and no Holm '
             f"adjustment): {items}.</p>")
 
