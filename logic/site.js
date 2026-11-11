@@ -58,10 +58,21 @@
     link.setAttribute('href', `${path.split('?')[0]}${query(t, s)}${fragment ? `#${fragment}` : ''}`);
   });
   if (!document.getElementById('leaderboard')) window.keepGroup(type, size);
-  // A test page's selected Part or Measure key (aria-current="page"): a second tap goes back to its row's default, the
-  // row's first key (Part → Logic, Measure → Accuracy), with the same models, size and the other row's choice; on the
-  // default itself it does nothing. Never the front page (Ümit via zeki #4205). Set after keepGroup, which would undo it.
+  // A test page's selected key (aria-current="page"), second tap:
+  // - Measure (any, Accuracy too): back to the main ranking on the front page (the Text tab's leaderboard), keeping the part
+  //   and the models/class choice (Ümit via zeki #4660: the measure pages need a real way out).
+  // - Part: back to its row's default, Logic, with the same models, class and measure (#4205); on Logic itself nothing.
+  // Set after keepGroup, which would undo it.
+  const front = document.querySelector('.site-tabs a');
   document.querySelectorAll('.view-keys a[aria-current="page"]').forEach(link => {
+    const row = link.closest('.view-keys-row');
+    const label = (row?.querySelector('.view-keys-label')?.textContent ?? '').trim().toLowerCase();
+    if (label.startsWith('measure') && front) {
+      const part = (document.querySelector('.view-keys-row a[aria-current="page"]')?.textContent ?? 'Logic').trim().toLowerCase();
+      const base = front.getAttribute('href').split(/[?#]/)[0];
+      link.setAttribute('href', `${base}${query(type, sized ? size : 'all')}&part=${part === 'both' ? 'both' : part}#leaderboard`);
+      return;
+    }
     const first = link.closest('ul').querySelector('a');
     if (first === link) link.addEventListener('click', event => event.preventDefault());
     else link.setAttribute('href', first.getAttribute('href'));

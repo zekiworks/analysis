@@ -72,9 +72,7 @@ td.probs span { white-space: nowrap; }
 .chart-box svg .axis-title { fill: var(--text); font-size: 12px; font-weight: 600; }
 .charts > * + * { margin-top: 1rem; }
 .hbar-fill.kept-wrong { background: var(--wrong); }
-@media (max-width: 760px) { .result-cards { grid-template-columns: minmax(0, 1fr); } }
-.result-cards { margin-bottom: 1rem; }
-.group-copy > section, .group-copy > .result-cards { margin-bottom: 1rem; }
+.group-copy > section { margin-bottom: 1rem; }
 .footer .internal { color: var(--text); }
 .card .face-nav { margin: .4rem 0 .75rem; }
 .card .face-nav:last-child { margin-bottom: 0; }
@@ -157,7 +155,6 @@ td.answers { white-space: nowrap; font-size: .82rem; }
 .nh-part .note { margin: 0; }
 .finished-jobs { margin-top: .6rem; }
 .finished-jobs > summary { cursor: pointer; color: var(--text-2); font-size: .88rem; font-weight: 600; }
-.result-card .card-setup a { font-weight: 600; }
 td[data-label="GPU"] { white-space: nowrap; }
 
 /* The 95% interval across an accuracy bar: a line with end caps in the text colour (shell.hbars whisker). */
@@ -226,16 +223,11 @@ tr.hl-off { display: none !important; }
 .name-tag { color: var(--text-2); font-size: .76rem; font-weight: 400; white-space: nowrap; margin-left: .3rem; }  /* setting · route · snapshot (Ümit #4445) */
 .lb-mark { margin-left: .1rem; font-size: .62rem; line-height: 0; letter-spacing: .02em; cursor: help; }
 table.lb-table tbody tr.lb-tier-start > td { border-top: 2px solid var(--text-2); }
-/* Ümit via zeki #4611: the class rule as one short line (thresholds open under '*') and short cards whose scope and basis
-   open under 'Details'; nothing is dropped. */
+/* Ümit via zeki #4611: the class rule as one short line (thresholds open under '*'); nothing is dropped. */
 .class-rule { margin: .3rem 0 .6rem; font-size: .85rem; color: var(--text-2); }
 .class-rule > summary { cursor: pointer; }
 .class-rule .star { color: var(--link); }
 .class-rule > p { margin: .35rem 0 0; }
-.card-more { margin-top: .3rem; font-size: .8rem; color: var(--text-2); }
-.card-more > summary { cursor: pointer; }
-.card-more > p { margin: .25rem 0 0; }
-.result-card .card-scope { margin-bottom: 0; }
 th.lb-tier-head { font-size: .72rem; letter-spacing: .01em; }  /* 'Tier' fits the narrow first column (zeki #4629) */
 /* PREVIEW (Ümit #4217): a class key with no model in view is hidden; the 'with web' / 'sample' label of an untiered row. */
 .lb-keys .key[hidden], .view-keys li[hidden] { display: none !important; }
