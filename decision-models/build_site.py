@@ -57,7 +57,7 @@ import build_page as bp  # noqa: E402
 from sitebuild.dont_know import ranked as dont_know_ranked, running_setups  # noqa: E402
 from sitebuild import holding_back as hold  # noqa: E402
 from sitebuild.site import (GROUPS, NOT_MEASURED, ROUTE_LLMS, SUITE_CSS, Site, asset, cost_missing, cost_per, cost_unit_in,  # noqa: E402
-                            cost_value, family_icon, family_legend, footer, hbars, model_families, pct,
+                            cost_value, family_icon, family_legend, footer, hbars, measure_rows, model_families, pct,
                             run_families, shown, topbar)
 from sitebuild import about, leaderboard  # noqa: E402
 from sitebuild.names import tag_html  # noqa: E402
@@ -1106,10 +1106,13 @@ def main() -> int:
         "board": fallback_table(data, site),
         "settings": page_settings(data, site),
         "leaderboard": leaderboard.leaderboard(site),
+        # The Measure views on this page (site.measure_rows): each part's Measure keys under the finding.
         "non-hallucination": non_hallucination(site, finding_html(found["non-hallucination"], "non-hallucination",
-                                                                  variants["non-hallucination"])),
+                                                                  variants["non-hallucination"])
+                                               + measure_rows("", ("", "non-hallucination"))),
         "footer": footer("", version(data)),
         **{f"finding-{key}": finding_html(found[key], key, variants[key])
+                             + (measure_rows("", ("", key)) if key in ("cost", "latency", "calibration") else "")
            for key in ("accuracy", "cost", "latency", "reading-grammar", "calibration")},
     }
     text = PAGE.read_text()

@@ -45,8 +45,8 @@ from sitebuild.data import BLOB_URL
 from sitebuild.dont_know import check_option_word, group_data, option_word_rows
 from sitebuild.site import (DECISION_ONLY, GROUPS, NO_LIST_PRICE, NOT_MEASURED, ROOT, Site, chat_note, cost_missing,
                             cost_per, cost_switch, cost_tick, cost_unit_in, cost_value, cost_words, esc, experiments,
-                            family_icon, family_legend, hbars, legend_mark, line_plot, log_axis, more_link, pct, rel,
-                            request_size, run_families, seconds_tick, shown)
+                            family_icon, family_legend, hbars, legend_mark, line_plot, log_axis, measure_rows, more_link,
+                            pct, rel, request_size, run_families, seconds_tick, shown)
 from sitebuild.names import tag_html
 from sitebuild.vision import cell, joined, run_span
 
@@ -1629,7 +1629,7 @@ def dont_know_info(site: Site, idk: dict[str, Any], tables: str | None = None) -
                  else "")
     return f"""
     <section class="card" id="dont-know-results">
-      <h2>Results with an “I don't know” option</h2>
+      <h2>Results with an “I don't know” option</h2>{measure_rows(PATH, (PATH, "dont-know-results"))}
       <p class="note">Ordered by the non-hallucination rate in English, highest first. Each row compares the model's first run with the English option with its first run with the Turkish option, out of the {total} kept questions. Where a side has more than one run, its rates show the range over its runs. The paired counts, p and the Holm-adjusted p ({holm_text}) are those of the exact McNemar test on wrong answers; * marks a Holm-adjusted p below {SIGNIFICANT:g}.</p>
       {dont_know_table(site, idk) if tables is None else tables}
     </section>
@@ -2303,7 +2303,7 @@ def coverage(site: Site, data: dict[str, Any]) -> str:
         return (f'<section class="charts" aria-label="Risk-coverage plots" {shown(group)}>'
                 f'{plot(group, "Turkish", y_top)}{plot(group, "English", y_top)}</section>')
 
-    return (f'<section class="card" id="coverage"><h2>Risk and coverage</h2>'
+    return (f'<section class="card" id="coverage"><h2>Risk and coverage</h2>{measure_rows(PATH, (PATH, "coverage"))}'
             f"<p>How often each setup answers and how often its answers are wrong, on the same {total:,} kept questions in "
             "both languages: without the option, by holding back the answers below a confidence score, and with the "
             "option, as the model chose it.</p>"
@@ -2429,9 +2429,9 @@ def build(site: Site) -> dict[str, str]:
     {limit_line(method)}
     {more_link(PATH)}
     {copies(lambda group: main_table(site, data, group))}{"".join(english_only_list(site, data, group) for group in GROUPS)}
-    <section class="measure" id="non-hallucination" aria-label="Non-hallucination">{idk_block}</section>
-    <section class="measure" id="cost" aria-label="Cost">{copies(lambda group: measure_card(site, data, group, "cost", tuple(SIDES), href, method))}</section>
-    <section class="measure" id="latency" aria-label="Latency">{copies(lambda group: measure_card(site, data, group, "latency", tuple(SIDES), href, method))}</section>
+    <section class="measure" id="non-hallucination" aria-label="Non-hallucination">{measure_rows(PATH, (PATH, "non-hallucination"))}{idk_block}</section>
+    <section class="measure" id="cost" aria-label="Cost">{measure_rows(PATH, (PATH, "cost"))}{copies(lambda group: measure_card(site, data, group, "cost", tuple(SIDES), href, method))}</section>
+    <section class="measure" id="latency" aria-label="Latency">{measure_rows(PATH, (PATH, "latency"))}{copies(lambda group: measure_card(site, data, group, "latency", tuple(SIDES), href, method))}</section>
     {coverage(site, data)}
     <details class="info info-details" id="info">
       <summary class="info-summary"><span class="info-title">Info</span> <span class="info-sub">The table, the setups without an English run and our method{", then the same with “I don't know”" if idk else ""}</span></summary>

@@ -27,7 +27,7 @@ from sitebuild import holding_back as hold
 from sitebuild.english_reading import (BASIS_WORDS, english_only, entry_href, idk_key, setup_families, setup_run)
 from sitebuild.names import base_model, tag_html
 from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, Site, cost_missing, cost_per, cost_value, esc, family_icon,
-                            parameters_text, pct, rel, size_sentence, stated_total)
+                            measure_keys, parameters_text, pct, rel, size_sentence, stated_total)
 
 # The reasoning settings in order, as the requests sent them: none and off (and a setup without a setting, or a chat
 # template's default, vllm-plain's "default") lowest; "on" is the setting of a model with thinking on or off only, above
@@ -478,10 +478,11 @@ def class_line(site: Site, runs: list[dict[str, Any]]) -> str:
 
 def leaderboard(site: Site, about: str = "about/#leaderboard") -> str:
     """The Leaderboard's controls (the part switch, the type keys, the All setups key, then the Class keys on a row of
-    their own), then each part's table, meaning line, empty-view line and # line (TIER_LINE or RANK_LINE), the row rule
-    line and the class rule line (Turkish shown first, Decision models and Class: All the default, site.js); nothing
-    stands between the keys and the table. The All setups panel (today's full ranking with its tabs, #all-setups) follows
-    it in index.html, then the line of counts."""
+    their own), then each part's Measure row (site.measure_keys, as on Logic & Math: Accuracy, this table, pressed; the
+    other measures link to their views for the part), table, meaning line, empty-view line and # line (TIER_LINE or
+    RANK_LINE), the row rule line and the class rule line (Turkish shown first, Decision models and Class: All the
+    default, site.js); nothing else stands between the keys and the table. The All setups panel (today's full ranking
+    with its tabs, #all-setups) follows it in index.html, then the line of counts."""
     board = Board(site)
     tr_heads, tr_body, _ = turkish(site, board)
     re_heads, re_body, _ = turkish(site, board, "reading")
@@ -508,7 +509,8 @@ def leaderboard(site: Site, about: str = "about/#leaderboard") -> str:
                 f'<span class="lb-keys-label" aria-hidden="true">Class:</span>{keys("class", [("all", "All"), *site.model_classes()], "all")}'
                 '</span></div>')
     panels = "".join(f'<div class="lb-part" data-lb-part="{part}"{"" if part == DEFAULT_PART else " hidden"}>'
-                     f'{parts[part]}<p class="chart-sub lb-meaning">{esc(meaning(part, board.total, board.kept, groups))}</p>'
+                     f'{measure_keys("", (part,))}{parts[part]}'
+                     f'<p class="chart-sub lb-meaning">{esc(meaning(part, board.total, board.kept, groups))}</p>'
                      f'<p class="table-note lb-empty" hidden>{esc(EMPTY_LINE)}</p>'
                      f'<p class="table-note lb-numbers">{esc(numbers[part])}</p></div>'
                      for part, _ in PARTS)

@@ -36,7 +36,8 @@ from sitebuild.english_reading import (NO_OPTION, NO_RATE, NOT_RUN, PATH as COMP
                                        noun, only_anchor, setup_families, setup_icon, setup_key, setup_run,
                                        turkish_running)
 from sitebuild import holding_back as hold
-from sitebuild.site import GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, more_link, pct, rel, shown
+from sitebuild.site import (GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, measure_rows, more_link, pct,
+                            rel, shown)
 from sitebuild.vision import cell
 
 PATH = "english/"
@@ -249,7 +250,9 @@ def build(site: Site) -> dict[str, str]:
     method = f"{rel(PATH, COMPARISON)}#method"
 
     def part(key: str, title: str, cards: str) -> str:
-        return f'<section class="measure" id="{key}" aria-label="{title}">{cards}</section>'
+        # A Measure view (site.measure_rows) opens with its Measure keys; Accuracy is the Leaderboard's.
+        keys = measure_rows(PATH, (PATH, key)) if key != "accuracy" else ""
+        return f'<section class="measure" id="{key}" aria-label="{title}">{keys}{cards}</section>'
 
     charts = (part("accuracy", "Accuracy", "".join(accuracy_card(group) for group in GROUPS if counts[group]))
               + part("non-hallucination", "Non-hallucination", "".join(rates_card(group) for group in GROUPS if counts[group]))

@@ -135,9 +135,11 @@ html { --view-bar-h: 119px; scroll-padding-top: var(--view-bar-h); }
 .site-title { display: inline-flex; align-items: center; gap: .45rem; min-width: 0; color: var(--text); font-size: 1.15rem;
   font-weight: 700; line-height: 1.2; white-space: nowrap; text-decoration: none; }
 .site-leaf { flex: none; width: 18px; height: 21px; }
-/* The tabs wrap to a second line where they do not fit (a phone), so every tab, Text first, stays in view; site.js
-   keeps --view-bar-h at the header's height either way. */
-.site-tabs ul { display: flex; flex-wrap: wrap; gap: 0 .2rem; list-style: none; margin: 0 -.35rem; padding: 0 .35rem; }
+/* The tabs stay on one line and scroll sideways where they do not fit (a phone), its scrollbar hidden, as on Logic & Math
+   (#4793, #4795); site.js brings the current tab into view and keeps --view-bar-h at the header's height. */
+.site-tabs ul { display: flex; gap: .2rem; list-style: none; margin: 0 -.35rem; padding: 0 .35rem; overflow-x: auto;
+  scrollbar-width: none; scroll-padding-inline: .35rem; }
+.site-tabs ul::-webkit-scrollbar { display: none; }
 .site-tabs li { flex: none; }
 /* Vision: the note under the results (the Turkish line and the three average lines); the run details closed under the
    method. */
@@ -217,7 +219,9 @@ details.method-more > summary { font-weight: 600; color: var(--link); }
 .group-switch a.key { display: inline-flex; align-items: center; min-height: 1.75rem; padding: .1rem .6rem; color: var(--text);
   background: var(--key); border: 1px solid var(--control-edge); border-radius: 6px; font-size: .82rem; text-decoration: none;
   box-shadow: var(--key-shadow); }
-.group-switch a.key[aria-current] { background: var(--sunk); border-color: var(--text); box-shadow: var(--key-inset); font-weight: 700; }
+/* The key in view filled, as every key row of the Leaderboard (Logic & Math's pressed keys, #4796). */
+.group-switch a.key[aria-current] { color: var(--view-current-text); background: var(--view-current-bg);
+  border-color: var(--view-current-edge); box-shadow: var(--key-inset); font-weight: 700; }
 /* A page's Class keys under its type keys (site.py group_switch, the Leaderboard's row), the class rule under them while
    a class is chosen, and a model's row or bar of another class out of view (site.js classPages). */
 .group-switch + .class-switch { margin-top: -.35rem; }
@@ -291,6 +295,18 @@ main > .more-note, main > div > .more-note { margin-bottom: 1rem; }
 .leaderboard > h2, .how-scores h2 { margin: 0 0 .5rem; font-size: 1.1rem; }
 .lb-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; margin: 0 0 .6rem; }
 .lb-controls .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
+/* The Measure keys (site.py measure_keys) as Logic & Math's: Accuracy, the Leaderboard, a pressed key; the other measures
+   links drawn as keys, the one in view current. A pressed or current key of the Leaderboard's rows and the pages' Class
+   rows is filled as on Logic & Math (#4796); the theme switch keeps its own look. */
+.lb-keys { display: flex; flex-wrap: wrap; gap: .25rem; }
+.lb-keys .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
+.lb-measures { margin: 0 0 .45rem; }
+.lb-measures[hidden] { display: none; }
+.lb-keys a.key { display: inline-flex; align-items: center; color: var(--text); text-decoration: none; background: var(--key);
+  border: 1px solid var(--control-edge); border-radius: 6px; box-shadow: var(--key-shadow); line-height: 1.2; }
+.lb-keys a.key:hover { border-color: var(--text-2); }
+.lb-controls .key[aria-pressed="true"], .lb-keys .key[aria-pressed="true"], .lb-keys a.key[aria-current] {
+  color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
 .lb-meaning { margin: .4rem 0 0; }
 .lb-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
 .lb-table th { padding: .35rem .45rem; color: var(--text-2); font-size: .78rem; font-weight: 600; text-align: left;
@@ -313,8 +329,9 @@ main > .more-note, main > div > .more-note { margin-bottom: 1rem; }
 .lb-whisker::before, .lb-whisker::after { content: ""; position: absolute; top: -5px; height: 8px; border-left: 1.5px solid var(--text); }
 .lb-whisker::before { left: 0; }
 .lb-whisker::after { right: 0; }
+/* The value in Logic & Math's figures (.hl-val, #4796): monospaced, normal weight. */
 .lb-value { display: inline-block; width: 4.2rem; padding-left: .4rem; text-align: right; font-variant-numeric: tabular-nums;
-  font-weight: 650; vertical-align: middle; }
+  font-family: var(--mono); font-size: .84rem; font-weight: 400; vertical-align: middle; }
 .lb-value .small { display: block; font-weight: 400; }
 /* Both: the Turkish bar (solid) over the English one (striped), the two values beside them. */
 .lb-table[data-part="both"] td.lb-score { display: grid; grid-template-columns: minmax(0, 1fr) 4.2rem; align-items: center; row-gap: .2rem; }
@@ -365,6 +382,9 @@ tr.lb-off { display: none !important; }
 .lb-table .lb-wide { display: none; }
 @media (min-width: 900px) {
   .lb-table .lb-wide { display: table-cell; white-space: nowrap; }
+  /* A value stays on one line; its head's description and its second line (a cost's basis, "answered 87%") wrap, so
+     every column fits the card from 900 px and none is cut at its edge. */
+  .lb-table .lb-wide .small { white-space: normal; }
 }
 @media (max-width: 899px) {
   .lb-table { table-layout: auto; }
@@ -957,8 +977,8 @@ ul.price-list { padding-left: 1.25rem; }
   .chart-wide .hbar-axis .hbar-tick:nth-child(even) { display: none; }
   body { padding: 0 .6rem 1.5rem; }
   /* The first screen reaches the results: the site's bar takes short lines (the name and the theme switch, then
-     the tabs, wrapped to two lines), the title is smaller and the versions move under the table. */
-  html { --view-bar-h: 142px; }
+     the tabs on one line), the title is smaller and the versions move under the table. */
+  html { --view-bar-h: 146px; }
   .site-header { margin: 0 -.6rem; }
   .site-bar { padding: 0 .6rem; }
   .site-title { font-size: 1.05rem; }
@@ -973,6 +993,7 @@ ul.price-list { padding-left: 1.25rem; }
   /* The Leaderboard's keys wrap onto lines as on a wide screen, so no key is out of view. */
   .lb-controls { gap: .35rem .6rem; }
   .lb-controls .key { padding: .15rem .45rem; font-size: .78rem; }
+  .lb-keys .key { min-height: 1.7rem; padding: .1rem .45rem; font-size: .76rem; white-space: nowrap; }
   /* The Leaderboard on a phone: # narrow, the model's dot, name, tag and class label on one line as far as they fit,
      then the main score (Logic & Math's layout, Zeki #4606). */
   .lb-table th { padding: .3rem .3rem; }

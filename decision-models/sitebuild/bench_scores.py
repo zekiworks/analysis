@@ -6,9 +6,10 @@ through an API and for Cygnet, ECE over 10 equal-width bins of the chosen option
 
 This site measures five benches, so its file holds them under "benches", their keys kept from before the splits (the
 combined page joins on them): reading-text, titled Reading · Turkish (results.json, the Leaderboard's rows, one per
-model ID, kind and web search: the route never splits a model, Ümit #4270; all 2,198 Turkish questions, the one
-All benches' Combined score uses); turkish-reading and turkish-grammar, Turkish Reading and Turkish Grammar (the same
-rows on the reading units' and the grammar units' questions only, Ümit #4239); reading-english, Reading · English
+model ID, kind and web search, a dated checkpoint its own row: the route never splits a model, Ümit #4270; all 2,198
+Turkish questions, the one All benches' Combined score uses); turkish-reading and turkish-grammar, Turkish Reading and
+Turkish Grammar (the same rows on the reading units' and the grammar units' questions only, Ümit #4239); reading-english,
+Reading · English
 (results.json english_reading: the same rows' first English run on the kept reading questions, and the English-only
 setups); reading-vision, Reading · Vision (vision.json, condition B: the page image only; the models that read only text
 are not on it). Each bench scores 0 = chance and 100 = every question right: (accuracy - mean of 1/k) / (1 - mean of
@@ -78,12 +79,13 @@ def sizes(run: dict[str, Any]) -> tuple[float | None, float | None]:
 
 
 def text_rows(site: Site) -> list[tuple[dict[str, Any], list[dict[str, Any]]]]:
-    """The Text bench's rows: the Leaderboard's (one per model ID, kind and web search, its setup by the Leaderboard's
-    rule, whichever route it ran: the route never splits a model, Ümit #4270), each with its other setups."""
-    board = leaderboard.Board(site)
+    """The Text bench's rows: one per model ID, kind and web search, its setup by the Leaderboard's rule, whichever route
+    it ran (the route never splits a model, Ümit #4270), each with its other setups. Unlike the Leaderboard, which shows
+    a dated checkpoint under its original's row (leaderboard.dated_checkpoints), a dated checkpoint is a row of its own
+    here, under its own model_key: DeepSeek-V4.1-Flash 1017's runs and scores are not the first release's (Zeki #4815)."""
     groups: dict[tuple[Any, ...], list[dict[str, Any]]] = {}
     for run in site.runs:
-        groups.setdefault(board.key(run), []).append(run)
+        groups.setdefault((run["model"], site.decision(run), run["perplexity_mode"] is not None), []).append(run)
     return [leaderboard.choose(setups, lambda item: item) for setups in groups.values()]
 
 

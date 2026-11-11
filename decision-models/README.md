@@ -195,7 +195,8 @@ python3 -m http.server 8000                                # preview at http://1
     per bench: Logic, Math, the pooled Logic & Math and Backgammon; Logic & Math shows in place of Logic and Math until
     both are live, and Combined uses it either way). This site's `bench-scores.json` feeds it five benches, each row
     with `name` (the model's official name), `tag` (how the row's setup ran, `''` for none) and `model_key`, the three
-    sites' join key (unchanged: rows join by repo and `model_key`, never because their names match): Reading · Turkish (`reading-text`, all 2,198 questions, in Combined
+    sites' join key (unchanged: rows join by repo and `model_key`, never because their names match; a dated checkpoint,
+    such as DeepSeek-V4.1-Flash 1017, is a row of its own, not its original's): Reading · Turkish (`reading-text`, all 2,198 questions, in Combined
     only), Turkish Reading (`turkish-reading`), Turkish Grammar (`turkish-grammar`), English Reading
     (`reading-english`, the kept reading questions in English) and Vision (`reading-vision`). The page's type and class
     keys (the Leaderboard's, `?models=` and `?class=`) choose the models in view; the score keys pick what the chart
@@ -216,7 +217,8 @@ python3 -m http.server 8000                                # preview at http://1
     `turkish-vs-english/` and `models/*`; Vision for `vision/`; Questions for `questions/`, `question/`,
     `disagreements/`, `topics/` and `compare/`; Highlights for `highlights/`; Experiments for `experiments/`,
     `dont-know/`, `web-grounding/`, `pws-decisions/` and `aa-decision-index/`; About for
-    `about/`, `method/` and `data/`. On a phone the tab row wraps to a second line, so every tab stays in view. No other
+    `about/`, `method/` and `data/`. On a phone the tab row stays on one line and scrolls sideways, its scrollbar hidden,
+    as on Logic & Math, and a current tab past the right edge is scrolled into view (`site.js` `currentTab`). No other
     navigation row sits under the suite strip; a page's own part links (`.face-nav`, as PWS-Decisions' steps) stay in
     the page. **Model keys**: `?models=all|decision|chat` (all when missing; trailing dots, punctuation or spaces are
     dropped, so `?models=all.` reads as all) picks the type on every page that shows its parts by group (`data-models`;
@@ -571,6 +573,25 @@ python3 -m http.server 8000                                # preview at http://1
       the same view, and the type and classes go into the links to the other pages with model keys (`keepModels`).
       Old addresses keep working: `?models=small-chat`, `small`, `small-decision` (above), `?part=reading|grammar`
       (Turkish reading or grammar), `?tab=` or the Routing keys (open All setups at that tab), the hashes below.
+      **Measure keys** (Ümit #4797, the project lead via Zeki #4798; Logic & Math's markup, order and behaviour, bus
+      #4802; `site.measure_keys`, `site.measure_rows`, `site.js` `measureKeys`): above each part's table, Accuracy ·
+      Non-hallucination · Cost · Latency · I don't know · Confidence (`div.lb-keys.lb-measures`). Accuracy is the
+      Leaderboard, a pressed key; each other key links to that measure's view for the part in view, the chart or table
+      further down that shows it (`MEASURE_VIEWS`), never another language's or another test's. Turkish, Turkish
+      reading and Turkish grammar: the home page's `#non-hallucination` (holding back by confidence and with
+      "Bilmiyorum"), `#cost`, `#latency` and `#calibration` (Confidence: the calibration gap, as shipped), on all Turkish
+      questions as their scope lines say, and I don't know: the Hallucination tab's results with "Bilmiyorum"
+      (`dont-know/#results`). English reading: `english/#non-hallucination` (the English "I don't know" run), `#cost`
+      and `#latency`; I don't know: `turkish-vs-english/#dont-know-results` (the English option's runs); Confidence:
+      `turkish-vs-english/#coverage` (risk and coverage from the five-option runs' confidence scores). Both:
+      `turkish-vs-english/`'s `#non-hallucination`, `#cost`, `#latency`, `#dont-know-results` and `#coverage`, Turkish
+      and English side by side. Each view opens with the same row (one per group of parts with a view on its page, all
+      groups on the home page; the part in view shows), its measure's key current (`aria-current="page"`); a second tap
+      on it, as Accuracy, returns to the Leaderboard in the same view (#4660). Every link carries the part (`?part=`),
+      the type and the classes in view, each left out at the opened page's default, so the address keeps the measure's
+      view and Back returns to it. **Look** (as Logic & Math's, #4796): a pressed or current key of the Leaderboard's
+      rows, the pages' type and Class rows and the Measure rows is filled (`--view-current-*`); the score's value is
+      monospaced at normal weight.
     - **All setups** (`#all-setups`): the full ranking with its four tabs (Accuracy, Confidence, Routing, Stability),
       then the cost of every setup (`#cost-table`) and accuracy against cost or latency (`#chart-tradeoff`). A link to
       `#board`, `#all-setups`, `#cost-table` or `#chart-tradeoff` opens it first; `#headline` lands on the Leaderboard;

@@ -2,6 +2,17 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 83b94ca9 (11 November 2026)
+
+- Added Qwen3.8 Flash, Alibaba's closed chat model (API id `qwen3.8-flash`), at the project lead's request (bus #4806), with the setting and route of its backgammon and Logic & Math setups: reasoning off, through OpenRouter's chat API pinned to Alibaba's endpoint (its only provider), fallbacks off, temperature 1.0, the answer schema and 16 questions per request, as every chat model here. Alibaba states no size; its list price of $0.15 per 1M input tokens puts it in the Efficient class.
+- Text tab, run 985: 1,386 of the 2,198 questions right (63.1%), 56th of 95 setups, between GPT-6 Luna (63.6%) and Liquid d1.1 (61.5%); 87.2% of the reading questions and 52.8% of the grammar questions; no invalid answers.
+- English reading, run 986: 476 of the 547 kept questions right (87.0%), against 486 (88.8%) in Turkish on the same questions: right only in English on 22, only in Turkish on 32 (p = 0.22, 1.0 after Holm's correction: no difference shown).
+- Hallucination tab: with "Bilmiyorum" (run 987) it chose the option on 38 of its 802 answers that were not right (non-hallucination 4.7%); with "I don't know" in English (run 988), on 4 of 71 (5.6%). In the "same answers" comparison it joins both families: wrong on 462 of the 1,582 Turkish answers it was most sure of, 18.6 points more than Liquid d1-ultra's five-option run, and on 55 of the 496 English ones, 5.2 points more (both p < 0.05 after Holm's correction). Holm's correction covers one more model in each; no other verdict moved.
+- Cost: OpenRouter billed $0.27 for the four runs. At the list price the Turkish run cost $0.10 ($0.047 per 1,000 questions) and the English one $0.027 ($0.050 per 1,000).
+- Repeat checks: REAX 1.3's repeats in English (run 983) and Turkish (run 990), with its first runs' settings on the same engine (the REAX Engine server, FP8, one RTX PRO 6000 Blackwell): 506 of 547 and 1,713 of 2,198 right, as the first runs, with every pick and every probability the same as theirs. The published scores stay the first runs'.
+- bench-scores.json: DeepSeek-V4.1-Flash's 1017 snapshot is a row of its own (`deepseek-v4.1-flash-1017`: Turkish runs 585 and 558, English run 808); its runs had been filed under the first release's row and model_key, which keeps runs 121 and 120 (Zeki #4815). No score changed.
+- Significance letters move with the new setup; no paired verdict moved; no other number changed.
+
 ## Results 74cbd2a9 (11 November 2026)
 
 - Added Claude Fable 5.2 (Anthropic, released 9 November 2026) as a chat model at the project lead's request (bus #4218, #4676), at its highest effort, max (Anthropic's levels: low, medium, high, xhigh, max), through the Claude Code CLI on the Claude subscription, as Claude Fable 5.1, with the answer schema every other chat setup uses and 16 questions per request. Anthropic states no size; its list price of $8 per 1M input tokens puts it in the Flagship class.

@@ -634,6 +634,65 @@ def group_switch(classes: list[tuple[str, str]], line: str, hidden: tuple[str, .
             f'<p class="table-note class-line" hidden>{esc(line)}</p>')
 
 
+# The Measure keys (Ümit #4797, the project lead via Zeki #4798; Logic & Math's markup and order, bus #4802): Accuracy,
+# the Leaderboard itself, then each other measure's view for the Leaderboard's part, the chart or table further down that
+# shows it, never another language's or another test's: the Turkish parts' on the home page (the Non-hallucination,
+# Cost, Latency and Calibration charts, on all Turkish questions, as their scope lines say) and the Hallucination tab's
+# results with "Bilmiyorum"; English reading's on english/ (non-hallucination with the English option, cost, latency)
+# and turkish-vs-english/ (the results with the English option; risk and coverage, the five-option runs' confidence);
+# Both's on turkish-vs-english/, Turkish and English side by side. The three Turkish parts share their views.
+MEASURES = (("accuracy", "Accuracy"), ("non-hallucination", "Non-hallucination"), ("cost", "Cost"), ("latency", "Latency"),
+            ("i-dont-know", "I don't know"), ("confidence", "Confidence"))
+TURKISH_MEASURE_VIEWS = {"non-hallucination": ("", "non-hallucination"), "cost": ("", "cost"), "latency": ("", "latency"),
+                         "i-dont-know": ("dont-know/", "results"), "confidence": ("", "calibration")}
+MEASURE_VIEWS = {
+    "turkish": TURKISH_MEASURE_VIEWS, "turkish-reading": TURKISH_MEASURE_VIEWS, "turkish-grammar": TURKISH_MEASURE_VIEWS,
+    "english": {"non-hallucination": ("english/", "non-hallucination"), "cost": ("english/", "cost"),
+                "latency": ("english/", "latency"), "i-dont-know": ("turkish-vs-english/", "dont-know-results"),
+                "confidence": ("turkish-vs-english/", "coverage")},
+    "both": {"non-hallucination": ("turkish-vs-english/", "non-hallucination"), "cost": ("turkish-vs-english/", "cost"),
+             "latency": ("turkish-vs-english/", "latency"), "i-dont-know": ("turkish-vs-english/", "dont-know-results"),
+             "confidence": ("turkish-vs-english/", "coverage")},
+}
+# The parts that share their views, each one Measure row; each view on a page with views of several of them
+# (turkish-vs-english/: English reading and Both) holds a row for each, the first shown without the script.
+MEASURE_PARTS = (("turkish", "turkish-reading", "turkish-grammar"), ("both",), ("english",))
+
+
+def measure_keys(page: str, parts: tuple[str, ...], here: tuple[str, str] | None = None, hidden: bool = False) -> str:
+    """One Measure row for the parts (their views are the same) on the page: on the Leaderboard (here None) Accuracy is a
+    pressed key; in a measure's view (here: its page and anchor) that measure's key is the current one (aria-current),
+    and it and Accuracy lead back to the Leaderboard (a second tap returns to the main ranking, as on Logic & Math,
+    #4660); every other key is a link to its view. Each link carries the part (?part=, the first of parts without the
+    script); site.js measureKeys sets the part, type and class in view (data-measure-href: the address without them)."""
+    part = parts[0]
+    query = "" if part == "turkish" else f"?part={part}"
+
+    def key(measure: str, label: str) -> str:
+        if measure == "accuracy" and here is None:
+            return f'<button type="button" class="key" aria-pressed="true">{esc(label)}</button>'
+        target = ("", "leaderboard") if measure == "accuracy" else MEASURE_VIEWS[part][measure]
+        current = target == here
+        path, anchor = ("", "leaderboard") if current else target
+        mark = ' aria-current="page"' if current else ""
+        return (f'<a class="key" href="{rel(page, path)}{query}#{anchor}" data-measure-href="{rel(page, path)}#{anchor}"'
+                f'{mark}>{esc(label)}</a>')
+
+    return (f'<div class="lb-keys lb-measures" role="group" aria-label="Measure" data-parts="{" ".join(parts)}"'
+            f'{" hidden" if hidden else ""}>{"".join(key(measure, label) for measure, label in MEASURES)}</div>')
+
+
+def measure_rows(page: str, here: tuple[str, str]) -> str:
+    """The Measure rows of a measure's view (here: its page and anchor): one for each group of parts with a view on the
+    page, and on the home page one for every group, as the Leaderboard's part may be any (site.js shows the row of the
+    part in view: in a view of another part's measure no key is current, and that measure's key leads to the part's
+    own view)."""
+    groups = [parts for parts in MEASURE_PARTS
+              if page == "" or any(path == page for path, _ in MEASURE_VIEWS[parts[0]].values())]
+    return "".join(measure_keys(page, parts, here, index > 0) for index, parts in enumerate(groups))
+
+
+
 # The cost unit, one choice for the whole site: every cost reads per 1,000 questions or per 1M questions. site.js keeps
 # the choice (?cost-unit=, then localStorage "costUnit") in <html data-cost-unit>, which a line in each page's <head>
 # sets before it renders; each value and unit name below carries both units, and v3.css shows the chosen one (per 1,000

@@ -118,7 +118,8 @@ const MODEL_PAGES = ['', 'english/', 'turkish-vs-english/', 'dont-know/', 'web-g
 const keepModels = (type, classes) => {
   const root = document.querySelector('.site-title')?.href;
   const pages = root ? MODEL_PAGES.map(page => new URL(page, root).pathname) : [];
-  document.querySelectorAll('a[href]:not([data-group-key])').forEach(link => {
+  // The Measure keys set their own part, type and class (measureKeys).
+  document.querySelectorAll('a[href]:not([data-group-key]):not([data-measure-href])').forEach(link => {
     const href = link.getAttribute('href');
     if (href.startsWith('#')) return;
     const target = new URL(href, window.location.href);
@@ -155,6 +156,16 @@ const showGroup = group => {
   const measure = () => document.documentElement.style.setProperty('--view-bar-h', `${header.offsetHeight}px`);
   measure();
   if ('ResizeObserver' in window) new ResizeObserver(measure).observe(header);
+})();
+
+/* Every page: the top bar's tabs keep one line and scroll sideways where they do not fit (v3.css, as on Logic & Math);
+   a current tab past the right edge (Experiments, About on a phone) is scrolled into view. */
+(function currentTab() {
+  const list = document.querySelector('.site-tabs ul');
+  const current = list?.querySelector('a[aria-current]');
+  if (!current) return;
+  const past = current.getBoundingClientRect().right - list.getBoundingClientRect().right;
+  if (past > 0) list.scrollLeft += past + 8;
 })();
 
 /* The elements of models marked data-class (a table row or a bar; empty for a setup only this site ran, shown under
@@ -716,6 +727,48 @@ function renderScopes() {
     if (link && INTO_ALL.includes(link.getAttribute('href').slice(1)) && !link.dataset.gotoTab) openAll(true);
   }, true);
   if (hash === 'headline') board.scrollIntoView();
+})();
+
+/* The Measure keys (site.py measure_keys, as on Logic & Math; Ümit #4797, the project lead via Zeki #4798): on the
+   Leaderboard (Accuracy pressed) and in each measure's view below it or on another page (that measure's key current). Of
+   the rows in one place (one per group of parts with the same views) the row of the part in view shows: the
+   Leaderboard's, else the address's (?part=), else the first. Each link carries that part, the type and the classes in
+   view, each left out at the default of the page it opens (the home page: Turkish and Decision models; another page:
+   All models), so a measure keeps the part, type and class, a second tap on the current key (its link is the
+   Leaderboard) returns to the main ranking in the same view (#4660), and the address keeps the measure's view. */
+(function measureKeys() {
+  const rows = [...document.querySelectorAll('.lb-measures[data-parts]')];
+  if (!rows.length) return;
+  const root = new URL(document.querySelector('.site-title')?.getAttribute('href') ?? './', window.location.href).pathname;
+  const places = new Map();
+  rows.forEach(row => places.set(row.parentElement, [...(places.get(row.parentElement) ?? []), row]));
+  const update = () => {
+    const address = new URLSearchParams(window.location.search);
+    const asked = homeView ? homeView.part : address.get('part');
+    const type = homeView ? homeView.type : (ASKED_TYPE ?? 'all');
+    // Another page's classes: its pressed Class keys (classPages, which writes the address after 'class-change').
+    const pressed = [...document.querySelectorAll('.class-switch button[data-class-key][aria-pressed="true"]')]
+      .map(key => key.dataset.classKey).filter(key => key !== 'all');
+    const classes = homeView ? homeView.classes : pressed;
+    places.forEach(group => {
+      const chosen = group.find(row => row.dataset.parts.split(' ').includes(asked)) ?? group[0];
+      group.forEach(row => { row.hidden = row !== chosen; });
+    });
+    rows.forEach(row => {
+      const parts = row.dataset.parts.split(' ');
+      const part = parts.includes(asked) ? asked : parts[0];
+      row.querySelectorAll('a[data-measure-href]').forEach(link => {
+        const [path, hash] = link.dataset.measureHref.split('#');
+        const home = new URL(path, window.location.href).pathname === root;
+        const query = [part === 'turkish' ? '' : `part=${part}`, type === (home ? 'decision' : 'all') ? '' : `models=${type}`,
+          classes.length ? `class=${classes.join(',')}` : ''].filter(Boolean).join('&');
+        link.setAttribute('href', `${path}${query ? `?${query}` : ''}${hash ? `#${hash}` : ''}`);
+      });
+    });
+  };
+  update();
+  document.addEventListener('home-view', update);
+  document.addEventListener('class-change', update);
 })();
 
 /* Home page: a Leaderboard row's details box, as on the Backgammon site. A tap on a phone opens it and a second tap on

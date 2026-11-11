@@ -29,7 +29,7 @@ from typing import Any, Callable
 import build_page as bp
 from sitebuild import holding_back as hold
 from sitebuild.site import (DECISION_ONLY, GROUPS, NO_ANSWERS, Site, esc, hbars, legend_mark, line_plot, marker_path,
-                            more_link, pct, rank_fill, rel, scale_legend, shown)
+                            measure_rows, more_link, pct, rank_fill, rel, scale_legend, shown)
 from sitebuild.names import entry as shared_entry, tag_html
 from sitebuild.vision import cell, joined, run_span
 
@@ -2002,7 +2002,7 @@ def build(site: Site) -> dict[str, str]:
       <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (every number on this page, under <code>dont_know</code>) and <a href="{rel(PATH, "answers.json")}" download>answers.json</a> (each run's answers, under <code>dont_know_runs</code>).</p>
     </section>
     <section class="card" id="results">
-      <h2>Results</h2>
+      <h2>Results</h2>{measure_rows(PATH, (PATH, "results"))}
       <p class="note">The rows are ranked by the first column, the non-hallucination rate, highest first: the share of “{option}” among the answers that were not right (“{option}” / (“{option}” + wrong)), so the first model is the one that most often said it did not know instead of answering wrongly. Beside it: Answered, how often the model chose one of the question's own options (right + wrong, out of all {total} questions), and the error rate, the share of those answers that were wrong (wrong / (right + wrong)). Read the ranking with Answered, the error rate and accuracy: a model that always chose “{option}” would rank first with no right answers. Each row shows the model's first run{"; under Runs, a model with more than one run (" + esc(joined(several)) + ") shows the range over its runs and how many answers changed between them" if several else ""}. Out of all {total} questions: accuracy counts the right answers; Answered (the attempt rate) counts the right and wrong answers. Formulas and how to read them: <a href="#method">Our method</a>.</p>
       {"".join(table(site, data, group) for group in GROUPS if counts[group])}
       <div {DECISION_ONLY}>{not_run(site.config["dont_know"]["not_run"])}</div>
