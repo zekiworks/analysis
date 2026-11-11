@@ -1097,9 +1097,11 @@ def model_page(data: Data, model: dict[str, Any]) -> str:
         row = model["scores"].get(key) or {}
         commit = row.get("commit")
         runs = ", ".join(map(str, row.get("runs") or [])) or "–"
+        # The bench file's own notes on the row (how and where it ran, a provisional status), as the file words them.
+        notes = f'<span class="small ab-row-notes">{esc(row["notes"])}</span>' if row.get("notes") else ""
         rows.append(f'<tr><th scope="row">{esc(label)}</th><td class="num">{number(value)}</td><td class="num">{rank_text(data, model, key)}</td>'
                     f'<td class="num">{"–" if row.get("calibration_error") is None else number(100 * row["calibration_error"])}</td>'
-                    f'<td>{f"<code title=\"{esc(commit)}\">{esc(commit[:7])}</code>" if commit else "–"}</td><td><span class="small">{esc(runs)}</span></td></tr>')
+                    f'<td>{f"<code title=\"{esc(commit)}\">{esc(commit[:7])}</code>" if commit else "–"}</td><td><span class="small">{esc(runs)}</span>{notes}</td></tr>')
     points = improvement(data, model)
     their = next((item for item, joined in data.their_rows() if joined is model), None)
     facts = [f"<li>Maker: {esc(model['maker'] or 'none')}{' · training: ' + esc(model['training']) if model['training'] else ''}</li>",
