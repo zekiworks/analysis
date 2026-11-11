@@ -154,6 +154,7 @@ variables. To repeat a run exactly, check out the commit it names.
 | `run_claude_opus.sh`, `run_claude_sonnet.sh`, `run_claude_sonnet_high.sh` | Claude Opus 5.5 low, Sonnet 5.5 low and high effort |
 | `run_openai_one.sh`, `run_openai_sol_one.sh`, `run_claude_opus_one.sh`, `run_claude_sonnet_high_one.sh` | GPT-6 Astra and GPT-6.1 Sol low, Claude Opus 5.5 low, Sonnet 5.5 high, one question per request |
 | `run_claude_fable_high.sh` | Claude Fable 5.1, high effort |
+| `run_claude_fable_5_2_max.sh` | Claude Fable 5.2, max effort (Anthropic's highest; its levels are low, medium, high, xhigh and max) |
 
 - **OpenAI** runs through the Codex CLI signed in with ChatGPT (`codex login`); the provider refuses
   API-key sign-in and removes `OPENAI_API_KEY` from Codex's environment. Each request replaces Codex's

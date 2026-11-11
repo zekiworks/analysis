@@ -481,6 +481,12 @@ PRICES: dict[tuple[str, str], Price] = {
         "Anthropic's API list price", ANTHROPIC_PRICING, "2026-10-28", 10.00, 50.00,
         cached_input=0.25, cache_write=12.50, cache_write_1h=20.00,
     ),
+    # Read 11 November 2026: Anthropic's pricing page lists Claude Fable 5.2 at $8 input, $40 output, $10 and $16 for
+    # 5-minute and 1-hour cache writes and $0.20 for cache hits (0.025x the input price) per 1M tokens.
+    ("claude", "claude-fable-5-2"): Price(
+        "Anthropic's API list price", ANTHROPIC_PRICING, "2026-11-11", 8.00, 40.00,
+        cached_input=0.20, cache_write=10.00, cache_write_1h=16.00,
+    ),
     # OpenRouter's prices for the pinned endpoints (its endpoints API, read 28 October 2026); OpenRouter also reports
     # each request's billed cost.
     ("openrouter-chat", "moonshotai/kimi-k3.1-pro"): Price(
