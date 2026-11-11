@@ -487,17 +487,17 @@
    },
    {
     "reason": null,
-    "series_done": 2,
+    "series_done": 3,
     "setup": "Claude Fable 5.1 (high)",
     "status": "running",
-    "updated_at": "2026-11-11T05:27:13+00:00"
+    "updated_at": "2026-11-11T06:04:14+00:00"
    },
    {
     "reason": null,
     "series_done": 4,
     "setup": "Gemma 4 31B (on)",
     "status": "running",
-    "updated_at": "2026-11-11T05:08:13+00:00"
+    "updated_at": "2026-11-11T05:49:53+00:00"
    },
    {
     "reason": null,
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-11T05:49:39+00:00"
+  "updated_at": "2026-11-11T06:04:45+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -3460,7 +3460,7 @@
      "risks_found": 5.0
     },
     "cost": {
-     "api_equivalent_usd": 99.5161,
+     "api_equivalent_usd": 99.9414,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -3577,20 +3577,20 @@
    },
    {
     "after": {
-     "error_rate": 21.414107158780098,
-     "right_safety": 93.0,
-     "risks_found": 62.0
+     "error_rate": 21.640282794833183,
+     "right_safety": 92.66666666666667,
+     "risks_found": 62.666666666666664
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 400,
-     "expected": 400,
+     "answered": 600,
+     "expected": 600,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 200,
-     "safety_pays": 200,
-     "tests": 2,
-     "valid": 400
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -3609,12 +3609,12 @@
      "risks_found": 53.5
     },
     "change": {
-     "error_rate": -3.8616186007857323,
-     "right_safety": -1.0,
-     "risks_found": 8.5
+     "error_rate": -3.635442964732647,
+     "right_safety": -1.3333333333333286,
+     "risks_found": 9.166666666666664
     },
     "cost": {
-     "api_equivalent_usd": 350.116,
+     "api_equivalent_usd": 359.0882,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -3656,9 +3656,9 @@
     "key": "claude-fable-5.1-on",
     "progress": {
      "reason": null,
-     "series_done": 2,
+     "series_done": 3,
      "status": "running",
-     "updated_at": "2026-11-11T05:27:13+00:00"
+     "updated_at": "2026-11-11T06:04:14+00:00"
     },
     "range": null,
     "reason": null,
@@ -3800,17 +3800,87 @@
        "wall_seconds": 1677.9
       },
       "wins": 5
+     },
+     {
+      "finished": true,
+      "game_decisions": 268,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Don't hit loose on the 1- or 2-point by breaking my 5-, 6- or 3-point; a deep hit that wrecks my board is usually a huge blunder, not a bold play.\n- When my opponent's board is strong and my back checkers are safe, prefer quietly bringing checkers home over hitting; check if the hit actually gains anything.\n- With doubles like 5-5 and 3-3, use half of the roll to make solid points (e.g. 13/8 13/8) rather than running one checker all the way to a deep point.\n- Move rear checkers together: clear the back anchor in pairs and avoid leaving a single straggler behind to be attacked.\n- Before each move, count the opponent's shots at any new blot I leave; if I'm ahead or well placed, choose the safer play with equal or fewer blots."
+       },
+       {
+        "game": 2,
+        "text": "- When the opponent has several checkers back and I'm ahead in the race, prioritize building blocking points (especially the bar point) over passive anchoring or stacking home points.\n- Against deep anchors in my board, preserve timing: keep spare checkers in the outfield instead of rushing them home onto already-made points.\n- Avoid piling checkers on the 5 and 6 points; use spares to make new points or stay flexible as builders.\n- With big doubles, spread the checkers across useful points rather than clearing one point entirely; keep connections between midpoint and home.\n- Once the race is clearly won and the opponent can't hit, bear in and bear off safely but efficiently—don't waste pips moving deep when fewer checkers need to clear high points."
+       },
+       {
+        "game": 3,
+        "text": "- When ahead with a strong board, hit loose checkers in my home board (e.g., 5/3*, 4/1*) rather than making safe quiet moves; the gammon and tempo gain outweighs the small return-shot risk.\n- Hitting a straggler in the outfield (20/16/14*) beats passively adding builders; my errors were mostly \"missed risk,\" so lean toward the aggressive hit.\n- With doubles late in a race-plus-contact position, use spare pips to hit and close points rather than stacking checkers on points I already own.\n- When bringing checkers down from the midpoint, prefer flexible outfield builders (13/10) over slotting or stacking an inner point I already hold.\n- Keep an even checker distribution during bear-in; avoid piling five on one point and leaving gaps that waste pips later."
+       },
+       {
+        "game": 4,
+        "text": "- When opponent has checkers on the bar or trapped behind, use spare builders to make/cover home-board points rather than running or hitting again.\n- Don't pile a 5th or 6th checker on an anchor; release back checkers into the outfield while the opponent's blockade has gaps, or they become dead weight.\n- Before any loose hit in my own board, count return shots against the opponent's board strength; skip the hit when a quiet constructive play exists.\n- Never break a made point (especially the 5pt) just to hit; a scattered hit costs more than it gains.\n- In long containment games, avoid leaving extra blots on \"safe-looking\" plays; one blot at a time, and keep timing by moving spare checkers, not key points."
+       },
+       {
+        "game": 5,
+        "text": "- When hitting inside my home board against a strong opposing board (4+ points), prioritize leaving zero blots over making a new point; a return shot there is catastrophic.\n- Early in the game, with both back checkers still on the 24-point and the opponent building outfield points, use big rolls (5-4, 6-5) to escape the rear checkers rather than piling up home-board points.\n- Once the opponent is reduced to an anchor or a lone straggler, bear in with complete safety: clear the rearmost point first and never leave a blot where it can be hit.\n- With the midpoint and a high anchor both held, start moving the rearmost checkers (the anchor) home before stripping the midpoint, so timing isn't lost.\n- When no safe-vs-risky trade-off exists, choose the play that clears points from the back and keeps spares flexible for upcoming rolls."
+       },
+       {
+        "game": 6,
+        "text": "- When an opponent blot sits in the outfield within reach of my back checkers, hitting it usually beats quietly building; check every hitting option before any passive play.\n- Don't strip the 8-point and bar point to make a deep inner point early; bring builders down from the midpoint instead to keep a flexible structure.\n- With doubles after a hit, spend the remaining moves making a new inner-board point rather than piling all back checkers onto one outfield point.\n- When the opponent has checkers on the bar against my strong board, hit loose blots aggressively with spare checkers; the return risk is small and the gain large.\n- While the opponent is still on the bar, keep my board smooth: clear the bar point first, avoid burying checkers on the 2-point, and don't bear off a checker if it leaves gaps."
+       },
+       {
+        "game": 7,
+        "text": "- With a hit-and-build double, prefer advancing the rear anchor (24/22) over stacking the midpoint; splitting back checkers early adds flexibility and escape chances.\n- Opening 2-1: 13/11 24/23 is the standard; slotting the 5-point is slightly inferior against a quiet board.\n- When the opponent has multiple checkers on the bar against a closed board, keep hitting loose blots freely — gammon equity dominates and risk is minimal.\n- In bearoff against stuck checkers, clear the highest points first (6s, 5s) to avoid later gaps and awkward wastage.\n- Once the opponent re-enters during bearoff, prefer plays that keep points covered rather than leaving stragglers, even at a tiny pip cost."
+       },
+       {
+        "game": 8,
+        "text": "- When my home board is already strong and the opponent's board is weak (few points, blots), use big rolls to run the back anchor instead of stacking more checkers deep — passivity there was my biggest loss.\n- Avoid loose hits that bury checkers on my 2-point or leave outfield blots; prefer safe constructive plays when the hit gains little.\n- After hitting from the bar, spend the other die on a useful checker (e.g., building a point) rather than automatically running the hitter.\n- Don't crunch my board when I still have back checkers out; escaping them preserves timing and flexibility.\n- In bear-offs and contact bear-ins, favor even distribution and filling gaps over marginal pips; small errors add up."
+       },
+       {
+        "game": 9,
+        "text": "- Early on, prioritize advancing back checkers to the 20/21 points over loose deep hits (2/3-point); a deep hit gains little and leaves blots in my own board.\n- When the opponent is on the bar and I roll big, move my rear checkers together to a safe point rather than running one and leaving the other stranded.\n- Against an opponent holding a 4-5 point board or prime, don't break home points or expose blots to hit — a return shot costs far more than the hit gains; play safe and wait.\n- When making a point, prefer the play that also covers an existing blot and keeps spares on the 6/7 points over burying checkers on the ace point.\n- In a contact bear-off against an anchor, clear from the rear and keep even numbers on high points; bearing off early while leaving three on the 6-point invites a forced blot."
+       },
+       {
+        "game": 10,
+        "text": "- When the opponent still has a back checker in my board, make a new home-board point (e.g., 4-point) even if it leaves a blot; prime-building beats safe stacking on the bar point.\n- With doubles like 1-1, prefer plays that add a full new inner point while keeping existing points over splitting between rear checkers and home.\n- Bring the rearmost midfield checkers down first (unstack from behind) instead of piling more checkers onto already-made points; stay flexible for future rolls.\n- In an attacking position, moving hit checkers deep into my board (11/6 style) is often better than spreading builders outside.\n- During bear-off after a late hit, keep low home points occupied to block entry and lock in the gammon rather than bearing off an extra checker."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 22.092634066939354,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 92.0,
+       "risk_pays": 100,
+       "risks_found": 64.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1498.1
+      },
+      "wins": 8
      }
     ],
-    "series_finished": 2,
+    "series_finished": 3,
     "setup": "Claude Fable 5.1 (high)",
     "state": "running",
-    "status": "running, 2 of 5 series",
+    "status": "running, 3 of 5 series",
     "steps_done": [
      "E1",
      "S1",
      "S2",
-     "E2"
+     "E2",
+     "S3"
     ],
     "threshold": null,
     "verdict": false
@@ -3913,7 +3983,7 @@
      "reason": null,
      "series_done": 4,
      "status": "running",
-     "updated_at": "2026-11-11T05:08:13+00:00"
+     "updated_at": "2026-11-11T05:49:53+00:00"
     },
     "range": 1.0,
     "reason": null,
@@ -4591,11 +4661,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-11T05:49:39+00:00"
+  "updated_at": "2026-11-11T06:04:45+00:00"
  },
- "source_sha256": "ea36f6b37fab541744061c02efa75008a56fbb3630364194965320297b18771a",
+ "source_sha256": "d62586d7f7859f2fffe203c5b05c7dad6d117d072c8e0d0607cbb14459d6c900",
  "status": {
-  "last_update": "2026-11-11T05:49:39+00:00",
+  "last_update": "2026-11-11T06:04:45+00:00",
   "line": "6 of 15 models with a verdict · 4 running · 5 paused · 0 incomplete or stopped",
   "models": 15,
   "paused": 5,
