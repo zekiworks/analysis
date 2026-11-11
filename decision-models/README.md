@@ -624,19 +624,22 @@ python3 -m http.server 8000                                # preview at http://1
     and `copy_checks` test it) and the links to Method and Data. No leader cards (highest accuracy, most answers kept,
     lowest cost): the project lead wants no leader summaries ahead of the results (via Zeki #4663).
   - **Experiments** (`experiments/`, `sitebuild/experiments.py`): first, right under the page title, Repeat checks
-    (`#repeat-checks`, results.json `repeat_checks`; the project lead via Zeki #4831): one table per area, stacked, each
-    under its own heading with its scope (Turkish Text, English reading, Vision with the picture only), in the
-    Leaderboard's compact layout (`.lb-table`, no rank or tier): Model (the maker dot in the family's colour, the
-    official name with its tag, linked to its model page) · First run · Repeat(s) (each as the share right over its
-    right answers / the area's questions; `–` for a repeat not made yet, never 0) · Questions (from 900 px; the heading
-    gives it on a phone) · Status (Done, Retained, Running, Queued). The runs' ids and dates, picks that differ, the
-    questions, each run's hardware or access and cost, and the entry's note are in the row's details box, opened as the
-    Leaderboard's (`site.js` `leaderboardDetails`): the Details key at every width (tap, click, Enter or Space; Escape
-    closes), a tap on the row, the pointer or the focus. Under the tables, the line that the published scores stay the
-    first run's. Then, under "Tests beside the ranking", one card each for Page images, Hallucination ("Bilmiyorum"),
-    Web grounding, PWS-Decisions and the Artificial Analysis comparison, each with one line on what it measures and a
-    status from the data (setups done, not run or still running, and PWS-Decisions' setups waiting for an API key or
-    credit).
+    (`#repeat-checks`, results.json `repeat_checks`; the project lead via Zeki #4831, #4838, #4844): one table per area,
+    stacked, each under its own heading with its scope (Turkish Text, English reading, Vision with the picture only), in
+    the Leaderboard's compact layout (`.lb-table`, no tier): Rank · Model (the maker dot in the family's colour, the
+    official name with its tag, linked to its model page) · Run 2 · First run (each as the share right over its right
+    answers / the area's questions) · Questions · Status (Done, Retained, Running, Queued). Run 2 is the area's second
+    full run, the entry's first repeat (repeat 2, Vision's pass 2), never the best repeat or a mean. The rows with a Run 2
+    come first, highest Run 2 first, ranked 1, 2, 3 without repeats (equal scores keep the area's order); the rows
+    without one follow unranked (`–`), in the area's order, with `–` for Run 2, never 0. Below 900 px Questions is in the
+    heading's scope and Status is a line under the name, so a phone keeps four columns. Every run (repeats 3 to 5 too)
+    with its ids, dates, picks that differ, hardware or access and cost, the questions and the entry's note are in the
+    row's details box, opened as the Leaderboard's (`site.js` `leaderboardDetails`): the Details key at every width (tap,
+    click, Enter or Space; Escape closes), a tap on the row, the pointer or the focus. Under the tables, the line that
+    the published scores stay the first run's. Then, under "Tests beside the ranking", one card each for Page images,
+    Hallucination ("Bilmiyorum"), Web grounding, PWS-Decisions and the Artificial Analysis comparison, each with one line
+    on what it measures and a status from the data (setups done, not run or still running, and PWS-Decisions' setups
+    waiting for an API key or credit).
   - **Highlights** (`highlights/`, `sitebuild/highlights.py`): about English reading, one finding per card: the best
     decision model in English with its paired test against the other decision models, the best chat models against it
     (counted, not tested), the decision model that holds back most with "I don't know" in English, decision against chat

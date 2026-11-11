@@ -4299,7 +4299,9 @@ def repeat_checks(config: dict[str, Any], data: dict[str, Any], by_run: dict[int
                 raise ValueError(f"{label}: run {entry['runs']} is not the {areas[area]['title']} run of {name}")
             first = {**repeat_check_run(by_run[first_id]), **counted(first_id, area)}
             if entry["status"] == "retained":
-                sets = {item["runs"][0]: item["runs"] for item in data["repeats"] if item["variant"] is None}
+                # The whole-bank repeat set that starts with the first run, whatever the setup's variant (GLiDE
+                # v1.2's is "local").
+                sets = {item["runs"][0]: item["runs"] for item in data["repeats"] if item["whole_bank"]}
                 if area != "text" or sets.get(first_id) != [first_id, *entry["repeats"]]:
                     raise ValueError(f"{label}: retained repeats {entry['repeats']} are not run {first_id}'s Stability tab set")
             repeats = [{**repeat_check_run(by_run[run]), **counted(run, area)} for run in entry["repeats"]]

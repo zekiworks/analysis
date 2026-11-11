@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "83b94ca9",
-  "updated": "2026-11-11T15:41:48Z",
+  "results_version": "660f7bcc",
+  "updated": "2026-11-11T16:36:24Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -712126,6 +712126,132 @@
         ]
       },
       {
+        "area": "text",
+        "name": "Drex Max 1.1",
+        "status": "retained",
+        "note": "Nace's Drex Max 1.1 API (drex-max-v1.1); its repeats 2 to 5 of 31 October 2026, also on the Stability tab.",
+        "first": {
+          "run": 326,
+          "repeat": null,
+          "date": "2026-10-31",
+          "hardware": null,
+          "access": "Nace.AI System One API",
+          "cost_basis": "api",
+          "usd": 0.050805119999999995,
+          "right": 1481,
+          "questions": 2198
+        },
+        "repeats": [
+          {
+            "run": 329,
+            "repeat": 2,
+            "date": "2026-10-31",
+            "hardware": null,
+            "access": "Nace.AI System One API",
+            "cost_basis": "api",
+            "usd": 0.050805119999999995,
+            "right": 1481,
+            "questions": 2198
+          },
+          {
+            "run": 330,
+            "repeat": 3,
+            "date": "2026-10-31",
+            "hardware": null,
+            "access": "Nace.AI System One API",
+            "cost_basis": "api",
+            "usd": 0.050805119999999995,
+            "right": 1481,
+            "questions": 2198
+          },
+          {
+            "run": 331,
+            "repeat": 4,
+            "date": "2026-10-31",
+            "hardware": null,
+            "access": "Nace.AI System One API",
+            "cost_basis": "api",
+            "usd": 0.050805119999999995,
+            "right": 1481,
+            "questions": 2198
+          },
+          {
+            "run": 332,
+            "repeat": 5,
+            "date": "2026-10-31",
+            "hardware": null,
+            "access": "Nace.AI System One API",
+            "cost_basis": "api",
+            "usd": 0.050805119999999995,
+            "right": 1481,
+            "questions": 2198
+          }
+        ]
+      },
+      {
+        "area": "text",
+        "name": "Fastino GLiDE v1.2",
+        "status": "retained",
+        "note": "fastino/GLiDE at a7e4589 on one DGX Spark (GB10), BF16, behind the server its checkpoint ships; its repeats 2 to 5 of 22 October 2026, also on the Stability tab.",
+        "first": {
+          "run": 248,
+          "repeat": null,
+          "date": "2026-10-22",
+          "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+          "access": "GLiDE server (Fastino's release code), self-hosted",
+          "cost_basis": "maker",
+          "usd": 0.03158416,
+          "right": 1505,
+          "questions": 2198
+        },
+        "repeats": [
+          {
+            "run": 250,
+            "repeat": 2,
+            "date": "2026-10-22",
+            "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+            "access": "GLiDE server (Fastino's release code), self-hosted",
+            "cost_basis": "maker",
+            "usd": 0.03158416,
+            "right": 1505,
+            "questions": 2198
+          },
+          {
+            "run": 251,
+            "repeat": 3,
+            "date": "2026-10-22",
+            "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+            "access": "GLiDE server (Fastino's release code), self-hosted",
+            "cost_basis": "maker",
+            "usd": 0.03158416,
+            "right": 1505,
+            "questions": 2198
+          },
+          {
+            "run": 252,
+            "repeat": 4,
+            "date": "2026-10-22",
+            "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+            "access": "GLiDE server (Fastino's release code), self-hosted",
+            "cost_basis": "maker",
+            "usd": 0.03158416,
+            "right": 1505,
+            "questions": 2198
+          },
+          {
+            "run": 253,
+            "repeat": 5,
+            "date": "2026-10-22",
+            "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+            "access": "GLiDE server (Fastino's release code), self-hosted",
+            "cost_basis": "maker",
+            "usd": 0.03158416,
+            "right": 1505,
+            "questions": 2198
+          }
+        ]
+      },
+      {
         "area": "english",
         "name": "KnowLine 31B Gen1.5",
         "status": "queued",
@@ -712187,6 +712313,42 @@
           "cost_basis": null,
           "usd": null,
           "right": 497,
+          "questions": 547
+        },
+        "repeats": []
+      },
+      {
+        "area": "english",
+        "name": "Drex Max 1.1",
+        "status": "queued",
+        "note": "Nace's Drex Max 1.1 API, as run 399; after logic's Logic & Math repeat on the same API (its rate limit).",
+        "first": {
+          "run": 399,
+          "repeat": null,
+          "date": "2026-11-02",
+          "hardware": null,
+          "access": "Nace.AI System One API",
+          "cost_basis": "api",
+          "usd": 0.012789,
+          "right": 484,
+          "questions": 547
+        },
+        "repeats": []
+      },
+      {
+        "area": "english",
+        "name": "Fastino GLiDE v1.2",
+        "status": "queued",
+        "note": "One RTX PRO 6000 Blackwell (96 GB), BF16, behind the server its checkpoint ships, as run 521; waits for that GPU (one server for the three benches: Logic & Math, Reading, backgammon).",
+        "first": {
+          "run": 521,
+          "repeat": null,
+          "date": "2026-11-02",
+          "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+          "access": "GLiDE server (Fastino's release code), self-hosted",
+          "cost_basis": "maker",
+          "usd": 0.00795712,
+          "right": 494,
           "questions": 547
         },
         "repeats": []
@@ -712272,6 +712434,28 @@
           "cost_basis": null,
           "usd": null,
           "price": null
+        },
+        "repeats": []
+      },
+      {
+        "area": "vision",
+        "name": "Drex Max 1.1",
+        "status": "queued",
+        "note": "Nace's Drex Max 1.1 API with the first pass's settings (4 requests in flight, 30 s timeout); pass 2, after logic's repeat on the same API.",
+        "first": {
+          "runs": [
+            58
+          ],
+          "dates": [
+            "2026-10-31"
+          ],
+          "right": 344,
+          "questions": 763,
+          "hardware": null,
+          "access": "Nace.AI System One API",
+          "cost_basis": "api",
+          "usd": 0.026175539999999997,
+          "price": "$0.06 input, output free per 1M tokens"
         },
         "repeats": []
       }

@@ -1163,7 +1163,8 @@ def check_repeat_checks(docs: Path, results: dict[str, Any], answers: dict[str, 
           [(entry["area"], entry["name"], entry["status"], entry["note"]) for entry in config["entries"]])
     main = {run["run"]: run for run in results["runs"]}
     english = {model["run"]: model for model in results["english_reading"]["models"]}
-    sets = {item["runs"][0]: item["runs"] for item in results["repeats"] if item["variant"] is None}
+    # The whole-bank repeat sets by first run, whatever the setup's variant (GLiDE v1.2's is "local").
+    sets = {item["runs"][0]: item["runs"] for item in results["repeats"] if item["whole_bank"]}
     named: list[int] = []
     for entry, published in zip(config["entries"], section["entries"]):
         area, label = entry["area"], f"{entry['name']} ({entry['area']})"

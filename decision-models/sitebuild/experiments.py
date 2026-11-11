@@ -1,9 +1,10 @@
 """The Experiments tab (experiments/): first, under the page title, the repeat checks (results.json repeat_checks; the
-project lead via Zeki #4831: at the top, one compact table per area, stacked): for each area (Turkish Text, English
-reading, Vision with the picture only) under its own heading and scope, a table in the Leaderboard's layout (v3.css
-.lb-table): the model (maker dot in its family's colour, official name with its tag, linked to its model page), the first
-run's and each repeat's share and right answers over the area's questions, the questions and the status; the runs' ids,
-dates, settings, cost and note in the row's details box (site.js leaderboardDetails, as the Leaderboard's). Then one card
+project lead via Zeki #4831, #4838, #4844: at the top, one compact table per area, stacked, ranked by Run 2): for each
+area (Turkish Text, English reading, Vision with the picture only) under its own heading and scope, a table in the
+Leaderboard's layout (v3.css .lb-table): Rank over the rows with a Run 2, the model (maker dot in its family's colour,
+official name with its tag, linked to its model page), Run 2 (the first repeat) and the first run as share and right
+answers over the area's questions, the questions and the status; every run's ids, dates, settings and cost and the note
+in the row's details box (site.js leaderboardDetails, as the Leaderboard's). Then one card
 for each test beside the ranking, each with one line on what it measures and a status label from the data:
 Hallucination (results.json dont_know and the chat setups still running), Web grounding (web-grounding.json),
 PWS-Decisions (pws-decisions.json, with its setups still waiting) and the Artificial Analysis comparison
@@ -122,10 +123,15 @@ def score_cell(run: dict[str, Any] | None, questions: int) -> str:
 
 
 def repeat_checks(site: Site) -> str:
-    """The Repeat checks section, first on the page: per area its heading with its scope, then its table (Model · First
-    run · Repeat(s) · Questions · Status; Questions from 900 px, the heading giving it on a phone), each row's runs, dates,
-    settings, cost and note in its details box, opened by its Details key, a tap, the pointer or the focus (site.js
-    leaderboardDetails); the line that the published scores stay the first run's under the tables."""
+    """The Repeat checks section, first on the page: per area its heading with its scope, then its table (Rank · Model ·
+    Run 2 · First run · Questions · Status; Questions and Status from 900 px, below it the heading giving the questions
+    and a line under the name the status, so a phone keeps four columns). Run 2 is the area's
+    second full run, the entry's first repeat (repeat 2, or Vision's pass 2), never the best repeat or a mean of them
+    (Zeki #4838, #4844). Rows with a Run 2 come first, by its right answers, highest first, ranked 1, 2, 3 without
+    repeats (#4630; equal scores keep the area's order); the rows without one (queued, running) follow unranked ('–'), in
+    the area's order. Each row's runs (repeats 3 to 5 too), dates, settings, cost and note are in its details box, opened
+    by its Details key, a tap, the pointer or the focus (site.js leaderboardDetails); the line that the published scores
+    stay the first run's under the tables."""
     section = site.results.get("repeat_checks")
     if not section:
         return ""
@@ -135,19 +141,22 @@ def repeat_checks(site: Site) -> str:
         if not entries:
             continue
         questions = area["questions"]
-        several = any(len(entry["repeats"]) > 1 for entry in entries)
+        boxes = {id(entry): f"rc-{area['area']}-{index}-box" for index, entry in enumerate(entries, 1)}
+        ran = sorted((entry for entry in entries if entry["repeats"]), key=lambda entry: -entry["repeats"][0]["right"])
+        ordered = [(rank, entry) for rank, entry in enumerate(ran, 1)] + [
+            (None, entry) for entry in entries if not entry["repeats"]]
         rows = []
-        for index, entry in enumerate(entries, 1):
+        for rank, entry in ordered:
             first, repeats = entry["first"], entry["repeats"]
             run, family, href = setup_of(site, area["area"], entry)
-            box = f"rc-{area['area']}-{index}-box"
-            # One line per run: its ids and dates, then where it ran and its cost; a repeat by its number in the data
-            # (d1-ultra's Turkish repeats 2 to 5), a single one as "Repeat".
+            box = boxes[id(entry)]
+            # One line per run: its ids and dates, then where it ran and its cost; each repeat by its run number in the
+            # data (repeat 2 to 5, Vision's pass 2), else by its place after the first run.
             lines = [f"First run: {esc(run_line(first))}; {esc(settings_text(first))}."]
-            lines += [f"Repeat{'' if len(repeats) == 1 else ' ' + str(item.get('repeat') or number)}: {esc(run_line(item))}"
+            lines += [f"Run {item.get('repeat') or item.get('pass') or number}: {esc(run_line(item))}"
                       + (f" · {bp.count(item['picks_differ'])} of {bp.count(questions)} picks differ"
                          if "picks_differ" in item else "") + f"; {esc(settings_text(item))}."
-                      for number, item in enumerate(repeats, 1)]
+                      for number, item in enumerate(repeats, 2)]
             lines += [f"Questions: {bp.count(questions)}", esc(entry["note"])]
             details = (f'<div class="lb-box" id="{box}" role="group" aria-label="{esc(site.plain(run))}: details">'
                        f'<p><strong>{site.shown(run)}</strong> · {esc(family["maker"])}</p>'
@@ -156,21 +165,24 @@ def repeat_checks(site: Site) -> str:
             key = (f'<button type="button" class="lb-details-key needs-js" aria-expanded="false" aria-controls="{box}" '
                    f'aria-label="Details: {esc(site.plain(run))}">Details</button>')
             rows.append(
-                f'<tr data-box="{box}"><td class="model"><i class="lb-dot" style="background:{family["colour"]}" '
+                f'<tr data-box="{box}"><td class="num rank">{rank or "–"}</td>'
+                f'<td class="model"><i class="lb-dot" style="background:{family["colour"]}" '
                 f'title="{esc(family["maker"])}"></i>{family_icon(family["name"])}<a class="model-name" href="{href}" '
                 f'title="{esc(site.plain(run))}" aria-describedby="{box}">{esc(site.title(run))}</a>'
-                f'{tag_html(site.tag(run))}{key}{details}</td>'
+                f'{tag_html(site.tag(run))}<span class="small rc-status-line">{STATUS_WORDS[entry["status"]]}</span>'
+                f'{key}{details}</td>'
+                f'<td class="num">{score_cell(repeats[0] if repeats else None, questions)}</td>'
                 f'<td class="num">{score_cell(first, questions)}</td>'
-                f'<td class="num"><div class="rc-runs">{"".join(score_cell(item, questions) for item in repeats) or score_cell(None, questions)}</div></td>'
                 f'<td class="num lb-wide">{bp.count(questions)}</td>'
-                f'<td class="rc-status">{STATUS_WORDS[entry["status"]]}</td></tr>')
+                f'<td class="rc-status lb-wide">{STATUS_WORDS[entry["status"]]}</td></tr>')
         heading = f"rc-{area['area']}"
         tables.append(
             f'<h3 class="rc-area" id="{heading}">{esc(area["title"])}<span class="small">{esc(area["scope"])}</span></h3>'
             f'<div class="table-wrap"><table class="lb-table rc-table" aria-labelledby="{heading}"><thead><tr>'
-            '<th scope="col">Model</th><th scope="col" class="num">First run<span class="small">% · right / questions</span></th>'
-            f'<th scope="col" class="num">Repeat{"s" if several else ""}<span class="small">% · right / questions</span></th>'
-            '<th scope="col" class="num lb-wide">Questions</th><th scope="col">Status</th></tr></thead>'
+            '<th scope="col" class="num">Rank</th><th scope="col">Model</th>'
+            '<th scope="col" class="num">Run 2<span class="small">% · right / questions</span></th>'
+            '<th scope="col" class="num">First run<span class="small">% · right / questions</span></th>'
+            '<th scope="col" class="num lb-wide">Questions</th><th scope="col" class="lb-wide">Status</th></tr></thead>'
             f'<tbody>{"".join(rows)}</tbody></table></div>')
     return f"""
     <section class="card" id="repeat-checks">

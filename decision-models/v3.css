@@ -407,22 +407,25 @@ tr.lb-off { display: none !important; }
 .all-setups-title { margin: .2rem 0 .6rem; font-size: 1.05rem; }
 .lb-all-setups > .chart-card { margin: 1.25rem 0 0; padding-top: 1rem; border-top: 1px solid var(--edge); }
 .how-scores { min-width: 0; margin: 0 0 1rem; }
-/* The Experiments page's Repeat checks (experiments.py): one .lb-table per area under its heading and scope; a run's
-   share over its right answers, a row's repeats side by side as far as they fit, '–' for a run not made yet. */
+/* The Experiments page's Repeat checks (experiments.py): one .lb-table per area under its heading and scope, Rank
+   first as the Leaderboard's; a run's share over its right answers, '–' for a run not made yet. */
 .rc-area { margin: 1.1rem 0 .3rem; font-size: 1rem; }
 .rc-area .small { display: block; color: var(--text-2); font-size: .8rem; font-weight: 400; }
 .rc-table .rc-score { display: block; }
-.rc-runs { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .3rem .9rem; }
 .rc-table td.rc-status { white-space: nowrap; }
+/* Below 900 px the status is a line under the name (its column, as Questions, shows from 900 px). */
+.rc-table td.model .rc-status-line { color: var(--text); }
 .rc-table th.num { white-space: normal; }
 /* From 900 px the stacked tables share their column widths, so their columns line up. */
 @media (min-width: 900px) {
   .rc-table { table-layout: fixed; }
-  .rc-table th:nth-child(1) { width: 32%; }
-  .rc-table th:nth-child(2) { width: 13%; }
-  .rc-table th:nth-child(3) { width: 35%; }
-  .rc-table th:nth-child(4) { width: 9%; }
+  .rc-table td.model .rc-status-line { display: none; }
+  .rc-table th:nth-child(1) { width: 6%; }
+  .rc-table th:nth-child(2) { width: 38%; }
+  .rc-table th:nth-child(3) { width: 16%; }
+  .rc-table th:nth-child(4) { width: 16%; }
   .rc-table th:nth-child(5) { width: 11%; }
+  .rc-table th:nth-child(6) { width: 13%; }
 }
 /* The Experiments cards: one per test beside the ranking, each with its status from the data. */
 .exp-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: 1rem; list-style: none; margin: 1rem 0 0;
@@ -1019,8 +1022,6 @@ ul.price-list { padding-left: 1.25rem; }
   .lb-table th { padding: .3rem .3rem; }
   .lb-table td { padding: .45rem .3rem; }
   .lb-table :is(th, td):first-child { width: 1.6rem; }
-  .rc-table :is(th, td):first-child { width: auto; }
-  .rc-table td.rc-status { font-size: .8rem; }
   .rc-table td.num .small { font-size: .7rem; }
   .lb-table td.model svg.fam-icon { display: none; }
   .lb-table td.model .lb-size { margin-left: .45rem; white-space: normal; }

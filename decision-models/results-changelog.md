@@ -2,6 +2,13 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 660f7bcc (11 November 2026)
+
+- Repeat checks: Artificial Analysis's top two decision models join the tables (the project lead via Zeki #4838, #4844), Drex Max 1.1 and Fastino GLiDE v1.2. Their Turkish Text repeats already existed and are shown, not run again: Drex Max 1.1's runs 329 to 332 (31 October) and GLiDE v1.2's runs 250 to 253 (22 October), both on the Stability tab; their Run 2, 1,481 and 1,505 of 2,198 right, equals their first run's. Their English repeats and Drex Max 1.1's picture-only pass are queued.
+- Each area's table now ranks its rows by Run 2, the area's first repeat (never the best repeat or a mean), with the first run beside it; rows without a Run 2 follow, unranked, and repeats 3 to 5 are in each row's details (Zeki #4838).
+- A retained entry's repeats are matched to its first run's whole-bank Stability set whatever the setup's variant (GLiDE v1.2 on our hardware is the variant "local").
+- No other number changed.
+
 ## Results 83b94ca9 (11 November 2026)
 
 - Added Qwen3.8 Flash, Alibaba's closed chat model (API id `qwen3.8-flash`), at the project lead's request (bus #4806), with the setting and route of its backgammon and Logic & Math setups: reasoning off, through OpenRouter's chat API pinned to Alibaba's endpoint (its only provider), fallbacks off, temperature 1.0, the answer schema and 16 questions per request, as every chat model here. Alibaba states no size; its list price of $0.15 per 1M input tokens puts it in the Efficient class.
