@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-11T10:30:44Z",
+ "updated": "2026-11-11T11:14:32Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -1193,6 +1193,40 @@
    "notes": "hosted API (the maker's service)",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "PelaAI/KnowLine-4B-Gen5.5",
+   "commit": "779944d2cc8ffa19cef386aee83c83bcb967ade2",
+   "model_key": "knowline-4b-gen5.5",
+   "name": "KnowLine 4B Gen5.5",
+   "display_name": "KnowLine 4B Gen5.5",
+   "tag": "",
+   "class_label": "Open · 4.0B",
+   "base_model": null,
+   "setup_label": "KnowLine 4B Gen5.5",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "params_total": 4.0,
+   "params_active": 4.0,
+   "quantization": "FP8",
+   "score_0_100": 39.134732360097324,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5130778588807786,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.10365906116831469,
+   "improvement_points": null,
+   "runs": [
+    "logic:knowline-4b_en",
+    "math:knowline-4b_en",
+    "logic:knowline-4b_en_dontknow",
+    "math:knowline-4b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10)",
+   "gpu_hours": 0.0775,
+   "gpu_cost_usd": 0.016493381521559776
   },
   {
    "repo": "perplexity-ai/pplx-decider-flash-v1.2",

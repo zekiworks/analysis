@@ -6550,6 +6550,134 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-knowline-4b_en"><h3>Logic · knowline-4b_en</h3><dl class="facts"><dt>Name</dt><dd>KnowLine 4B Gen5.5</dd><dt>Setup</dt><dd>KnowLine 4B Gen5.5 · decision model</dd><dt>Model</dt><dd><code>PelaAI/KnowLine-4B-Gen5.5</code> · provider knowline</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.006621 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.0311 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.007 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run knowline-4b_en · first answer 2026-11-11 11:03:25 UTC · last answer 2026-11-11 11:05:17 UTC · span 112.0 s, pauses included (not charged) · charged 112.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0066 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 4B dense · source <a href="https://huggingface.co/PelaAI/KnowLine-4B-Gen5.5">https://huggingface.co/PelaAI/KnowLine-4B-Gen5.5</a> · read 2026-11-10 · the card states 4B (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 4.66B (counted from the checkpoint (4,659,865,088: language model 4,205,751,296, MTP layer 120,599,552 (model-extra-from-base.safetensors), vision tower 333,514,240); from Qwen3.5-4B; the card: 4B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19400</code></dd><dt>Started</dt><dd>11 Nov 2026 11:03 UTC; last answer 11 Nov 2026 11:05 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup KnowLine 4B Gen5.5 (site run None); runner 5fb51788d; PelaAI/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 (Apache-2.0 weights, MIT code; Qwen3.5-4B LoRA average, temperature folded into the weights) behind the card&#x27;s serve_knowline.sh: SGLang 0.5.21 (FP8 at load) on port+1000 and knowline_server.py (read twice up to 3,000 tokens): cd ~/decision-models/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 &amp;&amp; PATH=~/envs/knowline-sglang/bin:$PATH HOST=0.0.0.0 bash serve_knowline.sh ~/decision-models/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 0 19400 (MEM default 0.72), env ~/envs/knowline-sglang; vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19400; spark2 (DGX Spark, GB10); runner provider &#x27;knowline&#x27;</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+    &quot;--provider&quot;,
+    &quot;knowline&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;b55c22654bc72e59b7a430a92a37731267ddb6de&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;knowline&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 109.76755630149273,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;0d331bb8651b9443f00a82549280c2b9f2b2c82f013e4cd2d9bfe5a390b3b769&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;5fb51788d3992285ed8f0cf76fd6e8716353b0d9&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 836764,
+    &quot;output_tokens&quot;: 1125
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19400/v1/systemone
+{
+ &quot;model&quot;: &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-knowline-4b_en_dontknow"><h3>Logic · knowline-4b_en_dontknow</h3><dl class="facts"><dt>Name</dt><dd>KnowLine 4B Gen5.5</dd><dt>Setup</dt><dd>KnowLine 4B Gen5.5 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>PelaAI/KnowLine-4B-Gen5.5</code> · provider knowline</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.006798 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.0319 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.007 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run knowline-4b_en_dontknow · first answer 2026-11-11 11:08:13 UTC · last answer 2026-11-11 11:10:08 UTC · span 115.0 s, pauses included (not charged) · charged 115.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0068 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 4B dense · source <a href="https://huggingface.co/PelaAI/KnowLine-4B-Gen5.5">https://huggingface.co/PelaAI/KnowLine-4B-Gen5.5</a> · read 2026-11-10 · the card states 4B (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 4.66B (counted from the checkpoint (4,659,865,088: language model 4,205,751,296, MTP layer 120,599,552 (model-extra-from-base.safetensors), vision tower 333,514,240); from Qwen3.5-4B; the card: 4B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19400</code></dd><dt>Started</dt><dd>11 Nov 2026 11:08 UTC; last answer 11 Nov 2026 11:10 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup KnowLine 4B Gen5.5 (site run None); runner 5fb51788d; PelaAI/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 (Apache-2.0 weights, MIT code; Qwen3.5-4B LoRA average, temperature folded into the weights) behind the card&#x27;s serve_knowline.sh: SGLang 0.5.21 (FP8 at load) on port+1000 and knowline_server.py (read twice up to 3,000 tokens): cd ~/decision-models/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 &amp;&amp; PATH=~/envs/knowline-sglang/bin:$PATH HOST=0.0.0.0 bash serve_knowline.sh ~/decision-models/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 0 19400 (MEM default 0.72), env ~/envs/knowline-sglang; vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19400; spark2 (DGX Spark, GB10); runner provider &#x27;knowline&#x27;</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+    &quot;--provider&quot;,
+    &quot;knowline&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;b55c22654bc72e59b7a430a92a37731267ddb6de&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;knowline&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 109.44185549329268,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;a2d245c4e176679cdee634dc41dfbca41243af91872a3bd5a4fc36084de7fef2&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;5fb51788d3992285ed8f0cf76fd6e8716353b0d9&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 904264,
+    &quot;output_tokens&quot;: 1125
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19400/v1/systemone
+{
+ &quot;model&quot;: &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-qwen3.8-27b-bf16_en_low"><h3>Math · qwen3.8-27b-bf16_en_low</h3><dl class="facts"><dt>Name</dt><dd>Qwen3.8-27B <span class="name-tag">low · chat</span></dd><dt>Setup</dt><dd>Qwen3.8-27B (chat, reasoning low, on our GPU) · chat model</dd><dt>Model</dt><dd><code>qwen38-27b-bf16</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$1.437 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 0.577 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $1.437. GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run qwen3.8-27b-bf16_en_low · first answer 2026-11-06 21:41:16 UTC · last answer 2026-11-06 22:15:53 UTC · span 2077.0 s, pauses included (not charged) · charged 2077.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $1.4366 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 12.9 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>60,000 tokens · 0 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 27B dense · source <a href="https://huggingface.co/Qwen/Qwen3.8-27B">https://huggingface.co/Qwen/Qwen3.8-27B</a> · read 2026-11-10 · the card states Number of Parameters: 27B (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 27.78B (counted from the checkpoint (27,781,427,952, the vision encoder included); the card says 27B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:8022/v1/chat/completions</code></dd><dt>Started</dt><dd>6 Nov 2026 21:41 UTC; last answer 6 Nov 2026 22:15 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Qwen3.8-27B BF16 (vLLM v0.30.0, MTP, bariton GPU 1), thinking on at reasoning_effort low, model generation config sampling (1.0/0.95/20, seed 0), JSON answer schema; English translations (DeepSeek + review)</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;chat_template_kwargs&quot;: {
     &quot;enable_thinking&quot;: true,
@@ -12988,13 +13116,141 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-knowline-4b_en"><h3>Math · knowline-4b_en</h3><dl class="facts"><dt>Name</dt><dd>KnowLine 4B Gen5.5</dd><dt>Setup</dt><dd>KnowLine 4B Gen5.5 · decision model</dd><dt>Model</dt><dd><code>PelaAI/KnowLine-4B-Gen5.5</code> · provider knowline</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.009872 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.0464 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.010 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run knowline-4b_en · first answer 2026-11-11 11:05:21 UTC · last answer 2026-11-11 11:08:08 UTC · span 167.0 s, pauses included (not charged) · charged 167.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0099 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 4B dense · source <a href="https://huggingface.co/PelaAI/KnowLine-4B-Gen5.5">https://huggingface.co/PelaAI/KnowLine-4B-Gen5.5</a> · read 2026-11-10 · the card states 4B (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 4.66B (counted from the checkpoint (4,659,865,088: language model 4,205,751,296, MTP layer 120,599,552 (model-extra-from-base.safetensors), vision tower 333,514,240); from Qwen3.5-4B; the card: 4B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19400</code></dd><dt>Started</dt><dd>11 Nov 2026 11:05 UTC; last answer 11 Nov 2026 11:08 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup KnowLine 4B Gen5.5 (site run None); runner 5fb51788d; PelaAI/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 (Apache-2.0 weights, MIT code; Qwen3.5-4B LoRA average, temperature folded into the weights) behind the card&#x27;s serve_knowline.sh: SGLang 0.5.21 (FP8 at load) on port+1000 and knowline_server.py (read twice up to 3,000 tokens): cd ~/decision-models/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 &amp;&amp; PATH=~/envs/knowline-sglang/bin:$PATH HOST=0.0.0.0 bash serve_knowline.sh ~/decision-models/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 0 19400 (MEM default 0.72), env ~/envs/knowline-sglang; vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19400; spark2 (DGX Spark, GB10); runner provider &#x27;knowline&#x27;</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+    &quot;--provider&quot;,
+    &quot;knowline&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;b55c22654bc72e59b7a430a92a37731267ddb6de&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;knowline&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 162.4493859471113,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;50ad728c898b0dc825b77eb21671b66e1059ca1fd44ae1f21193a25015a62b14&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;5fb51788d3992285ed8f0cf76fd6e8716353b0d9&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 924182,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19400/v1/systemone
+{
+ &quot;model&quot;: &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-knowline-4b_en_dontknow"><h3>Math · knowline-4b_en_dontknow</h3><dl class="facts"><dt>Name</dt><dd>KnowLine 4B Gen5.5</dd><dt>Setup</dt><dd>KnowLine 4B Gen5.5 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>PelaAI/KnowLine-4B-Gen5.5</code> · provider knowline</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.01046 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.0492 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.010 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run knowline-4b_en_dontknow · first answer 2026-11-11 11:10:11 UTC · last answer 2026-11-11 11:13:08 UTC · span 177.0 s, pauses included (not charged) · charged 177.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0105 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 4B dense · source <a href="https://huggingface.co/PelaAI/KnowLine-4B-Gen5.5">https://huggingface.co/PelaAI/KnowLine-4B-Gen5.5</a> · read 2026-11-10 · the card states 4B (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 4.66B (counted from the checkpoint (4,659,865,088: language model 4,205,751,296, MTP layer 120,599,552 (model-extra-from-base.safetensors), vision tower 333,514,240); from Qwen3.5-4B; the card: 4B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://spark2:19400</code></dd><dt>Started</dt><dd>11 Nov 2026 11:10 UTC; last answer 11 Nov 2026 11:13 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup KnowLine 4B Gen5.5 (site run None); runner 5fb51788d; PelaAI/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 (Apache-2.0 weights, MIT code; Qwen3.5-4B LoRA average, temperature folded into the weights) behind the card&#x27;s serve_knowline.sh: SGLang 0.5.21 (FP8 at load) on port+1000 and knowline_server.py (read twice up to 3,000 tokens): cd ~/decision-models/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 &amp;&amp; PATH=~/envs/knowline-sglang/bin:$PATH HOST=0.0.0.0 bash serve_knowline.sh ~/decision-models/KnowLine-4B-Gen5.5@779944d2cc8ffa19cef386aee83c83bcb967ade2 0 19400 (MEM default 0.72), env ~/envs/knowline-sglang; vision on (the server&#x27;s default); bound to 0.0.0.0, clients use http://spark2:19400; spark2 (DGX Spark, GB10); runner provider &#x27;knowline&#x27;</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+    &quot;--provider&quot;,
+    &quot;knowline&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;b55c22654bc72e59b7a430a92a37731267ddb6de&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;knowline&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 171.4305778639682,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;cf2e2ed9f71fd817f2ae6eec1263bbce1b4a4e2433bcb4532b7c26625a38fecb&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;5fb51788d3992285ed8f0cf76fd6e8716353b0d9&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 1053962,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19400/v1/systemone
+{
+ &quot;model&quot;: &quot;PelaAI/KnowLine-4B-Gen5.5&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <nav class="footer-links" aria-label="About this site"><a href="../about/">About</a><a href="../method/">Method</a><a href="../about/#data">Data</a></nav>
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 11 Nov 2026 10:30 UTC from the logic and math benchmark.db files (340,764 graded answers in 218 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 11 Nov 2026 11:14 UTC from the logic and math benchmark.db files (347,340 graded answers in 222 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
