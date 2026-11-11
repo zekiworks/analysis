@@ -5,8 +5,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 93 comparisons (9 pass).
-━━ passes the Holm adjustment across these 93 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 94 comparisons (9 pass).
+━━ passes the Holm adjustment across these 94 comparisons   ━━ does not pass
 
                                                     Gemini 3.8 Flash · high · chat minus GPT-6 Astra · high · chat                              ⠠⠤⡧⠤                               +0.1
                                                          GPT-6 Astra · high · chat minus GPT-6.1 Sol · high · chat                               ⠠⣷⠤                               +0.2
@@ -36,7 +36,7 @@ shows a related but separate test, adjusted across these 93 comparisons (9 pass)
                                                                Qwen3.8-27B · low · chat minus GLM-5.3 · low · chat                          ⠤⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤⠤                          +0.1
                                                      GLM-5.3 · low · chat minus Gemma 4 31B · reasoning off · chat                             ⠠⠤⠤⡧⠤⠤⠤⡦⠤⠤⠤⠤⠤⠄                      +1.4
                                       Gemma 4 31B · reasoning off · chat minus Kimi K3.1 Pro · no reasoning · chat                           ⠤⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤⠤⠄                         +0.4
-                                                              Gemma 4 31B · reasoning off · chat minus GLiDE · API                                ⡇        ⠤⠤⠤⠤⠤⠤⢼⠤⠤⠤⠤⠤⠤⠄          +5.2
+                                                              Gemma 4 31B · reasoning off · chat minus GLiDE · API                                ⡇        ⠤⠤⠤⠤⠤⠤⢴⠤⠤⠤⠤⠤⠤⠄          +5.2
                                            Kimi K3.1 Pro · no reasoning · chat minus MiMo-V2.6-Flash · high · chat                           ⠤⠤⠤⠤⠤⡧⢼⠤⠤⠤⠤⠤⠤⠄                        +0.6
                                                                      MiMo-V2.6-Flash · high · chat minus GLiDE 27B                            ⠠⠤⠤⠤⡧⠤⢼⠤⠤⠤⠤⠤⠤⠄                       +1.0
                                                       GLiDE 27B minus Perplexity Decider 27B v1.2 · API · with web                                ⡇ ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠄                    +2.4
@@ -92,7 +92,8 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                                    Clef-Flash minus Erk-14B · reasoning off · chat                           ⠒⠒⠒⠒⠒⡗⠒⠗⠒⠒⠒⠒⠒⠒⠂                       +0.7
                                                                 Erk-14B · reasoning off · chat minus Metask-Jev-4B                                ⡇    ⠒⠒⠒⠒⠒⠒⠒⠺⠒⠒⠒⠒⠒⠒⠒             +4.2
                                                                                       Metask-Jev-4B minus GLiDE 2B                                ⡇       ⠐⠒⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠒         +5.5
-                                                                                              GLiDE 2B minus d1-2B                                ⡇         ⠒⠒⠒⠒⠒⠒⠒⠺⠒⠒⠒⠒⠒⠒⠒        +5.9
+                                                                  GLiDE 2B minus StartLux-Decision-v1.1-2B-Instant                            ⠐⠒⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒⠒                       +1.0
+                                                                     StartLux-Decision-v1.1-2B-Instant minus d1-2B                                ⡇      ⠒⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠒           +4.9
                                                                                             d1-2B minus GLiDE 0.8B                         ⠒⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒⠂                         +0.1
                                                                                GLiDE 0.8B minus Strands Decider 2B                              ⠒⠒⡗⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠒                    +1.8
                                                                                 Strands Decider 2B minus Decider 1                          ⠒⠒⠒⠒⠒⠒⡗⠗⠒⠒⠒⠒⠒⠒⠂                        +0.4

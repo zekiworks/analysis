@@ -2,6 +2,16 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results cc4085e6 (11 November 2026)
+
+- Added StartLux-Decision-v1.1-2B-Instant, one of the tiny batch of new decision models (the project lead's bus #4578, #4720): StartLux Labs' released checkpoint `startlux-models/StartLux-Decision-v1.1-2B-Instant` at `f1e6cd1`, a fine-tune of Qwen3.5-2B (2B as its card states it). It ran on our hardware, one NVIDIA DGX Spark, one request at a time, through the card's `startlux-decide serve` (vLLM 0.31.0 with the card's prefix-bidirectional plugin, BF16), with images on. The three sites' shared names table now gives StartLux's 2B and 4B their cards' titles (logic #4741).
+- Text tab, run 977: 753 of the 2,198 questions right (34.3%), 39th of the 47 decision-model setups, between GLiDE 2B (35.3%) and Liquid d1-2B (29.4%); 52.9% of the reading questions and 26.3% of the grammar ones.
+- English reading, run 973: 381 of the 547 kept questions right (69.7%), against 305 (55.8%) on the same questions in Turkish: 129 right only in English, 53 only in Turkish (p = 1.7 × 10⁻⁸, 1.5 × 10⁻⁶ after Holm), so it reads the English versions better.
+- Hallucination tab: Turkish "Bilmiyorum" run 979 chose the option on 333 of its 1,546 answers that were not right (non-hallucination 21.5%); English "I don't know" run 975 on 32 of 189 (16.9%). No invalid answers in any run.
+- Page images (condition A from run 977): 244 of 763 from the text alone (32.0%), 179 from the picture alone (23.5%), 231 from text and picture (30.3%), and 221 through the best OCR route, Unlimited-OCR-2 (29.0%). With a 14th image model the Vision tab's averages move: picture alone against text −16.4 points (was −17.0 over 13 image models), text and picture +0.9 (was +1.1), best OCR route −4.1 (was −4.2, now over 17 models with an OCR route).
+- No published verdict moved: the Text tab's paired tests, the English "I don't know" comparison (Holm's correction now over one more model) and the "same answers" comparisons are as before. Significance letters move with the new setup. No other number changed.
+- Method page: the KnowLine setup row described only the 31B, while it also stands for KnowLine 4B Gen5.5 (added in 5005b0e8); it now covers both, with the 4B's FP8 serving.
+
 ## Results 5005b0e8 (11 November 2026)
 
 - Added KnowLine 4B Gen5.5, the second of the new Decision Index models (the project lead's bus #4057, #4578): PelaAI's released checkpoint `PelaAI/KnowLine-4B-Gen5.5` at `779944d`, a merged LoRA fine-tune of Qwen3.5-4B (4B as its card states it). It ran on our hardware, one NVIDIA DGX Spark, one request at a time, through the card's `serve_knowline.sh` (SGLang 0.5.21, the weights quantised to FP8 at load as the card's own code does, and `knowline_server.py`, which reads a request of up to 3,000 tokens twice), with vision on. Its card lists English and Chinese.

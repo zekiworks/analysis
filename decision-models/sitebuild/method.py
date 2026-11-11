@@ -71,9 +71,12 @@ SETUP_TEXTS = (
     "cards list English only.",
     "REAX's released REAX 1.3 on our hardware in FP8, through the maker's own engine: the 50/50 mean of two parts' "
     "option probabilities (Gemma and Qwen lines), text only; its card lists English only.",
-    "PelaAI's released KnowLine 31B Gen1.5 on a DGX Spark, through its repository's own server (SGLang; it reads a "
-    "request of up to 3,000 tokens twice); one of the Jev Decision Index's open decision models; its card lists English "
-    "and Chinese.",
+    "PelaAI's released KnowLine 31B Gen1.5 (BF16) and KnowLine 4B Gen5.5 (FP8 at load, as its card's code does) on a DGX "
+    "Spark, through their repository's own server (SGLang; it reads a request of up to 3,000 tokens twice); open decision "
+    "models of the Jev Decision Index; their cards list English and Chinese.",
+    "StartLux Labs' released StartLux-Decision-v1.1-2B-Instant on a DGX Spark in BF16, through its package's own server "
+    "(vLLM 0.31.0, not the card's 0.19.1, which has no build for that processor); non-commercial weights, used for "
+    "evaluation; its card lists English only.",
     "Amazon's released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.",
     "Both released models, on our hardware; each scores all options in one pass.",
     "Fastino's {size} parameter text classifier, scoring the options as labels: a much smaller baseline.",
