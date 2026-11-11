@@ -253,6 +253,31 @@
   },
   {
    "calibration_error": null,
+   "commit": null,
+   "improvement_points": null,
+   "kind": "chat",
+   "maker": "Meta",
+   "model_key": "muse-ember",
+   "name": "Muse Ember",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; provisional: played 17 of 19 matches; not played: GPT-6 Luna (Decisions API) (opponent's API out of credit); not played: Inception Mercury Decide (opponent no longer served on OpenRouter); Meta's Muse Ember through OpenRouter, pinned to Meta (fallbacks off) for every decision; never on our GPUs. Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 10–11 Nov 2026. It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #932 stopped before any decision, unbilled) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit). Every request sent reasoning_effort \"max\"; 21.76 M of its 22.09 M output tokens were reasoning. The endpoint returned no token probabilities, so it answers with one letter, read from the reply; 46 of its 1,713 answers named no option and a random legal play was made. Each decision is billed at Meta's list price from the tokens OpenRouter reported.; hosted (API or subscription)",
+   "params_active": null,
+   "params_total": null,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1667,
+    "value": 20.106377228692253
+   },
+   "repo": null,
+   "runs": [
+    "backgammon:muse-ember-max"
+   ],
+   "score_0_100": 83.4,
+   "tag": "max"
+  },
+  {
+   "calibration_error": null,
    "commit": "8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140",
    "improvement_points": null,
    "kind": "decision",
@@ -982,6 +1007,6 @@
   "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
  },
  "title": "Backgammon",
- "updated": "2026-11-11T14:35Z",
+ "updated": "2026-11-11T14:46Z",
  "url": "https://zekiworks.github.io/analysis/backgammon/"
 }

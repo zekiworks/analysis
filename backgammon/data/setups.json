@@ -3301,6 +3301,38 @@
   {
    "confidence_source": "none",
    "dataset": "late-entry",
+   "date_run": "10–11 Nov 2026",
+   "missing": [],
+   "model": "Muse Ember",
+   "model_id": "meta/muse-ember (OpenRouter; Meta's endpoint meta/muse-ember-20261109 on its endpoints list of 2026-11-10; closed weights)",
+   "model_type": "chat model, one letter",
+   "name": "Muse Ember (max)",
+   "notes": "Meta's Muse Ember through OpenRouter, pinned to Meta (fallbacks off) for every decision; never on our GPUs. Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 10–11 Nov 2026. It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #932 stopped before any decision, unbilled) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit). Every request sent reasoning_effort \"max\"; 21.76 M of its 22.09 M output tokens were reasoning. The endpoint returned no token probabilities, so it answers with one letter, read from the reply; 46 of its 1,713 answers named no option and a random legal play was made. Each decision is billed at Meta's list price from the tokens OpenRouter reported.",
+   "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-10",
+    "input_per_mtok": 0.1,
+    "label": "API price (billed)",
+    "output_per_mtok": 0.5,
+    "source": "dev.meta.ai/models/muse-ember and OpenRouter's endpoints list for meta/muse-ember (Meta: $0.10/M prompt, $0.50/M completion), read 2026-11-10"
+   },
+   "provider": "OpenRouter (Meta): provider pinned to Meta (only Meta), no fallbacks; every reply came from Meta",
+   "reasoning": "reasoning effort max (the top of OpenRouter's listed efforts for this model on 2026-11-10)",
+   "rules_text": "long",
+   "runs_on": "API",
+   "sampling": "temperature 1.0",
+   "setting": "max",
+   "slug": "muse-ember-max",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/probability_source/cost_usd/reasoning_tokens (v3.db, read-only)",
+    "mailbox/Late entries Muse Ember - status 2026-11-10.md"
+   ],
+   "weights": "closed"
+  },
+  {
+   "confidence_source": "none",
+   "dataset": "late-entry",
    "date_run": null,
    "missing": [
     "price.date"
