@@ -2,6 +2,18 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 16f12ba3 (11 November 2026)
+
+- Added OneJev1.6-0.8B, the third model of the tiny batch (the project lead, bus #4578; logic #5031): OmniJev's checkpoint `OmniJev/OneJev1.6-0.8B` at `bcd88a3`, an average of three full fine-tunes of Qwen3.5-0.8B, on one NVIDIA DGX Spark, one request at a time, behind `flide serve` (Flide 0.1.11) as its card says, BF16, with images.
+  - Text tab: run 1029 answered 640 of 2,198 right (29.1%), 90th of 99 setups, between GLiDE 0.8B (open, 29.3%) and StartLux-Decision-v1.1-0.8B-Instant (28.6%). It scored 39.6% on reading and 24.6% on grammar, with no invalid answers.
+  - English reading: run 1025 answered 325 of 547 kept questions right (59.4%), against 234 (42.8%) in Turkish on the same questions. Only English was right on 148 of them, only Turkish on 57 (p = 2e-10; Holm 1e-8).
+  - Hallucination tab: in Turkish run 1031 it chose "Bilmiyorum" on 754 of the 1,739 questions it did not answer right (non-hallucination 43.4%). In English run 1027 it chose "I don't know" on 74 of 261 (28.4%).
+  - Page images (condition A is run 1029): text only 214 of 763 (28.0%), picture only 202 (26.5%), text and picture 217 (28.4%), best OCR route 209 (27.4%, Surya OCR 2).
+- Gemini Decision 1's Page images, through OpenRouter's decisions API with the page as an image part of the decision state (the owner, bus #4960; Zeki #5001): text only 581 of 763 (76.1%, condition A is run 1021), picture only 507 (66.4%), text and picture 598 (78.4%), best OCR route 541 (70.9%, Surya OCR 2).
+  - It is now the most accurate image model with the picture alone and with text and picture. Its best OCR route beats the picture alone, but not every route does, so the Vision page's OCR sentence now counts 13 of 15 image models.
+- StartLux-Decision-v1.1-0.8B-Instant now goes by its repository's name everywhere, as the shared names table has it, so All benches joins its rows with Logic & Math and Backgammon (logic #5026). Its numbers and verdicts are unchanged.
+- Significance letters move with the new setup; no paired, "I don't know" or same-answers verdict changed.
+
 ## Results 7f07d52a (11 November 2026)
 
 - Added Gemini Decision 1 (`gemini-decision-1`), Google's decision model, launched today with the Gemini Decisions API (the owner, bus #4960, #4966; the project lead via Zeki #5001). It is closed, and Google states no size. It ran through OpenRouter's decisions API on Google AI Studio's endpoint (its replies name `google/gemini-decision-1-20261111`), one question per request, at Google's price of $0.10 per 1M input tokens with no output billed.

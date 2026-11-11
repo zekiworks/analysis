@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-11T20:09:31Z",
+    "updated": "2026-11-11T20:58:01Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1742,6 +1742,38 @@
       "gpu_cost_usd": 0.0017734818840386857
      },
      {
+      "repo": "OmniJev/OneJev1.6-0.8B",
+      "commit": "bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0",
+      "model_key": "onejev1.6-0.8b",
+      "name": "OneJev1.6-0.8B",
+      "display_name": "OneJev1.6-0.8B",
+      "tag": "",
+      "class_label": "Open · 0.8B",
+      "base_model": null,
+      "setup_label": "OneJev1.6-0.8B",
+      "maker": "OmniJev",
+      "kind": "decision",
+      "params_total": 0.8,
+      "params_active": 0.8,
+      "quantization": "BF16",
+      "score_0_100": 8.777777777777773,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.2702222222222222,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.1124625022222222,
+      "improvement_points": null,
+      "runs": [
+       "logic:onejev1.6-0.8b_en",
+       "logic:onejev1.6-0.8b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.006111111111111111,
+      "gpu_cost_usd": 0.0013005533816283694
+     },
+     {
       "repo": "PelaAI/KnowLine-0.8B-Gen1",
       "commit": "6b27831f7b783c03278bd946d4d8f4f7a98a3798",
       "model_key": "knowline-0.8b-gen1",
@@ -1880,7 +1912,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-11T20:09:31Z",
+    "updated": "2026-11-11T20:58:01Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2580,9 +2612,10 @@
       "calibration_error": 0.024586229897428504,
       "improvement_points": null,
       "runs": [
-       "math:gemini-decision-1_en"
+       "math:gemini-decision-1_en",
+       "math:gemini-decision-1_en_dontknow"
       ],
-      "notes": "hosted API via OpenRouter; no complete 'I don't know' run",
+      "notes": "hosted API via OpenRouter",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -3675,6 +3708,38 @@
       "gpu_cost_usd": 0.056716666666666665
      },
      {
+      "repo": "OmniJev/OneJev1.6-0.8B",
+      "commit": "bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0",
+      "model_key": "onejev1.6-0.8b",
+      "name": "OneJev1.6-0.8B",
+      "display_name": "OneJev1.6-0.8B",
+      "tag": "",
+      "class_label": "Open · 0.8B",
+      "base_model": null,
+      "setup_label": "OneJev1.6-0.8B",
+      "maker": "OmniJev",
+      "kind": "decision",
+      "params_total": 0.8,
+      "params_active": 0.8,
+      "quantization": "BF16",
+      "score_0_100": 10.309754969949147,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.2824780397595932,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.09989208737864079,
+      "improvement_points": null,
+      "runs": [
+       "math:onejev1.6-0.8b_en",
+       "math:onejev1.6-0.8b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.011111111111111112,
+      "gpu_cost_usd": 0.002364642512051581
+     },
+     {
       "repo": "PelaAI/KnowLine-0.8B-Gen1",
       "commit": "6b27831f7b783c03278bd946d4d8f4f7a98a3798",
       "model_key": "knowline-0.8b-gen1",
@@ -3749,7 +3814,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-11T20:09:31Z",
+    "updated": "2026-11-11T20:58:01Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -4661,9 +4726,11 @@
       "improvement_points": null,
       "runs": [
        "logic:gemini-decision-1_en",
-       "math:gemini-decision-1_en"
+       "math:gemini-decision-1_en",
+       "logic:gemini-decision-1_en_dontknow",
+       "math:gemini-decision-1_en_dontknow"
       ],
-      "notes": "hosted API via OpenRouter; no complete 'I don't know' run",
+      "notes": "hosted API via OpenRouter",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -5584,6 +5651,40 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.025,
       "gpu_cost_usd": 0.005320445652116057
+     },
+     {
+      "repo": "OmniJev/OneJev1.6-0.8B",
+      "commit": "bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0",
+      "model_key": "onejev1.6-0.8b",
+      "name": "OneJev1.6-0.8B",
+      "display_name": "OneJev1.6-0.8B",
+      "tag": "",
+      "class_label": "Open · 0.8B",
+      "base_model": null,
+      "setup_label": "OneJev1.6-0.8B",
+      "maker": "OmniJev",
+      "kind": "decision",
+      "params_total": 0.8,
+      "params_active": 0.8,
+      "quantization": "BF16",
+      "score_0_100": 9.785583941605836,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.2782846715328467,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.10419309610705596,
+      "improvement_points": null,
+      "runs": [
+       "logic:onejev1.6-0.8b_en",
+       "math:onejev1.6-0.8b_en",
+       "logic:onejev1.6-0.8b_en_dontknow",
+       "math:onejev1.6-0.8b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.017222222222222222,
+      "gpu_cost_usd": 0.0036651958936799504
      },
      {
       "repo": "PelaAI/KnowLine-0.8B-Gen1",
@@ -6703,7 +6804,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-11T20:02Z",
+    "updated": "2026-11-11T21:35Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }

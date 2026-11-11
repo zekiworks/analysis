@@ -509,7 +509,9 @@ MODELS: dict[str, dict[str, Any]] = {
         "hardware": f"1 × {SPARK}; BF16",
     },
     "startlux-models/StartLux-Decision-v1.1-0.8B-Instant": {
-        "name": "StartLux-Decision v1.1 0.8B",
+        # The name its repository and the shared table give it, so its model_key is the three sites' join key,
+        # startlux-decision-v1.1-0.8b-instant (logic #5026; Zeki #4594: the source keys stay as they are).
+        "name": "StartLux-Decision-v1.1-0.8B-Instant",
         "note": "StartLux Labs' released StartLux-Decision-v1.1-0.8B-Instant (at 6496ae6), a fine-tune of Qwen3.5-0.8B that "
         "reads the prompt bidirectionally and also reads images. It ran on our hardware (one DGX Spark), one request at a "
         "time, through the server of its package (startlux-decide serve --launch-vllm, StartLux-Decision at a99977d) on "
@@ -2278,7 +2280,8 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
     **{(provider, model, None): "added to the Hallucination tab on 11 November 2026 (run on our GPU), after the "
        "option-word check; not asked with “I don't know” yet." for provider, model in (
         ("knowline", "PelaAI/KnowLine-4B-Gen5.5"), ("startlux", "startlux-models/StartLux-Decision-v1.1-2B-Instant"),
-        ("knowline", "PelaAI/KnowLine-0.8B-Gen1"), ("startlux", "startlux-models/StartLux-Decision-v1.1-0.8B-Instant"))},
+        ("knowline", "PelaAI/KnowLine-0.8B-Gen1"), ("startlux", "startlux-models/StartLux-Decision-v1.1-0.8B-Instant"),
+        ("onejev", "OmniJev/OneJev1.6-0.8B"))},
     ("openrouter", "google/gemini-decision-1", None): "added to the Hallucination tab on 11 November 2026 (Google's "
     "Decisions API through OpenRouter), after the option-word check; not asked with “I don't know” yet.",
 }

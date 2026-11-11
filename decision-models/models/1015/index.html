@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>StartLux-Decision v1.1 0.8B · 1 question per request · Hilde</title>
+  <title>StartLux-Decision-v1.1-0.8B-Instant · 1 question per request · Hilde</title>
   <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/models/1015/">
-  <meta name="description" content="StartLux-Decision v1.1 0.8B · 1 question per request: how we called it, results, confidence, latency and cost.">
+  <meta name="description" content="StartLux-Decision-v1.1-0.8B-Instant · 1 question per request: how we called it, results, confidence, latency and cost.">
   <script>document.documentElement.classList.add("js"); document.documentElement.dataset.theme = "dark"; try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if ((new URLSearchParams(location.search).get("cost-unit") || localStorage.getItem("costUnit")) === "1m") document.documentElement.dataset.costUnit = "1m"; } catch (e) {}</script>
   <link rel="stylesheet" href="../../suite-bar.css?v=7da78a80">
   <link rel="stylesheet" href="../../v3.css?v=6704013c">
@@ -22,7 +22,7 @@
 
     <section class="card">
       <p class="eyebrow">Decision model</p>
-      <h1>StartLux-Decision v1.1 0.8B</h1>
+      <h1>StartLux-Decision-v1.1-0.8B-Instant</h1>
       <p class="subtitle">1 question per request</p>
       <dl class="key-figures"><div><dt>Accuracy, all 2,198 questions</dt><dd><span class="key-figure">28.6%</span><span class="small">26.7% to 30.5%, 95% interval; 628 right</span></dd></div><div><dt>Answers kept at 99% confidence</dt><dd><span class="key-figure"><span class="nm">No answers at this threshold</span></span><span class="small">none of the 2,198 questions at 99% or more</span></dd></div><div><dt>Cost, $ <span class="cost-1k">per 1,000 questions</span><span class="cost-1m">per 1M questions</span></dt><dd><span class="key-figure"><span class="nm">No list price</span></span><span class="small"><a href="#cost">Basis and price under Cost</a></span></dd></div><div><dt>Latency</dt><dd><span class="key-figure">0.028 s</span><span class="small">median request, 1 question per request</span></dd></div></dl><p><a href="../../">Back to the leaderboard</a>.</p>
     </section>
@@ -40,7 +40,7 @@
     </section>
     <section class="card" id="page-images">
       <h2>Vision (preliminary)</h2>
-      <p class="preliminary"><strong>Preliminary:</strong> these numbers are not final and may change. This setup is condition A of the <a href="../../vision/">Vision tab</a>, which asks the 763 questions with underlined or numbered words as text (A), as a page image (B), as both (C) and through OCR models (D); the share answered right, its 95% interval in the number's tooltip.</p><div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th><th scope="col" class="num">A · text only<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">B · image only<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">C · text plus image<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">Best OCR route<span class="small">accuracy, higher is better</span></th></tr></thead><tbody><tr data-class="tiny"><td class="model" title="1 question per request"><i class="lb-dot" style="background:#919b5a" title="StartLux"></i><svg class="fam-icon" aria-hidden="true" focusable="false"><use href="#fi-startlux"/></svg><a class="model-name" href="../../models/1015/">StartLux-Decision v1.1 0.8B</a> <span class="lb-size">Open · 0.8B</span></td><td class="num" data-label="A · text only (accuracy, higher is better)" title="95% interval: 22.6% to 28.8%"><span class="cell">25.6%</span></td><td class="num" data-label="B · image only (accuracy, higher is better)" title="95% interval: 21.3% to 27.4%"><span class="cell">24.2%</span></td><td class="num" data-label="C · text plus image (accuracy, higher is better)" title="95% interval: 23.8% to 30.1%"><span class="cell">26.9%</span></td><td class="num" data-label="Best OCR route (accuracy, higher is better)" title="95% interval: 23.8% to 30.1%"><span class="cell">26.9%<span class="small">via Surya OCR 2</span></span></td></tr></tbody></table></div>
+      <p class="preliminary"><strong>Preliminary:</strong> these numbers are not final and may change. This setup is condition A of the <a href="../../vision/">Vision tab</a>, which asks the 763 questions with underlined or numbered words as text (A), as a page image (B), as both (C) and through OCR models (D); the share answered right, its 95% interval in the number's tooltip.</p><div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th><th scope="col" class="num">A · text only<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">B · image only<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">C · text plus image<span class="small">accuracy, higher is better</span></th><th scope="col" class="num">Best OCR route<span class="small">accuracy, higher is better</span></th></tr></thead><tbody><tr data-class="tiny"><td class="model" title="1 question per request"><i class="lb-dot" style="background:#919b5a" title="StartLux"></i><svg class="fam-icon" aria-hidden="true" focusable="false"><use href="#fi-startlux"/></svg><a class="model-name" href="../../models/1015/">StartLux-Decision-v1.1-0.8B-Instant</a> <span class="lb-size">Open · 0.8B</span></td><td class="num" data-label="A · text only (accuracy, higher is better)" title="95% interval: 22.6% to 28.8%"><span class="cell">25.6%</span></td><td class="num" data-label="B · image only (accuracy, higher is better)" title="95% interval: 21.3% to 27.4%"><span class="cell">24.2%</span></td><td class="num" data-label="C · text plus image (accuracy, higher is better)" title="95% interval: 23.8% to 30.1%"><span class="cell">26.9%</span></td><td class="num" data-label="Best OCR route (accuracy, higher is better)" title="95% interval: 23.8% to 30.1%"><span class="cell">26.9%<span class="small">via Surya OCR 2</span></span></td></tr></tbody></table></div>
     </section>
     <section class="card" id="english">
       <h2>English</h2>
@@ -66,7 +66,7 @@
   <footer class="footer">
     <nav class="footer-links" aria-label="Site"><a href="../../about/">About</a> · <a href="../../method/">Method</a> · <a href="../../data/">Data</a> · <a href="https://github.com/zekiworks/analysis">GitHub</a></nav>
     <p>Download: <a href="../../results.json" download>results.json</a> · <a href="../../answers.json" download>answers.json</a></p>
-    <p>Results 7f07d52a, updated 11 November 2026; answer key version 2.</p>
+    <p>Results 16f12ba3, updated 11 November 2026; answer key version 2.</p>
   </footer>
 </body>
 </html>
