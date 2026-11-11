@@ -561,8 +561,9 @@ async function savePng(panel, svg, title, lines, filename) {
    selected one goes back to All). A second click on a pressed key returns its row to All (Ümit #3923).
    ?models=chat|decision and ?class=<class> open on them; the old ?models=small-chat / small-decision (and small: Small
    chat) open on that type with Tiny and Small. A row out of the view and its other-settings rows go out of view (class
-   hl-off), whatever their expander says; the programs stay in every view; the ranks are the ranks among all models;
-   the class rule (Ümit #4245) stands under the keys. */
+   hl-off), whatever their expander says; the programs stay in every view; the Rank column counts the model rows in
+   view, 1, 2, 3, … in the table's order (Ümit via Zeki #4630: no gaps, ties numbered on), the programs and the
+   other-settings rows never numbered; the class rule (Ümit #4245) stands under the keys. */
 (function headlineFilter() {
   const table = document.getElementById('headline-table');
   const keys = [...document.querySelectorAll('[data-hl-filter]')];
@@ -581,6 +582,10 @@ async function savePng(panel, svg, title, lines, filename) {
       const t = tr.dataset.hlType;
       const out = (type !== 'all' && t !== type) || (classes.size > 0 && !classes.has(tr.dataset.hlClass));
       tr.classList.toggle('hl-off', t !== 'program' && out);
+    });
+    let n = 0;
+    rows.forEach(tr => {
+      if (tr.dataset.hlType !== 'program' && !tr.classList.contains('hl-sub') && !tr.classList.contains('hl-off')) tr.cells[0].textContent = ++n;
     });
     table.dispatchEvent(new CustomEvent('hl-filter'));
   };
