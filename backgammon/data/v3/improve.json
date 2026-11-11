@@ -480,31 +480,31 @@
    },
    {
     "reason": null,
-    "series_done": 1,
+    "series_done": 2,
     "setup": "Grok 4.7 (high)",
     "status": "running",
-    "updated_at": "2026-11-11T06:09:04+00:00"
+    "updated_at": "2026-11-11T09:39:41+00:00"
    },
    {
     "reason": null,
     "series_done": 4,
     "setup": "Claude Fable 5.1 (high)",
     "status": "running",
-    "updated_at": "2026-11-11T09:25:46+00:00"
+    "updated_at": "2026-11-11T09:50:01+00:00"
    },
    {
     "reason": null,
-    "series_done": 4,
+    "series_done": 5,
     "setup": "Gemma 4 31B (on)",
-    "status": "running",
-    "updated_at": "2026-11-11T07:20:56+00:00"
+    "status": "done",
+    "updated_at": "2026-11-11T09:35:53+00:00"
    },
    {
     "reason": null,
     "series_done": 2,
     "setup": "Qwen3.8-27B (low)",
     "status": "running",
-    "updated_at": "2026-11-11T07:57:43+00:00"
+    "updated_at": "2026-11-11T09:49:24+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-11T09:34:27+00:00"
+  "updated_at": "2026-11-11T09:50:09+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -3423,20 +3423,20 @@
    },
    {
     "after": {
-     "error_rate": 29.825574457645416,
-     "right_safety": 89.0,
-     "risks_found": 51.0
+     "error_rate": 27.694602087140083,
+     "right_safety": 88.5,
+     "risks_found": 54.0
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 200,
-     "expected": 200,
+     "answered": 400,
+     "expected": 400,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 100,
-     "safety_pays": 100,
-     "tests": 1,
-     "valid": 200
+     "risk_pays": 200,
+     "safety_pays": 200,
+     "tests": 2,
+     "valid": 400
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -3455,12 +3455,12 @@
      "risks_found": 46.0
     },
     "change": {
-     "error_rate": -5.825279355049133,
-     "right_safety": -3.0,
-     "risks_found": 5.0
+     "error_rate": -7.956251725554466,
+     "right_safety": -3.5,
+     "risks_found": 8.0
     },
     "cost": {
-     "api_equivalent_usd": 121.6671,
+     "api_equivalent_usd": 123.5599,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -3487,9 +3487,9 @@
     "key": "grok-4.7-on",
     "progress": {
      "reason": null,
-     "series_done": 1,
+     "series_done": 2,
      "status": "running",
-     "updated_at": "2026-11-11T06:09:04+00:00"
+     "updated_at": "2026-11-11T09:39:41+00:00"
     },
     "range": null,
     "reason": null,
@@ -3562,15 +3562,85 @@
        "wall_seconds": 11858.2
       },
       "wins": 7
+     },
+     {
+      "finished": true,
+      "game_decisions": 229,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Use early doublets to free back checkers and make flexible points, not to dump stacks onto an already made inner point.\n- While men are still outside, spend small rolls improving them instead of burying spares on low home-board points.\n- Take a blot only when it does a job: a builder after a hit is often right, a second blot that merely runs on is not.\n- With a strong home board, prefer bringing outfield checkers into play over an extra hit you do not need.\n- Bearing off, clear from the higher points and keep the shape even; do not pile checkers onto the ace and deuce points."
+       },
+       {
+        "game": 2,
+        "text": "- When the opponent is on the bar, use the free tempo to move back checkers, not to stack a home board you have already built.\n- Do not leave men stranded in the opponent's home board once you have a quiet roll to start them.\n- Entering from the bar, prefer a hit or a flexible entry over stacking on a point you already own.\n- Making the ace-point or burying checkers early is usually worse than keeping builders and higher points.\n- Do not volunteer a blot when a safer play both steps an exposed checker out and stays connected."
+       },
+       {
+        "game": 3,
+        "text": "- When the opponent leaves blots you can hit, take the hits, especially two at once, instead of quietly adding to a point you already hold.\n- Don't spend a roll stacking spare checkers on a made point while your back checkers sit trapped; use it to spring one.\n- Don't march both back checkers onto a deep anchor when part of the roll can hit again; keep one flexible and press the attack.\n- Avoid piling several checkers on one outfield point; spread them so you keep builders and choices.\n- Once you're ahead in a race, don't run a straggler onto a square the opponent hits directly; play safe in your home board."
+       },
+       {
+        "game": 4,
+        "text": "- Take the hit when your roll offers one; a passive alternative that leaves a blot gives away equity for nothing.\n- Leave a blot only when it earns its place by hitting, building, or contesting a point.\n- Don't sprint an outside checker to the furthest square by default; stop it and use the spare number to strengthen your board.\n- After you hit, see whether that checker should continue before you step a second checker out."
+       },
+       {
+        "game": 5,
+        "text": "- When a blot can be hit, take it; a made home-board point seldom pays for a free tempo.\n- Do not sprint one back checker across the outfield: split, hit, or step out while you build.\n- With no good hit, fill the 5, 4, or bar point instead of stripping the midpoint into loose builders.\n- After entering, spend the spare number on a checker that builds or threatens, not an isolated slot.\n- Stay in contact while the opponent is blotty; switch to pure safety only once their prime is real."
+       },
+       {
+        "game": 6,
+        "text": "- When a blot can be hit, take it; passing up contact for a quiet move was the expensive habit.\n- Do not bury checkers in your home board while men are still stranded back or in the outfield.\n- With the opponent on the bar, use the tempo to hit again or free a back checker, not to shuffle.\n- Advance deep back checkers as soon as the dice allow, instead of stacking points you already own.\n- A safe-looking play is often the wrong one; check the aggressive alternative before you decline the risk."
+       },
+       {
+        "game": 7,
+        "text": "- Free back checkers before you fill the home board; burying men leaves them stranded.\n- After a hit, bring a second back checker down for support instead of running the hitter on alone.\n- Move trapped checkers together; do not sprint one man home and leave its partner behind.\n- Take clean hits when they are available, especially if the opponent is already disrupted.\n- In contact, step out when escape needs risk, but do not volunteer shots that do not advance the plan."
+       },
+       {
+        "game": 8,
+        "text": "- If a roll jumps a back checker clear of the opponent's prime, play it. Do not leave both men trapped while you build at home.\n- When you have a free tempo, split or step the back checkers instead of only strengthening the front.\n- If the dice can hit two blots, hit both. A second man sent back beats a quiet builder move.\n- Do not drop a spare on the opponent's ace point just to take an extra checker.\n- With contact gone, use pips to enter home or to bring men within a roll of it, and do not stack. Moving only the rearmost checkers will not save the gammon."
+       },
+       {
+        "game": 9,
+        "text": "- Step or split back checkers before slotting or stacking in your own board.\n- Do not bury spares on the ace-point while a man is still trapped behind.\n- Hit when the hit pairs with a useful second move, not a quiet non-contact play.\n- With the opponent on the bar, fill points and close the board rather than sprinting a loose checker home.\n- In the bear-off, keep a smooth distribution instead of clearing the maximum when contact remains."
+       },
+       {
+        "game": 10,
+        "text": "- Prefer a direct hit on a blot over quiet builder moves, especially when your back checkers can strike.\n- After you hit, split the roll: use one die for the hit and the other to strengthen your home board rather than running one checker.\n- When two checkers enter or advance together, spread them instead of stacking both on the same point.\n- Once the opponent is on the bar, bring outfield checkers home; do not waste pips filling points you already own.\n- Declining contact to stay safe is often the larger error; take constructive hits and forward risks when they speed the win."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 1,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 25.56362971663475,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 88.0,
+       "risk_pays": 100,
+       "risks_found": 57.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 12636.6
+      },
+      "wins": 5
      }
     ],
-    "series_finished": 1,
+    "series_finished": 2,
     "setup": "Grok 4.7 (high)",
     "state": "running",
-    "status": "running, 1 of 5 series",
+    "status": "running, 2 of 5 series",
     "steps_done": [
      "E1",
-     "S1"
+     "S1",
+     "S2"
     ],
     "threshold": null,
     "verdict": false
@@ -3614,7 +3684,7 @@
      "risks_found": 9.25
     },
     "cost": {
-     "api_equivalent_usd": 488.6426,
+     "api_equivalent_usd": 494.0975,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -3673,7 +3743,7 @@
      "reason": null,
      "series_done": 4,
      "status": "running",
-     "updated_at": "2026-11-11T09:25:46+00:00"
+     "updated_at": "2026-11-11T09:50:01+00:00"
     },
     "range": 2.0,
     "reason": null,
@@ -3973,20 +4043,20 @@
    },
    {
     "after": {
-     "error_rate": 33.845749758183956,
-     "right_safety": 97.25,
-     "risks_found": 43.25
+     "error_rate": 33.91731886565685,
+     "right_safety": 96.6,
+     "risks_found": 42.8
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 800,
-     "expected": 800,
+     "answered": 1000,
+     "expected": 1000,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 400,
-     "safety_pays": 400,
-     "tests": 4,
-     "valid": 800
+     "risk_pays": 500,
+     "safety_pays": 500,
+     "tests": 5,
+     "valid": 1000
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -4005,9 +4075,9 @@
      "risks_found": 34.333333333333336
     },
     "change": {
-     "error_rate": -5.625033887724079,
-     "right_safety": -1.0833333333333286,
-     "risks_found": 8.916666666666664
+     "error_rate": -5.553464780251183,
+     "right_safety": -1.7333333333333343,
+     "risks_found": 8.466666666666661
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -4063,13 +4133,13 @@
      }
     ],
     "empty_done": 3,
-    "improved": null,
+    "improved": true,
     "key": "gemma-4-31b-on",
     "progress": {
      "reason": null,
-     "series_done": 4,
-     "status": "running",
-     "updated_at": "2026-11-11T07:20:56+00:00"
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-11T09:35:53+00:00"
     },
     "range": 1.0,
     "reason": null,
@@ -4349,12 +4419,81 @@
        "wall_seconds": 7628.6
       },
       "wins": 5
+     },
+     {
+      "finished": true,
+      "game_decisions": 252,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Prioritize escaping trapped back checkers over attacking in the home board.\n- Avoid hitting for the sake of hitting; ensure the hit improves your structural equity.\n- In the late game, prioritize bringing back checkers home over refining internal board structure.\n- Be cautious of aggressive plays when your own mobility is low and your back checkers are stranded."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize escaping back checkers over consolidating the home board.\n- Look for aggressive hitting opportunities to gain tempo and mobility.\n- Avoid leaving back checkers stranded while playing too safely in other areas.\n- Balance the desire for safety with the necessity of advancing the furthest checkers."
+       },
+       {
+        "game": 3,
+        "text": "- Prioritize escaping back checkers early rather than over-consolidating the home board.\n- Avoid burying checkers deep in the home board while the opponent still has checkers to bring home.\n- Do not take unnecessary risks with exposed checkers if a safe, constructive play is available.\n- In the bear-off phase, always prioritize removing checkers from the board to maintain race equity."
+       },
+       {
+        "game": 4,
+        "text": "- Avoid over-hitting in the home board if it compromises structure or misses strategic opportunities.\n- Prioritize advancing back checkers to avoid getting trapped and to maintain flexibility.\n- Don't bury checkers deep in the home board prematurely; maintain connectivity and movement in the outer board.\n- Evaluate whether making a key point is more valuable than hitting a lone blot.\n- Avoid unnecessary risks by choosing consolidation over aggressive hitting when the position is already secure."
+       },
+       {
+        "game": 5,
+        "text": "- Prioritize hitting the opponent to disrupt their timing and gain a tempo advantage.\n- Do not bury checkers deep in the home board while outer board points still need clearing.\n- Focus on efficiently clearing the mid-point and outer board before finalizing the home board structure.\n- Avoid overly passive safety plays when active development or hitting provides better equity."
+       },
+       {
+        "game": 6,
+        "text": "- Prioritize aggressive hitting opportunities when entering from the bar to disrupt the opponent's structure.\n- Avoid overly cautious play when taking a calculated risk can significantly swing the game's equity.\n- Be more decisive about attacking when the opponent is vulnerable, even if it leaves blots.\n- Focus on maximum efficiency when bringing checkers home to avoid minor equity leaks in the endgame."
+       },
+       {
+        "game": 7,
+        "text": "- Avoid burying checkers deep in the home board when back checkers still need to be advanced.\n- Prioritize the movement of stranded back checkers over unnecessary home board consolidation.\n- Maintain flexibility in the home board by avoiding premature stacking on the lowest points.\n- Balance the desire to hit with the need to maintain a safe and efficient board structure."
+       },
+       {
+        "game": 8,
+        "text": "- Prioritize making internal points and strengthening the home board over simply advancing back checkers.\n- Be more alert to aggressive opportunities, such as double-hits, to disrupt the opponent's timing and control the board.\n- Avoid burying checkers deep in the home board too early; maintain flexibility and consolidate the outer board first.\n- Distinguish between productive hits that improve board control and reflexive hits that create unnecessary vulnerabilities."
+       },
+       {
+        "game": 9,
+        "text": "- Prioritize escaping back checkers over hitting deep in the opponent's home board.\n- Avoid hitting instinctively if improving overall board structure or mobility provides more value.\n- Maintain flexibility in the outfield and avoid over-committing checkers to the home board too early.\n- In a race, prioritize clearing the most distant checkers to maximize efficiency and minimize risk."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize advancing back checkers early to maintain mobility and avoid getting trapped.\n- Be more aggressive in seeking hitting opportunities, especially double hits, to disrupt the opponent's timing.\n- Avoid overly passive plays when an aggressive move offers significantly higher equity.\n- Distinguish between productive aggression and \"needless risk\"; ensure hits improve your position rather than just creating vulnerabilities."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 34.20359529554844,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 94.0,
+       "risk_pays": 100,
+       "risks_found": 41.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 8093.6
+      },
+      "wins": 3
      }
     ],
-    "series_finished": 4,
+    "series_finished": 5,
     "setup": "Gemma 4 31B (on)",
-    "state": "running",
-    "status": "running on our GPU, 4 of 5 series",
+    "state": "complete",
+    "status": "Yes",
     "steps_done": [
      "E1",
      "S1",
@@ -4362,10 +4501,11 @@
      "E2",
      "S3",
      "S4",
-     "E3"
+     "E3",
+     "S5"
     ],
     "threshold": 5,
-    "verdict": false
+    "verdict": true
    },
    {
     "after": {
@@ -4450,7 +4590,7 @@
      "reason": null,
      "series_done": 2,
      "status": "running",
-     "updated_at": "2026-11-11T07:57:43+00:00"
+     "updated_at": "2026-11-11T09:49:24+00:00"
     },
     "range": null,
     "reason": null,
@@ -4747,18 +4887,18 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-11T09:34:27+00:00"
+  "updated_at": "2026-11-11T09:50:09+00:00"
  },
- "source_sha256": "a368753fb44ce3d8b0ec4985046b9a35b7b7aec638b9c550c973db5388f319c6",
+ "source_sha256": "974bd211c17b32ac5bae5bfe5bfc594e36635e58fa85595898b21a3905f17b07",
  "status": {
-  "last_update": "2026-11-11T09:34:27+00:00",
-  "line": "6 of 15 models with a verdict · 4 running · 5 paused · 0 incomplete or stopped",
+  "last_update": "2026-11-11T09:50:09+00:00",
+  "line": "7 of 15 models with a verdict · 3 running · 5 paused · 0 incomplete or stopped",
   "models": 15,
   "paused": 5,
   "phase": "running",
-  "running": 4,
+  "running": 3,
   "stopped": 0,
-  "verdicts": 6
+  "verdicts": 7
  },
  "validation": {
   "accepted": true,
