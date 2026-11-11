@@ -501,10 +501,10 @@
    },
    {
     "reason": null,
-    "series_done": 2,
+    "series_done": 3,
     "setup": "Qwen3.8-27B (low)",
     "status": "running",
-    "updated_at": "2026-11-11T16:14:04+00:00"
+    "updated_at": "2026-11-11T20:01:08+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-11T19:49:55+00:00"
+  "updated_at": "2026-11-11T20:01:08+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -4302,7 +4302,7 @@
      "risks_found": 5.5
     },
     "cost": {
-     "api_equivalent_usd": 154.3824,
+     "api_equivalent_usd": 154.7986,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -5437,20 +5437,20 @@
    },
    {
     "after": {
-     "error_rate": 41.14337380975485,
-     "right_safety": 81.0,
-     "risks_found": 46.5
+     "error_rate": 40.24998026589552,
+     "right_safety": 82.33333333333333,
+     "risks_found": 50.666666666666664
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 400,
-     "expected": 400,
+     "answered": 600,
+     "expected": 600,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 200,
-     "safety_pays": 200,
-     "tests": 2,
-     "valid": 400
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -5469,9 +5469,9 @@
      "risks_found": 33.5
     },
     "change": {
-     "error_rate": -5.382288955152035,
-     "right_safety": -8.0,
-     "risks_found": 13.0
+     "error_rate": -6.27568249901136,
+     "right_safety": -6.666666666666671,
+     "risks_found": 17.166666666666664
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -5516,9 +5516,9 @@
     "key": "qwen3.8-27b-on",
     "progress": {
      "reason": null,
-     "series_done": 2,
+     "series_done": 3,
      "status": "running",
-     "updated_at": "2026-11-11T16:14:04+00:00"
+     "updated_at": "2026-11-11T20:01:08+00:00"
     },
     "range": null,
     "reason": null,
@@ -5660,17 +5660,87 @@
        "wall_seconds": 13597.6
       },
       "wins": 4
+     },
+     {
+      "finished": true,
+      "game_decisions": 237,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- You repeatedly \"missed risk\": when a hit or strong point-building move is available, take it instead of safe advancement.\n- In the endgame, bear off rather than making unnecessary points; check bearing-off options before building.\n- After re-entering from the bar, use the second roll to advance the re-entered checker as far as possible.\n- Don't move distant checkers when closer ones can consolidate in the midgame.\n- When advancing multiple checkers, push them through rather than stopping to make a point prematurely."
+       },
+       {
+        "game": 2,
+        "text": "- When building your home board, prioritize making and keeping higher points over advancing checkers or breaking made points to make lower ones.\n- In the bearing off phase, never leave a checker on an exposed high point when you can keep it on a safer lower point.\n- Always look for hits before bearing off, even when the safe play seems obvious."
+       },
+       {
+        "game": 3,
+        "text": "- Don't hit blots unless your inner game can absorb the return; a premature hit that leaves you exposed is usually worse than a quiet advance.\n- When outer checkers are far behind, bring them in first rather than playing in your home board.\n- In the mid-game, prioritize making points and building inner structure over simply advancing a single outer checker.\n- When tempted to hit, ask: can I cover the return hit, and does the position still work if I'm hit? If not, play safe.\n- Avoid tunnel vision on one move; step back and identify the priority of the whole position before choosing."
+       },
+       {
+        "game": 4,
+        "text": "- Don't make small home-board improvements while a back checker sits on 23 or 24; the engine repeatedly preferred advancing your back checkers, and your \"missed risk\" calls all came from this habit.\n- When you have a checker on the 23 point, ask: is my current move really better than bringing that checker home? If the answer isn't obvious, default to the 23 move.\n- Avoid over-concentrating on building the inner board (e.g., stacking 1–6 points) at the expense of bringing checkers through the prime; a strong prime plus advanced back checkers outperforms a full inner board with a stuck back checker.\n- On entry turns, consider moving the entry checker toward home (e.g., 22/18) rather than just hitting a distant blot; the hit is often a secondary gain."
+       },
+       {
+        "game": 5,
+        "text": "- Stop hitting reflexively; only hit when it creates a clear structural advantage (prime, blitz). Most of your large errors were needless hits that left back checkers stranded.\n- When you still have checkers deep in the opponent's home board, prioritize bringing them in over making contact in your own board.\n- In the bear-off, always advance your highest checkers first; working on lower ones while higher ones remain is a major equity leak.\n- After entering from the bar, use your second roll to advance that checker or develop other checkers rather than hitting from a distant point.\n- With doubles, prefer moving checkers through your position rather than stacking a prime that may become a liability."
+       },
+       {
+        "game": 6,
+        "text": "- When a hit is available, default to checking it seriously before choosing a quiet move. I missed or avoided hits repeatedly (Turns 7, 21, 41) when the engine wanted to strike.\n- Advancing checkers passively when a hit is on the table is costly; hitting often gains a prime or creates an extra shot that quiet moves sacrifice.\n- In the endgame, don't advance checkers into a vulnerable point just to roll them off; keep them safe to avoid being gammoned or losing a race point.\n- Before any midgame move, explicitly ask: \"Can I hit, and does that improve my position more than the alternative?\" This single question would have flagged several of my worst errors.\n- Distinguish \"needless risk\" (you should hit but chose safety) from \"missed risk\" (you should hit but chose a quiet advance) — both come from underweighting the value of a hit."
+       },
+       {
+        "game": 7,
+        "text": "- When bearing off, don't bear off too eagerly. Keep checkers on the 5- or 6-point when doing so is safer; premature bearing off cost you the most equity in this game.\n- Never ignore a distant checker. If you can advance it, do so even if it disrupts your home board structure temporarily.\n- Always look for the second hit before settling for one. If both rolls can hit, take both.\n- Preserve your prime. Don't break a point unnecessarily when you can maintain the structure with the same rolls."
+       },
+       {
+        "game": 8,
+        "text": "- When ahead, advance your mid-point checkers with 5–6 point moves rather than making small 2–3 point moves or unnecessary hits; this was my most frequent error pattern.\n- Hit only when it serves a concrete tactical purpose (a blot to return to, a blocked escape, or a strong follow-up); otherwise it is a needless risk.\n- When behind against a strong prime, accept the risk the position demands — my \"missed risk\" errors show I default to safety even when an aggressive move is correct."
+       },
+       {
+        "game": 9,
+        "text": "- When you have a strong home board prime, always check for hits first. I missed too many hits at the 2- and 3-point that my prime should have supported.\n- Advancing middle checkers into new blots is worse than hitting from a strong position; use your prime as a weapon, not just a shield.\n- A hit from a strong holding position is rarely \"too risky\" — when in doubt, hit.\n- When the opponent is close to bearing off, don't over-advance; keep checkers in safe positions.\n- When re-entering from the bar, choose the move with the best follow-up potential, not just the most advanced one."
+       },
+       {
+        "game": 10,
+        "text": "- When a hit is available, evaluate it first. I ignored three hits (turns 14, 16, 18) for a combined 0.62 equity loss. Don't default to inner board moves when a hit is on the table.\n- In the mid-game, hitting a lone advanced opponent checker is often worth more than consolidating your own position.\n- With doubles, when choosing between moving two different checkers down, prefer the higher point for more flexibility.\n- In the bear-off, pick the move that keeps your best rolling sequence, not just the most natural one."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 38.46319317817688,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 85.0,
+       "risk_pays": 100,
+       "risks_found": 59.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 13623.8
+      },
+      "wins": 6
      }
     ],
-    "series_finished": 2,
+    "series_finished": 3,
     "setup": "Qwen3.8-27B (low)",
     "state": "running",
-    "status": "running on our GPU, 2 of 5 series",
+    "status": "running on our GPU, 3 of 5 series",
     "steps_done": [
      "E1",
      "S1",
      "S2",
-     "E2"
+     "E2",
+     "S3"
     ],
     "threshold": null,
     "verdict": false
@@ -5815,11 +5885,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-11T19:49:55+00:00"
+  "updated_at": "2026-11-11T20:01:08+00:00"
  },
- "source_sha256": "60419b394fd88ca95035d58efce08a6a4b626fdeedd9a493f6698577ae8558ca",
+ "source_sha256": "5a03b7c9c362e615366bc2719e5029def0a3e34c577db527cfdf899b42acfd2c",
  "status": {
-  "last_update": "2026-11-11T19:49:55+00:00",
+  "last_update": "2026-11-11T20:01:08+00:00",
   "line": "10 of 15 models with a verdict · 2 running · 3 paused · 0 incomplete or stopped",
   "models": 15,
   "paused": 3,

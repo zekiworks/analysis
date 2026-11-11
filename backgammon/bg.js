@@ -562,8 +562,9 @@ async function savePng(panel, svg, title, lines, filename) {
    ?models=chat|decision and ?class=<class> open on them; the old ?models=small-chat / small-decision (and small: Small
    chat) open on that type with Tiny and Small. A row out of the view and its other-settings rows go out of view (class
    hl-off), whatever their expander says; the programs stay in every view; the Rank column counts the model rows in
-   view, 1, 2, 3, … in the table's order (Ümit via Zeki #4630: no gaps, ties numbered on), the programs and the
-   other-settings rows never numbered; the class rule (Ümit #4245) stands under the keys. */
+   view, 1, 2, 3, … in the table's order (Ümit via Zeki #4630: no gaps, ties numbered on), the programs, the
+   other-settings rows and a late entry still playing (data-kind="running", Zeki #5001: unranked until complete) never
+   numbered; the class rule (Ümit #4245) stands under the keys. */
 (function headlineFilter() {
   const table = document.getElementById('headline-table');
   const keys = [...document.querySelectorAll('[data-hl-filter]')];
@@ -585,7 +586,7 @@ async function savePng(panel, svg, title, lines, filename) {
     });
     let n = 0;
     rows.forEach(tr => {
-      if (tr.dataset.hlType !== 'program' && !tr.classList.contains('hl-sub') && !tr.classList.contains('hl-off')) tr.cells[0].textContent = ++n;
+      if (tr.dataset.hlType !== 'program' && tr.dataset.kind !== 'running' && !tr.classList.contains('hl-sub') && !tr.classList.contains('hl-off')) tr.cells[0].textContent = ++n;
     });
     table.dispatchEvent(new CustomEvent('hl-filter'));
   };
