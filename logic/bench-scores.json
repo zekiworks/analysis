@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-11T16:44:46Z",
+ "updated": "2026-11-11T18:18:31Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -1703,6 +1703,40 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.021388888888888888,
    "gpu_cost_usd": 0.004551936835699293
+  },
+  {
+   "repo": "PelaAI/KnowLine-0.8B-Gen1",
+   "commit": "6b27831f7b783c03278bd946d4d8f4f7a98a3798",
+   "model_key": "knowline-0.8b-gen1",
+   "name": "KnowLine-0.8B-Gen1",
+   "display_name": "KnowLine-0.8B-Gen1",
+   "tag": "",
+   "class_label": "Open · 0.8B",
+   "base_model": "Qwen3.5-0.8B",
+   "setup_label": "KnowLine-0.8B-Gen1",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "params_total": 0.8,
+   "params_active": 0.8,
+   "quantization": "BF16",
+   "score_0_100": 9.595498783454989,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.2767639902676399,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.09799661221502888,
+   "improvement_points": null,
+   "runs": [
+    "logic:knowline-0.8b_en",
+    "math:knowline-0.8b_en",
+    "logic:knowline-0.8b_en_dontknow",
+    "math:knowline-0.8b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10)",
+   "gpu_hours": 0.027777777777777776,
+   "gpu_cost_usd": 0.005911606280128953
   },
   {
    "repo": "StrandsAgents/strands-decider-2B-hobson-v21",

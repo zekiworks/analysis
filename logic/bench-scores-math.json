@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-11T16:44:46Z",
+ "updated": "2026-11-11T18:18:31Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -1668,6 +1668,38 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); the repository holds a LoRA and head on Qwen3.5-2B-Base",
    "gpu_hours": 0.02277777777777778,
    "gpu_cost_usd": 0.056716666666666665
+  },
+  {
+   "repo": "PelaAI/KnowLine-0.8B-Gen1",
+   "commit": "6b27831f7b783c03278bd946d4d8f4f7a98a3798",
+   "model_key": "knowline-0.8b-gen1",
+   "name": "KnowLine-0.8B-Gen1",
+   "display_name": "KnowLine-0.8B-Gen1",
+   "tag": "",
+   "class_label": "Open · 0.8B",
+   "base_model": "Qwen3.5-0.8B",
+   "setup_label": "KnowLine-0.8B-Gen1",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "params_total": 0.8,
+   "params_active": 0.8,
+   "quantization": "BF16",
+   "score_0_100": 10.251964863615349,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.2820157189089228,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": 0.10540986823469145,
+   "improvement_points": null,
+   "runs": [
+    "math:knowline-0.8b_en",
+    "math:knowline-0.8b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10)",
+   "gpu_hours": 0.017222222222222222,
+   "gpu_cost_usd": 0.003665195893679951
   },
   {
    "repo": "fastino/GLiDE-0.4B",

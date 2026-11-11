@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-11T16:44:46Z",
+ "updated": "2026-11-11T18:18:31Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -389,6 +389,38 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); 2.3B effective parameters",
    "gpu_hours": 0.23194444444444445,
    "gpu_cost_usd": 0.5775416666666667
+  },
+  {
+   "repo": "Qwen/Qwen3-14B",
+   "commit": "40c069824f4251a91eefaf281ebe4c544efd3e18",
+   "model_key": "qwen3-14b",
+   "name": "Qwen3-14B",
+   "display_name": "Qwen3-14B",
+   "tag": "off · chat",
+   "class_label": "Open · 15B",
+   "base_model": null,
+   "setup_label": "Qwen3-14B (chat, reasoning off, on our GPU)",
+   "maker": "Alibaba",
+   "kind": "chat",
+   "params_total": 14.8,
+   "params_active": 14.8,
+   "quantization": "BF16",
+   "score_0_100": 56.666666666666664,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6533333333333333,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:qwen3-14b_en",
+    "logic:qwen3-14b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+   "gpu_hours": 0.8005555555555556,
+   "gpu_cost_usd": 1.9933833333333335
   },
   {
    "repo": "LiquidAI/LFM2.5-8B-A1B",
@@ -1637,6 +1669,38 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.008333333333333333,
    "gpu_cost_usd": 0.0017734818840386857
+  },
+  {
+   "repo": "PelaAI/KnowLine-0.8B-Gen1",
+   "commit": "6b27831f7b783c03278bd946d4d8f4f7a98a3798",
+   "model_key": "knowline-0.8b-gen1",
+   "name": "KnowLine-0.8B-Gen1",
+   "display_name": "KnowLine-0.8B-Gen1",
+   "tag": "",
+   "class_label": "Open · 0.8B",
+   "base_model": "Qwen3.5-0.8B",
+   "setup_label": "KnowLine-0.8B-Gen1",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "params_total": 0.8,
+   "params_active": 0.8,
+   "quantization": "BF16",
+   "score_0_100": 8.333333333333332,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.26666666666666666,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": 0.08374339197455763,
+   "improvement_points": null,
+   "runs": [
+    "logic:knowline-0.8b_en",
+    "logic:knowline-0.8b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10)",
+   "gpu_hours": 0.010555555555555556,
+   "gpu_cost_usd": 0.002246410386449002
   },
   {
    "repo": "fastino/GLiDE-0.4B",
