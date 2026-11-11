@@ -424,7 +424,7 @@ def english(site: Site, run: dict[str, Any]) -> str | None:
     found = next((item["english"] for item in idk["models"] + english_only(idk) if item["text_run"] == run["run"]), None)
     option = esc(idk["option"])
     if found is None:
-        rate, answered, error = missing_side(site, run), None, None
+        rate, answered, error = missing_side(site, run, "english"), None, None
     else:
         value = "No rate" if found["non_hallucination"] is None else pct(found["non_hallucination"], digits)
         rate = (f"{value}: {found['dont_know']:,} “{option}” of {found['dont_know'] + found['wrong']:,} not right "

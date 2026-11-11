@@ -16,8 +16,9 @@ with decision and chat models in blocks of their own, never one ranking: by conf
 block, and with "I don't know" in English (english_reading.dont_know's English sides and english_only, the rate; under
 the decision block the models that almost never chose it); under the two, set apart, the Turkish reference (each setup's
 Text tab run at the threshold); a
-setup without an English run with the option reads Running (a chat model's run still running, page_config.json's
-dont_know.running) or Not run (a decision model not run with it yet). Cost and latency are each
+setup without an English run with the option reads Queued or Running as page_config.json's dont_know.under_way gives it
+(Zeki #4956), else Running (a chat model's run still running, dont_know.running) or Not run (a decision model not run
+with it yet). Cost and latency are each
 setup's first English run's (english_reading.models[].cost and .latency), on a log scale as on the home page. English-only
 setups (english_reading.english_only: no Text tab run, Ümit's small models) are ranked with the others (english_members):
 their Turkish accuracy reads Not run, they have no Turkish reference, and their name links to their row here
@@ -34,7 +35,7 @@ from sitebuild.english_reading import (NO_OPTION, NO_RATE, NOT_RUN, PATH as COMP
                                        experiments_note, group_models, idk_key, label, limit_line, limit_note,
                                        measure_card, measure_cell, measure_heads, missing_note, missing_side, name_html,
                                        noun, only_anchor, setup_families, setup_icon, setup_key, setup_run,
-                                       turkish_running)
+                                       turkish_running, under_way)
 from sitebuild import holding_back as hold
 from sitebuild.site import (GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, measure_rows, more_link, pct,
                             rel, shown)
@@ -206,7 +207,11 @@ def build(site: Site) -> dict[str, str]:
                          if setup_key(model) in held and held[setup_key(model)]["non_hallucination"] is None]
             no_option = [(label(site, model), NO_OPTION[provider(model)]) for model in mine
                          if setup_key(model) not in held and provider(model) in NO_OPTION]
-            waiting = [label(site, model) for model in mine if setup_key(model) not in held and provider(model) not in NO_OPTION]
+            waiting = [model for model in mine if setup_key(model) not in held and provider(model) not in NO_OPTION]
+            # A chat model's English run with the option: queued (not started yet) when dont_know.under_way says so,
+            # else still running (Zeki #4956).
+            queued = [label(site, model) for model in waiting if under_way(site, model["model"], "english") == "queued"]
+            running_now = [label(site, model) for model in waiting if under_way(site, model["model"], "english") != "queued"]
             rows = [{"label": site.title(setup_run(site, model)), "tag": site.tag(setup_run(site, model)),
                      "family": family(model)["name"], "href": href(site, model),
                      "class_key": site.model_class(setup_run(site, model)),
@@ -226,10 +231,13 @@ def build(site: Site) -> dict[str, str]:
             legend = (family_legend([family(model) for model, _ in rated])
                       + (f" <span>No rate (neither a wrong answer nor “{esc(option)}”): {esc(', '.join(undefined))}.</span>"
                          if undefined else "")
-                      + ((f" <span>Decision models not run with “{esc(option)}” in English yet: {esc(', '.join(waiting))}.</span>"
-                          if kind == "decision" else
-                          f" <span>{esc(running_reason.removesuffix('.'))}; still running in English: {esc(', '.join(waiting))}.</span>")
-                         if waiting else "")
+                      + ((f" <span>Decision models not run with “{esc(option)}” in English yet: "
+                          f"{esc(', '.join(label(site, model) for model in waiting))}.</span>" if waiting else "")
+                         if kind == "decision" else
+                         (f" <span>{esc(running_reason.removesuffix('.'))}; still running in English: "
+                          f"{esc(', '.join(running_now))}.</span>" if running_now else "")
+                         + (f" <span>Queued in English, its run with “{esc(option)}” not started yet: "
+                            f"{esc(', '.join(queued))}.</span>" if queued else ""))
                       + "".join(f" <span>Not run, as {esc(reason)}: {esc(name)}.</span>" for name, reason in no_option))
             line = (f'<p class="hold-kind">Each of the {len(rated)} {noun(kind, len(rated))}\' first English run with it.</p>'
                     if rated else "")
@@ -283,7 +291,7 @@ def build(site: Site) -> dict[str, str]:
             values.insert(1, score_cell(model))
             counts = held.get(setup_key(model))
             values.append(
-                missing_side(site, setup_run(site, model)) if counts is None else
+                missing_side(site, setup_run(site, model), "english") if counts is None else
                 f'{NO_RATE if counts["non_hallucination"] is None else pct(counts["non_hallucination"], digits)}'
                 f'<span class="small">{counts["dont_know"]:,} “{esc(option)}” of '
                 f'{counts["dont_know"] + counts["wrong"]:,} not right</span>'
@@ -300,9 +308,12 @@ def build(site: Site) -> dict[str, str]:
         head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{cost_unit_in(esc(note))}</span></th>'
                        for text, note in heads)
         alone = [model for model in members if "turkish_run" not in model]
+        queued_here = any(counts is None and under_way(site, model["model"], "english") == "queued"
+                          for model in members for counts in [held.get(setup_key(model))])
         rate_note = (f" English non-hallucination: “{esc(option)}” among the answers that were not right, in the setup's "
-                     "first English run with it offered as a sixth option; Running: a chat model's run still running; Not "
-                     "run: a decision model not run with it yet" + (", or an English-only setup" if alone else "") + ".")
+                     "first English run with it offered as a sixth option; Running: a chat model's run still running; "
+                     + ("Queued: a run with it not started yet; " if queued_here else "")
+                     + "Not run: a decision model not run with it yet" + (", or an English-only setup" if alone else "") + ".")
         return (f'<section class="card" id="{anchor("table", group)}" {shown(group)} data-top-rows>'
                 f"<h2>Every {noun(group, 1)} in English</h2>"
                 f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr>'

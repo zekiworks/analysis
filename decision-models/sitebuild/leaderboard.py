@@ -24,7 +24,7 @@ from typing import Any
 import benchmark_metrics as bm
 import build_page as bp
 from sitebuild import holding_back as hold
-from sitebuild.english_reading import (BASIS_WORDS, english_only, entry_href, idk_key, setup_families, setup_run)
+from sitebuild.english_reading import (BASIS_WORDS, english_only, entry_href, idk_key, setup_families, setup_run, under_way)
 from sitebuild.names import base_model, tag_html
 from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, Site, cost_missing, cost_per, cost_value, esc, family_icon,
                             measure_keys, parameters_text, pct, rel, size_sentence, stated_total)
@@ -125,7 +125,7 @@ class Board:
 
     def pending(self, model: str, side: str) -> str | None:
         """A side's state while its run with the option is not in (dont_know.under_way): queued, running or None."""
-        return self.under_way.get(model, {}).get(side)
+        return under_way(self.site, model, side)
 
     def key(self, run: dict[str, Any]) -> tuple[str, bool, bool]:
         return self.checkpoints.get(run["model"], run["model"]), self.site.decision(run), run["perplexity_mode"] is not None

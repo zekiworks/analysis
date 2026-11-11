@@ -455,8 +455,8 @@ def findings(site: Site, data: dict[str, Any]) -> str:
     taken between accuracies computed from the right-answer counts and rounded only when shown (not between the tables'
     rounded percentages); significance from the paired exact McNemar tests vision.json holds (p below 0.05, one
     comparison at a time). The sentences assume what they state (each image model has A, B and C and is less accurate
-    with the picture alone, most models' best OCR route is below their text, with the others named, every OCR route beats
-    the picture alone); the build stops when the data no longer fits them."""
+    with the picture alone, most models' best OCR route is below their text, with the others named, and for most image
+    models every OCR route beats the picture alone, with the others named); the build stops when the data no longer fits them."""
     exact = lambda result: 100 * result["correct"] / result["questions"]  # noqa: E731 - an accuracy in percent, unrounded
     acc = lambda model, label: exact(model["conditions"][label])  # noqa: E731
     points = lambda value: f"{value:.1f}"  # noqa: E731
@@ -547,15 +547,29 @@ def findings(site: Site, data: dict[str, Any]) -> str:
                       f"{pct(verified[fewest]['cer'], 2)} against {pct(verified[key]['cer'], 2)}).")
     both = [(model, label, metrics) for model, label, metrics in routes if "B" in model["conditions"]]
     if both:
-        if any(acc(model, label) <= acc(model, "B")
-               for model, _, _ in both for label in ocr_labels(data) if label in model["conditions"]):
-            raise SystemExit("vision.json findings: the text expects every OCR route above the picture alone")
-        lift = {model["name"]: exact(metrics) - acc(model, "B") for model, _, metrics in both}
-        weak_routes = [model for model, label, _ in both if p_value(model, "B", label) >= 0.05]
-        third += (f" For the {len(both)} image models with both, every OCR route was more accurate than the picture alone "
+        # The image models whose every OCR route beat the picture alone, and those with a route at or below it, named with
+        # their best route's gap (KnowLine 0.8B Gen1, 11 November 2026: picture alone 182 of 763, its best route 174).
+        above = [(model, label, metrics) for model, label, metrics in both
+                 if all(acc(model, other) > acc(model, "B") for other in ocr_labels(data) if other in model["conditions"])]
+        rest = [(model, label, metrics) for model, label, metrics in both
+                if not any(model is item[0] for item in above)]
+        if not above:
+            raise SystemExit("vision.json findings: the text expects most image models' OCR routes above the picture alone")
+        lift = {model["name"]: exact(metrics) - acc(model, "B") for model, _, metrics in above}
+        weak_routes = [model for model, label, _ in above if p_value(model, "B", label) >= 0.05]
+        third += ((f" For the {len(both)} image models with both" if not rest else
+                   f" For {len(above)} of the {len(both)} image models with both")
+                  + f", every OCR route was more accurate than the picture alone "
                   f"(B): the best route by {points(min(lift.values()))} to {points(max(lift.values()))} points, "
-                  + (f"significant for {len(both) - len(weak_routes)} of the {len(both)} (not for "
+                  + (f"significant for {len(above) - len(weak_routes)} of the {len(above)} (not for "
                      f"{joined([name(m) for m in weak_routes])})." if weak_routes else "each significant."))
+        for model, label, metrics in rest:
+            change = exact(metrics) - acc(model, "B")
+            where = (f"{points(change)} points above the picture alone, though not every route was" if change > 0 else
+                     "level with the picture alone" if change == 0 else f"{points(-change)} points below the picture alone")
+            third += (f" {name(model)}'s best route was {where}"
+                      + (" (not a significant difference)." if p_value(model, "B", label) >= 0.05 else
+                         " (a significant difference)."))
     third += "</p>"
 
     tops = {}

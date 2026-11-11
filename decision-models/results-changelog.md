@@ -2,6 +2,17 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results c331f9e8 (11 November 2026)
+
+- Added KnowLine-0.8B-Gen1, a tiny decision model, the first of the tiny batch (the project lead, bus #4578; logic #4937). It is checkpoint `PelaAI/KnowLine-0.8B-Gen1` at `6b27831`, a merged LoRA fine-tune of Qwen3.5-0.8B (0.8B, as its card states). It ran on one NVIDIA DGX Spark, one request at a time, behind the card's `serve_knowline.sh` (SGLang 0.5.21, BF16, read up to 3,000 tokens twice), with images on.
+- Text tab: run 1005 answered 596 of 2,198 right (27.1%), 90th of 96 setups, between Strands Decider 2B (27.5%) and meraGPT Decider 1 (27.1%): 38.3% on reading, 22.4% on grammar. No invalid answers.
+- English reading: run 1001 answered 322 of 547 kept questions right (58.9%), against 220 (40.2%) in Turkish on the same questions. Only the English run was right on 150 of them, only the Turkish run on 48 (p = 2e-13, Holm 2e-11): better in English.
+- Hallucination tab: in Turkish run 1007 it chose "Bilmiyorum" on 104 of the 1,619 questions it did not answer right (non-hallucination 6.4%); in English run 1003 it chose "I don't know" on 26 of 243 (10.7%).
+- Page images (condition A is run 1005): text only 187 of 763 (24.5%), picture only 182 (23.9%), text and picture 184 (24.1%), the best OCR route 174 (22.8%, Surya OCR 2).
+- Vision: the sentence on OCR against the picture alone now counts the image models whose every OCR route beat the picture alone (11 of the 12 with both). It names KnowLine-0.8B-Gen1, whose best route was 1.0 points below its picture alone (not significant). Before, it said every OCR route beat the picture alone for every image model.
+- A missing side with the option reads Queued or Running wherever it is labelled, from `page_config.json` `dont_know.under_way`: the English page's table and Non-hallucination card, Turkish vs English and the model pages (Zeki #4956). Claude Fable 5.2's English cell read Not run there.
+- The significance letters move with the new setup; no paired or "I don't know" verdict changed.
+
 ## Results 34863e19 (11 November 2026)
 
 - Repeat checks complete (the project lead via Zeki #4849, #4881, #4906). KnowLine-31B-Gen1.5 ran on logic's server on spark2 with its first runs' server and settings:

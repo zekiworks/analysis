@@ -249,8 +249,10 @@ python3 -m http.server 8000                                # preview at http://1
     static HTML, one copy per group of every part that depends on the setups shown (`data-models="all"`, shown without
     JavaScript; `decision` and `chat` hidden), with its counts and sentences computed for that group and its setups
     ranked by English accuracy within it, the Non-hallucination parts too (decision and chat models with "I don't know"
-    runs ranked together in the all copy; a chat model's side still running reads Running with `page_config.json`'s
-    `dont_know.running`); the parts about decision models only appear once (`data-models="all decision"`), as the
+    runs ranked together in the all copy; a missing side reads Queued or Running as `page_config.json`'s
+    `dont_know.under_way` gives it per model and side, Zeki #4956, else a chat model's side still running reads Running
+    with `dont_know.running`, everywhere a side with the option is missing: `missing_side` in `sitebuild/english_reading.py`);
+    the parts about decision models only appear once (`data-models="all decision"`), as the
     option-word check is for decision models only. A setup that shares its name with another English setup is labelled with the settings
     that tell them apart, as the home page's charts do ("Gemini 3.8 Flash (low reasoning, 16/request)"). English reading
     (`sitebuild/english_view.py`) shows every English setup on the 547 kept reading questions: nothing above the

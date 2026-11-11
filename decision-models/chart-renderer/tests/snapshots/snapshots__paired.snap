@@ -5,8 +5,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 95 comparisons (9 pass).
-━━ passes the Holm adjustment across these 95 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 96 comparisons (9 pass).
+━━ passes the Holm adjustment across these 96 comparisons   ━━ does not pass
 
                                                     Gemini 3.8 Flash · high · chat minus GPT-6 Astra · high · chat                              ⠠⠤⡧⠤                               +0.1
                                                          GPT-6 Astra · high · chat minus GPT-6.1 Sol · high · chat                               ⠠⣷⠤                               +0.2
@@ -98,7 +98,8 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                                                             d1-2B minus GLiDE 0.8B                         ⠒⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒⠂                         +0.1
                                                                                GLiDE 0.8B minus Strands Decider 2B                              ⠒⠒⡗⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠒                    +1.8
                                                                                 Strands Decider 2B minus Decider 1                          ⠒⠒⠒⠒⠒⠒⡗⠗⠒⠒⠒⠒⠒⠒⠂                        +0.4
-                                                                                        Decider 1 minus GLiDE 0.4B                                ⡇     ⠐⠒⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠒           +4.9
+                                                                                Decider 1 minus KnowLine-0.8B-Gen1                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠂                          +0.0
+                                                                               KnowLine-0.8B-Gen1 minus GLiDE 0.4B                                ⡇      ⠒⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠒           +4.9
                                                                            GLiDE 0.4B minus GLiNER2.5-multi-Decide                               ⠒⡗⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒                    +2.0
                                                                                  GLiNER2.5-multi-Decide minus Laya                            ⠐⠒⠒⠒⡗⠒⠒⠺⠒⠒⠒⠒⠒⠒⠂                      +1.2
                                                                                       Laya minus Laya Multilingual                             ⠒⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒⠒                       +1.1

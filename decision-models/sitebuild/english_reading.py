@@ -888,9 +888,9 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
         if word:
             entry = same_word[model["turkish_run"]]
             sides = [entry["turkish"], entry["english"]]
-            # A missing English side: Running for a chat model, Not run for a decision model; a missing Turkish side
-            # (the option-word run): Not run.
-            gaps = [word_missing, missing_side(site, site.by_id[model["turkish_run"]])]
+            # A missing English side: Queued or Running as page_config.json's dont_know.under_way gives it, else Running
+            # for a chat model, Not run for a decision model; a missing Turkish side (the option-word run): Not run.
+            gaps = [word_missing, missing_side(site, site.by_id[model["turkish_run"]], "english")]
             values += [gap if side is None else answered(side) for side, gap in zip(sides, gaps)]
             values += [gap if side is None else wrong_of_answers(side, digits) for side, gap in zip(sides, gaps)]
             values += [gap if side is None else rate(side) for side, gap in zip(sides, gaps)]
@@ -911,7 +911,7 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
                               f'{pct(point["coverage"], digits)}, non-hallucination '
                               f'{rate_text(point["abstained"] / held if held else None, digits)}</span>')
             else:
-                values.append(missing_side(site, site.by_id[model["turkish_run"]]))
+                values.append(missing_side(site, site.by_id[model["turkish_run"]], "turkish"))
         values += [measure_cell(site, model, measure, side) for measure in ("cost", "latency") for side in SIDES]
         values += [str(turkish_rank[model["turkish_run"]]), str(english_rank[model["turkish_run"]])]
         entry = listed.get(model["turkish_run"])
@@ -1201,10 +1201,27 @@ NO_PROBABILITIES = '<span class="nm">No probabilities</span>'
 NO_OPTION = {"vllm-yes-no": "yes/no scoring cannot offer it"}
 
 
-def missing_side(site: Site, run: dict[str, Any]) -> str:
-    """What a missing side with the option reads for a setup (a Text tab run, or an English-only setup's setup_run): Not
-    run for a decision model, for a setup whose scoring cannot offer the option (NO_OPTION, with why) or for an
-    English-only setup, else Running (a chat model's run still running)."""
+def under_way(site: Site, model: str, side: str) -> str | None:
+    """A side's state while a setup's run with the option is not in: queued or running, by model id and side (english,
+    turkish), as page_config.json's dont_know.under_way gives it (Zeki #4748, #4956); None for a setup not listed. The
+    Leaderboard's Board checks the list against the data on every build."""
+    return site.config["dont_know"]["under_way"]["models"].get(model, {}).get(side)
+
+
+def pending_label(state: str) -> str:
+    """A missing side's label while its run with the option is queued or running (under_way)."""
+    return (f'<span class="nm">{esc(state.capitalize())}</span><span class="small">its run with the option '
+            + ("is under way" if state == "running" else "has not started yet") + "</span>")
+
+
+def missing_side(site: Site, run: dict[str, Any], side: str) -> str:
+    """What a missing side with the option reads for a setup (a Text tab run, or an English-only setup's setup_run), side
+    english or turkish: Queued or Running for a side page_config.json's dont_know.under_way lists; Not run for a
+    decision model, for a setup whose scoring cannot offer the option (NO_OPTION, with why) or for an English-only
+    setup; else Running (a chat model's run still running)."""
+    state = under_way(site, run["model"], side)
+    if state:
+        return pending_label(state)
     if run["provider"] in NO_OPTION:
         return f'{NOT_RUN}<span class="small">{esc(NO_OPTION[run["provider"]])}</span>'
     return NOT_RUN if site.decision(run) or run["run"] not in site.by_id else RUNNING
@@ -2233,11 +2250,11 @@ def coverage(site: Site, data: dict[str, Any]) -> str:
                      for text in heads)
 
     def missing(model: dict[str, Any], point: dict[str, Any]) -> str:
-        """A point without a run: the option's word in Turkish is a decision models' check (Not run); otherwise Running
-        for a chat model, Not run for a decision model."""
+        """A point without a run: the option's word in Turkish is a decision models' check (Not run); otherwise the
+        side's missing_side label (Queued or Running when under way, Running for a chat model, Not run for a decision model)."""
         if point["language"] == "Turkish" and point["wording"] == "I don't know":
             return f'{NOT_RUN}<span class="small">decision models only</span>' if not site.decision(site.by_id[model["text_run"]]) else NOT_RUN
-        return missing_side(site, site.by_id[model["text_run"]])
+        return missing_side(site, site.by_id[model["text_run"]], point["language"].lower())
 
     def table(group: str) -> str:
         rows = []
