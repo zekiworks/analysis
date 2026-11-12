@@ -4,6 +4,19 @@
    unchanged) and the question index's filters. Every page works without it (the Decision copy of each test page's parts
    shows, the leaderboard shows Logic with every row and every details box in its row, costs read per 1,000 questions). */
 
+/* The Vision tab's view (condition, part, models, class, chart or table) is kept for the browser tab (sessionStorage):
+   opened again without it in the address (from the site's tabs), the page takes the view last shown, before the model
+   group is read. Keys the address names win. */
+(function restoreVision() {
+  if (!document.getElementById('vision-keys')) return;
+  let saved;
+  try { saved = new URLSearchParams(sessionStorage.getItem('logicVisionView') || ''); } catch (e) { return; }
+  const here = new URLSearchParams(window.location.search);
+  let changed = false;
+  saved.forEach((value, key) => { if (!here.has(key)) { here.set(key, value); changed = true; } });
+  if (changed) history.replaceState(history.state, '', `${window.location.pathname}?${here}${window.location.hash}`);
+})();
+
 /* The model group from ?models= (the type: all, decision, chat; missing or unknown means decision, the default) and
    ?class= (all, tiny, small, medium, large, efficient, workhorse, flagship; missing means all), PREVIEW Ümit #4217 (the
    Size keys of #4156/#4198 before it: an old ?size= of tiny, small, medium or large opens that class, undisclosed All,
@@ -77,6 +90,59 @@
     if (first === link) link.addEventListener('click', event => event.preventDefault());
     else link.setAttribute('href', first.getAttribute('href'));
   });
+})();
+
+/* The Vision tab's keys (Ümit #5266, as Reading's Vision page): Condition (b first; a, c, d), Part (logic first; math,
+   both) and Show (chart first; table) switch the panel in view in place (data-vision-panel '<condition>-<part>',
+   data-vision-show); a second tap on the selected key goes back to its row's first key (as the test pages' Part keys).
+   The choice is kept in the address (?condition=, ?part=, ?show=, with ?models= and ?class= always written out) and for
+   the browser tab (restoreVision); the Models and Class keys, which reload with another group, carry it. */
+(function setupVision() {
+  const keys = document.getElementById('vision-keys');
+  if (!keys) return;
+  const rows = { condition: ['b', 'a', 'c', 'd'], part: ['logic', 'math', 'both'], show: ['chart', 'table'] };
+  const params = new URLSearchParams(window.location.search);
+  const state = {};
+  Object.entries(rows).forEach(([name, values]) => {
+    const asked = (params.get(name) || '').toLowerCase();
+    state[name] = values.includes(asked) ? asked : values[0];
+  });
+  const withState = href => {
+    const url = new URL(href, window.location.href);
+    if (!url.searchParams.has('models')) url.searchParams.set('models', window.modelsGroup);
+    if (!url.searchParams.has('class')) url.searchParams.set('class', 'all');
+    Object.keys(rows).forEach(name => url.searchParams.set(name, state[name]));
+    return `?${url.searchParams}${url.hash}`;
+  };
+  const apply = keep => {
+    document.querySelectorAll('[data-vision-panel]').forEach(panel => {
+      panel.hidden = panel.dataset.visionPanel !== `${state.condition}-${state.part}`;
+    });
+    document.querySelectorAll('[data-vision-show]').forEach(view => { view.hidden = view.dataset.visionShow !== state.show; });
+    keys.querySelectorAll('a[data-vision-key]').forEach(link => {
+      const [name, value] = link.dataset.visionKey.split('=');
+      const on = state[name] === value;
+      if (on) link.setAttribute('aria-current', 'true'); else link.removeAttribute('aria-current');
+      link.setAttribute('href', `?${name}=${on ? rows[name][0] : value}`);
+    });
+    keys.querySelectorAll('a[data-view-group], a[data-view-size]').forEach(link => {
+      link.setAttribute('href', withState(link.getAttribute('href')));
+    });
+    const here = withState(window.location.href);
+    if (keep) history.replaceState(history.state, '', `${window.location.pathname}${here}`);
+    try { sessionStorage.setItem('logicVisionView', new URL(here, window.location.href).search); } catch (e) { /* private mode */ }
+  };
+  document.addEventListener('click', event => {
+    const link = event.target.closest('a[data-vision-key]');
+    if (!link || event.metaKey || event.ctrlKey || event.shiftKey) return;
+    event.preventDefault();
+    const [name, value] = link.dataset.visionKey.split('=');
+    const inKeys = keys.contains(link);
+    state[name] = inKeys && state[name] === value ? rows[name][0] : value;
+    apply(true);
+    if (!inKeys) keys.scrollIntoView({ block: 'nearest' });
+  });
+  apply(false);
 })();
 
 /* --view-bar-h holds the sticky header's height (links to a part of a page land below it). */

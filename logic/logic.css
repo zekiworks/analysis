@@ -313,7 +313,29 @@ table.lb-table .lb-wide { display: none; }
   .hl-val .small { display: block; margin-left: 0; }
 }
 
-/* The Vision tab: the language line, the averages under the heading and the closed method block. */
+/* The Vision tab (Ümit #5266, as Reading's Vision page): the keys, one panel in view (its chart or its table), every setup
+   with its state; the language line, the averages and the method under the results. On a phone the tables keep three
+   columns (the tie group and the points move under the name), so nothing scrolls sideways. */
+#vision h1 { margin-bottom: .5rem; }
+#vision .view-keys { margin-bottom: 0; }
+.vision-panel > div + div { margin-top: 0; }
+.vision-more { margin: .6rem 0 0; }
+.vision-go { font-weight: 600; white-space: nowrap; }
+.vision-state { font-weight: 650; }
+table.vision-table td.model, table.vision-roster-table td { white-space: normal; }
+.vision-panel[hidden], [data-vision-show][hidden] { display: none !important; }
+.vt-line { display: none; }
+.vr-line { display: block; white-space: nowrap; font-family: var(--mono); font-size: .8rem; }
+.vr-line .vr-name { font-family: var(--sans); }
+.vision-roster h2 { margin-bottom: .2rem; }
+@media (max-width: 640px) {
+  .vt-line { display: block; }
+  table.vision-table .vt-wide { display: none; }
+  table.board:is(.vision-table, .vision-roster-table) { table-layout: auto; width: 100%; }
+  table.board:is(.vision-table, .vision-roster-table) :is(td, th):first-child { position: static; width: auto; min-width: 0;
+    max-width: none; box-shadow: none; }
+  table.board:is(.vision-table, .vision-roster-table) td.num { white-space: normal; }
+}
 .vision-lang { margin: .2rem 0 .6rem; }
 .vision-gaps { margin: .4rem 0 .3rem; padding-left: 1.1rem; }
 .vision-gaps li { margin: .2rem 0; }
