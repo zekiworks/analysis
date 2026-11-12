@@ -433,27 +433,35 @@ its empty replies are asked again.
   confidence the same entry holds as a number from 0 to 1 (else none), and marked `"read_from_broken_reply": true` in
   the record's `answers`. A repeated number, a letter not allowed, a letter only in free text or any other form leaves
   that answer invalid. A read answer is scored like any other.
+- **Error in place of a reply** (Zeki #5264, 12 November 2026). OpenRouter reports an upstream failure with HTTP 200:
+  an `"error"` object in place of the reply (such as code 502), or a choice that finished with `finish_reason`
+  `"error"` (in mid-reply: a timeout or an overloaded provider; OpenRouter bills it nothing). Neither is the model's
+  reply: every chat path asks it again as it does a failed request (`post_reply`: `post_json`'s retries and delays,
+  each logged as `request failed (…); retry`) and stops the request when the retries run out, so an error is never
+  stored as an answer. Before this, such errors were stored as invalid answers: Claude Haiku 5.5's Turkish Text run 948
+  had three (48 answers), Muse Ember's Page images five.
 
 `--rescue RUN [RUN ...]` applies the rule to finished runs in `--database`, without running a model: it re-reads the
 stored reply of every request whose answers are all invalid and that is broken, and of every answer-layout request
 with an invalid answer rejected only for its confidence, with no request, and asks every empty reply that was never
 asked again once more (`--timeout` and `--concurrency` apply) with the run's own settings, as its row records them
 (provider, model, endpoint and its `#provider=` settings, seed, `vllm-plain`'s `request_params`, reasoning, language
-and "I don't know"; the same questions in the same request, each as its prompt and shown options were stored). Only
-invalid answers change (a valid answer of a request whose record changes keeps its letter and correctness). Each
-changed request's record keeps the
-earlier reply (`"empty_first_reply"`) and under `"rescued"`
-the runner's commit, the time and the answers before; a re-ask adds its time to the run's request time. It refuses a
-run whose provider it cannot re-ask (any outside `RESCUE_PROVIDERS`, named in the message), a running run, and a run
-with empty replies to re-ask whose prompt version is not the one the runner sends or, through OpenRouter, without
+and "I don't know"; the same questions in the same request, each as its prompt and shown options were stored). It asks
+the same way every request whose stored "reply" is an error in place of a reply (above), never asked again before.
+Only invalid answers change (a valid answer of a request whose record changes keeps its letter and correctness). Each
+changed request's record keeps the earlier reply (`"empty_first_reply"`, or `"error_reply"` for an error) and under
+`"rescued"` the runner's commit, the time and the answers before; a re-ask adds its time to the run's request time. It
+refuses a run whose provider it cannot re-ask (any outside `RESCUE_PROVIDERS`, named in the message), a running run,
+and a run with replies to re-ask whose prompt version is not the one the runner sends or, through OpenRouter, without
 `OPENROUTER_API_KEY`, all before anything is asked or written. Per run it prints the invalid answers before, the empty
-replies re-asked, how many came back with answers (and the answers), the answers read from broken replies and those
-read without a confidence, and the invalid answers after by kind (empty after retry, empty and not asked again, cut
-off, unreadable, letter not allowed). `--dry-run` opens the database read-only, asks nothing and prints the same counts
-with the requests it would re-ask. Afterwards `--refresh-report` recomputes the rescued runs' metrics. The report keeps
-per run `invalid_replies`: the answers read from broken replies and without a confidence, the empty replies asked
-again, how many came back with answers and the answers they gave, the invalid answers by kind, and the invalid answers
-without the rule (before `--rescue`).
+replies re-asked, how many came back with answers (and the answers), the error replies re-asked (when there are any),
+the answers read from broken replies and those read without a confidence, and the invalid answers after by kind (empty
+after retry, empty and not asked again, cut off, unreadable, letter not allowed, error reply). `--dry-run` opens the
+database read-only, asks nothing and prints the same counts with the requests it would re-ask. Afterwards
+`--refresh-report` recomputes the rescued runs' metrics. The report keeps per run `invalid_replies`: the answers read
+from broken replies and without a confidence, the empty replies asked again, how many came back with answers and the
+answers they gave, the requests asked again after an error (`error_replies_asked_again`), the invalid answers by kind,
+and the invalid answers without the rule (before `--rescue`).
 
 ### Repeats, routing and the vote share
 

@@ -3280,18 +3280,57 @@ def empty_reply(result: Any) -> bool:
     return finish_reason(result) == "stop" and text is not None and EMPTY_CONTENT.fullmatch(text) is not None
 
 
+def reply_error(result: Any) -> str | None:
+    """Why a chat completions reply that came back with HTTP 200 is a failure and not the model's reply, or None for a
+    reply: an "error" object in its place (OpenRouter reports an upstream failure so, e.g. code 502), or a first choice
+    that finished with "error" (OpenRouter's upstream failure in mid-reply, e.g. a timeout or an overloaded provider;
+    OpenRouter bills it nothing). Such replies were once stored as answers without a letter (Zeki #5264)."""
+    if not isinstance(result, dict):
+        return None
+    if result.get("error") is not None:
+        error = result["error"]
+        code = error.get("code") if isinstance(error, dict) else None
+        return f"error {code}" if code is not None else "an error object"
+    if finish_reason(result) == "error":
+        choice = result["choices"][0]
+        native = choice.get("native_finish_reason") if isinstance(choice, dict) else None
+        return f"finish_reason error ({native})" if native else "finish_reason error"
+    return None
+
+
+def post_reply(
+    endpoint: str, payload: dict[str, Any], headers: dict[str, str], timeout: float, verbose_log: TextIO | None,
+    service: str,
+) -> Any:
+    """post_json's reply, asked again while it is an error (reply_error) with post_json's retries and delays for a
+    failed request; a RuntimeError when they run out, so that an error is never stored as the model's reply."""
+    attempt = 0
+    while True:
+        result, _ = post_json(endpoint, payload, headers, timeout, verbose_log, service)
+        failure = reply_error(result)
+        if failure is None:
+            return result
+        if attempt == JEV_MAX_RETRIES:
+            raise RuntimeError(f"{service} replied with an error, not an answer: {failure}")
+        delay = jev_retry_delay(None, attempt)
+        attempt += 1
+        print(f"warning: {service} request failed ({failure}); retry {attempt}/{JEV_MAX_RETRIES} in {delay:.1f}s",
+              file=sys.stderr)
+        time.sleep(delay)
+
+
 def post_chat(
     endpoint: str, payload: dict[str, Any], headers: dict[str, str], timeout: float, verbose_log: TextIO | None,
     service: str, retry_empty: bool = True,
 ) -> tuple[Any, Any | None]:
-    """A chat completions request through post_json, asked once more, the same request, when its reply is EMPTY (and
-    `retry_empty`): the reply to use, and the first, empty reply when there was a retry, else None. A second empty
-    reply stays empty."""
-    result, _ = post_json(endpoint, payload, headers, timeout, verbose_log, service)
+    """A chat completions request through post_reply (an error in place of the reply is asked again as a failed request
+    is, never kept), asked once more, the same request, when its reply is EMPTY (and `retry_empty`): the reply to use,
+    and the first, empty reply when there was a retry, else None. A second empty reply stays empty."""
+    result = post_reply(endpoint, payload, headers, timeout, verbose_log, service)
     if not retry_empty or not empty_reply(result):
         return result, None
     print(f"warning: empty {service} reply; asking once more", file=sys.stderr)
-    retry, _ = post_json(endpoint, payload, headers, timeout, verbose_log, service)
+    retry = post_reply(endpoint, payload, headers, timeout, verbose_log, service)
     return retry, result
 
 
@@ -4809,8 +4848,9 @@ def retry_cut_requests(
 # ask an EMPTY reply once more and read a BROKEN reply's clearly readable letters, and --rescue applies the rule to
 # their finished runs. vllm-plain's reader reads every reply whole (reads_whole), so only its empty replies are re-asked.
 RESCUE_PROVIDERS = ("openrouter-chat", "agbench", "vllm", "vllm-stated", "vllm-plain")
-# Why an answer is still invalid, as --rescue and the report count it.
-INVALID_KINDS = ("empty after retry", "empty, not retried", "cut off", "unreadable", "letter not allowed")
+# Why an answer is still invalid, as --rescue and the report count it; "error reply": an error stored in place of the
+# model's reply (reply_error), which --rescue asks again.
+INVALID_KINDS = ("empty after retry", "empty, not retried", "cut off", "unreadable", "letter not allowed", "error reply")
 # How a stored answer read by the rule is marked in its record's answers: a letter read from a broken reply
 # (read_broken), and an allowed letter whose entry the answer layout's strict reader rejected only for its confidence
 # (read_unconfident).
@@ -4933,6 +4973,8 @@ def invalid_kind(provider: str, shape: str, record: dict[str, Any], number: int,
     """Why the answer to question `number` of a stored request is invalid (INVALID_KINDS); `letters` are the letters
     the question allows."""
     reply = stored_reply(provider, record)
+    if reply_error(reply) is not None:
+        return "error reply"
     if empty_reply(reply):
         return "empty after retry" if "empty_first_reply" in record else "empty, not retried"
     if finish_reason(reply) == CUT_FINISH_REASON:
@@ -4957,11 +4999,13 @@ def rescue_run(
     did, to print. (a) Every request with invalid answers whose stored reply is BROKEN has its clearly readable letters
     read (broken_answers), without a request; (b) every request whose stored reply is EMPTY and was never asked again is
     asked once more with the run's own settings (rescue_settings: the same questions in the same request), the reply
-    read as in a run (a broken one too). Only answers that are invalid change; each changed request's record keeps the
-    first reply (under "empty_first_reply", with its usage) and what changed (under "rescued": the runner's commit, the
-    time, and the answers before). A re-ask adds its time to the run's request time and to the request's. With
-    `dry_run` nothing is asked or written: it says what it would read and re-ask. A run with empty replies to re-ask
-    that rescue_settings refuses to re-ask raises its ValueError before anything is written, in a dry run too."""
+    read as in a run (a broken one too); (c) every request whose stored "reply" is an error (reply_error: no reply of
+    the model's, Zeki #5264) is asked again the same way. Only answers that are invalid change; each changed request's
+    record keeps the first reply (under "empty_first_reply", with its usage, or "error_reply") and what changed (under
+    "rescued": the runner's commit, the time, and the answers before). A re-ask adds its time to the run's request time
+    and to the request's. With `dry_run` nothing is asked or written: it says what it would read and re-ask. A run with
+    replies to re-ask that rescue_settings refuses to re-ask raises its ValueError before anything is written, in a dry
+    run too."""
     run = connection.execute("SELECT * FROM runs WHERE id=?", (run_id,)).fetchone()
     if run is None:
         raise ValueError(f"run {run_id}: not in the database")
@@ -4976,12 +5020,17 @@ def rescue_run(
     harness = None if dry_run else harness_commit()
     reread: list[tuple[list[sqlite3.Row], list[Question], list[str | None], dict[str, Any], str]] = []
     to_ask: list[tuple[list[sqlite3.Row], list[Question], dict[str, Any]]] = []
+    to_retry: list[tuple[list[sqlite3.Row], list[Question], dict[str, Any]]] = []
     for rows in requests:
         if all(row["predicted_answer"] is not None for row in rows):
             continue
         record = json.loads(rows[0]["raw_response"])
         reply = stored_reply(provider, record)
         questions = [stored_question(row) for row in rows]
+        if reply_error(reply) is not None:
+            if "error_reply" not in record:
+                to_retry.append((rows, questions, record))
+            continue
         if empty_reply(reply):
             if "empty_first_reply" not in record:
                 to_ask.append((rows, questions, record))
@@ -5017,10 +5066,11 @@ def rescue_run(
             entry[marker] = True
         record["rescued"] = {"harness_commit": harness, "at": now, "answers_before": before}
         reread.append((rows, questions, letters, record, marker))
-    if to_ask:
+    if to_ask or to_retry:
         settings, thinking = rescue_settings(run, timeout)
-    if to_ask and (will_ask or not dry_run) and provider == "openrouter-chat" and not os.environ.get("OPENROUTER_API_KEY", "").strip():
-        raise ValueError(f"run {run_id}: re-asking {len(to_ask)} empty repl(ies) needs OPENROUTER_API_KEY")
+    asking = len(to_ask) + len(to_retry)
+    if asking and (will_ask or not dry_run) and provider == "openrouter-chat" and not os.environ.get("OPENROUTER_API_KEY", "").strip():
+        raise ValueError(f"run {run_id}: re-asking {asking} empty or error repl(ies) needs OPENROUTER_API_KEY")
 
     def counted(kind: str) -> tuple[int, int]:
         found = [letters for _, _, letters, _, marker in reread if marker == kind]
@@ -5048,9 +5098,12 @@ def rescue_run(
         lines += [
             f"  empty replies it would re-ask once: {len(to_ask)}"
             + "".join(f"\n    ordinals {rows[0]['ordinal']}-{rows[-1]['ordinal']} ({len(rows)} questions)" for rows, _, _ in to_ask),
+            *([f"  error replies it would re-ask: {len(to_retry)}"
+               + "".join(f"\n    ordinals {rows[0]['ordinal']}-{rows[-1]['ordinal']} ({len(rows)} questions)"
+                         for rows, _, _ in to_retry)] if to_retry else []),
             *read_lines,
             f"  invalid after, before any re-ask comes back: {sum(kinds.values())} "
-            f"({kinds_text(kinds, {'empty, not retried': 'empty, to re-ask'})})",
+            f"({kinds_text(kinds, {'empty, not retried': 'empty, to re-ask', 'error reply': 'error reply, to re-ask'})})",
         ]
         return lines
     with connection:
@@ -5072,20 +5125,28 @@ def rescue_run(
         predictions, raw_response = ask_batch(settings, item[1], thinking, None, retry_empty=False)
         return item, predictions, raw_response, time.monotonic() - started
 
-    answered_replies = answered = read_after_retry = 0
+    answered_replies = answered = read_after_retry = retried_replies = retried_answered = 0
     with ThreadPoolExecutor(max_workers=concurrency) as executor:
-        for future in as_completed([executor.submit(request, item) for item in to_ask]):
+        for future in as_completed([executor.submit(request, item) for item in to_ask + to_retry]):
             (rows, questions, first), predictions, raw_response, seconds = future.result()
             record = json.loads(raw_response)
-            record["empty_first_reply"] = stored_reply(provider, first)
+            first_reply = stored_reply(provider, first)
+            errored = reply_error(first_reply) is not None
+            # The first reply stays in the record: an empty one under "empty_first_reply" (its tokens count), an error
+            # under "error_reply" (not the model's reply).
+            record["error_reply" if errored else "empty_first_reply"] = first_reply
             record["rescued"] = {
                 "harness_commit": harness, "at": now, "first_request_seconds": rows[0]["request_seconds"],
                 "answers_before": first.get("answers"),
             }
             raw = json.dumps(record, ensure_ascii=False, separators=(",", ":"))
             found = sum(prediction is not None for prediction in predictions)
-            answered_replies += found > 0
-            answered += found
+            if errored:
+                retried_replies += found > 0
+                retried_answered += found
+            else:
+                answered_replies += found > 0
+                answered += found
             read_after_retry += sum(any((entry or {}).get(marker) for marker in READ_MARKERS)
                                     for entry in (record.get("answers") or {}).values())
             with connection:
@@ -5111,6 +5172,8 @@ def rescue_run(
     lines += [
         f"  empty replies re-asked once: {len(to_ask)}; came back with answers: {answered_replies} (answers given: {answered}"
         f"{f', {read_after_retry} of them read from a broken reply or without a confidence' if read_after_retry else ''})",
+        *([f"  error replies re-asked: {len(to_retry)}; came back with answers: {retried_replies} (answers given: "
+           f"{retried_answered})"] if to_retry else []),
         *read_lines,
         f"  invalid after: {sum(kinds.values())} ({kinds_text(kinds)})",
     ]
@@ -6378,11 +6441,12 @@ def invalid_replies(connection: sqlite3.Connection, run: sqlite3.Row, graded: li
     """What the rule on empty and broken replies did in a RESCUE_PROVIDERS run, counted over its graded answers as its
     invalid answers are: answers read from broken replies; requests asked once more after an empty reply (each request
     once), how many of them came back with an answer, and the answers they gave; the answers still invalid, by kind
-    (INVALID_KINDS); and the invalid answers the run would have without the rule (still invalid, plus those read from a
-    broken reply or given after asking again)."""
+    (INVALID_KINDS); the invalid answers the run would have without the rule (still invalid, plus those read from a
+    broken reply or given after asking again); and the requests asked again because an error had been stored in place
+    of the reply ("error_reply", Zeki #5264), which the rule has no part in."""
     _, shape = run_reader(run)
     graded_ids = {int(row["question_id"]) for row in graded}
-    read = unconfident = asked = answered_requests = after_asking = 0
+    read = unconfident = asked = answered_requests = after_asking = errors_asked = 0
     recovered: set[int] = set()
     kinds: dict[str, int] = {}
     for rows in stored_requests(connection, run["id"], run["batch_size"]):
@@ -6392,6 +6456,7 @@ def invalid_replies(connection: sqlite3.Connection, run: sqlite3.Row, graded: li
         if retried:
             asked += 1
             answered_requests += any(row["predicted_answer"] is not None for row in rows)
+        errors_asked += "error_reply" in record
         for number, row in enumerate(rows, 1):
             question_id = int(row["question_id"])
             if question_id not in graded_ids:
@@ -6417,6 +6482,7 @@ def invalid_replies(connection: sqlite3.Connection, run: sqlite3.Row, graded: li
         "empty_replies_asked_again": asked,
         "asked_again_with_answers": answered_requests,
         "answers_after_asking_again": after_asking,
+        "error_replies_asked_again": errors_asked,
         "invalid_by_kind": {kind: kinds[kind] for kind in INVALID_KINDS if kind in kinds},
     }
 

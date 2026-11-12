@@ -35,19 +35,23 @@ REPLY_ANCHOR = "empty-broken-replies"
 # How the page names results.json's invalid_by_kind kinds (the runner's INVALID_KINDS).
 INVALID_KIND_NAMES = {"empty after retry": "still empty when asked again", "empty, not retried": "empty and not yet asked again",
                       "cut off": "cut off at the output limit", "unreadable": "unreadable",
-                      "letter not allowed": "with a letter the question does not allow"}
+                      "letter not allowed": "with a letter the question does not allow",
+                      "error reply": "with a provider error in place of the reply, not yet asked again"}
 
 
 def reply_counts(run: dict[str, Any]) -> str | None:
     """A setup's invalid answers beside what the rule on empty and broken replies did (results.json's invalid_replies):
     "Invalid answers: N; read from broken replies: M; empty replies asked again: K" (with the letters read without a
-    confidence where there are any), the still invalid answers by kind and the count without the rule where it differs.
-    None for a setup the rule does not apply to, or with nothing to count."""
+    confidence where there are any, and the requests asked again because a provider error had been stored in place of
+    the reply, Zeki #5264), the still invalid answers by kind and the count without the rule where it differs. None for
+    a setup the rule does not apply to, or with nothing to count."""
     replies = run.get("invalid_replies")
     if replies is None:
         return None
     unconfident = replies.get("read_without_confidence", 0)
-    if not (run["invalid"] or replies["read_from_broken_replies"] or unconfident or replies["empty_replies_asked_again"]):
+    errors = replies.get("error_replies_asked_again", 0)
+    if not (run["invalid"] or replies["read_from_broken_replies"] or unconfident or replies["empty_replies_asked_again"]
+            or errors):
         return None
     text = f"Invalid answers: {run['invalid']:,}; read from broken replies: {replies['read_from_broken_replies']:,}; "
     if unconfident:
@@ -56,6 +60,9 @@ def reply_counts(run: dict[str, Any]) -> str | None:
     if replies["empty_replies_asked_again"]:
         text += (f" ({replies['asked_again_with_answers']:,} came back with answers, "
                  f"{replies['answers_after_asking_again']:,} answers)")
+    if errors:
+        text += (f"; requests asked again after a provider error had been stored as their reply: {errors:,} (the error "
+                 f"is not the model's reply)")
     kinds = replies["invalid_by_kind"]
     if kinds:
         text += ". Still invalid: " + ", ".join(f"{count:,} {INVALID_KIND_NAMES[kind]}" for kind, count in kinds.items())

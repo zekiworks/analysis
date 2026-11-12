@@ -43,6 +43,7 @@ from benchmark_ollama import (
     ENGLISH_PROMPT_VERSION,
     ENGLISH_PROMPTS,
     JEV_INSTRUCTIONS,
+    JEV_MAX_RETRIES,
     PLAIN_PROMPT_VERSIONS,
     PROMPT_VERSION,
     GPU_RATE,
@@ -1643,8 +1644,74 @@ class EmptyAndBrokenReplyTests(unittest.TestCase):
         self.assertEqual(metrics["invalid_replies"], {
             "invalid_without_rule": 2, "read_from_broken_replies": 1, "read_without_confidence": 0,
             "empty_replies_asked_again": 1, "asked_again_with_answers": 1, "answers_after_asking_again": 1,
-            "invalid_by_kind": {},
+            "error_replies_asked_again": 0, "invalid_by_kind": {},
         })
+
+    @staticmethod
+    def error_reply(native: str | None = "timeout_error") -> dict:
+        """OpenRouter's upstream failure in mid-reply, as it comes back with HTTP 200 (Claude Haiku 5.5's run 948)."""
+        return {"choices": [{"finish_reason": "error", "native_finish_reason": native,
+                             "message": {"content": "", "reasoning": "half a thought"}}],
+                "usage": {"prompt_tokens": 100, "completion_tokens": 40, "cost": 0}}
+
+    def test_an_error_reply_is_asked_again_and_never_read_as_an_answer(self) -> None:
+        # OpenRouter reports an upstream failure with HTTP 200: a choice that finished with "error" (run 948's
+        # timeout_error and overloaded_error) or an error object in place of the reply (Muse Ember's Page images, 502).
+        # Each is asked again as a failed request is (Zeki #5264).
+        good = self.reply('{"answers": {"1": {"answer": "B", "confidence": 0.9}, "2": {"answer": "A", "confidence": 0.5}, '
+                          '"3": {"answer": "C", "confidence": 0.7}}}')
+        with mock.patch("benchmark_ollama.time.sleep"):
+            predictions, record, sent = self.ask([self.error_reply(), {"error": {"code": 502, "message": "bad gateway"},
+                                                                       "id": "gen-1"}, good])
+        self.assertEqual((predictions, sent), (["B", "A", "C"], 3))
+        self.assertEqual(record["response"], good)
+        self.assertNotIn("empty_first_reply", record)
+
+    def test_error_replies_until_the_retries_run_out_stop_the_request(self) -> None:
+        with mock.patch("benchmark_ollama.time.sleep"), self.assertRaisesRegex(
+                RuntimeError, r"OpenRouter replied with an error, not an answer: finish_reason error \(overloaded_error\)"):
+            self.ask([self.error_reply("overloaded_error")] * (JEV_MAX_RETRIES + 1))
+
+    def test_rescue_re_asks_a_stored_error_reply_and_keeps_it_beside_the_answers(self) -> None:
+        path = self.bank()
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        selection = load_questions(path, None, None, None, 0)
+        with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+            identity = start_run(connection, selection, "m", path, "openrouter-chat", self.LAYOUT, 0, 3, "high", None, False,
+                                 None, None, False, None, False)
+        error = self.error_reply()
+        raw = json.dumps({"answers": {str(question.question_id): {"answer": None, "confidence": None}
+                                      for question in selection.questions}, "response": error})
+        store_answers(connection, identity.run_id, list(enumerate(selection.questions)), [None, None, None], raw, 1.0, 1.0)
+        mark_run(connection, identity.run_id, "completed")
+        dry = "\n".join(rescue_runs(connection, [identity.run_id], 1.0, 1, dry_run=True))
+        self.assertIn("error replies it would re-ask: 1", dry)
+        self.assertIn("(error reply, to re-ask 3)", dry)
+        sent = []
+
+        def post(endpoint, payload, *args, **kwargs):
+            sent.append(payload)
+            return self.reply('{"answers": {"1": {"answer": "B", "confidence": 0.9}, "2": {"answer": "E", "confidence": 0.6}, '
+                              '"3": {"answer": "C", "confidence": 0.7}}}'), {}
+
+        with mock.patch("benchmark_ollama.post_json", side_effect=post), mock.patch("benchmark_ollama.harness_commit", return_value="1" * 40), \
+                mock.patch.dict(os.environ, {"OPENROUTER_API_KEY": "k"}), mock.patch("sys.stderr"):
+            text = "\n".join(rescue_runs(connection, [identity.run_id], 1.0, 1, dry_run=False))
+        self.assertIn("error replies re-asked: 1; came back with answers: 1 (answers given: 3)", text)
+        self.assertIn("invalid after: 0 (none)", text)
+        self.assertEqual(len(sent), 1)
+        after = connection.execute("SELECT * FROM answers WHERE run_id=? ORDER BY ordinal", (identity.run_id,)).fetchall()
+        self.assertEqual([(row["predicted_answer"], row["correct"]) for row in after], [("B", 1), ("E", 1), ("C", 1)])
+        record = json.loads(after[0]["raw_response"])
+        self.assertEqual(record["error_reply"], error)
+        self.assertNotIn("empty_first_reply", record)
+        self.assertEqual(record["rescued"]["harness_commit"], "1" * 40)
+        # Nothing is left to do: a re-asked error reply is never asked again.
+        with mock.patch("benchmark_ollama.post_json", side_effect=post), mock.patch("benchmark_ollama.harness_commit", return_value="1" * 40), \
+                mock.patch.dict(os.environ, {"OPENROUTER_API_KEY": "k"}):
+            rescue_runs(connection, [identity.run_id], 1.0, 1, dry_run=False)
+        self.assertEqual(len(sent), 1)
 
     def test_rescue_refuses_a_run_it_cannot_re_ask_before_touching_any(self) -> None:
         path = self.bank()
