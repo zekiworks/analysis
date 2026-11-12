@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-12T11:52:48Z",
+ "updated": "2026-11-12T11:58:51Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -279,6 +279,38 @@
    "notes": "hosted API via OpenRouter",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "openbmb/MiniCPM5-2B",
+   "commit": "42433e90dad95123ab87729fd7011e7110629556",
+   "model_key": "minicpm5-2b",
+   "name": "MiniCPM5-2B",
+   "display_name": "MiniCPM5-2B",
+   "tag": "on · chat",
+   "class_label": "Open · 2.5B",
+   "base_model": null,
+   "setup_label": "MiniCPM5-2B (chat, thinking, on our GPU)",
+   "maker": "OpenBMB",
+   "kind": "chat",
+   "params_total": 2.52,
+   "params_active": 2.52,
+   "quantization": "BF16",
+   "score_0_100": 94.56356447688563,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9565085158150851,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:minicpm5-2b_en",
+    "math:minicpm5-2b_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 1.8980555555555556,
+   "gpu_cost_usd": 4.726158333333334
   },
   {
    "repo": "google/gemma-4-12B-it",
