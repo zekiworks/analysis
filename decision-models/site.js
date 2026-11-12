@@ -876,3 +876,66 @@ function renderScopes() {
   window.addEventListener('resize', place);
   document.addEventListener('home-view', () => { if (open && (open.classList.contains('lb-off') || !open.offsetParent)) hide(); });
 })();
+
+/* Charts: each bar, line or point carries its setup and numbers as hover text (an element's title attribute or an SVG
+   element's <title>), which a touch screen never shows (Ümit via Zeki #5462). On a touch screen a tap on such a mark
+   shows the same text in a box beside it, in place of the mark's link, which the box keeps; a second tap on the mark,
+   a tap elsewhere or Escape closes it. A mouse keeps the browser's own hover text and the links. Rows with a details
+   box (leaderboardDetails) are left to it. */
+(function chartTips() {
+  let pointer = 'mouse';
+  let mark = null;
+  const tip = document.createElement('div');
+  tip.className = 'chart-tip';
+  tip.setAttribute('role', 'status');
+  tip.hidden = true;
+  document.body.append(tip);
+  const textOf = node => (node.getAttribute('title') || node.querySelector(':scope > title')?.textContent || '').trim();
+  const markOf = target => {
+    const figure = target.closest?.('figure');
+    if (!figure || target.closest('tr[data-box], button, input, select, summary')) return null;
+    for (let node = target; node && node !== figure; node = node.parentElement) if (textOf(node)) return node;
+    return null;
+  };
+  const place = () => {
+    if (!mark) return;
+    const rect = mark.getBoundingClientRect();
+    const width = Math.min(320, document.documentElement.clientWidth - 16);
+    tip.style.width = `${width}px`;
+    tip.style.left = `${Math.max(8, Math.min(rect.left, document.documentElement.clientWidth - width - 8))}px`;
+    const below = window.innerHeight - 8 - rect.bottom;
+    tip.style.top = `${below >= tip.offsetHeight || below >= rect.top ? rect.bottom + 4 : Math.max(8, rect.top - tip.offsetHeight - 4)}px`;
+  };
+  const hide = () => {
+    mark = null;
+    tip.hidden = true;
+    tip.replaceChildren();
+  };
+  const show = (node, link) => {
+    mark = node;
+    const text = document.createElement('p');
+    text.textContent = textOf(node);
+    tip.replaceChildren(text);
+    const href = link && (link.getAttribute('href') || link.getAttribute('xlink:href'));
+    if (href) {
+      const open = document.createElement('a');
+      open.href = href;
+      open.textContent = 'Open its page \u2192';
+      tip.append(open);
+    }
+    tip.hidden = false;
+    place();
+  };
+  document.addEventListener('pointerdown', event => { pointer = event.pointerType || 'mouse'; }, true);
+  document.addEventListener('click', event => {
+    if (tip.contains(event.target)) return;
+    const found = pointer === 'mouse' || event.detail === 0 ? null : markOf(event.target);
+    if (!found) { if (mark) hide(); return; }
+    event.preventDefault();
+    if (found === mark) hide();
+    else show(found, event.target.closest('a') || found.closest('a') || found.querySelector('a'));
+  });
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && mark) hide(); });
+  window.addEventListener('scroll', place, { passive: true });
+  window.addEventListener('resize', hide);
+})();

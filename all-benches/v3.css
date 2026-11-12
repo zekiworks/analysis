@@ -368,6 +368,12 @@ tr.lb-off { display: none !important; }
   overflow: auto; overscroll-behavior: contain; background: var(--panel); border: 1px solid var(--control-edge);
   border-radius: 8px; box-shadow: var(--shadow); }
 .js .lb-box.open { display: block; }
+/* A chart mark's hover text on a touch screen (site.js chartTips): the same text in a box beside the mark, its link kept. */
+.chart-tip { position: fixed; z-index: 31; max-width: calc(100vw - 16px); margin: 0; padding: .5rem .7rem; color: var(--text);
+  font-size: .82rem; line-height: 1.4; background: var(--panel); border: 1px solid var(--control-edge); border-radius: 8px;
+  box-shadow: var(--shadow); }
+.chart-tip p { margin: 0; }
+.chart-tip a { display: inline-block; margin-top: .3rem; }
 /* As Logic & Math's table (the project lead's reference, Zeki #4606): the main score's cell holds its bar, its value and
    the 95% interval under the value. Narrower than 900 px the table keeps three columns, #, Model and that score; the
    other columns are in each row's details box, which a tap, hover or the focus opens. From 900 px every column shows. */
