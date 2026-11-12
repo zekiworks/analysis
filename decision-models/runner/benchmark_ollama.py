@@ -370,7 +370,7 @@ class Price:
 ANTHROPIC_PRICING = "https://platform.claude.com/docs/en/about-claude/pricing"
 GEMINI_PRICING = "https://ai.google.dev/gemini-api/docs/pricing"
 OPENAI_PRICING = "https://developers.openai.com/api/docs/pricing"
-# List prices by (provider, model). Claude and OpenAI runs use subscriptions, so their costs are what the same tokens
+# List prices by (provider, model). Claude, OpenAI and Antigravity (antigravity, agbench) runs use subscriptions, so their costs are what the same tokens
 # would cost on the API. A run on our own hardware is estimated at the maker's list price for the same model
 # (applies_to "maker") or, failing that, at a public host's list price for the same weights (applies_to "weights");
 # the others are estimated from their GPU time (GPU_TIME).
@@ -519,6 +519,18 @@ PRICES: dict[tuple[str, str], Price] = {
         "Google's Gemini API regular price (from 1 December 2026)",
         GEMINI_PRICING,
         "2026-10-28",
+        4.00,
+        20.00,
+        cached_input=0.20,
+        change="introductory until 30 November 2026: $2.00 input, $10.00 output and $0.10 cached input per 1M tokens",
+    ),
+    # Gemini 4 Carbon through Can's Antigravity subscription bridge (agbench): $0 billed (the Antigravity subscription;
+    # Ümit via Zeki #5133), so, as for the other subscription runs, its cost is the same tokens at the Gemini API's
+    # rates for the same model (read 12 November 2026).
+    ("agbench", "gemini-4-carbon"): Price(
+        "Google's Gemini API regular price (from 1 December 2026)",
+        GEMINI_PRICING,
+        "2026-11-12",
         4.00,
         20.00,
         cached_input=0.20,
@@ -868,9 +880,11 @@ DEFAULT_VLLM_URL = server_url("VLLM_URL")
 VLLM_PROVIDERS = ("vllm", "vllm-stated", "vllm-yes-no", "vllm-verbal", "vllm-vote", "vllm-plain")
 SINGLE_QUESTION_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no", "vllm-verbal", "vllm-vote", "vllm-plain")
 # The request settings --request-params may carry into a vllm-plain request body (vLLM's and llama.cpp's chat API).
+# frequency_penalty: logic's settings for Spark-X2.6-4B on llama.cpp set it (to its default, 0.0), so Reading's runs of
+# that model carry it too.
 PLAIN_REQUEST_PARAMS = (
-    "temperature", "top_p", "top_k", "min_p", "presence_penalty", "repetition_penalty", "repeat_penalty", "repeat_last_n",
-    "seed", "max_tokens", "chat_template_kwargs",
+    "temperature", "top_p", "top_k", "min_p", "presence_penalty", "frequency_penalty", "repetition_penalty",
+    "repeat_penalty", "repeat_last_n", "seed", "max_tokens", "chat_template_kwargs",
 )
 # --provider vllm-vote: the vllm-verbal request sampled VOTE_SAMPLES times with the instruct sampling
 # settings of Qwen's model card (README.md in the Qwen3.8-27B-DGX-Spark-RTX-6000 repository). The answer is the
@@ -890,7 +904,9 @@ VLLM_TOP_LOGPROBS = 10
 # of the chosen option. vllm reads them from the token probabilities of the answer letters it writes.
 # The other providers with a confidence state it with each answer.
 PROBABILITY_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no", "vllm")
-STATED_CONFIDENCE_PROVIDERS = ("vllm-verbal", "vllm-stated", "claude", "openai", "gemini", "xai", "antigravity", "openrouter-chat")
+STATED_CONFIDENCE_PROVIDERS = (
+    "vllm-verbal", "vllm-stated", "claude", "openai", "gemini", "xai", "antigravity", "openrouter-chat", "agbench",
+)
 READING_UNITS = range(1, 7)  # units 1–6 test reading, units 7–20 grammar
 # Within-unit shuffles behind the p-value of the decision-model doubt analysis.
 DOUBT_SHUFFLES = 200
@@ -1240,6 +1256,11 @@ OPENROUTER_EFFORTS = ("none", "minimal", "low", "medium", "high", "xhigh", "max"
 # The output cap of an OpenRouter chat request (--openrouter-max-tokens), reasoning included: 32,768 unless a run asks
 # for more, as MiMo V2.6 Flash's do (its Turkish smoke batch spent all 32,768 on reasoning, run 835).
 OPENROUTER_MAX_TOKENS = 32768
+# Can's Antigravity subscription bridge (agbench): an OpenAI-compatible chat endpoint serving Gemini 4 Carbon at high
+# thinking with the Antigravity app's own context; it accepts but ignores temperature and max_tokens.
+AGBENCH_URL = "http://192.168.1.120:8899/v1/chat/completions"
+AGBENCH_THINKING = "high"
+AGBENCH_MAX_TOKENS = 32768
 # OMP's credential store, opened read-only for a login's stored fields (Antigravity's project id); its tokens come
 # from `omp token PROVIDER`, which refreshes them when due.
 OMP_AGENT_DB = Path("~/.omp/agent/agent.db")
@@ -1345,8 +1366,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("model", nargs="?", help="Provider model name (not needed with --refresh-report)")
     parser.add_argument(
         "--provider",
-        choices=("ollama", "openai", "claude", "gemini", "xai", "antigravity", "openrouter-chat", *SYSTEM_ONE_PROVIDERS,
-                 *VLLM_PROVIDERS),
+        choices=("ollama", "openai", "claude", "gemini", "xai", "antigravity", "openrouter-chat", "agbench",
+                 *SYSTEM_ONE_PROVIDERS, *VLLM_PROVIDERS),
         default="ollama",
         help="Inference provider (default: ollama)",
     )
@@ -1477,6 +1498,18 @@ def parse_args() -> argparse.Namespace:
         "user message ends with one more paragraph that states the answers' JSON layout with each question's number and "
         "letters (a prompt difference: such a run does not have the same prompt as the other chat setups), and each "
         "answer is read strictly in that layout; add --openrouter-json-object where the endpoint has JSON mode",
+    )
+    parser.add_argument(
+        "--agbench-url",
+        default=AGBENCH_URL,
+        help=f"the chat completions URL of Can's Antigravity subscription bridge for --provider agbench (default: "
+        f"{AGBENCH_URL}); a bearer token is sent only when AGBENCH_KEY is set",
+    )
+    parser.add_argument(
+        "--agbench-answer-layout",
+        action="store_true",
+        help="with --provider agbench, as --openrouter-answer-layout: no answer schema, the answer layout paragraph "
+        "ends the user message (a prompt difference) and each answer is read strictly in that layout",
     )
     parser.add_argument(
         "--unit",
@@ -1634,7 +1667,7 @@ def parse_args() -> argparse.Namespace:
         parser.error("--retry-cut is only supported by --provider antigravity, without --restart")
     if args.concurrency < 1:
         parser.error("--concurrency must be at least 1")
-    concurrent = ("vllm", "vllm-stated", "vllm-plain", "gemini", "xai", "antigravity", "openrouter-chat")
+    concurrent = ("vllm", "vllm-stated", "vllm-plain", "gemini", "xai", "antigravity", "openrouter-chat", "agbench")
     if args.concurrency > 1 and args.rescue is None and args.provider not in concurrent and args.provider not in SYSTEM_ONE:
         parser.error(f"--concurrency is only supported by --provider {', '.join(concurrent)} and the System One providers")
     if args.provider == "openrouter-chat" and (args.openrouter_reasoning is None or not args.openrouter_order):
@@ -3864,6 +3897,15 @@ def ask_openrouter_chat(
     payload["usage"] = {"include": True}
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {key}"}
     result, first = post_chat(OPENROUTER_CHAT_URL, payload, headers, timeout, verbose_log, "OpenRouter", retry_empty)
+    return read_chat_reply(result, first, batch, answer_layout, f"OpenRouter response (served by {result.get('provider')!r})")
+
+
+def read_chat_reply(
+    result: Any, first: Any | None, batch: list[Question], answer_layout: bool, what: str
+) -> tuple[list[str | None], str]:
+    """A chat completions reply's answers with stated confidence and the record to store: read strictly in the answer
+    layout (layout_answers, read_unconfident) or as the answers JSON, a BROKEN reply's clearly readable letters read
+    (read_broken), and the first EMPTY reply of a request asked once more kept under "empty_first_reply"."""
     try:
         text = result["choices"][0]["message"].get("content") or ""
     except (KeyError, IndexError, TypeError, AttributeError):
@@ -3877,7 +3919,7 @@ def ask_openrouter_chat(
     else:
         predictions, per_question = confidence_answers(json_answers(text.strip()), batch)
     if any(prediction is None for prediction in predictions):
-        print(f"warning: incomplete OpenRouter response (served by {result.get('provider')!r})", file=sys.stderr)
+        print(f"warning: incomplete {what}", file=sys.stderr)
     reader = "layout" if answer_layout else "json"
     predictions = read_broken(result, reads_whole(reader, result, batch), batch, "confidence", predictions, per_question)
     stored: dict[str, Any] = {"answers": per_question, "response": result}
@@ -3885,6 +3927,39 @@ def ask_openrouter_chat(
         stored["empty_first_reply"] = first
     stored_response = json.dumps(stored, ensure_ascii=False, separators=(",", ":"))
     return predictions, stored_response
+
+
+def ask_agbench(
+    url: str, model: str, batch: list[Question], timeout: float, verbose_log: TextIO | None,
+    prompts: ChatPrompts = TURKISH_CHAT, answer_layout: bool = False, retry_empty: bool = True,
+) -> tuple[list[str | None], str]:
+    """Answer a batch with a stated 0-1 confidence per question through Can's Antigravity subscription bridge
+    (agbench), an OpenAI-compatible chat endpoint: the prompt, system prompt and schema of the other chat providers,
+    temperature 1.0 and max_tokens AGBENCH_MAX_TOKENS (the bridge ignores both), none of OpenRouter's fields. With
+    answer_layout, no response format and the answer layout paragraph ends the user message, as in
+    ask_openrouter_chat. A bearer token only when AGBENCH_KEY is set. Empty and broken replies as ask_openrouter_chat's."""
+    user = make_prompt(batch, prompts.confidence_instruction, prompts)
+    if answer_layout:
+        user += "\n\n" + answer_layout_text(batch, prompts)
+    payload: dict[str, Any] = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": prompts.confidence_system},
+            {"role": "user", "content": user},
+        ],
+        "temperature": 1.0,
+        "max_tokens": AGBENCH_MAX_TOKENS,
+    }
+    if not answer_layout:
+        payload["response_format"] = {
+            "type": "json_schema", "json_schema": {"name": "answers", "schema": confidence_schema(batch), "strict": True}
+        }
+    headers = {"Content-Type": "application/json"}
+    key = os.environ.get("AGBENCH_KEY", "").strip()
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
+    result, first = post_chat(url, payload, headers, timeout, verbose_log, "agbench", retry_empty)
+    return read_chat_reply(result, first, batch, answer_layout, "agbench response")
 
 
 class NoRedirect(HTTPRedirectHandler):
@@ -4733,7 +4808,7 @@ def retry_cut_requests(
 # The providers whose chat replies follow the rule on empty and broken replies (project lead, bus #3215): their paths
 # ask an EMPTY reply once more and read a BROKEN reply's clearly readable letters, and --rescue applies the rule to
 # their finished runs. vllm-plain's reader reads every reply whole (reads_whole), so only its empty replies are re-asked.
-RESCUE_PROVIDERS = ("openrouter-chat", "vllm", "vllm-stated", "vllm-plain")
+RESCUE_PROVIDERS = ("openrouter-chat", "agbench", "vllm", "vllm-stated", "vllm-plain")
 # Why an answer is still invalid, as --rescue and the report count it.
 INVALID_KINDS = ("empty after retry", "empty, not retried", "cut off", "unreadable", "letter not allowed")
 # How a stored answer read by the rule is marked in its record's answers: a letter read from a broken reply
@@ -4763,6 +4838,20 @@ def openrouter_pin(endpoint: str) -> dict[str, Any]:
     return settings
 
 
+def agbench_endpoint(url: str, answer_layout: bool) -> str:
+    """An agbench run's endpoint, part of its identity: the bridge's URL, with "#answer_layout" for
+    --agbench-answer-layout (a prompt difference)."""
+    return url + ("#answer_layout" if answer_layout else "")
+
+
+def agbench_settings(endpoint: str) -> dict[str, Any]:
+    """ask_batch's agbench_* settings from an agbench run's endpoint (agbench_endpoint)."""
+    url, _, fragment = endpoint.partition("#")
+    if fragment not in ("", "answer_layout"):
+        raise ValueError(f"unknown setting {fragment!r} in endpoint {endpoint}")
+    return {"agbench_url": url, "agbench_answer_layout": fragment == "answer_layout"}
+
+
 def run_reader(run: sqlite3.Row) -> tuple[str, str]:
     """The reader (CHAT_READERS) and the answer shape (ANSWER_SHAPES) of a RESCUE_PROVIDERS run's replies (vllm-plain's
     plain reader reads no shape of entries; its shape is never used)."""
@@ -4772,6 +4861,8 @@ def run_reader(run: sqlite3.Row) -> tuple[str, str]:
         return "plain", "letter"
     if run["provider"] == "vllm-stated":
         return "stated", "confidence"
+    if run["provider"] == "agbench":
+        return ("layout" if agbench_settings(run["ollama_url"])["agbench_answer_layout"] else "json"), "confidence"
     return ("layout" if openrouter_pin(run["ollama_url"])["openrouter_answer_layout"] else "json"), "confidence"
 
 
@@ -4802,6 +4893,9 @@ def rescue_settings(run: sqlite3.Row, timeout: float, re_ask: bool = True) -> tu
     )
     if provider == "openrouter-chat":
         vars(settings).update(openrouter_pin(run["ollama_url"]), openrouter_reasoning=run["thinking_mode"])
+        return settings, run["thinking_mode"]
+    if provider == "agbench":
+        vars(settings).update(agbench_settings(run["ollama_url"]))
         return settings, run["thinking_mode"]
     settings.vllm_url = run["ollama_url"]
     if provider == "vllm-plain":
@@ -5100,6 +5194,11 @@ def ask_batch(
             args.model, questions, args.timeout, args.openrouter_reasoning, args.openrouter_order,
             args.openrouter_require_parameters, args.openrouter_json_object, verbose_log, prompts,
             args.openrouter_max_tokens, args.openrouter_answer_layout, retry_empty,
+        )
+    if args.provider == "agbench":
+        return ask_agbench(
+            args.agbench_url, args.model, questions, args.timeout, verbose_log, prompts, args.agbench_answer_layout,
+            retry_empty,
         )
     return ask_ollama(
         args.ollama_url, args.model, questions, args.timeout, args.seed, thinking, args.num_ctx, verbose_log, prompts
@@ -5931,8 +6030,9 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
         "maker's list price for the same model where one exists, else at a public host's list price for the same weights, "
         "else from its GPU time: its request time x the GPUs its server held x "
         f"{usd_rate(GPU_RATE.usd_per_gpu_hour)} per GPU-hour ({GPU_RATE.basis}, {GPU_RATE.date}); these are estimates, not "
-        "what our hardware cost. d1 ran on Liquid's free tier; its cost is estimated at Liquid's list price for the same model. Claude "
-        "and OpenAI runs use subscriptions, so their costs are what the same tokens would cost on the API. Prices: "
+        "what our hardware cost. d1 ran on Liquid's free tier; its cost is estimated at Liquid's list price for the same model. Claude, "
+        "OpenAI and Antigravity (antigravity, agbench) runs use subscriptions, so their costs are what the same tokens would cost on "
+        "the API. Prices: "
         + "; ".join(
             f"{provider} {model}: {price_text(price)} ({price.basis}, {price.date}"
             + (f"; {price.change}" if price.change else "")
@@ -6091,14 +6191,14 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
 
 def answer_usage(
     provider: str, question_id: int, raw_response: str
-) -> tuple[dict[str, int], float | None]:
+) -> tuple[dict[str, int | None], float | None]:
     """Token counts of the request behind one answer, and the answer's score.
 
     The score is the chosen option's probability for PROBABILITY_PROVIDERS and the stated confidence
     for the others, or None when the response has neither. input_tokens counts every prompt token
     (Ollama: the ones it evaluated, without the part it reused from its prompt cache); output_tokens
     includes thinking and reasoning tokens. Where the response reports them, the cache parts of the input
-    (CACHE_KINDS) are also given.
+    (CACHE_KINDS) are also given. An agbench response that reports no usage has None token counts, not 0.
     """
     record = json.loads(raw_response)
     score = None
@@ -6150,6 +6250,20 @@ def answer_usage(
         input_tokens = sum(int(usage.get("promptTokenCount") or 0) for usage in usages) if usages[0] else None
         output_tokens = sum(int(usage.get("candidatesTokenCount") or 0) + int(usage.get("thoughtsTokenCount") or 0) for usage in usages)
         cache = {"cached_input_tokens": sum(int(usage.get("cachedContentTokenCount") or 0) for usage in usages)}
+    elif provider == "agbench":
+        # The bridge's chat completions usage where it reports one (completion_tokens includes thinking), with that of
+        # the first reply of a request asked once more after an EMPTY one; None where neither reports usage.
+        usages = [
+            usage for usage in ((record.get("response") or {}).get("usage"), (record.get("empty_first_reply") or {}).get("usage"))
+            if isinstance(usage, dict)
+        ]
+        score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
+        if not usages:
+            return dict.fromkeys(("input_tokens", "output_tokens", "cached_input_tokens")), score_value(score)
+        input_tokens = sum(int(usage.get("prompt_tokens") or 0) for usage in usages)
+        output_tokens = sum(int(usage.get("completion_tokens") or 0) for usage in usages)
+        cache = {"cached_input_tokens": sum(
+            int((usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0) for usage in usages)}
     elif provider in RESCUE_PROVIDERS:
         # A request whose first reply was EMPTY and asked once more (post_chat, --rescue) also counts the tokens of the
         # first reply its record keeps under "empty_first_reply".
@@ -6185,7 +6299,12 @@ def answer_usage(
         # Ollama's response, stored as it came.
         input_tokens, output_tokens = record.get("prompt_eval_count"), record.get("eval_count")
     tokens = {"input_tokens": int(input_tokens or 0), "output_tokens": int(output_tokens or 0), **cache}
-    return tokens, float(score) if isinstance(score, (int, float)) else None
+    return tokens, score_value(score)
+
+
+def score_value(score: Any) -> float | None:
+    """A stored answer's score as a float, or None when it has none."""
+    return float(score) if isinstance(score, (int, float)) else None
 
 
 def answer_groups(row: sqlite3.Row) -> list[str]:
@@ -6323,14 +6442,15 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
         "started": run["created_at"],
         "questions_per_minute": run["questions_per_minute"],
     }
-    totals = dict.fromkeys(TOKEN_KINDS, 0)
+    # A token kind some request did not report (an agbench reply without usage) has no total: None, not a count.
+    totals: dict[str, int | None] = dict.fromkeys(TOKEN_KINDS, 0)
     request_seconds: list[float] = []
     requests = 0
     for row in run_requests(connection, run["id"], run["batch_size"]):
         # A request asked once more after an EMPTY reply is two requests.
         requests += 1 + asked_again(provider, row["raw_response"])
         for key, count in answer_usage(provider, row["question_id"], row["raw_response"])[0].items():
-            totals[key] += count
+            totals[key] = None if count is None or totals[key] is None else totals[key] + count
         if row["request_seconds"] is not None:
             request_seconds.append(float(row["request_seconds"]))
     stored = connection.execute("SELECT COUNT(*) FROM answers WHERE run_id=?", (run["id"],)).fetchone()[0]
@@ -6415,7 +6535,7 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
     metrics["requests"] = requests
     price = run_price(provider, run["model"], run["perplexity_mode"])
     if price is not None:
-        metrics["cost_usd"] = price.cost(totals, requests)
+        metrics["cost_usd"] = None if None in totals.values() else price.cost(totals, requests)
         metrics["price"] = {
             "basis": price.basis,
             "source": price.source,
@@ -7376,6 +7496,11 @@ def main() -> int:
             omp_login_field("google-antigravity", "projectId")
             thinking = args.antigravity_thinking
             endpoint = ANTIGRAVITY_URLS[0]
+            image_input = False
+        elif args.provider == "agbench":
+            thinking = AGBENCH_THINKING
+            # The answer layout in the prompt (a prompt difference) is part of the run's identity.
+            endpoint = agbench_endpoint(args.agbench_url, args.agbench_answer_layout)
             image_input = False
         elif args.provider == "openrouter-chat":
             if not os.environ.get("OPENROUTER_API_KEY", "").strip():

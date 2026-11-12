@@ -172,6 +172,7 @@ and a 0–1 confidence per question. `--codex-bin` and `--claude-bin` point at o
 | Script | Configuration | Key |
 |---|---|---|
 | `run_gemini.sh`, `run_gemini_high.sh`, `run_gemini_one.sh` | Gemini 3.8 Flash (low thinking; high with 4 requests at a time; low with one question per request) | `GEMINI_API_KEY` |
+| `run_agbench_gemini_4_carbon.sh` | Gemini 4 Carbon at high thinking through Can's Antigravity subscription bridge (`--provider agbench`, an OpenAI-compatible chat endpoint at `--agbench-url`), ~11k tokens of Antigravity's own context per request, the answer schema as `response_format` (`--agbench-answer-layout` for the answer layout instead), one request at a time; $0 billed, costed at the Gemini API's price | none (`AGBENCH_KEY` sent as a bearer token if set) |
 | `run_perplexity.sh` | Perplexity Decider 27B v1 | `PERPLEXITY_API_KEY` |
 | `run_perplexity_v1_1.sh` | Perplexity Decider 27B v1.1 (add `--repeat N` for repeats 2–5) | `PERPLEXITY_API_KEY` |
 | `run_perplexity_v1_2.sh` | Perplexity Decider v1.2 through Perplexity's Decisions API (add `--perplexity-mode web_grounding` for web grounding, `--repeat N` for repeats) | `PERPLEXITY_API_KEY` |

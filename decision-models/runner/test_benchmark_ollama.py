@@ -53,6 +53,8 @@ from benchmark_ollama import (
     TURKISH_CHAT,
     Option,
     Question,
+    agbench_endpoint,
+    agbench_settings,
     add_images,
     answer_problems,
     answer_usage,
@@ -654,8 +656,8 @@ class ChatDontKnowTests(unittest.TestCase):
     def record(question_id: int) -> dict:
         return EnglishTests.record(question_id)
 
-    CHAT_PROVIDERS = ("openai", "claude", "gemini", "xai", "antigravity", "openrouter-chat", "vllm", "vllm-stated",
-                      "vllm-verbal", "vllm-vote", "ollama")
+    CHAT_PROVIDERS = ("openai", "claude", "gemini", "xai", "antigravity", "openrouter-chat", "agbench", "vllm",
+                      "vllm-stated", "vllm-verbal", "vllm-vote", "ollama")
 
     @staticmethod
     def texts(value: object) -> list[str]:
@@ -705,7 +707,8 @@ class ChatDontKnowTests(unittest.TestCase):
             codex_bin="codex", claude_bin="claude", gemini_api_key="k", gemini_thinking="low", claude_effort="low",
             xai_reasoning="low", antigravity_thinking="low", openrouter_reasoning="low", openrouter_order="p",
             openrouter_require_parameters=True, openrouter_json_object=False, openrouter_max_tokens=32768,
-            openrouter_answer_layout=False, vllm_url="http://localhost",
+            openrouter_answer_layout=False, vllm_url="http://localhost", agbench_url="http://localhost",
+            agbench_answer_layout=False,
             ollama_url="http://localhost", num_ctx=None,
         )
         with mock.patch("benchmark_ollama.post_json", side_effect=post), \
@@ -1660,6 +1663,103 @@ class EmptyAndBrokenReplyTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, f"run {good}: cannot re-ask its empty replies: asked with prompt version older"):
             rescue_runs(connection, [good], 1.0, 1, dry_run=False)
         self.assertEqual(connection.execute("SELECT * FROM answers ORDER BY run_id, ordinal").fetchall(), before)
+
+
+class AgbenchTests(unittest.TestCase):
+    """Gemini 4 Carbon through Can's Antigravity subscription bridge (--provider agbench), an OpenAI-compatible chat
+    endpoint, with the HTTP layer mocked."""
+
+    reply = staticmethod(EmptyAndBrokenReplyTests.reply)
+    questions = staticmethod(EmptyAndBrokenReplyTests.questions)
+    JSON = ('{"answers": {"1": {"answer": "B", "confidence": 0.9}, "2": {"answer": "A", "confidence": 0.5}, '
+            '"3": {"answer": "C", "confidence": 0.7}}}')
+
+    def ask(self, replies: list[dict], answer_layout: bool = False, key: str | None = None) -> tuple[list, dict, list]:
+        """ask_agbench through ask_batch with post_json returning `replies` in turn: the predictions, the
+        stored record and each request's (endpoint, payload, headers)."""
+        sent = []
+
+        def post(endpoint, payload, headers, *rest, **kwargs):
+            sent.append((endpoint, copy.deepcopy(payload), dict(headers)))
+            return copy.deepcopy(replies[len(sent) - 1]), {}
+
+        args = argparse.Namespace(
+            provider="agbench", model="gemini-4-carbon", timeout=1, english=None, dont_know=False,
+            agbench_url="http://bridge.test/v1/chat/completions", agbench_answer_layout=answer_layout,
+        )
+        environment = {"AGBENCH_KEY": key} if key else {}
+        with mock.patch("benchmark_ollama.post_json", side_effect=post), \
+                mock.patch.dict(os.environ, environment, clear=False), mock.patch("sys.stderr"):
+            if not key:
+                os.environ.pop("AGBENCH_KEY", None)
+            predictions, raw = ask_batch(args, self.questions(), "high", None)
+        return predictions, json.loads(raw), sent
+
+    def test_the_request_has_no_openrouter_fields_and_the_schema_without_the_layout_flag(self) -> None:
+        predictions, record, sent = self.ask([self.reply(self.JSON)])
+        self.assertEqual(predictions, ["B", "A", "C"])
+        self.assertEqual(record["answers"]["1"], {"answer": "B", "confidence": 0.9})
+        endpoint, payload, headers = sent[0]
+        self.assertEqual(endpoint, "http://bridge.test/v1/chat/completions")
+        self.assertEqual(set(payload), {"model", "messages", "temperature", "max_tokens", "response_format"})
+        self.assertEqual((payload["model"], payload["temperature"], payload["max_tokens"]), ("gemini-4-carbon", 1.0, 32768))
+        self.assertEqual(payload["response_format"]["type"], "json_schema")
+        self.assertTrue(payload["response_format"]["json_schema"]["strict"])
+        self.assertEqual([message["role"] for message in payload["messages"]], ["system", "user"])
+        self.assertEqual(payload["messages"][0]["content"], TURKISH_CHAT.confidence_system)
+        self.assertIn(TURKISH_CHAT.confidence_instruction, payload["messages"][1]["content"])
+        self.assertNotIn("Authorization", headers)
+
+    def test_with_the_layout_flag_no_response_format_and_the_layout_reader(self) -> None:
+        predictions, record, sent = self.ask([self.reply(self.JSON)], answer_layout=True)
+        self.assertEqual(predictions, ["B", "A", "C"])
+        payload = sent[0][1]
+        self.assertEqual(set(payload), {"model", "messages", "temperature", "max_tokens"})
+        without = self.ask([self.reply(self.JSON)])[2][0][1]["messages"][1]["content"]
+        self.assertTrue(payload["messages"][1]["content"].startswith(without + "\n\n"))
+        self.assertEqual(record["answers"]["3"], {"answer": "C", "confidence": 0.7})
+
+    def test_a_bearer_token_only_with_agbench_key(self) -> None:
+        self.assertEqual(self.ask([self.reply(self.JSON)], key="secret")[2][0][2]["Authorization"], "Bearer secret")
+
+    def test_an_empty_reply_is_asked_once_more_and_both_usages_count(self) -> None:
+        predictions, record, sent = self.ask([self.reply("", prompt=100, completion=30), self.reply(self.JSON, prompt=120, completion=60)])
+        self.assertEqual((predictions, len(sent)), (["B", "A", "C"], 2))
+        self.assertEqual(record["empty_first_reply"]["usage"], {"prompt_tokens": 100, "completion_tokens": 30})
+        tokens, score = answer_usage("agbench", 1, json.dumps(record))
+        self.assertEqual((tokens["input_tokens"], tokens["output_tokens"], score), (220, 90, 0.9))
+
+    def test_a_reply_without_usage_has_no_token_counts_and_no_cost(self) -> None:
+        reply = self.reply(self.JSON)
+        del reply["usage"]
+        _, record, _ = self.ask([reply])
+        self.assertNotIn("usage", record["response"])
+        tokens, score = answer_usage("agbench", 2, json.dumps(record))
+        self.assertEqual((tokens["input_tokens"], tokens["output_tokens"], score), (None, None, 0.5))
+
+    def test_the_layout_flag_is_another_run_and_the_price_is_the_gemini_apis(self) -> None:
+        path = DontKnowTests.bank(self)
+        connection = open_result_database(path.parent / "results.sqlite")
+        self.addCleanup(connection.close)
+        selection = load_questions(path, None, None, None, 0)
+        keys = set()
+        for layout in (False, True):
+            with mock.patch("sys.argv", ["benchmark_ollama.py", "gemini-4-carbon", "--provider", "agbench"]
+                            + (["--agbench-answer-layout"] if layout else [])):
+                args = parse_args()
+            self.assertEqual((args.agbench_url, args.agbench_answer_layout), ("http://192.168.1.120:8899/v1/chat/completions", layout))
+            endpoint = agbench_endpoint(args.agbench_url, layout)
+            self.assertEqual(agbench_settings(endpoint), {"agbench_url": args.agbench_url, "agbench_answer_layout": layout})
+            with mock.patch("benchmark_ollama.harness_commit", return_value="0" * 40):
+                identity = start_run(connection, selection, "gemini-4-carbon", path, "agbench", endpoint, 0, 16, "high",
+                                     None, False, None, None, False, None, False)
+            keys.add(identity.run_key)
+        self.assertEqual(len(keys), 2)
+        price = PRICES["agbench", "gemini-4-carbon"]
+        self.assertEqual((price.input, price.output, price.cached_input, price.applies_to, price.date),
+                         (4.00, 20.00, 0.20, "billed", "2026-11-12"))
+        self.assertIn("$2.00 input, $10.00 output and $0.10 cached input", price.change)
+        self.assertEqual(price.source, "https://ai.google.dev/gemini-api/docs/pricing")
 
 
 class PlainAnswerLineTests(unittest.TestCase):
