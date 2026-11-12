@@ -824,6 +824,19 @@ def languages_text(text: str) -> str:
     return "<code>".join(esc(text).split("`", 1)).replace("`", "</code>", 1) if text.count("`") == 2 else esc(text)
 
 
+# turkish-support.json's statuses as the Languages column words them, for a setup outside model_languages.
+SUPPORT_WORDS = {"listed": "Turkish listed", "not listed": "other languages, not Turkish", "not stated": "not stated"}
+
+
+def support_entry(site: Site, run_id: int) -> dict[str, str] | None:
+    """A Text tab setup's card languages from turkish-support.json (Site.turkish_support: whether its own card or maker
+    docs list Turkish, verified on the date read; Ümit #5067, confirmed by Zeki #5085), in model_languages' shape
+    (languages, source) for the Languages column of a setup model_languages does not list (Zeki #5196)."""
+    run = site.by_id[run_id]
+    item = site.turkish_support.get((run["provider"], run["model"]))
+    return None if item is None else {"languages": SUPPORT_WORDS[item["status"]], "source": item["source"]}
+
+
 def english_only_list(site: Site, data: dict[str, Any], group: str) -> str:
     """A group's copy of the short list of its English-only setups (english_only: no Text tab run, so no Turkish side and
     no paired test), each with its English accuracy and Turkish Not run, linked to its row on the English reading page;
@@ -933,7 +946,7 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
                 values.append(missing_side(site, site.by_id[model["turkish_run"]], "turkish"))
         values += [measure_cell(site, model, measure, side) for measure in ("cost", "latency") for side in SIDES]
         values += [str(turkish_rank[model["turkish_run"]]), str(english_rank[model["turkish_run"]])]
-        entry = listed.get(model["turkish_run"])
+        entry = listed.get(model["turkish_run"]) or support_entry(site, model["turkish_run"])
         if with_languages and entry is None:
             values.append('<span class="nm">Not checked</span>')
         elif with_languages:
@@ -969,7 +982,8 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
     else:
         idk_text = ""
     languages_note = (" Languages: what each model's card or its maker's docs list, with the source (<a href=\"#languages\">"
-                      "Languages the model cards list</a>); Not checked: no card checked yet." if with_languages else "")
+                      "Languages the model cards list</a>); for a setup outside that table, whether its card lists Turkish, "
+                      "as the Turkish leaderboards' ‡ marks read it; Not checked: no card checked yet." if with_languages else "")
     return (f'<section class="card" id="{anchor("main-table", group)}" {shown(group)}><h2>Turkish vs English</h2>'
             f'<div class="table-wrap"><table class="board list stack idk"><thead>{head}'
             f'</thead><tbody>{"".join(rows)}</tbody></table></div>'
@@ -2082,14 +2096,25 @@ def languages(site: Site, data: dict[str, Any]) -> str:
         f'<td data-label="Checked">{esc(config["checked"])}</td></tr>' for model in models)
     maker = lambda model: esc(name(model).split()[0])  # noqa: E731
     listed = {model["run"] for model in models}
-    unchecked = [model for model in data["models"] if model["turkish_run"] not in listed]
+    outside = [model for model in data["models"] if model["turkish_run"] not in listed]
+    # The setups outside model_languages whose cards turkish-support.json checked for Turkish (Zeki #5196).
+    support = {model["turkish_run"]: site.turkish_support.get((site.by_id[model["turkish_run"]]["provider"],
+                                                               site.by_id[model["turkish_run"]]["model"])) for model in outside}
+    checked = [model for model in outside if support[model["turkish_run"]] is not None]
+    unchecked = [model for model in outside if support[model["turkish_run"]] is None]
     decision = [esc(label(site, model)) for model in unchecked if site.decision(site.by_id[model["turkish_run"]])]
     chat = len(unchecked) - len(decision)
     parts = decision + ([f"the {bp.in_words(chat)} {noun('chat', chat)}"] if chat else [])
+    turkish = [esc(label(site, model)) for model in checked if support[model["turkish_run"]]["status"] == "listed"]
+    read = max((support[model["turkish_run"]]["read"] for model in checked), default=None)
     summary = (f"<p>Of the {len(models)} models whose cards or docs we checked, only "
                f"{joined([esc(name(model)) for model in tagged])} name a language: English, by the card's "
                f"<code>language: en</code> tag. {joined([maker(model) for model in quoted])}'s docs call English "
                f"its primary language. No card names Turkish."
+               + (f" The other {bp.in_words(len(checked))} English {noun('all', len(checked))} had their cards checked only for "
+                  f"Turkish, on {esc(bp.long_date(read))}, for the Turkish leaderboards' ‡ marks: "
+                  + (f"{joined(turkish)} list{'s' if len(turkish) == 1 else ''} it." if turkish else "none lists it.")
+                  if checked else "")
                + (f" Not checked yet, of the English setups: {joined(parts)}." if parts else "") + "</p>")
     return f"""
     <section class="card" id="languages">
