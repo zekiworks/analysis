@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-12T19:06:37Z",
+    "updated": "2026-11-12T19:43:44Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -430,6 +430,37 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.5836111111111111,
       "gpu_cost_usd": 1.4531916666666669
+     },
+     {
+      "repo": "LiquidAI/LFM2.5-24B-A2B",
+      "commit": "1769516ac588c4c558089c94f27d96b0dc67b183",
+      "model_key": "lfm2.5-24b-a2b",
+      "name": "LFM2.5-24B-A2B",
+      "display_name": "LFM2.5-24B-A2B",
+      "tag": "on · chat",
+      "class_label": "Open · 24B MoE · 2.5B active",
+      "base_model": null,
+      "setup_label": "LFM2.5-24B-A2B (chat, thinking, on our GPU)",
+      "maker": "Liquid AI",
+      "kind": "chat",
+      "params_total": 24.0,
+      "params_active": 2.45,
+      "quantization": "BF16",
+      "score_0_100": 83.33333333333334,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8666666666666667,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:lfm2.5-24b-a2b_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 3.4163888888888887,
+      "gpu_cost_usd": 8.506808333333334
      },
      {
       "repo": "LiquidAI/LFM3-1.7B-GGUF",
@@ -2170,7 +2201,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-12T19:06:37Z",
+    "updated": "2026-11-12T19:43:44Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -4362,7 +4393,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-12T19:06:37Z",
+    "updated": "2026-11-12T19:43:44Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -6673,12 +6704,12 @@
      {
       "calibration_error": null,
       "commit": null,
-      "improvement_points": 6.48,
+      "improvement_points": 8.47,
       "kind": "chat",
       "maker": "Google",
       "model_key": "gemini-4-argon",
       "name": "Gemini 4 Argon",
-      "notes": "League 3; calibration definition pending Ümit; hosted (API or subscription); setting: high; route: Google Antigravity subscription; improvement_points: change in risks found, percentage points of risk-pays decisions (with lessons minus no memory); improvement_points QC-pending: QC 2026-11-12: Run 2 pending",
+      "notes": "League 3; calibration definition pending Ümit; hosted (API or subscription); setting: high; route: Google Antigravity subscription; improvement_points: change in risks found, percentage points of risk-pays decisions (with lessons minus no memory); improvement_points from Run 2 after QC; original run +6.48, superseded",
       "params_active": null,
       "params_total": null,
       "quantization": null,
@@ -7651,7 +7682,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-12T19:20Z",
+    "updated": "2026-11-12T20:05Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }

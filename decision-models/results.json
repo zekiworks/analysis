@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "a7e6a88e",
-  "updated": "2026-11-12T19:12:38Z",
+  "results_version": "5a89d9dd",
+  "updated": "2026-11-12T19:52:15Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -366654,6 +366654,60 @@
     ],
     "english_only": [
       {
+        "name": "Sieve 31B v3",
+        "model": "sthanika-ai/Sieve-31B-v3",
+        "provider": "sieve",
+        "reasoning": null,
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1064,
+        "runs": [
+          1064
+        ],
+        "dates": [
+          "2026-11-12"
+        ],
+        "parameters": 31273086512,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model (tied embeddings) + 0.58B vision encoder (not read by its server)",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, sthanika-ai/Sieve-31B-v3@8fcee85",
+          "https://huggingface.co/sthanika-ai/Sieve-31B-v3"
+        ],
+        "parameters_read": "2026-11-10",
+        "group": "decision",
+        "access": "Sieve server (sieve-serve, the maker's release code), self-hosted, BF16",
+        "billing": "local",
+        "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+        "note": "sthanika-ai's released Sieve-31B-v3 (sthanika-ai/Sieve-31B-v3 at 8fcee85), a full fine-tune of Gemma-4-31B-it with bidirectional attention in its global layers, read in two option orders. It ran on our hardware (one DGX Spark), one request at a time, through the server its card names (sieve-serve from the Sieve repository's main at 1e64657, on torch 2.14 where the card tested torch 2.8), text only. Probabilities rounded to 4 decimals by its own code; they sum to 1 only within that rounding. Its server reports no token counts. Its card lists English only.",
+        "cost": {
+          "english": null
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 1.0609933719970286,
+            "p90_request_seconds": 1.3356320894206875,
+            "concurrency": 1,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 496,
+          "wrong": 51,
+          "invalid": 0,
+          "accuracy": 0.906764168190128
+        },
+        "decision_score": {
+          "score": 92.51446242687386,
+          "accuracy": 0.906764168190128,
+          "brier": 0.05647491965265082,
+          "n": 547,
+          "run": 1064
+        }
+      },
+      {
         "name": "Gemma 4 12B",
         "model": "gemma-4-12b-it",
         "provider": "vllm-plain",
@@ -372137,6 +372191,31 @@
             "attempt_rate": 0.9890310786106032,
             "non_hallucination": 0.0547945205479452,
             "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "Sieve 31B v3",
+          "model": "sthanika-ai/Sieve-31B-v3",
+          "provider": "sieve",
+          "group": "decision",
+          "text_run": null,
+          "reading_run": 1064,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1066,
+            "runs": [
+              1066
+            ],
+            "invalid_replies": null,
+            "right": 501,
+            "wrong": 45,
+            "dont_know": 1,
+            "invalid": 0,
+            "accuracy": 0.9159049360146252,
+            "attempt_rate": 0.9981718464351006,
+            "non_hallucination": 0.021739130434782608,
+            "mean_dont_know_probability": 0.007886288848263253
           }
         }
       ]

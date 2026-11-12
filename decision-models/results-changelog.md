@@ -2,6 +2,14 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 5a89d9dd (12 November 2026)
+
+- Added Sieve 31B v3 (`sthanika-ai/Sieve-31B-v3`, `8fcee85`, a full fine-tune of Gemma-4-31B-it), one of the project lead's Decision Index models (Ümit #4057, #4577; logic #5694), on its English side first (Zeki #5213): one NVIDIA DGX Spark (GB10), BF16, behind the server its card names (sieve-serve 0.5.1 at 1e64657), text only, one question per request with its option probabilities, which its own code rounds to 4 decimals. Its server reports no token counts.
+- English reading: run 1064 answered 496 of the 547 kept questions right (90.7%), level with Liquid d1-ultra (496) and one above Gemma 4 31B (495), 31st of the 107 English setups; every answer has a letter and its probabilities pass the runner's check.
+- English "I don't know" (its row on the Turkish vs English page): run 1066, 501 right, 1 "I don't know" and 45 wrong (non-hallucination 2.2%, answered 99.8%); no invalid answer.
+- Its card lists English only; its Turkish runs and the four OCR routes of the Page images (its server reads text) come in the Turkish phase. In progress now also lists KnowLine-2B-Gen1 and Sieve 31B v3, English done.
+- No other number changed and no significance verdict moved.
+
 ## Results a7e6a88e (12 November 2026)
 
 - Added LFM3-1.7B (`LiquidAI/LFM3-1.7B`, `0dc4268`, 1.73B parameters as its card states), a small chat model of the models joining Reading (the project lead via Zeki #5064, #5071), on its English side first (Zeki #5213). Same settings as its Logic & Math runs (logic #5682): logic's server, one RTX PRO 6000 Blackwell, BF16, thinking on (its template's default); temperature 0.1, top-k 50, top-p 1.0, min-p 0, repetition penalty 1.1, seed 0, up to 32,768 output tokens, from its generation_config. No released vLLM serves LFM3, so the server is a vLLM nightly (0.34.0rc1.dev302, commit be47189f). One question per request with a plain answer line, so no stated confidence.
