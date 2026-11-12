@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-12T19:43:44Z",
+ "updated": "2026-11-12T20:30:47Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -413,6 +413,38 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
    "gpu_hours": 0.9894444444444443,
    "gpu_cost_usd": 2.463716666666667
+  },
+  {
+   "repo": "LiquidAI/LFM2.5-24B-A2B",
+   "commit": "1769516ac588c4c558089c94f27d96b0dc67b183",
+   "model_key": "lfm2.5-24b-a2b",
+   "name": "LFM2.5-24B-A2B",
+   "display_name": "LFM2.5-24B-A2B",
+   "tag": "on · chat",
+   "class_label": "Open · 24B MoE · 2.5B active",
+   "base_model": null,
+   "setup_label": "LFM2.5-24B-A2B (chat, thinking, on our GPU)",
+   "maker": "Liquid AI",
+   "kind": "chat",
+   "params_total": 24.0,
+   "params_active": 2.45,
+   "quantization": "BF16",
+   "score_0_100": 93.49908759124087,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.947992700729927,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:lfm2.5-24b-a2b_en",
+    "math:lfm2.5-24b-a2b_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 4.232222222222222,
+   "gpu_cost_usd": 10.538233333333334
   },
   {
    "repo": "LiquidAI/LFM3-1.7B-GGUF",
