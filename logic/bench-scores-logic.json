@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-11T20:58:01Z",
+ "updated": "2026-11-12T02:19:58Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -78,7 +78,7 @@
    "model_key": "inkling-small",
    "name": "Inkling-Small",
    "display_name": "Inkling-Small",
-   "tag": "high · chat",
+   "tag": "high · chat · Jul 2026",
    "class_label": "Open · 276B MoE · 12B active",
    "base_model": null,
    "setup_label": "Inkling Small",
@@ -357,6 +357,37 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); 4.5B effective parameters",
    "gpu_hours": 0.38055555555555554,
    "gpu_cost_usd": 0.9475833333333333
+  },
+  {
+   "repo": "LiquidAI/LFM2.5-2.6B",
+   "commit": "7141b56cd4650af95c7c7b86983443aed050c96a",
+   "model_key": "lfm2.5-2.6b",
+   "name": "LFM2.5-2.6B",
+   "display_name": "LFM2.5-2.6B",
+   "tag": "on · chat",
+   "class_label": "Open · 2.7B",
+   "base_model": null,
+   "setup_label": "LFM2.5-2.6B (chat, thinking, on our GPU)",
+   "maker": "Liquid AI",
+   "kind": "chat",
+   "params_total": 2.69,
+   "params_active": 2.69,
+   "quantization": "BF16",
+   "score_0_100": 69.2222222222222,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7537777777777778,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:lfm2.5-2.6b_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 1.1202777777777777,
+   "gpu_cost_usd": 2.7894916666666667
   },
   {
    "repo": "google/gemma-4-E2B-it",

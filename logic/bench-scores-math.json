@@ -2,12 +2,44 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-11T20:58:01Z",
+ "updated": "2026-11-12T02:19:58Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
  },
  "models": [
+  {
+   "repo": null,
+   "commit": null,
+   "model_key": "claude-opus-5.5",
+   "name": "Claude Opus 5.5",
+   "display_name": "Claude Opus 5.5",
+   "tag": "chat",
+   "class_label": "Closed · Undisclosed",
+   "base_model": null,
+   "setup_label": "Claude Opus 5.5",
+   "maker": "Anthropic",
+   "kind": "chat",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 99.711049468331,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9976883957466481,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "math:claude-opus-5.5-sub_en",
+    "math:claude-opus-5.5-sub_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
   {
    "repo": null,
    "commit": null,
@@ -46,7 +78,7 @@
    "model_key": "inkling-small",
    "name": "Inkling-Small",
    "display_name": "Inkling-Small",
-   "tag": "high · chat",
+   "tag": "high · chat · Jul 2026",
    "class_label": "Open · 276B MoE · 12B active",
    "base_model": null,
    "setup_label": "Inkling Small",
@@ -101,6 +133,38 @@
     "math:muse-ember_en_dontknow"
    ],
    "notes": "hosted API via OpenRouter",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "model_key": "grok-4.7",
+   "name": "Grok 4.7",
+   "display_name": "Grok 4.7",
+   "tag": "chat",
+   "class_label": "Closed · Undisclosed",
+   "base_model": null,
+   "setup_label": "Grok 4.7",
+   "maker": "xAI",
+   "kind": "chat",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 99.42209893666204,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9953767914932964,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "math:grok-4.7-sub_en",
+    "math:grok-4.7-sub_en_dontknow"
+   ],
+   "notes": "hosted API (the maker's service)",
    "gpu_hours": null,
    "gpu_cost_usd": null
   },
