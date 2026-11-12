@@ -162,15 +162,13 @@ def repeat_checks(site: Site) -> str:
                        f'<p><strong>{site.shown(run)}</strong> · {esc(family["maker"])}</p>'
                        + "".join(f"<p>{line}</p>" for line in lines)
                        + f'<p><a href="{href}">Open its model page \u2192</a></p></div>')
-            key = (f'<button type="button" class="lb-details-key needs-js" aria-expanded="false" aria-controls="{box}" '
-                   f'aria-label="Details: {esc(site.plain(run))}">Details</button>')
             rows.append(
                 f'<tr data-box="{box}"><td class="num rank">{rank or "–"}</td>'
                 f'<td class="model"><i class="lb-dot" style="background:{family["colour"]}" '
                 f'title="{esc(family["maker"])}"></i>{family_icon(family["name"])}<a class="model-name" href="{href}" '
                 f'title="{esc(site.plain(run))}" aria-describedby="{box}">{esc(site.title(run))}</a>'
                 f'{tag_html(site.tag(run))}<span class="small rc-status-line">{STATUS_WORDS[entry["status"]]}</span>'
-                f'{key}{details}</td>'
+                f'{details}</td>'
                 f'<td class="num">{score_cell(repeats[0] if repeats else None, questions)}</td>'
                 f'<td class="num">{score_cell(first, questions)}</td>'
                 f'<td class="num lb-wide">{bp.count(questions)}</td>'

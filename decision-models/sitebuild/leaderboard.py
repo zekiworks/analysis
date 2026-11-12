@@ -233,14 +233,6 @@ def details(site: Site, run: dict[str, Any], box: str, lines: list[str | None], 
             + "".join(f"<p>{line}</p>" for line in body if line) + "</div>")
 
 
-def details_key(site: Site, run: dict[str, Any], box: str) -> str:
-    """A row's Details key below 900 px (Ümit #4665 item 10): a button that opens and closes its details box (site.js
-    leaderboardDetails), beside the tap, hover and focus that open it too. Hidden from 900 px, where the row shows every
-    column, and without JavaScript, where every box shows in its row."""
-    return (f'<button type="button" class="lb-details-key needs-js" aria-expanded="false" aria-controls="{box}" '
-            f'aria-label="Details: {esc(site.plain(run))}">Details</button>')
-
-
 def held_head(option: str) -> str:
     """The Non-hallucination column's head, with what it is in one phrase, as Logic & Math's (bus #4685)."""
     return f'Non-hallucination<span class="small">of answers not right, % \u201c{esc(option)}\u201d \u00b7 higher is better</span>'
@@ -426,8 +418,8 @@ def name_cell(site: Site, href: str, box: str, run: dict[str, Any], turkish: boo
 
 def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str, Any], list[dict[str, Any]]]], run_of: Any,
                facts: Any, score: Any, answers: Any, tested: bool, turkish: bool = False) -> list[str]:
-    """The body rows of one part: each model row (Tier or Rank cell, maker dot and icon, name with its label, its Details
-    key (details_key) and its expander,
+    """The body rows of one part: each model row (Tier or Rank cell, maker dot and icon, name with its label and its
+    expander,
     the score, the wide cells; its details box in the name cell, the only place its maker and kind show: project lead,
     bus #3039), then its other setups' rows, hidden, each with its own tag beside its name, the one thing that tells it
     apart. Each model row carries its kind, class (data-class) and score (data-score), and with tested
@@ -471,7 +463,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
             f'<tr data-kind="{kind}"{site.class_attribute(run)} data-score="{points}"{tested_attributes} data-box="{box}">'
             f'<td class="num rank">{"–" if unranked[index] else numbers[index]}</td><td class="model">'
             f'<i class="lb-dot" style="background:{family["colour"]}" title="{esc(family["maker"])}"></i>{family_icon(family["name"])}'
-            f'{name_cell(site, answers(item), box, run, turkish)}{details_key(site, run, box)}{more}'
+            f'{name_cell(site, answers(item), box, run, turkish)}{more}'
             f'{details(site, run, box, lines, answers(item))}</td><td class="lb-score">{cell}</td>'
             + "".join(wide(value) for value in cells) + "</tr>")
         for sub_id, other in zip(sub_ids, others):
@@ -482,7 +474,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
                 f'<tr class="lb-sub" id="{sub_id}" hidden data-kind="{kind}"{site.class_attribute(other_run)} '
                 f'data-box="{other_box}"><td class="num"></td>'
                 f'<td class="model">{name_cell(site, answers(other), other_box, other_run, turkish)}<span class="small">'
-                f'other setting of {esc(site.title(run))}</span>{details_key(site, other_run, other_box)}'
+                f'other setting of {esc(site.title(run))}</span>'
                 f'{details(site, other_run, other_box, other_lines, answers(other))}</td>'
                 f'<td class="lb-score">{score(other)[0]}</td>' + "".join(wide(value) for value in other_cells) + "</tr>")
     return out

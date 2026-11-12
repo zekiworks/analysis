@@ -526,11 +526,10 @@ python3 -m http.server 8000                                # preview at http://1
       #3039): "name tag · maker · chat model / decision model" heads the details box (the maker is the family's maker in
       `maker_colours.json`, named as on the maker's own pages, each with its source URL). The details box
       (`leaderboard.details`, `site.js` `leaderboardDetails`, as on the Backgammon site)
-      opens on a tap on a phone and on hover or the keyboard focus on a desktop, focus beating the pointer, capped to
-      the room on a short screen, and closes on a second tap, a tap outside or Escape; below 900 px each row also has a
-      Details key (`leaderboard.details_key`, Ümit #4665 item 10), a button of at least 24 px with `aria-expanded` that
-      opens and closes the same box by tap, click, Enter or Space (the focus reaching it does not open the box, Escape
-      leaves the focus on it); it lists the setup, its model's
+      opens on a tap on the model's name (or its row) on a phone and on hover or the keyboard focus on a desktop, focus
+      beating the pointer, capped to the room on a short screen, and closes on a second tap, a tap outside or Escape (the
+      focus back on the name); no separate Details key sits under the name (Ümit via Zeki #5462, replacing Ümit #4665
+      item 10's key); it lists the setup, its model's
       size ("Mixture of experts: 35.11B total, about 3B active per step. Size class uses 3B." for a mixture of experts,
       "Two models run together, option probabilities averaged 50/50: 57.36B in all, all used on every question." for
       two models run together, `size_sentence`, Ümit #4229; otherwise "Parameters: 26.1B dense", "Parameters: 8B dense ·
@@ -680,8 +679,8 @@ python3 -m http.server 8000                                # preview at http://1
     without one follow unranked (`–`), in the area's order, with `–` for Run 2, never 0. Below 900 px Questions is in the
     heading's scope and Status is a line under the name, so a phone keeps four columns. Every run (repeats 3 to 5 too)
     with its ids, dates, picks that differ, hardware or access and cost, the questions and the entry's note are in the
-    row's details box, opened as the Leaderboard's (`site.js` `leaderboardDetails`): the Details key at every width (tap,
-    click, Enter or Space; Escape closes), a tap on the row, the pointer or the focus. Under the tables, the line that
+    row's details box, opened as the Leaderboard's (`site.js` `leaderboardDetails`): a tap on the model's name or row,
+    the pointer or the focus (Escape closes). Under the tables, the line that
     the published scores stay the first run's. Then, under "Tests beside the ranking", one card each for Page images,
     Hallucination ("Bilmiyorum"), Web grounding, PWS-Decisions and the Artificial Analysis comparison, each with one line
     on what it measures and a status from the data (setups done, not run or still running, and PWS-Decisions' setups

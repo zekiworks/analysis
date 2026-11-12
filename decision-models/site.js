@@ -604,7 +604,10 @@ function renderScopes() {
       row.classList.toggle('lb-tier-start', tiered && starts && seen > 1);
       row.querySelector('td.rank').textContent = String(count);
     });
-    table.closest('.lb-part').querySelector('.lb-empty').hidden = table.querySelector('tbody tr[data-score]:not(.lb-off)') !== null;
+    // A ranking table's part says when no row is in view; a table outside a part (the In progress table shares the
+    // .lb-table look) has none, and must not stop the page's script (Zeki #5465: it did, so no row's box opened).
+    const empty = table.closest('.lb-part')?.querySelector('.lb-empty');
+    if (empty) empty.hidden = table.querySelector('tbody tr[data-score]:not(.lb-off)') !== null;
   };
   // The view in the address: each key set or dropped (at its default), the models picked (v3.js) kept beside
   // setups=all, every other key and the hash kept.
@@ -642,7 +645,7 @@ function renderScopes() {
         || (state.classes.length > 0 && !state.classes.includes(row.dataset.class));
       row.classList.toggle('lb-off', off);
     });
-    board.querySelectorAll('.lb-table').forEach(number);
+    board.querySelectorAll('.lb-part .lb-table').forEach(number);
     if (classLine) classLine.hidden = !state.classes.length;
     board.querySelector('[data-lb-all]')?.setAttribute('aria-pressed', String(state.all));
     board.classList.toggle('all-open', state.all);
@@ -772,15 +775,13 @@ function renderScopes() {
 })();
 
 /* Home page: a Leaderboard row's details box, as on the Backgammon site; the Experiments page's Repeat checks tables
-   (experiments.py) use the same boxes and keys. A tap on a phone opens it and a second tap on
-   the row, a tap outside it or Escape closes it; with a mouse it shows while the pointer is on the row; with the
-   keyboard while the focus is in the row (the model's name, then the box's link). Focus beats the pointer. Below
-   900 px each row also has its Details key (leaderboard.py details_key; Ümit #4665 item 10), a button that opens the
-   box and closes it again by tap, click, Enter or Space, its aria-expanded following the box however it opened; the
-   focus reaching the key does not open the box by itself, and Escape leaves the focus on it. The Repeat checks rows
-   keep their key at every width, their box holding what no column shows. The box is placed under
-   the row (above it near the bottom of the window), within the window's width, and capped to the room there on a
-   short screen, scrolling inside. Without JavaScript every box shows in its row. */
+   (experiments.py) use the same boxes. With a mouse it shows while the pointer is on the row; with the keyboard while
+   the focus is in the row (the model's name, then the box's link); focus beats the pointer. On a touch screen a tap on
+   the model's name (or anywhere else on its row) opens it in place of the link, and a second tap on the row, a tap
+   outside it or Escape closes it; the box's own link opens the model's answers. No separate Details key sits under the
+   name (Ümit via Zeki #5462). The box is placed under the row (above it near the bottom of the window), within the
+   window's width, and capped to the room there on a short screen, scrolling inside. Without JavaScript every box shows
+   in its row. */
 (function leaderboardDetails() {
   const board = document.getElementById('leaderboard') || document.getElementById('repeat-checks');
   if (!board) return;
@@ -789,7 +790,6 @@ function renderScopes() {
   let pointer = 'mouse';
   let quiet = false;
   const boxOf = row => document.getElementById(row.dataset.box);
-  const keyOf = row => row.querySelector(':scope > td.model > .lb-details-key');
   const place = () => {
     if (!open) return;
     const box = boxOf(open);
@@ -818,7 +818,6 @@ function renderScopes() {
     if (!open) return;
     boxOf(open).classList.remove('open');
     open.classList.remove('lb-open');
-    keyOf(open)?.setAttribute('aria-expanded', 'false');
     open = null;
     pinned = false;
   };
@@ -830,7 +829,6 @@ function renderScopes() {
     pinned = pin;
     row.classList.add('lb-open');
     box.classList.add('open');
-    keyOf(row)?.setAttribute('aria-expanded', 'true');
     place();
   };
   // Keyboard focus in the open row (its name or its box) keeps the box: the pointer leaving the row or entering another
@@ -851,22 +849,14 @@ function renderScopes() {
     row.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse' && !pinned && open === row && !held()) hide(); });
     row.addEventListener('focusin', event => {
       keyed = !pointing;
-      if (keyed && open !== row && !quiet && !event.target.closest('.lb-details-key')) show(row, false);
+      if (keyed && open !== row && !quiet) show(row, false);
     });
     row.addEventListener('focusout', event => { if (open === row && !pinned && !row.contains(event.relatedTarget)) hide(); });
     row.addEventListener('click', event => {
-      // A mouse click or a key (detail 0) follows the link; a link in the box, the Details key or the expander does its
-      // own job.
-      if (pointer === 'mouse' || event.detail === 0 || boxOf(row).contains(event.target)
-          || event.target.closest('.lb-more, .lb-details-key')) return;
+      // A mouse click or a key (detail 0) follows the link; a link in the box or the expander does its own job.
+      if (pointer === 'mouse' || event.detail === 0 || boxOf(row).contains(event.target) || event.target.closest('.lb-more')) return;
       event.preventDefault(); // a tap opens the box; its own link opens the answers
       if (open === row && pinned) hide();
-      else show(row, true);
-    });
-    // The Details key: a box open by a tap, a key or the keyboard's focus closes; one the mouse only points at stays,
-    // held open.
-    keyOf(row)?.addEventListener('click', event => {
-      if (open === row && (pinned || pointer !== 'mouse' || event.detail === 0)) hide();
       else show(row, true);
     });
   });
@@ -876,7 +866,7 @@ function renderScopes() {
     const name = open.querySelector('.model-name');
     const inside = open.contains(document.activeElement);
     hide();
-    if (inside && name && !document.activeElement.closest('.lb-details-key')) {
+    if (inside && name) {
       quiet = true;
       name.focus();
       quiet = false;
