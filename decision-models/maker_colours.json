@@ -1,5 +1,5 @@
 {
-  "about": "Maker colours shared by the Logic & Math, Reading and backgammon sites: one colour per maker (never per serving provider). Checked: CIEDE2000 ΔE ≥ 12 between every pair; WCAG contrast vs panels #f7f6f2/#1a1a18 and pages #dcd9d2/#0e0e0d. Programs (GNUbg, Safest, Random) are grey #64748b, no maker.",
+  "about": "Maker colours shared by the Logic & Math, Reading and backgammon sites: one colour per maker (never per serving provider). Checked: CIEDE2000 ΔE ≥ 12 between every pair; WCAG contrast vs panels #f7f6f2/#1a1a18 and pages #dcd9d2/#0e0e0d. Programs (GNUbg, Safest, Random) are grey #64748b, no maker. Makers marked grey: true share the programs' grey (#64748b) because no non-red colour is left at ΔE ≥ 12; pages show their name next to the dot, and the ΔE check skips them.",
   "makers": {
     "OpenAI": {
       "colour": "#199e70",
@@ -347,6 +347,33 @@
       ],
       "maker_source": "https://huggingface.co/chiranko/PKU-KCL-Meteor-0.8B",
       "min_contrast": 2.31
+    },
+    "IBM": {
+      "colour": "#64748b",
+      "grey": true,
+      "families": [
+        "Granite"
+      ],
+      "maker_source": "https://huggingface.co/ibm-granite",
+      "note": "no non-red colour left at ΔE ≥ 12 from every maker (logic, 12 Nov): grey, name shown next to the dot (jevgammon #5098)"
+    },
+    "OpenBMB": {
+      "colour": "#64748b",
+      "grey": true,
+      "families": [
+        "MiniCPM"
+      ],
+      "maker_source": "https://huggingface.co/openbmb",
+      "note": "as IBM"
+    },
+    "XHToken": {
+      "colour": "#64748b",
+      "grey": true,
+      "families": [
+        "Spark-X"
+      ],
+      "maker_source": "https://huggingface.co/XHToken",
+      "note": "as IBM"
     }
   },
   "fixed_by_umit": [

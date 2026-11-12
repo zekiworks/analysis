@@ -305,6 +305,7 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
             (f"Turkish {group} {pct(counts(run)[0] / counts(run)[1])} {interval(*counts(run))}" if group else None),
             f"Accuracy {pct(correct / questions)} {interval(correct, questions)}",
             f"Reading {pct(share(run, 'reading'))} · grammar {pct(share(run, 'grammar'))}",
+            turkish_line(site, run),
             held_line(board.option, model, digits, pending),
             kept_line(sure, kept, questions),
             " · ".join(filter(None, (cost_text(site, run, value, run.get("cost_basis"), bool(run.get("cost_upper_bound"))),
@@ -330,7 +331,7 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
     questions = total if group is None else counts(rows[0][0])[1]
     title = "Accuracy" if group is None else f"Accuracy on {group}"
     body = table_rows(site, board, "tr" if group is None else f"tr{group[0]}", rows, lambda run: run, facts, score,
-                      lambda run: site.model_path(run), group is None)
+                      lambda run: site.model_path(run), group is None, turkish=True)
     return [f"{title}<span class=\"small\">{bp.count(questions)} questions, 95% interval</span>", *heads], body, len(rows)
 
 
@@ -391,16 +392,39 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
     return heads, body
 
 
-def name_cell(site: Site, href: str, box: str, run: dict[str, Any]) -> str:
+# Ümit's #5067 item 3 (confirmed by Zeki #5085): on the Turkish leaderboards a model whose own card or maker docs do not
+# list Turkish carries this mark beside its name, with the words in its details box and the legend under the table.
+TR_MARK = "\u2021"
+TR_NOT_SUPPORTED = "Turkish not officially supported"
+
+
+def turkish_listed(site: Site, run: dict[str, Any]) -> bool:
+    """Whether the setup's model's own card or maker docs list Turkish (Site.turkish_support)."""
+    return site.turkish_support[(run["provider"], run["model"])]["status"] == "listed"
+
+
+def turkish_line(site: Site, run: dict[str, Any]) -> str:
+    """The details box line on Turkish support: listed, or the mark's words and why, with the source."""
+    item = site.turkish_support[(run["provider"], run["model"])]
+    source = f'<a href="{esc(item["source"])}">source</a>, read {esc(bp.long_date(item["read"]))}'
+    if item["status"] == "listed":
+        return f"Turkish: listed in its card ({source})"
+    why = "it lists other languages" if item["status"] == "not listed" else "it names no language"
+    return f"{TR_MARK} {TR_NOT_SUPPORTED}: {why} ({source})"
+
+
+def name_cell(site: Site, href: str, box: str, run: dict[str, Any], turkish: bool = False) -> str:
     """A row's name link (the model's official name, Site.title), its tag beside it (Site.tag: how the setup ran, a
-    space before it), then a space (so copied text and screen readers never run the two together, #4269) and its
-    class label (Site.label)."""
+    space before it), on the Turkish parts the mark TR_MARK where its card does not list Turkish, then a space (so
+    copied text and screen readers never run the two together, #4269) and its class label (Site.label)."""
+    mark = (f'<span class="lb-tr-mark" title="{TR_NOT_SUPPORTED}" aria-label="{TR_NOT_SUPPORTED}">{TR_MARK}</span>'
+            if turkish and not turkish_listed(site, run) else "")
     return (f'<a class="model-name" href="{href}" title="{esc(site.plain(run))}" aria-describedby="{box}">'
-            f'{esc(site.title(run))}</a>{tag_html(site.tag(run))} {site.label(run, box)}')
+            f'{esc(site.title(run))}</a>{tag_html(site.tag(run))}{mark} {site.label(run, box)}')
 
 
 def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str, Any], list[dict[str, Any]]]], run_of: Any,
-               facts: Any, score: Any, answers: Any, tested: bool) -> list[str]:
+               facts: Any, score: Any, answers: Any, tested: bool, turkish: bool = False) -> list[str]:
     """The body rows of one part: each model row (Tier or Rank cell, maker dot and icon, name with its label, its Details
     key (details_key) and its expander,
     the score, the wide cells; its details box in the name cell, the only place its maker and kind show: project lead,
@@ -446,7 +470,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
             f'<tr data-kind="{kind}"{site.class_attribute(run)} data-score="{points}"{tested_attributes} data-box="{box}">'
             f'<td class="num rank">{"–" if unranked[index] else numbers[index]}</td><td class="model">'
             f'<i class="lb-dot" style="background:{family["colour"]}" title="{esc(family["maker"])}"></i>{family_icon(family["name"])}'
-            f'{name_cell(site, answers(item), box, run)}{details_key(site, run, box)}{more}'
+            f'{name_cell(site, answers(item), box, run, turkish)}{details_key(site, run, box)}{more}'
             f'{details(site, run, box, lines, answers(item))}</td><td class="lb-score">{cell}</td>'
             + "".join(wide(value) for value in cells) + "</tr>")
         for sub_id, other in zip(sub_ids, others):
@@ -456,7 +480,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
             out.append(
                 f'<tr class="lb-sub" id="{sub_id}" hidden data-kind="{kind}"{site.class_attribute(other_run)} '
                 f'data-box="{other_box}"><td class="num"></td>'
-                f'<td class="model">{name_cell(site, answers(other), other_box, other_run)}<span class="small">'
+                f'<td class="model">{name_cell(site, answers(other), other_box, other_run, turkish)}<span class="small">'
                 f'other setting of {esc(site.title(run))}</span>{details_key(site, other_run, other_box)}'
                 f'{details(site, other_run, other_box, other_lines, answers(other))}</td>'
                 f'<td class="lb-score">{score(other)[0]}</td>' + "".join(wide(value) for value in other_cells) + "</tr>")
@@ -507,6 +531,53 @@ def class_line(site: Site, runs: list[dict[str, Any]]) -> str:
             + (f" Left out here: the setups only this site ran ({bp.and_list(left_out)}); they show under Class: All."
                if left_out else ""))
 
+# The In progress table's states (page_config.json in_progress) and its columns, by side.
+PROGRESS_STATES = {"queued": "Queued", "running": "Running", "blocked": "Blocked", "done": "Done", "none": "–"}
+PROGRESS_SIDES = (("english", "English"), ("turkish", "Turkish"), ("page_images", "Page images"))
+
+
+def in_progress(site: Site, board: Board) -> str:
+    """The In progress table under the Leaderboard (the project lead via Zeki #5064, #5065, #5071; Ümit #5067): the
+    models joining Reading, each with the state of its English, Turkish and Page images sides from page_config.json
+    `in_progress` (queued, running, blocked, done, or none where a side does not apply, each with an optional note),
+    so a model shows before its results do, never as a 0. A side is done exactly when the model (provider and model
+    id) has a published run of it: the build stops otherwise (mark it done, or take the model off once every side is
+    in). A model not set up yet (no model id) has no done side. Empty when no model is listed."""
+    section = site.config.get("in_progress") or {}
+    if not section.get("models"):
+        return ""
+    vision = site.vision["models"]
+    published = {
+        "turkish": {(run["provider"], run["model"]) for run in site.runs},
+        "english": {(item["provider"], item["model"]) for item in [*board.english["models"], *english_only(board.english)]},
+        "page_images": {(item["provider"], item["model"]) for item in (vision if isinstance(vision, list) else vision.values())},
+    }
+    rows = []
+    for model in section["models"]:
+        label = f"page_config.json in_progress: {model['name']}"
+        cells = []
+        for side, _ in PROGRESS_SIDES:
+            entry = model[side] if isinstance(model[side], dict) else {"state": model[side]}
+            state, note = entry["state"], entry.get("note")
+            if state not in PROGRESS_STATES:
+                raise SystemExit(f"{label}: its {side} state {state!r} is not one of {', '.join(PROGRESS_STATES)}")
+            found = model.get("model") is not None and (model.get("provider"), model["model"]) in published[side]
+            if found != (state == "done"):
+                raise SystemExit(f"{label}: its {side} side is {state}, but it has " + (
+                    "a published run: mark it done" if found else "no published run: it is not done"))
+            word = esc(PROGRESS_STATES[state])
+            shown = word if state == "none" else f'<span class="nm">{word}</span>'
+            cells.append(f'<td>{shown}' + (f'<span class="small">{esc(note)}</span>' if note else "") + "</td>")
+        rows.append(f'<tr><td class="model"><span class="lb-progress-name">{esc(model["name"])}</span><span class="small">'
+                    f'{esc(model["maker"])} · {esc(model["kind"])}</span></td>{"".join(cells)}</tr>')
+    heads = "".join(f'<th scope="col">{esc(title)}</th>' for _, title in PROGRESS_SIDES)
+    notes = "".join(f'<p class="table-note">{esc(line)}</p>' for line in section.get("notes", []))
+    return (f'<section class="lb-progress" aria-labelledby="in-progress"><h3 id="in-progress">In progress</h3>'
+            f'<p class="table-note">{esc(section["lead"])} As of {esc(section["as_of"])}.</p>'
+            f'<div class="table-wrap"><table class="lb-table lb-progress-table" aria-labelledby="in-progress"><thead><tr>'
+            f'<th scope="col">Model</th>{heads}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>{notes}</section>')
+
+
 
 def leaderboard(site: Site, about: str = "about/#leaderboard") -> str:
     """The Leaderboard's controls (the part switch, the type keys, the All setups key, then the Class keys on a row of
@@ -540,15 +611,21 @@ def leaderboard(site: Site, about: str = "about/#leaderboard") -> str:
                 '<div class="lb-controls lb-size-keys needs-js"><span class="keys" role="group" aria-label="Class">'
                 f'<span class="lb-keys-label" aria-hidden="true">Class:</span>{keys("class", [("all", "All"), *site.model_classes()], "all")}'
                 '</span></div>')
+    listed = sorted({site.title(run) for run, _ in board.turkish_rows() if turkish_listed(site, run)}, key=str.casefold)
+    read = max(item["read"] for item in site.turkish_support.values())
+    tr_legend = (f'<p class="table-note lb-tr-note">{TR_MARK} {TR_NOT_SUPPORTED}: the model\'s own card or maker docs do not '
+                 f'list Turkish (read {esc(bp.long_date(read))}; Ümit #5067)'
+                 + (f"; of the models here only {esc(bp.and_list(listed))} list it" if listed else "") + ".</p>")
     panels = "".join(f'<div class="lb-part" data-lb-part="{part}"{"" if part == DEFAULT_PART else " hidden"}>'
                      f'{measure_keys("", (part,))}{parts[part]}'
                      f'<p class="chart-sub lb-meaning">{esc(meaning(part, board.total, board.kept, groups))}</p>'
                      f'<p class="table-note lb-empty" hidden>{esc(EMPTY_LINE)}</p>'
-                     f'<p class="table-note lb-numbers">{esc(numbers[part])}</p></div>'
+                     f'<p class="table-note lb-numbers">{esc(numbers[part])}</p>'
+                     f'{tr_legend if part.startswith("turkish") else ""}</div>'
                      for part, _ in PARTS)
     return (f'{controls}<div class="lb-models" data-lb-view="models">{panels}'
             f'<p class="table-note lb-rule">{esc(ROW_LINE)} <a href="{about}">How rows are chosen</a></p>'
-            f'<p class="table-note lb-size-line" hidden>{esc(class_line(site, runs))}</p></div>')
+            f'<p class="table-note lb-size-line" hidden>{esc(class_line(site, runs))}</p></div>{in_progress(site, board)}')
 
 
 def about_text(site: Site, origin: str) -> str:

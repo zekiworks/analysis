@@ -834,6 +834,19 @@ class Site:
         return json.loads((ROOT / "vision.json").read_text(encoding="utf-8"))
 
     @cached_property
+    def turkish_support(self) -> dict[tuple[str, str], dict[str, Any]]:
+        """turkish-support.json by setup (provider, model): whether the model's own card or maker docs list Turkish
+        (status listed, not listed or not stated, with source, quote and date read; Ümit #5067 item 3, confirmed by Zeki
+        #5085). A Text tab setup whose model's card does not list Turkish is marked "Turkish not officially supported"
+        on the Turkish leaderboards. The build stops when a Text tab setup has no entry."""
+        data = json.loads((ROOT / "turkish-support.json").read_text(encoding="utf-8"))
+        found = {(key["provider"], key["model"]): item for item in data["models"] for key in item["keys"]}
+        missing = sorted({self.title(run) for run in self.runs if (run["provider"], run["model"]) not in found}, key=str.casefold)
+        if missing:
+            raise SystemExit(f"turkish-support.json: no entry for {', '.join(missing)}")
+        return found
+
+    @cached_property
     def tags(self) -> dict[int, str]:
         """Each setup's tag beside its name, by run id (sitebuild/names.py): the Text tab's runs and the English-only
         setups (keyed by their first English run). The build stops where two setups would read the same."""

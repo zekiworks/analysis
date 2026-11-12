@@ -717,6 +717,22 @@ PRICES: dict[tuple[str, str], Price] = {
         "DeepInfra's list price for the same weights (BF16)", "https://openrouter.ai/qwen/qwen3.5-9b", "2026-11-09", 0.10,
         0.15, applies_to="weights",
     ),
+    # The models joining Reading on logic's servers (Ümit via Zeki #5064, #5071; read 12 November 2026): LFM2.5-2.6B and
+    # LFM2.5-24B-A2B at Liquid AI's own endpoint, Granite 4.2 8B at CoreWeave's BF16 endpoint (DeepInfra's has the same
+    # input price and a higher output one). Granite 4.2 3B and 30B, MiniCPM5-2B and Spark-X2.6-4B have no API that sells
+    # the same weights, so GPU_TIME.
+    ("vllm-plain", "lfm2.5-2.6b"): Price(
+        "Liquid AI's list price for the same model (FP8 at its endpoint)", "https://openrouter.ai/liquid/lfm-2.5-2.6b",
+        "2026-11-12", 0.35, 0.50, applies_to="maker",
+    ),
+    ("vllm-plain", "lfm2.5-24b-a2b"): Price(
+        "Liquid AI's list price for the same model (FP8 at its endpoint)", "https://openrouter.ai/liquid/lfm-2.5-24b-a2b",
+        "2026-11-12", 0.05, 0.70, applies_to="maker",
+    ),
+    ("vllm-plain", "granite-4.2-8b"): Price(
+        "CoreWeave's list price for the same weights (BF16)", "https://openrouter.ai/ibm-granite/granite-4.2-8b", "2026-11-12",
+        0.06, 0.15, applies_to="weights",
+    ),
 }
 # Prices of runs with --perplexity-mode web_grounding, by (provider, model). A grounded request runs one Fast Search per
 # question at $0.001 ("Questions that produce the same search query share one search"; a failed or timed-out search is
@@ -787,6 +803,12 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("vllm-plain", "ministral-3-14b-reasoning"): 1,
     ("vllm-plain", "lfm2.5-1.2b-thinking"): 1,
     ("vllm-plain", "lfm2-350m-math"): 1,
+    ("d1-server", "LiquidAI/d1-Omni-2B"): 1,
+    ("d1-server", "LiquidAI/d1-3B"): 1,
+    ("vllm-plain", "minicpm5-2b"): 1,
+    ("vllm-plain", "spark-x2.6-4b"): 1,
+    ("vllm-plain", "granite-4.2-3b"): 1,
+    ("vllm-plain", "granite-4.2-30b"): 1,
 }
 
 

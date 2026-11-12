@@ -255,7 +255,7 @@
       {"runs": [129], "reason": "since 10 October, our requests for fastino/GLiDE have been answered by Fastino's glide_v2 engine, not the glide engine of its Turkish run (6 October), so an English run would not measure the same model."},
       {"runs": [120, 121], "reason": "their first-release weights are no longer on our disk (the server folder now holds the 1017 weights), so a run needs them downloaded again first."}
     ],
-    "turkish_running": {"about": "English-only setups whose Text tab run is still running, by model id: their Turkish side reads Running, not Not run, until the run is in (the project lead via Zeki #4748: a measure still running is shown pending, never as 0 or another run's number). paused and queued: such a run stopped for now or not started yet, by model id with why; it reads Paused or Queued with that reason instead of Running (Zeki #4987, #5001); take it off when that changes. The build stops when a listed model is not an English-only setup, or a paused or queued one is not listed.", "models": ["claude-fable-5-2"], "paused": {"claude-fable-5-2": "stopped at the Claude subscription's usage limit on 11 November 2026, 19:30 UTC, with 1,904 of 2,198 answers kept; it resumes in place"}},
+    "turkish_running": {"about": "English-only setups whose Text tab run is still running, by model id: their Turkish side reads Running, not Not run, until the run is in (the project lead via Zeki #4748: a measure still running is shown pending, never as 0 or another run's number). paused and queued: such a run stopped for now or not started yet, by model id with why; it reads Paused or Queued with that reason instead of Running (Zeki #4987, #5001); take it off when that changes. The build stops when a listed model is not an English-only setup, or a paused or queued one is not listed.", "models": ["claude-fable-5-2", "gemma-4-e4b-it", "lfm2.5-8b-a1b"], "paused": {"claude-fable-5-2": "stopped at the Claude subscription's usage limit on 11 November 2026, 19:30 UTC, with 1,904 of 2,198 answers kept; it resumes in place"}, "queued": {"gemma-4-e4b-it": "queued on logic's server on bariton GPU 1, served again for its Turkish runs (the project lead via Zeki #5064, #5071)", "lfm2.5-8b-a1b": "queued on logic's server on bariton GPU 1, served again for its Turkish runs (the project lead via Zeki #5064, #5071)"}},
     "method_notes": ["Perplexity Decider 27B v1.2 (its setup tagged DGX Spark), Perplexity Decider Flash v1.2 and Fastino GLiDE v1.2 made their Text tab runs on an NVIDIA DGX Spark and their English runs on our RTX PRO 6000 GPU, with the same checkpoint, server code and settings.", "Celeris-1 Decision was added on 3 November 2026 with one English run, although its repeated Turkish runs changed answers, for which the rule under Runs gives five.", "SubQ Snap Preview's English runs (5 November 2026) returned the same choices and probabilities as SubQ Snap 1.1's English run (2 November 2026) on all 547 questions, and every response named the Preview model. Its Turkish run (13 October 2026) and SubQ Snap 1.1's (1 November 2026) differ on 519 of 2,198 questions. The model behind each name was not verified; read SubQ Snap Preview's Turkish against English comparison with this in mind."],
     "structural_check": {"about": "runner/translate_reading.py check on the final translations: the questions with a problem (a missing translation, the option letters, an empty text or the underline markup) and the number of warnings (numbering, numbers, Turkish letters, length). The build stops unless every problem question is flagged.", "problem_questions": [3043], "warnings": 159}
   },
@@ -374,6 +374,35 @@
     "not_combined": [
       {"match": {"repo": null, "model_key": "fastino-glide", "kind": "decision"},
        "reason": "Fastino's API served a changed model between our benches' runs (Reading 6 Oct, Logic & Math 7 Nov, Backgammon 20 Oct to 7 Nov), so its bench scores are not one model's."}
+    ]
+  },
+  "in_progress": {
+    "about": "The In progress table under the Leaderboard (sitebuild/leaderboard.py in_progress; the project lead via Zeki #5064, #5065, #5071; Ümit #5067): models joining Reading, each side (english, turkish, page_images) queued, running, blocked, done or none (does not apply), as a word or {state, note}. provider and model are the runner's keys once the model is set up (null before). A side is done exactly when that setup has a published run of it; the build stops otherwise. Take a model off once all its sides are in. as_of: when the states were last set.",
+    "as_of": "12 November 2026, 01:35 UTC",
+    "lead": "Models joining Reading (the project lead via Zeki #5064, #5071; Ümit #5067). Each side shows its state until its run is published; nothing here is a score.",
+    "notes": [
+      "Chat models run on logic's server on bariton GPU 1 after its Logic & Math runs, one model at a time (logic #5080, #5091); Gemma 4 E4B and LFM2.5-8B-A1B are served again for their Turkish runs only.",
+      "Page images: chat models that read images would take the same conditions through a chat route, which is built and tested but awaits the lead's OK (Zeki #5104); – means the model reads no images.",
+      "Muse Glimmer 30B, d1-Omni-2B, d1-3B, LFM3-VL-2B and Inkling 2 Small are being set up (logic #5089; Inkling 2 Small through OpenRouter's free endpoint from Thinking Machines); their runs follow the brief's phases (Ümit #5067, Zeki #5090)."
+    ],
+    "models": [
+      {"name": "LFM2.5-2.6B", "maker": "Liquid AI", "kind": "chat", "provider": "vllm-plain", "model": "lfm2.5-2.6b", "english": "queued", "turkish": "queued", "page_images": "none"},
+      {"name": "Gemma 4 E4B", "maker": "Google", "kind": "chat", "provider": "vllm-plain", "model": "gemma-4-e4b-it", "english": "done", "turkish": "queued", "page_images": {"state": "blocked", "note": "awaits the lead's OK"}},
+      {"name": "LFM2.5-8B-A1B", "maker": "Liquid AI", "kind": "chat", "provider": "vllm-plain", "model": "lfm2.5-8b-a1b", "english": "done", "turkish": "queued", "page_images": "none"},
+      {"name": "MiniCPM5-2B", "maker": "OpenBMB", "kind": "chat", "provider": "vllm-plain", "model": "minicpm5-2b", "english": "queued", "turkish": "queued", "page_images": "none"},
+      {"name": "Spark-X2.6-4B", "maker": "XHToken", "kind": "chat", "provider": "vllm-plain", "model": "spark-x2.6-4b", "english": "queued", "turkish": "queued", "page_images": "none"},
+      {"name": "Qwen3.5-4B", "maker": "Alibaba", "kind": "chat", "provider": "vllm-plain", "model": "qwen3.5-4b", "english": "queued", "turkish": "queued", "page_images": {"state": "blocked", "note": "awaits the lead's OK"}},
+      {"name": "Granite-4.2-3B", "maker": "IBM", "kind": "chat", "provider": "vllm-plain", "model": "granite-4.2-3b", "english": "queued", "turkish": "queued", "page_images": "none"},
+      {"name": "Qwen3.5-9B", "maker": "Alibaba", "kind": "chat", "provider": "vllm-plain", "model": "qwen3.5-9b", "english": "queued", "turkish": "queued", "page_images": {"state": "blocked", "note": "awaits the lead's OK"}},
+      {"name": "Granite-4.2-8B", "maker": "IBM", "kind": "chat", "provider": "vllm-plain", "model": "granite-4.2-8b", "english": "queued", "turkish": "queued", "page_images": "none"},
+      {"name": "LFM2.5-24B-A2B", "maker": "Liquid AI", "kind": "chat", "provider": "vllm-plain", "model": "lfm2.5-24b-a2b", "english": "queued", "turkish": "queued", "page_images": "none"},
+      {"name": "Granite-4.2-30B", "maker": "IBM", "kind": "chat", "provider": "vllm-plain", "model": "granite-4.2-30b", "english": "queued", "turkish": "queued", "page_images": "none"},
+      {"name": "LFM3-1.7B", "maker": "Liquid AI", "kind": "chat", "provider": "vllm-plain", "model": "lfm3-1.7b", "english": "queued", "turkish": "queued", "page_images": "none"},
+      {"name": "d1-Omni-2B", "maker": "Liquid AI", "kind": "decision", "provider": null, "model": null, "english": "queued", "turkish": "queued", "page_images": "queued"},
+      {"name": "d1-3B", "maker": "Liquid AI", "kind": "decision", "provider": null, "model": null, "english": "queued", "turkish": "queued", "page_images": "queued"},
+      {"name": "LFM3-VL-2B", "maker": "Liquid AI", "kind": "chat", "provider": null, "model": null, "english": "none", "turkish": {"state": "queued", "note": "condition A of its Page images"}, "page_images": {"state": "blocked", "note": "awaits the lead's OK"}},
+      {"name": "Muse Glimmer 30B", "maker": "Meta", "kind": "chat", "provider": null, "model": null, "english": "queued", "turkish": "queued", "page_images": {"state": "blocked", "note": "awaits the lead's OK"}},
+      {"name": "Inkling 2 Small", "maker": "Thinking Machines", "kind": "chat", "provider": null, "model": null, "english": "queued", "turkish": "queued", "page_images": {"state": "blocked", "note": "awaits the lead's OK"}}
     ]
   },
   "model_languages": {

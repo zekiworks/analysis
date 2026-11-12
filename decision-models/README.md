@@ -597,6 +597,19 @@ python3 -m http.server 8000                                # preview at http://1
       view and Back returns to it. **Look** (as Logic & Math's, #4796): a pressed or current key of the Leaderboard's
       rows, the pages' type and Class rows and the Measure rows is filled (`--view-current-*`); the score's value is
       monospaced at normal weight.
+    - **In progress** (`#in-progress`, `leaderboard.in_progress`, under the Leaderboard; the project lead via Zeki
+      #5064, #5065, #5071, Ümit #5067): the models joining Reading, each with the state of its English, Turkish and
+      Page images sides (Queued, Running, Blocked, Done, or – where a side does not apply, with an optional note) from
+      `page_config.json`'s `in_progress`, so a model shows before its results do and never as a 0. A side is Done
+      exactly when that setup (provider and model id) has a published run of it, and the build stops otherwise; a model
+      leaves the table once all its sides are in.
+    - **Turkish support** (Ümit #5067 item 3, confirmed by Zeki #5085): on the Leaderboard's Turkish parts (Turkish,
+      Turkish reading, Turkish grammar) a model whose own card or maker docs do not list Turkish carries ‡ beside its
+      name (`leaderboard.TR_MARK`), its details box says "Turkish not officially supported" and why (it lists other
+      languages, or names none) with the source and the date read, and the legend under the table names the models
+      that do list it. The evidence is `turkish-support.json` (status listed, not listed or not stated, source, quote,
+      date read, by setup's provider and model; `Site.turkish_support`); the build stops when a Text tab setup has no
+      entry.
     - **All setups** (`#all-setups`): the full ranking with its four tabs (Accuracy, Confidence, Routing, Stability),
       then the cost of every setup (`#cost-table`) and accuracy against cost or latency (`#chart-tradeoff`). A link to
       `#board`, `#all-setups`, `#cost-table` or `#chart-tradeoff` opens it first; `#headline` lands on the Leaderboard;
