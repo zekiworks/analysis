@@ -390,6 +390,9 @@
     hide();
     if (back) focusName(was);  // a tap outside: the focus back on the name, unless the tap gave it to something else
   });
+  // Safari on a phone sends no click for a tap on a plain element (a row's bar or number) unless an element below <body>
+  // listens for clicks; the one listener above is on the document, so <main> gets an empty one (WebKit check, Main #5509).
+  document.querySelectorAll('main').forEach(main => main.addEventListener('click', () => {}));
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape' || !open) return;
     const was = open, back = pinned || within(document.activeElement);
