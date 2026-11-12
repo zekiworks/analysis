@@ -1062,8 +1062,8 @@ def reversed_refit(run: dict[str, Any]) -> bool:
 # ---------------------------------------------------------------- the title and the images
 
 
-# The page's title and the link preview's (the headline on the page is the h1 in index.html).
-TITLE = "When should you trust an AI model to make a decision? · Hilde"
+# The page's title and the link preview's, and the citation's title: the site's name (Ümit via Zeki, bus #5300, #5301).
+TITLE = "Reading bench · Hilde"
 # The three LLMs the opening puts Decider in front of, by named-run key; the opening orders them by saving.
 OPENING_SECONDS = ("sonnet_high", "opus", "astra")
 

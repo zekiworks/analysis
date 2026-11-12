@@ -2,6 +2,16 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results c9d97795 (12 November 2026)
+
+- Quality control (the project lead via Zeki #5263, #5264, #5273): every published run and Page images cell checked against its stored records (528 runs, 646,803 answers, 132 cells): one answer per question of each run's selection, each key against the question bank, each correct flag, each option probability set, and no error stored as an answer; the chat and small-model runs also for the model that answered, their settings and their parser. Two defects of one kind were found: OpenRouter sometimes reports an upstream failure with HTTP 200 (a reply that finished with "error", or an error object in place of the reply), and such errors had been stored as answers without a letter, counted wrong. The runner now asks such a reply again as a failed request and never stores it; `--rescue` asks the stored ones again and keeps each error beside the new answers.
+  - Claude Haiku 5.5's Turkish Text run 948: 3 of its 138 requests (48 answers) were such errors. Asked again with the run's own settings, all three came back cut off at the 128,000-token output limit (its reasoning took every token), so its 1,254 of 2,198 right stand; its model page counts the three requests asked again, and its cost and request time now include them.
+  - Muse Ember's Page images: one answer each in text plus picture (C) and in Chandra OCR 2, asked again (runs 565 and 566): text plus picture 669 → 670 of 763 right (87.8%), Chandra OCR 2 unchanged at 582. Three more in Unlimited OCR 2, paused for the Turkish phase, are asked again when it resumes.
+  - No other run or cell holds an error in place of an answer. Gemini Decision 1 and the setups within two points of it on each Reading bench: no defect found in the checked scope.
+- Page images: the charts' titles name the questions' subject, "763 Reading & Grammar questions" (219 reading, 544 grammar, split as the Text tab splits the bank); the language stands in the descriptions (the project lead via Zeki #5281, #5307).
+- The question that was the home page's title is gone from every page, the browser tab and the citation; the page opens with the Leaderboard (the project lead via Zeki #5300, #5301).
+- results.json: each run's `invalid_replies` counts `error_replies_asked_again`. No other number changed; no significance verdict moved.
+
 ## Results 4e973ed6 (12 November 2026)
 
 - Gemma 4 E4B (Google, open weights, `google/gemma-4-E4B-it` at `4ecc2ba`) joins the Text and Hallucination tabs and Page images (the project lead via Zeki #5064, #5071; logic #5202). Its Turkish runs and Page images used the same server and settings as its English runs: logic's server on one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, thinking off (its template's default), temperature 0, up to 8,192 output tokens, one question per request with a plain answer line.

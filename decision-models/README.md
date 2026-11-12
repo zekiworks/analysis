@@ -1,4 +1,4 @@
-# When should you trust a decision model?
+# Reading bench
 
 *A decision model answers first; a stronger model answers the rest. Accuracy, confidence and cost on
 Turkish exam questions.*
@@ -483,10 +483,12 @@ python3 -m http.server 8000                                # preview at http://1
   - **Leaderboard** (the home page, `index.html`): the script fills its `<!-- build:… -->` blocks (the meta tags, with
     the link preview from `share/images.json`, the Leaderboard, the full ranking as plain tables for readers without
     JavaScript, the settings `v3.js` reads, the finding headings and the static Non-hallucination part). In this order:
-    - **Hero**: the question "When should you trust a decision model?" alone; no line stands between it and the
-      Leaderboard (project lead via Zeki, #4663, #4666). The line of counts (`site_counts`: questions, models, that is
-      the Leaderboard's rows, setups and the last update) with "More about this page" (About, where the intro,
-      `INTRO`, and How the scores work now stand; Ümit via Zeki, bus #3521) closes the Leaderboard, under All setups.
+    - **No title line**: the page opens with the Leaderboard. The question "When should you trust a decision model?",
+      once the page's title, is gone from every page, the browser tab and the citation (Ümit via Zeki, #5300, #5301);
+      a heading only screen readers read names the page ("Reading bench: Text"). The line of counts (`site_counts`:
+      questions, models, that is the Leaderboard's rows, setups and the last update) with "More about this page"
+      (About, where the intro, `INTRO`, and How the scores work now stand; Ümit via Zeki, bus #3521) closes the
+      Leaderboard, under All setups.
     - **Names** (`sitebuild/names.py`, `Site.title`, `Site.tag`; the project lead's rule, Ümit #4445, the three sites'
       scheme #4449, #4484): every page shows a model by its official name only, in the maker's spelling (a maker's
       display title over its repo slug), with a small tag beside it for how that setup ran, setting · route · snapshot

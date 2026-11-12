@@ -734,6 +734,20 @@ def with_condition(models: list[dict[str, Any]], label: str) -> list[dict[str, A
     return [model for model in models if "A" in model["conditions"] and label in model["conditions"]]
 
 
+def subset_topic(site: Site, data: dict[str, Any]) -> tuple[str, str]:
+    """The page-image questions' subject for the charts' titles, "Reading & Grammar questions" ("Reading questions" or
+    "Grammar questions" for a subset of one part), and their split for the descriptions, "219 reading, 544 grammar",
+    split as the Text tab splits the bank (page_config.json's reading_units). A title names the subject; the language
+    (Turkish) stands in the descriptions only (Ümit via Zeki #5281, #5307)."""
+    subset = data["subset"]
+    if sum(subset["by_unit"].values()) != subset["questions"]:
+        raise SystemExit("vision.json: subset.by_unit does not add up to subset.questions")
+    reading = sum(count for unit, count in subset["by_unit"].items() if site.part(int(unit)) == "reading")
+    grammar = subset["questions"] - reading
+    topic = "Reading & Grammar questions" if reading and grammar else "Reading questions" if reading else "Grammar questions"
+    return topic, f"{reading:,} reading, {grammar:,} grammar"
+
+
 def face(site: Site, data: dict[str, Any]) -> str:
     """The tab's face: four chart cards, each with a line saying which way is better, every number from vision.json: the
     picture alone (B) against the text (A), the text plus the picture (C) against the text, the best OCR route against the
@@ -741,6 +755,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
     groups while every model is a decision model, else one per group of the view bar. The models' bars are in their model
     family's colour (model_families), as on the home page's charts, each marked with its class for the page's Class keys."""
     questions = f"{data['subset']['questions']:,}"
+    topic, parts = subset_topic(site, data)
     acc = lambda model, label: model["conditions"][label]["correct"] / model["conditions"][label]["questions"]  # noqa: E731
 
     def name(model: dict[str, Any]) -> str:
@@ -767,7 +782,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
     def image_card(group: str, marks: str, models: list[dict[str, Any]]) -> str:
         by_b = sorted(with_condition(models, "B"), key=lambda model: -acc(model, "B"))
         return card(
-            anchor("chart-image", group), f"The picture alone (B) · {questions} Turkish questions", f"Share of the {questions} questions answered right from a picture of the question alone · higher is better",
+            anchor("chart-image", group), f"The picture alone (B) · {questions} {topic}", f"Share of the {questions} Turkish questions ({parts}) answered right from a picture of the question alone · higher is better",
             [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model), "text": pct(acc(model, "B")),
               "marker": acc(model, "A"), "bars": [{"value": acc(model, "B"), "colour": family(site, model)["colour"]}],
               "title": f"{plain_name(site, model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text",
@@ -778,7 +793,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
     def both_card(group: str, marks: str, models: list[dict[str, Any]]) -> str:
         by_c = sorted(with_condition(models, "C"), key=lambda model: -acc(model, "C"))
         return card(
-            anchor("chart-both", group), f"The text plus the picture (C) · {questions} Turkish questions", "Accuracy with the picture after the text, and with the text alone · higher is better",
+            anchor("chart-both", group), f"The text plus the picture (C) · {questions} {topic}", "Accuracy with the picture after the text, and with the text alone · higher is better",
             [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model),
               "text": f"{pct(acc(model, 'C'))} · {pct(acc(model, 'A'))}",
               "bars": [{"value": acc(model, "C"), "colour": family(site, model)["colour"]}, {"value": acc(model, "A"), "kind": "base"}],
@@ -799,7 +814,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
         same = (f" <span>The best route is {esc(OCR_NAMES[next(iter(best_keys))])} for every model.</span>"
                 if len(best_keys) == 1 else "")
         return card(
-            anchor("chart-ocr-route", group), f"The best OCR route (D) · {questions} Turkish questions", "Accuracy with one OCR model's reading of the picture as text, the best of the four · higher is better",
+            anchor("chart-ocr-route", group), f"The best OCR route (D) · {questions} {topic}", "Accuracy with one OCR model's reading of the picture as text, the best of the four · higher is better",
             [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model), "text": pct(share), "marker": acc(model, "A"),
               "bars": [{"value": share, "colour": family(site, model)["colour"]}],
               "title": f"{plain_name(site, model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text",
@@ -990,8 +1005,9 @@ def build(site: Site) -> dict[str, str]:
     if left:
         raise SystemExit(f"vision/: an internal note in the page's text ({left.group(0)!r}); add its rewrite to vision.py's PUBLIC")
     return {PATH: site.page(PATH, "Vision",
-                            f"{questions} Turkish questions with underlined or numbered words, asked as text, as a page "
-                            "image, as both and through four OCR models.", body, image="vision", hidden_groups=hidden)}
+                            f"{questions} Turkish questions ({subset_topic(site, data)[1]}) with underlined or numbered words, "
+                            "asked as text, as a page image, as both and through four OCR models.", body, image="vision",
+                            hidden_groups=hidden)}
 
 
 def signed(points: float) -> str:

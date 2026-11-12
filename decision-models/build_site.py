@@ -22,7 +22,7 @@ The home page, index.html, is the Text tab; vision/ (sitebuild/vision.py) is the
 (sitebuild/dont_know.py) the Hallucination tab and turkish-vs-english/ (sitebuild/english_reading.py) the Turkish vs
 English tab, with a redirect at its earlier address english-reading/. index.html keeps its copy; this script rewrites
 what is inside its <!-- build:name --> markers: the meta tags, the
-top bar, the hero's line of counts (from results.json), the counters, the results version, the plain table for
+top bar, the line of counts under the Leaderboard (from results.json), the counters, the results version, the plain table for
 readers without JavaScript (every setup, decision and chat models ranked together, the page's all view) and the note
 under it, the settings v3.js reads, the default setup count, the topic list, the part keys with their question counts
 and the questions in view. v3.js
@@ -79,7 +79,9 @@ HOME_KEYS = ("results_version", "questions", "sure_threshold", "units", "prices"
 PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know",
                                  "english_reading", "english_view", "aa_index", "web_grounding", "pws_decisions", "data",
                                  "method", "highlights", "experiments", "bench_scores", "all_benches")
-TITLE = "When should you trust a decision model?"
+# The pages' title is the site's name: the question "When should you trust a decision model?" is gone from every page
+# (Ümit via Zeki, bus #5300, #5301).
+TITLE = "Reading bench"
 # The intro (at the top of the About page, moved from the home page) and the meta description; their counts come from
 # results.json (counts()).
 INTRO = (
@@ -470,7 +472,7 @@ def non_hallucination(site: Site, finding: str) -> str:
                      '<a href="about/#notes-home-non-hallucination">More about this finding</a>') + "</figure>")
 
 
-# The home page as a story: the hero (the title and one line of counts), the Leaderboard (sitebuild/leaderboard.py) and
+# The home page as a story: the Leaderboard (sitebuild/leaderboard.py) with its line of counts, and
 # the finding sections, each a heading that states its finding, one chart and one link. Each finding's sentences, the
 # intro and "How the scores work" are on the About page (Ümit via Zeki, bus #3521: less text at the top of pages).
 RANKS_NOTE = "Ranks show observed scores; small gaps need not be meaningful."
