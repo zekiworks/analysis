@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-12T16:31:42Z",
+ "updated": "2026-11-12T16:37:20Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1767,6 +1767,37 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
    "gpu_hours": 0.04111111111111111,
    "gpu_cost_usd": 0.10236666666666668
+  },
+  {
+   "repo": "PelaAI/KnowLine-2B-Gen1",
+   "commit": "53245d470a4ce316e32fd0d18c24e142c697f40b",
+   "model_key": "knowline-2b-gen1",
+   "name": "KnowLine-2B-Gen1",
+   "display_name": "KnowLine-2B-Gen1",
+   "tag": "",
+   "class_label": "Open · 2.0B",
+   "base_model": "Qwen3.5-2B",
+   "setup_label": "KnowLine-2B-Gen1",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "params_total": 2.0,
+   "params_active": 2.0,
+   "quantization": "BF16",
+   "score_0_100": 14.666666666666666,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.31733333333333336,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": 0.08343323308142794,
+   "improvement_points": null,
+   "runs": [
+    "logic:knowline-2b_en"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10); no complete 'I don't know' run",
+   "gpu_hours": 0.02,
+   "gpu_cost_usd": 0.004256356521692845
   },
   {
    "repo": "startlux-models/StartLux-Decision-v1.1-2B-Instant",
