@@ -191,8 +191,17 @@ def external(site: Site) -> tuple[list[dict[str, Any]], str]:
 
 
 # A bench file's notes saying a row ran on the site's own hardware (the Reading site's "our GPU (...)", Logic & Math's
-# "run on our hardware", Backgammon's "run on our GPUs", Cygnet's "self-hosted").
+# "run on our hardware", Backgammon's "run on our GPUs", Cygnet's "self-hosted"). A negated mention ("never on our GPUs",
+# "not run on our hardware") says the opposite and does not count (NOT_LOCAL; Zeki #5188).
 LOCAL = re.compile(r"\bour (?:gpus?|hardware)\b|\bself-hosted\b", re.I)
+NOT_LOCAL = re.compile(r"\b(?:never|not)\s+(?:\w+\s+){0,2}on\s+our\s+(?:gpus?|hardware)\b", re.I)
+
+
+def ran_here(notes: str) -> bool:
+    """Whether a bench file's notes say the row ran on that site's own hardware (LOCAL, its negations left out)."""
+    return bool(LOCAL.search(NOT_LOCAL.sub("", notes)))
+
+
 # Words in a model's name that say how it ran rather than which model it is, dropped from its name key (name_key).
 SETTING_WORDS = {"perplexity", "api", "local", "gpu", "open", "weights", "high", "low", "medium", "max", "minimal", "off",
                  "on"}
@@ -376,11 +385,11 @@ class Data:
 
     def setups(self, model: dict[str, Any]) -> str | None:
         """Where the benches shown ran different setups of one model (Ümit #4270): our hardware (a row with a repo, or
-        whose notes say it ran on ours: LOCAL) or a hosted API, and the checkpoint where two benches ran different ones;
+        whose notes say it ran on ours: ran_here) or a hosted API, and the checkpoint where two benches ran different ones;
         which bench ran which, the most common last as "the other benches"; None where they ran one: "Backgammon: a
         hosted API; the other benches: our hardware"."""
         rows = [(bench["label"], model["scores"][bench["key"]]) for bench in self.benches if bench["key"] in model["scores"]]
-        local = lambda row: bool(row.get("repo") or LOCAL.search(row.get("notes") or ""))  # noqa: E731
+        local = lambda row: bool(row.get("repo") or ran_here(row.get("notes") or ""))  # noqa: E731
         checkpoint = lambda row: row["repo"].lower().split("@")[0].split("/")[-1]  # noqa: E731  (as same_repo)
         repos = {checkpoint(row) for _, row in rows if row.get("repo")}
         groups: dict[str, list[str]] = {}
