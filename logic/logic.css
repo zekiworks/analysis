@@ -325,10 +325,13 @@ table.lb-table .lb-wide { display: none; }
 table.vision-table td.model, table.vision-roster-table td { white-space: normal; }
 .vision-panel[hidden], [data-vision-show][hidden] { display: none !important; }
 .vt-line { display: none; }
-.vr-line { display: block; white-space: nowrap; font-family: var(--mono); font-size: .8rem; }
+.vr-line { display: block; font-family: var(--mono); font-size: .78rem; white-space: nowrap; }
 .vr-line .vr-name { font-family: var(--sans); }
+.vr-na { font-family: var(--sans); white-space: normal; }
 .vision-roster h2 { margin-bottom: .2rem; }
+.vr-state { display: block; margin-top: .15rem; font-size: .84rem; }
 @media (max-width: 640px) {
+  .vr-line .vr-name { display: none; }
   .vt-line { display: block; }
   table.vision-table .vt-wide { display: none; }
   table.board:is(.vision-table, .vision-roster-table) { table-layout: auto; width: 100%; }

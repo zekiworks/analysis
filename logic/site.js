@@ -142,6 +142,12 @@
     apply(true);
     if (!inKeys) keys.scrollIntoView({ block: 'nearest' });
   });
+  // The Info link under the heading opens the closed Info block it points at (also when the address names it).
+  const info = document.getElementById('info');
+  if (info) {
+    document.querySelectorAll('a[href="#info"]').forEach(link => link.addEventListener('click', () => { info.open = true; }));
+    if (window.location.hash === '#info') info.open = true;
+  }
   apply(false);
 })();
 
