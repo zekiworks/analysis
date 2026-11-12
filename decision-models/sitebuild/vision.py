@@ -41,6 +41,8 @@ COLUMNS = (("A", "A · text only"), ("B", "B · image only"), ("C", "C · text p
 # What each leaderboard column measures and which way is better, under its header (and beside a phone's stacked cell).
 DIRECTION = "accuracy, higher is better"
 NOT_AVAILABLE = "Not available"
+# A cell of a model whose Page images are still being asked (page_config.json's in_progress: page_images running).
+RUNNING, QUEUED = "Running", "Queued"
 NO_IMAGE = '<span class="nm">No image input</span>'
 
 
@@ -71,25 +73,39 @@ def accuracy_cell(head: str, got: dict[str, Any], route: str = "") -> str:
                 f'95% interval: {interval(got["correct"], got["questions"])}')
 
 
-def unavailable_cell(model: dict[str, Any], head: str, labels: list[str]) -> str:
-    """A condition not measured: "Not available" with its reason (vision.json's missing), never a number."""
+def unavailable_cell(model: dict[str, Any], head: str, labels: list[str], running: bool = False) -> str:
+    """A condition not measured: "Not available" with its reason (vision.json's missing), never a number. While the model's
+    Page images are being asked (running: page_config.json's in_progress), a cell still being asked reads Running with how
+    many of the questions are asked, and one not started yet Queued (the project lead via Zeki #5172, #5177)."""
     missing = model.get("missing") or {}
     absent = [label for label in labels if label not in missing]
     if absent:
         raise ValueError(f"vision.json: {model['name']} has no result and no reason for {', '.join(absent)}")
+    if running:
+        partial = [(label, re.fullmatch(r"(\d+) of (\d+) questions answered", missing[label])) for label in labels]
+        asked = [(label, found) for label, found in partial if found]
+        if any(found is None and missing[label] != "not run" for label, found in partial):
+            raise ValueError(f"vision.json: {model['name']}'s missing reasons are neither a count nor 'not run'")
+        if not asked:
+            return cell(f"{head} ({DIRECTION})", f'<span class="nm">{QUEUED}</span>')
+        label, found = asked[0]
+        via = f" via {OCR_NAMES[label.removeprefix('D ')]}" if label.startswith("D ") else ""
+        return cell(f"{head} ({DIRECTION})", f'<span class="nm">{RUNNING}</span><span class="small">{int(found.group(1)):,} of '
+                    f'{int(found.group(2)):,} asked{esc(via)}</span>')
     reasons = "; ".join(dict.fromkeys(missing[label] for label in labels))
     return cell(f"{head} ({DIRECTION})", f'<span class="nm">{NOT_AVAILABLE}: {esc(reasons)}</span>')
 
 
-def cells(data: dict[str, Any], model: dict[str, Any]) -> str:
-    """A model's A, B, C and best OCR route cells; a text-only model has no image input for B and C."""
+def cells(data: dict[str, Any], model: dict[str, Any], running: bool = False) -> str:
+    """A model's A, B, C and best OCR route cells; a text-only model has no image input for B and C. While its Page images
+    are being asked (running), a cell without a result reads Running or Queued (unavailable_cell)."""
     conditions = model["conditions"]
     out = []
     for label, head in COLUMNS:
         if label is None:
             best = best_route(data, model)
             if best is None:
-                out.append(unavailable_cell(model, head, ocr_labels(data)))
+                out.append(unavailable_cell(model, head, ocr_labels(data), running))
                 continue
             route, got = best
             run = sum(item in conditions for item in ocr_labels(data))
@@ -100,7 +116,7 @@ def cells(data: dict[str, Any], model: dict[str, Any]) -> str:
         elif label in conditions:
             out.append(accuracy_cell(head, conditions[label]))
         else:
-            out.append(unavailable_cell(model, head, [label]))
+            out.append(unavailable_cell(model, head, [label], running))
     return "".join(out)
 
 
@@ -140,11 +156,20 @@ def class_attribute(site: Site, model: dict[str, Any]) -> str:
     return site.class_attribute(run) if run else ' data-class=""'
 
 
+def page_images_running(site: Site, model: dict[str, Any]) -> bool:
+    """Whether page_config.json's in_progress lists this setup's (provider and model) Page images as running."""
+    for item in site.config["in_progress"]["models"]:
+        state = item["page_images"]["state"] if isinstance(item["page_images"], dict) else item["page_images"]
+        if (item["provider"], item["model"]) == (model["provider"], model["model"]) and state == "running":
+            return True
+    return False
+
+
 def model_table(site: Site, origin: str, data: dict[str, Any], models: list[dict[str, Any]]) -> str:
     """The leaderboard's columns for these models, in this order; every header says which way is better."""
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{DIRECTION}</span></th>' for _, name in COLUMNS)
-    rows = "".join(f"<tr{class_attribute(site, model)}>{model_cell(site, origin, model)}{cells(data, model)}</tr>"
-                   for model in models)
+    rows = "".join(f"<tr{class_attribute(site, model)}>{model_cell(site, origin, model)}"
+                   f"{cells(data, model, page_images_running(site, model))}</tr>" for model in models)
     return (f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr></thead>'
             f"<tbody>{rows}</tbody></table></div>")
 
@@ -678,9 +703,10 @@ def copies(site: Site, data: dict[str, Any]) -> list[tuple[str, str, list[dict[s
             if (members := [model for model in data["models"] if site.in_group(model, group)])]
 
 
-def with_images(models: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """The models with conditions A, B and C: the picture alone's and the text plus the picture's charts."""
-    return [model for model in models if all(label in model["conditions"] for label in ("A", "B", "C"))]
+def with_condition(models: list[dict[str, Any]], label: str) -> list[dict[str, Any]]:
+    """The models with condition A and `label`: B for the picture alone's chart, C for the text plus the picture's. A model
+    whose cells are still being asked shows in a chart once that chart's condition is complete."""
+    return [model for model in models if "A" in model["conditions"] and label in model["conditions"]]
 
 
 def face(site: Site, data: dict[str, Any]) -> str:
@@ -714,7 +740,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
     marker = ' <span><i class="swatch swatch-marker"></i>The same model with the text (A)</span>'
 
     def image_card(group: str, marks: str, models: list[dict[str, Any]]) -> str:
-        by_b = sorted(with_images(models), key=lambda model: -acc(model, "B"))
+        by_b = sorted(with_condition(models, "B"), key=lambda model: -acc(model, "B"))
         return card(
             anchor("chart-image", group), f"The picture alone (B) · {questions} Turkish questions", f"Share of the {questions} questions answered right from a picture of the question alone · higher is better",
             [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model), "text": pct(acc(model, "B")),
@@ -725,7 +751,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
             family_legend([family(site, model) for model in by_b]) + marker, marks) if by_b else ""
 
     def both_card(group: str, marks: str, models: list[dict[str, Any]]) -> str:
-        by_c = sorted(with_images(models), key=lambda model: -acc(model, "C"))
+        by_c = sorted(with_condition(models, "C"), key=lambda model: -acc(model, "C"))
         return card(
             anchor("chart-both", group), f"The text plus the picture (C) · {questions} Turkish questions", "Accuracy with the picture after the text, and with the text alone · higher is better",
             [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model),
@@ -785,7 +811,7 @@ def nav(site: Site, data: dict[str, Any]) -> str:
     """The links to the face's parts: each models' chart's link once per copy that has the chart (copies, face), with its
     copy's marks; Tables leads to the decision models' leaderboard, and for the chat group to the other models'."""
     groups = copies(site, data)
-    has = {"chart-image": with_images, "chart-both": with_images,
+    has = {"chart-image": lambda models: with_condition(models, "B"), "chart-both": lambda models: with_condition(models, "C"),
            "chart-ocr-route": lambda models: [model for model in models if best_route(data, model)]}
     marked = lambda base, text: "".join(  # noqa: E731
         f'<a href="#{anchor(base, group)}" {marks}>{text}</a>' if len(groups) > 1 else f'<a href="#{base}">{text}</a>'
@@ -819,7 +845,8 @@ CHAT_ASKED = {"A": "Turkish Text run", "B": "plain answer-line instruction", "C"
 def chat_method(site: Site, data: dict[str, Any], chat: list[dict[str, Any]]) -> str:
     """How the chat models are asked, from vision.json's chat_conditions, with each chat model whose condition A was asked
     otherwise (asked_otherwise); empty without a chat model. The build stops when chat_conditions no longer states what
-    the sentences say (CHAT_ASKED), or when a chat model's cells hold option probabilities or a probability measure."""
+    the sentences say (CHAT_ASKED), or when a chat model's B, C or D cell holds option probabilities or a probability
+    measure (its condition A is its Turkish Text run, whose stated confidence may give A's measures, as on the Text tab)."""
     if not chat:
         return ""
     asked = data.get("chat_conditions") or {}
@@ -827,7 +854,7 @@ def chat_method(site: Site, data: dict[str, Any], chat: list[dict[str, Any]]) ->
             "image_url parts after the text" not in asked["B"]:
         raise SystemExit("vision.json: chat_conditions no longer states how the chat models are asked as the method says it")
     for model in chat:
-        for label, got in model["conditions"].items():
+        for label, got in ((label, got) for label, got in model["conditions"].items() if label != "A"):
             given = data["answers"][f"{model['provider']}|{model['model']}|{label}"]
             if any(got[key] is not None for key in ("ece", "ece_interval", "brier", "auroc", "at_0_99")) or any(
                     answer[1] for answer in given.values()) or any(item["ece"] is not None for item in model["paired"]):

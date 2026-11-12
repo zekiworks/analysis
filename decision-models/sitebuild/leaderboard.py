@@ -541,8 +541,9 @@ def in_progress(site: Site, board: Board) -> str:
     models joining Reading, each with the state of its English, Turkish and Page images sides from page_config.json
     `in_progress` (queued, running, blocked, done, or none where a side does not apply, each with an optional note),
     so a model shows before its results do, never as a 0. A side is done exactly when the model (provider and model
-    id) has a published run of it: the build stops otherwise (mark it done, or take the model off once every side is
-    in). A model not set up yet (no model id) has no done side. Empty when no model is listed."""
+    id) has a published run of it, a Page images side when vision.json holds every one of its cells (none missing; a
+    model publishes each cell as it completes, Zeki #5177): the build stops otherwise (mark it done, or take the model off
+    once every side is in). A model not set up yet (no model id) has no done side. Empty when no model is listed."""
     section = site.config.get("in_progress") or {}
     if not section.get("models"):
         return ""
@@ -550,7 +551,8 @@ def in_progress(site: Site, board: Board) -> str:
     published = {
         "turkish": {(run["provider"], run["model"]) for run in site.runs},
         "english": {(item["provider"], item["model"]) for item in [*board.english["models"], *english_only(board.english)]},
-        "page_images": {(item["provider"], item["model"]) for item in (vision if isinstance(vision, list) else vision.values())},
+        "page_images": {(item["provider"], item["model"]) for item in (vision if isinstance(vision, list) else vision.values())
+                        if not item.get("missing")},
     }
     rows = []
     for model in section["models"]:

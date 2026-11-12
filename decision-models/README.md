@@ -602,8 +602,11 @@ python3 -m http.server 8000                                # preview at http://1
       #5064, #5065, #5071, Ümit #5067): the models joining Reading, each with the state of its English, Turkish and
       Page images sides (Queued, Running, Blocked, Done, or – where a side does not apply, with an optional note) from
       `page_config.json`'s `in_progress`, so a model shows before its results do and never as a 0. A side is Done
-      exactly when that setup (provider and model id) has a published run of it, and the build stops otherwise; a model
-      leaves the table once all its sides are in.
+      exactly when that setup (provider and model id) has a published run of it, a Page images side when `vision.json`
+      holds every one of its cells, and the build stops otherwise; a model leaves the table once all its sides are in.
+      Page images publish cell by cell (Zeki #5177): while a model's Page images side is Running here, the Page images
+      tab's cells it has not finished read Running with how many of the 763 questions are asked, or Queued, never a
+      partial number (`vision.unavailable_cell`), and its charts show each condition once that cell is complete.
     - **Turkish support** (Ümit #5067 item 3, confirmed by Zeki #5085): on the Leaderboard's Turkish parts (Turkish,
       Turkish reading, Turkish grammar) a model whose own card or maker docs do not list Turkish carries ‡ beside its
       name (`leaderboard.TR_MARK`), its details box says "Turkish not officially supported" and why (it lists other

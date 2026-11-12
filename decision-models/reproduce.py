@@ -653,9 +653,10 @@ def check_vision(docs: Path, answers: dict[str, Any], checks: Checks) -> list[st
     """Recompute vision.json's per-condition numbers from its answers (pick, option probabilities, right or not): right
     answers exactly; ECE, Brier score and AUROC within METRIC_TOLERANCE; the answers at SURE_SCORE or more, right and
     wrong, exactly. A cell without option probabilities (a chat model's plain answer line) must have every probability
-    measure null. Condition A's answers must be its run's in answers.json, and each paired test's counts and exact
-    McNemar p must follow from the two conditions' answers. The bootstrap intervals are not recomputed. Returns a line
-    per condition or pair that differs."""
+    measure null, except a chat model's condition A with measures: they come from its Text run's stated confidence, so
+    they are recomputed from that run's scores in answers.json. Condition A's answers must be its run's in answers.json,
+    and each paired test's counts and exact McNemar p must follow from the two conditions' answers. The bootstrap
+    intervals are not recomputed. Returns a line per condition or pair that differs."""
     path = docs / "vision.json"
     if not path.exists():
         return []
@@ -670,17 +671,24 @@ def check_vision(docs: Path, answers: dict[str, Any], checks: Checks) -> list[st
             given = vision["answers"][f"{model['provider']}|{model['model']}|{label}"]
             right = [int(given[str(question_id)][2]) for question_id in ids]
             rights[label] = right
-            if not any(given[str(question_id)][1] for question_id in ids):
-                # A chat model's plain answer line: no option probabilities, so every probability measure is null.
-                empty = all(published[key] is None for key in ("ece", "ece_interval", "brier", "auroc", "at_0_99"))
-                cells = [checks.cell(sum(right) == published["correct"], f"{sum(right)} right", str(published["correct"])),
-                         checks.cell(empty, "no probabilities", "probability measures null" if empty else "a probability measure")]
-            else:
+            run = runs.get(model["a_run"]) if label == "A" else None
+            scored = None
+            if any(given[str(question_id)][1] for question_id in ids):
                 scored = []
                 for question_id in ids:
                     choice, probabilities, correct = given[str(question_id)]
                     if choice is not None and choice in probabilities:
                         scored.append((probabilities[choice], int(correct)))
+            elif run is not None and published["ece"] is not None:
+                # A chat model's condition A: its Text run's stated confidence, the run's scores in answers.json.
+                scored = [(run["score"][position[question_id]], int(run["correct"][position[question_id]]))
+                          for question_id in ids if run["score"][position[question_id]] is not None]
+            if scored is None:
+                # A chat model's plain answer line: no option probabilities, so every probability measure is null.
+                empty = all(published[key] is None for key in ("ece", "ece_interval", "brier", "auroc", "at_0_99"))
+                cells = [checks.cell(sum(right) == published["correct"], f"{sum(right)} right", str(published["correct"])),
+                         checks.cell(empty, "no probabilities", "probability measures null" if empty else "a probability measure")]
+            else:
                 calibration = bm.calibration(scored)
                 sure = [correct for score, correct in scored if score >= bm.SURE_SCORE]
                 cells = [
@@ -694,7 +702,6 @@ def check_vision(docs: Path, answers: dict[str, Any], checks: Checks) -> list[st
                 ]
             # Condition A against its run in answers.json, for the runs the text results hold; a run not on the text
             # leaderboard is checked from vision.json alone.
-            run = runs.get(model["a_run"]) if label == "A" else None
             if run is not None:
                 same = all(int(run["correct"][position[question_id]]) == value for question_id, value in zip(ids, right))
                 cells.append(checks.cell(same, "A as in answers.json", f"run {model['a_run']} in answers.json"))

@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Page images update (12 November 2026, results 7336e8a7 unchanged)
+
+- Muse Ember (Meta's closed chat model through OpenRouter, Meta's endpoint, reasoning max; the project lead, bus #4021; Zeki #5141, #5172, #5177) joins the Page images tab with its first completed cell, the picture only (B): 658 of 763 right (86.2%), against 638 (83.6%) for its condition A, its Turkish Text run 939's answers to the same questions (2.6 points, McNemar p = 0.07, not significant). A was asked 16 questions per request with a stated confidence, B one question per request with a plain answer line, so A differs from B in how it was asked as well as in its input; the tab says so. The chat route gives no option probabilities: B's calibration measures are null, accuracy only. Its other cells (the text plus the picture, the four OCR routes) read Running with how many of the 763 questions are asked, or Queued, until each is complete; each is published when complete. Its runs stay under the bench's $30 cap for all of Muse Ember's Reading spend, with a guard that counts every attempt (the cells are asked in chunks). Reading · Vision on All benches gains its picture-only score.
+- The Page images tab shows a model in a chart once that chart's condition is complete; the In progress table counts a model's Page images side Done only when every one of its cells is in.
+
 ## Results 7336e8a7 (12 November 2026)
 
 - Claude Fable 5.2's English "I don't know" run is in (run 1032; the Claude subscription, max effort, 16 questions per request as its other runs): 533 of the 547 kept questions right (97.4%), "I don't know" on 4 of the 14 it did not get right (non-hallucination 28.6%), no invalid answers, $0 billed. The Leaderboard's Non-hallucination column and the English pages show its English side; its Turkish "Bilmiyorum" side stays Queued: its Turkish runs come after its English and Logic & Math runs (the project lead via Zeki #5133, #5140).
