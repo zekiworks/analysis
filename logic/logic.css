@@ -173,6 +173,8 @@ td[data-label="GPU"] { white-space: nowrap; }
 .hbar-whisker::after { right: 0; }
 .whisker-note { display: block; margin-top: .3rem; }
 .versus-icon { fill: var(--text); }
+/* A dot's icon and whiskers reach over its neighbours: only the dot and its hit circle take a tap or the pointer. */
+.versus-icon, .versus-point > g { pointer-events: none; }
 .how-scores ul { margin: .4rem 0 .6rem; padding-left: 1.2rem; }
 .how-scores li { margin: .3rem 0; }
 /* The front page's finding sections: the finding as the heading, one chart, a few sentences, one link. */
