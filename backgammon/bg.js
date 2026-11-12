@@ -588,7 +588,6 @@ async function savePng(panel, svg, title, lines, filename) {
     rows.forEach(tr => {
       if (tr.dataset.hlType !== 'program' && tr.dataset.kind !== 'running' && !tr.classList.contains('hl-sub') && !tr.classList.contains('hl-off')) tr.cells[0].textContent = ++n;
     });
-    table.dispatchEvent(new CustomEvent('hl-filter'));
   };
   keys.forEach(k => k.addEventListener('click', () => {
     const t = k.dataset.hlFilter;
@@ -608,130 +607,6 @@ async function savePng(panel, svg, title, lines, filename) {
   if (small) classes = new Set(['tiny', 'small']);
   if (classKeys.some(k => k.dataset.classKey === q.get('class') && q.get('class') !== 'all')) classes = new Set([q.get('class')]);
   apply();
-})();
-
-/* Home page: a leaderboard row's details box (Ümit #2904, as Clocktower Bench's). A tap on a phone opens it and a
-   second tap on the row, a tap outside it or Escape closes it; with a mouse it shows while the pointer is on the row or
-   its box (150 ms of grace after leaving both, so the pointer can cross a corner into the box; another row takes over at
-   once); with the keyboard while the focus is in the row (the model's name, then the box's links). Where the window has
-   room the box stands beside its row, right of the score column (else right of the name column), from the row's top
-   (from its bottom upwards near the window's foot): it never covers another row's name, so the row under the pointer
-   on a name is the row whose box shows (HoverCheck, Zeki #3146). On a phone it goes under the row (above it near the
-   bottom of the window). Within the window's width; capped where it does not fit. Without JavaScript every box is
-   shown in its row. The same boxes on the "Did they improve?" results table (Ümit via Zeki #3803). */
-(function headlineDetails() {
-  const table = document.getElementById('headline-table') || document.getElementById('improve-results-table');
-  if (!table) return;
-  let open = null, pinned = false, pointer = 'mouse', quiet = false;
-  const boxOf = tr => document.getElementById(tr.dataset.box);
-  const place = () => {
-    if (!open) return;
-    const box = boxOf(open), row = open.getBoundingClientRect(), cell = open.querySelector('.model').getBoundingClientRect();
-    const score = open.cells[2].getBoundingClientRect();
-    const vw = document.documentElement.clientWidth;  // the visible width, even where something overflows the page
-    const width = Math.min(380, vw - 16);
-    box.style.width = `${width}px`;
-    box.style.maxHeight = '';
-    let height = box.offsetHeight;
-    const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom || 0;
-    const bottom = innerHeight - 8;
-    const side = vw - 8 - score.right >= width ? score.right : vw - 8 - cell.right >= width ? cell.right : null;
-    if (side !== null) {
-      // Beside the row: from its top, else ending at its bottom; where neither fits, within the window as near the
-      // row as it goes, capped to the window under the header (scrolling inside).
-      box.style.left = `${side}px`;
-      const top = header + 4;
-      if (height > bottom - top) { height = Math.max(bottom - top, 80); box.style.maxHeight = `${height}px`; }
-      box.style.top = `${row.top >= top && row.top + height <= bottom ? row.top
-        : row.bottom - height >= top && row.bottom <= bottom ? row.bottom - height
-        : Math.min(Math.max(row.top, top), bottom - height)}px`;
-      return;
-    }
-    box.style.left = `${Math.max(8, Math.min(cell.left, vw - width - 8))}px`;
-    // Height: below the row if it fits, else above it. If it fits neither way, capped to the larger side of the row,
-    // scrolling inside (its links stay reachable by scrolling it or with Tab), so the row itself stays uncovered for a
-    // second tap; only where neither side has 120 px does it take the window under the header.
-    const below = row.bottom;  // no gap: the pointer moves from the row into its box without leaving the row
-    const roomBelow = bottom - below, roomAbove = row.top - header - 4;
-    if (height <= roomBelow) box.style.top = `${below}px`;
-    else if (height <= roomAbove) box.style.top = `${row.top - height}px`;
-    else if (Math.max(roomBelow, roomAbove) >= 120) {
-      box.style.maxHeight = `${Math.max(roomBelow, roomAbove)}px`;
-      box.style.top = `${roomBelow >= roomAbove ? below : row.top - roomAbove}px`;
-    } else {
-      const room = Math.max(bottom - header - 4, 80);
-      box.style.maxHeight = `${room}px`;
-      box.style.top = `${header + 4}px`;
-    }
-  };
-  const hide = () => {
-    if (!open) return;
-    boxOf(open).classList.remove('open');
-    open.classList.remove('hl-open');
-    open = null;
-    pinned = false;
-  };
-  const show = (tr, pin) => {
-    if (open !== tr) hide();
-    const box = boxOf(tr);
-    if (!box) return;
-    open = tr;
-    pinned = pin;
-    tr.classList.add('hl-open');
-    box.classList.add('open');
-    place();
-  };
-  const rows = [...table.querySelectorAll('tbody tr[data-box]')];
-  // Keyboard focus in the open row (its name or its box) keeps the box: the pointer leaving the row or entering another
-  // row does not take it away until the focus leaves the row, Escape, a second tap or a click outside. Focus that a
-  // press of the pointer gives (pointing) neither opens a box nor holds one: the press itself decides.
-  let pointing = false, keyed = false;
-  const held = () => !!open && keyed && open.contains(document.activeElement);
-  document.addEventListener('pointerdown', event => {
-    pointing = true;
-    if (table.contains(event.target)) pointer = event.pointerType || 'mouse';
-  }, true);
-  const released = () => setTimeout(() => { pointing = false; });
-  document.addEventListener('pointerup', released, true);
-  document.addEventListener('pointercancel', released, true);
-  // The pointer leaving the row and its box (the box is inside the row) closes it after a 150 ms grace; entering the row
-  // or its box again keeps it, entering another row shows that row's box at once.
-  let leaving = 0;
-  const stay = () => { clearTimeout(leaving); leaving = 0; };
-  rows.forEach(tr => {
-    tr.addEventListener('pointerenter', event => {
-      if (event.pointerType !== 'mouse') return;
-      stay();
-      if (!pinned && !held()) show(tr, false);
-    });
-    tr.addEventListener('pointerleave', event => {
-      if (event.pointerType !== 'mouse' || pinned || open !== tr || held()) return;
-      stay();
-      leaving = setTimeout(() => { leaving = 0; if (open === tr && !pinned && !held()) hide(); }, 150);
-    });
-    tr.addEventListener('focusin', () => {
-      keyed = !pointing;
-      if (keyed && open !== tr && !quiet) show(tr, false);
-    });
-    tr.addEventListener('focusout', event => { if (open === tr && !pinned && !tr.contains(event.relatedTarget)) hide(); });
-    tr.addEventListener('click', event => {
-      // A mouse click or a key (detail 0) follows the link; a link or key in the box or the expander does its own job.
-      if (pointer === 'mouse' || event.detail === 0 || boxOf(tr).contains(event.target) || event.target.closest('.hl-more')) return;
-      event.preventDefault();  // a tap opens the box (tables.js leaves a prevented click alone); its link opens the decisions
-      if (open === tr && pinned) hide(); else show(tr, true);
-    });
-  });
-  document.addEventListener('click', event => { if (open && !open.contains(event.target)) hide(); });
-  document.addEventListener('keydown', event => {
-    if (event.key !== 'Escape' || !open) return;
-    const name = open.querySelector('.model-name');
-    const inside = open.contains(document.activeElement);
-    hide();
-    if (inside && name) { quiet = true; name.focus(); quiet = false; }
-  });
-  addEventListener('scroll', place, { passive: true });
-  addEventListener('resize', place);
-  table.addEventListener('hl-filter', () => { if (open && open.classList.contains('hl-off')) hide(); });
 })();
 
 /* Home page: the Nackgammon summary table's keys (nack_section.py; Ümit #2647, #2651): Decision / Chat / All by model

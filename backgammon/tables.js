@@ -80,7 +80,7 @@
     const th = event.target.closest('thead th');
     if (th) { if (!th.hasAttribute('data-nosort')) sortBy(th); return; }
     const row = event.target.closest('tbody tr');
-    // A click the row's own handler took (the leaderboard's tap that opens a details box, bg.js) does not navigate;
+    // A click the row's own handler took (a tap that opens a model's details box, site.js modelBoxes) does not navigate;
     // nor does a tap on a tooltip (.hint: the own-machine cost explanation opens on focus instead).
     if (!row || event.defaultPrevented || event.target.closest('a, button, select, input, label, summary, .hint')) return;
     if (String(window.getSelection())) return;

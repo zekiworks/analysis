@@ -334,8 +334,8 @@ td.badges .small { display: block; white-space: normal; }
 .experiment-card .hero-links { display: flex; flex-wrap: wrap; gap: .3rem 1rem; }
 .experiment-small { font-size: .95em; }
 /* Repeat checks, top of Experiments (Ümit via Zeki #4831; Run 2 view, Zeki #4838): a compact table per area, each row's
-   details in the full-width row under it; below 640 px rank, model, both risk judgements and status, the rest in the
-   details. */
+   details in the model's details box (site.js modelBoxes, Ümit via Zeki #5462: no Details row under it); below 640 px
+   rank, model, both risk judgements and status, the rest in the box. */
 #repeat-checks { margin-bottom: 1rem; }
 #repeat-checks h3 { margin: .2rem 0 .4rem; font-size: 1rem; }
 table.repeat-table { width: 100%; }
@@ -346,14 +346,12 @@ table.repeat-table thead th:nth-child(2) { text-align: left; }
 table.repeat-table thead th, table.repeat-table thead th .rc-more { white-space: normal; }
 #repeat-checks .rc-view { margin: 0 0 .5rem; }
 table.repeat-table tbody tr > td { background: var(--panel); }
-table.repeat-table tr.rc-row > td { border-bottom: none; }
 table.repeat-table td.model .hl-dot { width: .7rem; height: .7rem; border-radius: 50%; margin-right: .3rem; vertical-align: -1px; }
 table.repeat-table td.num .small { display: inline; margin-left: .3em; }
 table.repeat-table .rc-m { white-space: nowrap; }
-table.repeat-table tr.rc-detail-row > td { padding-top: 0; white-space: normal; }
-.rc-details summary { color: var(--text-2); font-size: .85rem; }
-.rc-details dl.facts { overflow-wrap: anywhere; }
-.rc-details .small { display: inline; margin-left: .3em; }
+.rc-box dl.facts { grid-template-columns: 1fr; gap: 0; margin: 0; overflow-wrap: anywhere; }
+.rc-box dl.facts dd { margin-bottom: .45rem; }
+.rc-box .small { display: inline; margin-left: .3em; }
 @media (max-width: 640px) {
   table.repeat-table thead .rc-more, table.repeat-table td.num .rc-more, table.repeat-table th:nth-child(5),
   table.repeat-table td.rc-pairs { display: none; }
@@ -365,7 +363,6 @@ table.repeat-table tr.rc-detail-row > td { padding-top: 0; white-space: normal; 
   table.repeat-table th, table.repeat-table td { padding: .45rem .3rem; }
   table.repeat-table td.num .small { display: none; }
   table.repeat-table .status { font-size: .72rem; }
-  table.repeat-table tr.rc-detail-row > td { width: auto; }
 }
 .status-completed { color: var(--accepted); border-color: var(--accepted); }
 .status-paused { color: var(--reading-text); border-color: var(--reading-text); }
@@ -493,9 +490,10 @@ table.headline tbody tr.hl-open > td, #improve-results-table tbody tr.hl-open > 
   #improve-results-table td.num { font-size: .76rem; }
   #improve-results-table tr > :first-child { width: 27vw; min-width: 27vw; max-width: 27vw; }
 }
-/* A row's details box (bg.js): every value of the setup, a line per kind; in its row without script, else over the page
-   beside its row where the window has room, else under it (fixed to the window, within its width), opened by a tap,
-   hover or the focus. */
+/* A row's details box (site.js modelBoxes): every value of the setup, a line per kind; in its row without script, else
+   over the page beside its row where the window has room, else under it (fixed to the window, within its width),
+   opened by hover or the focus; on a touch screen a popover at the model's name, opened by a tap. A chart mark's
+   tooltip on a touch screen (.chart-tip) is the same kind of box, as wide as its text. */
 .hl-box { margin: .35rem 0 0; color: var(--text); font-size: .82rem; line-height: 1.4; white-space: normal; }
 .hl-box p { margin: .12rem 0; }
 .hl-box p:first-child { margin-top: 0; }
@@ -503,6 +501,10 @@ table.headline tbody tr.hl-open > td, #improve-results-table tbody tr.hl-open > 
   overflow: auto; overscroll-behavior: contain;
   background: var(--panel); border: 1px solid var(--control-edge); border-radius: 8px; box-shadow: var(--shadow); }
 .js .hl-box.open { display: block; }
+.js .hl-box.chart-tip { width: max-content; max-width: min(20rem, calc(100vw - 16px)); }
+@media (hover: none), (pointer: coarse) {
+  .js tr[data-box] .model-name, li.hbar[title], svg.chart-svg :not(svg):has(> title) { cursor: pointer; }
+}
 .hl-more { display: block; margin-top: .2rem; padding: 0; border: 0; background: none; color: var(--link, var(--text-2));
   font: inherit; font-size: .8rem; cursor: pointer; text-decoration: underline dotted; }
 .hl-more::before { content: "\25B8\00a0"; }
