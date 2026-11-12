@@ -480,10 +480,10 @@
    },
    {
     "reason": null,
-    "series_done": 2,
+    "series_done": 3,
     "setup": "Grok 4.7 (high)",
     "status": "running",
-    "updated_at": "2026-11-12T03:33:49+00:00"
+    "updated_at": "2026-11-12T07:06:46+00:00"
    },
    {
     "reason": null,
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-12T07:04:51+00:00"
+  "updated_at": "2026-11-12T07:17:54+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -4265,20 +4265,20 @@
    },
    {
     "after": {
-     "error_rate": 27.694602087140083,
-     "right_safety": 88.5,
-     "risks_found": 54.0
+     "error_rate": 27.919252862532932,
+     "right_safety": 87.33333333333333,
+     "risks_found": 56.666666666666664
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 400,
-     "expected": 400,
+     "answered": 600,
+     "expected": 600,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 200,
-     "safety_pays": 200,
-     "tests": 2,
-     "valid": 400
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -4297,12 +4297,12 @@
      "risks_found": 48.5
     },
     "change": {
-     "error_rate": -6.977993361651897,
-     "right_safety": -4.0,
-     "risks_found": 5.5
+     "error_rate": -6.753342586259048,
+     "right_safety": -5.166666666666671,
+     "risks_found": 8.166666666666664
     },
     "cost": {
-     "api_equivalent_usd": 190.1085,
+     "api_equivalent_usd": 190.8406,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -4344,9 +4344,9 @@
     "key": "grok-4.7-on",
     "progress": {
      "reason": null,
-     "series_done": 2,
+     "series_done": 3,
      "status": "running",
-     "updated_at": "2026-11-12T03:33:49+00:00"
+     "updated_at": "2026-11-12T07:06:46+00:00"
     },
     "range": null,
     "reason": null,
@@ -4488,17 +4488,87 @@
        "wall_seconds": 12636.6
       },
       "wins": 5
+     },
+     {
+      "finished": true,
+      "game_decisions": 231,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- From the bar, take the hitting entry that also activates a builder; a safe stack on one point is too passive.\n- When two builders can make a new point, make it instead of shuffling checkers a pip or two.\n- Leave a made point intact and step spare checkers forward rather than stripping it to fill inner points.\n- Don't drop both halves of a roll on the same point; send one checker further in and stay flexible.\n- Bearing off, walk the back checker all the way down and spread checkers across the low points, leaving no stack behind a gap."
+       },
+       {
+        "game": 2,
+        "text": "- Prefer bringing builders down from the midpoint to burying checkers on the 1- or 2-point.\n- When doubles can free your back checkers, run them instead of crashing the whole roll into your home board.\n- Hit blots that help, but use the rest of the roll to build rather than stack points you already own.\n- Keep spares flexible; a checker stranded deep in your board is out of the game until you actually need it there.\n- In contact, the play that escapes or hits cleanly is often right even when it looks riskier than passive point-making."
+       },
+       {
+        "game": 3,
+        "text": "- When back checkers remain, start them instead of only shuffling your own home board.\n- Do not bury spares deep while men are still back; a stacked board loses timing and flexibility.\n- Accept the risk of moving back checkers into the open once leaving them stranded costs more.\n- Split a roll across two checkers rather than running one the full distance when both can improve.\n- Bearing in, clear from the rear and keep an even structure instead of filling gaps at random."
+       },
+       {
+        "game": 4,
+        "text": "- Take the shot when a blot is hittable; skipping it for a quiet builder move cost the most equity.\n- Don't bury men on your low points while checkers are still back — use the roll to start them out, blot and all.\n- After a hit, spend the spare die stepping a back checker down, not pulling another builder off the midpoint.\n- In a no-contact bearoff, bear a checker off and clear from the rear; don't stack a low point or just shuffle."
+       },
+       {
+        "game": 5,
+        "text": "- When a roll can make an inner-board point, make it; do not spend the whole roll running or stacking back checkers.\n- Spread builders instead of piling two or three checkers on one point, and do not fill a made point while a back checker can still advance.\n- Hit only when it builds your board or gains real time; a deep hit that leaves a blot is worse than quiet construction.\n- In the bearoff, take off every checker the dice allow and clear the highest point before filling lower ones.\n- Split back checkers and move them separately; do not sprint one checker across the board or land both on the same point."
+       },
+       {
+        "game": 6,
+        "text": "- Before building your own board, check whether a back checker can hit a blot; that hit is often the whole roll.\n- Do not bury men on deep inner points early; develop the midpoint and keep builders flexible.\n- Do not spend a double only deepening one point while back checkers and enemy blots are still in play.\n- A missed hit in contact can cost more than several quiet priming gains; do not leave the same blot for roll after roll.\n- Bearing off, move the spare that improves your distribution instead of stacking a point you already own."
+       },
+       {
+        "game": 7,
+        "text": "- On early doubles, step a back checker down instead of only building in front.\n- Don't sprint both back men on one double; hit with one and make an inner point.\n- In the bearoff, clear your deepest point before taking men off low points.\n- Spend a small die moving a high checker down, not bearing a low one off.\n- With one man left outside, run it past blots; a late hit is often needless risk."
+       },
+       {
+        "game": 8,
+        "text": "- When back checkers are trapped behind a prime, escaping them outranks every home-board move.\n- Never bury a spare on a low point; leave it free to build, hit, or cover.\n- If you hit, bring a builder down from the midpoint instead of stacking a made point.\n- Enter from the bar as far forward as the dice allow, and do not step onto a made point.\n- When you finally run, advance one back checker as far as it will go rather than splitting both."
+       },
+       {
+        "game": 9,
+        "text": "- When a clean hit wins a tempo, take it instead of a quiet build or a safe entry.\n- Do not bury spares deep in your board while checkers are still back; keep them flexible.\n- Once your home board is strong enough, use spare pips to start the back checkers moving.\n- Do not spend a whole roll marching the same back men if part of it can improve your board.\n- With contact left in the bear-off, bring the straggler in safely before taking an extra man off."
+       },
+       {
+        "game": 10,
+        "text": "- When doubles can hit an extra blot and still make the point, take both hits.\n- Keep spare checkers as builders for points you do not yet hold; do not bury them on points you already own.\n- With doubles, making a new prime point is usually better than stacking checkers deep in your home board.\n- If the better play is more exposed, take that risk when it builds your prime or wins the race; safety that only consolidates often costs equity.\n- In the bearoff, use the full roll to bring a stranded checker around rather than moving spares that are already home."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 28.368554413318634,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 85.0,
+       "risk_pays": 100,
+       "risks_found": 62.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 12777.6
+      },
+      "wins": 7
      }
     ],
-    "series_finished": 2,
+    "series_finished": 3,
     "setup": "Grok 4.7 (high)",
     "state": "running",
-    "status": "running, 2 of 5 series",
+    "status": "running, 3 of 5 series",
     "steps_done": [
      "E1",
      "S1",
      "S2",
-     "E2"
+     "E2",
+     "S3"
     ],
     "threshold": null,
     "verdict": false
@@ -5885,11 +5955,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-12T07:04:51+00:00"
+  "updated_at": "2026-11-12T07:17:54+00:00"
  },
- "source_sha256": "c8d270bce44dc24efd698a7b368cd8d95556ebf7dbc63c5291de8adebfbc000e",
+ "source_sha256": "2823332ba9efffa60595734139e4c2c718cfd31b6ce869512df840590a7b0a85",
  "status": {
-  "last_update": "2026-11-12T07:04:51+00:00",
+  "last_update": "2026-11-12T07:17:54+00:00",
   "line": "10 of 15 models with a verdict · 2 running · 3 paused · 0 incomplete or stopped",
   "models": 15,
   "paused": 3,
