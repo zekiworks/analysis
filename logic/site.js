@@ -119,6 +119,14 @@
       panel.hidden = panel.dataset.visionPanel !== `${state.condition}-${state.part}`;
     });
     document.querySelectorAll('[data-vision-show]').forEach(view => { view.hidden = view.dataset.visionShow !== state.show; });
+    // The 'Second runs' link opens the repeat table of the condition × part in view (B and C have one on Logic and on
+    // Math; Both opens the Logic one); A and D have none, so it opens the Repeat checks section.
+    const repeats = document.querySelector('a[data-vision-repeats]');
+    if (repeats) {
+      const anchor = 'bc'.includes(state.condition)
+        ? `vision-repeat-${state.condition}-${state.part === 'math' ? 'math' : 'logic'}` : 'repeat-checks';
+      repeats.setAttribute('href', `${repeats.getAttribute('href').split('#')[0]}#${anchor}`);
+    }
     keys.querySelectorAll('a[data-vision-key]').forEach(link => {
       const [name, value] = link.dataset.visionKey.split('=');
       const on = state[name] === value;

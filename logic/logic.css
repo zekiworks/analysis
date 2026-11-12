@@ -260,6 +260,7 @@ table.lb-table tbody tr.hl-open > td { background: var(--row-hover); }
 :is(span.model-name, span.hbar-name)[tabindex] { cursor: help; text-decoration: underline dotted; text-underline-offset: .15em; }
 svg [data-box] { cursor: help; }
 .chart-box > .hl-box { display: none; }  /* a dot's box, beside its SVG: only as a popover (without JavaScript none) */
+.hbar-axis { pointer-events: none; }  /* its ticks, which can sit over the first name on a phone, never take its tap */
 /* The Repeat checks (Experiments tab; zeki #4831, #4838): one compact table per part, ranked by the repeat; on a phone the
    rank, the model and status only, the numbers in the row's details (as the leaderboard), no sideways scroll. */
 #repeat-checks > h3 { margin: .7rem 0 .35rem; font-size: .92rem; }
@@ -314,7 +315,11 @@ table.lb-table .lb-wide { display: none; }
    columns (the tie group and the points move under the name), so nothing scrolls sideways. */
 #vision h1 { margin-bottom: .5rem; }
 #vision .view-keys { margin-bottom: 0; }
+.vision-repeats-link { margin: .45rem 0 0; font-size: .86rem; font-weight: 600; }
 .vision-panel > div + div { margin-top: 0; }
+/* Its grid's one column never grows past the page (at 320 px a table's content made it 349 px wide: the table now scrolls
+   in its own box). */
+.vision-panel > * { min-width: 0; }
 .vision-more { margin: .6rem 0 0; }
 .vision-go { font-weight: 600; white-space: nowrap; }
 .vision-state { font-weight: 650; }
