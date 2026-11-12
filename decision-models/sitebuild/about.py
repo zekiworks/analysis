@@ -53,7 +53,7 @@ def page(site: Site, intro: str, how_scores: str, notes: str, stats: str) -> str
     body = f"""    <section class="card prose" id="test">
       <h1>About the Reading bench</h1>
       <p>{esc(intro)}</p>
-      <p>The questions come from a published book; their text stays unpublished, as the publisher owns it. Every setup's answer to every question is in <a href="{up}answers.json" download>answers.json</a>. The <a href="{rel(PATH, "method/")}">Method</a> page has the full study: the questions, the answer key, the runs and the tests.</p>
+      <p>The questions come from a published book; their text stays unpublished, as the publisher owns it. Every setup's answer to every question is in <a href="{up}answers.json" download>answers.json</a> and the files it lists beside it (the <a href="{up}data/">Data</a> page names each). The <a href="{rel(PATH, "method/")}">Method</a> page has the full study: the questions, the answer key, the runs and the tests.</p>
       <ul class="readouts">{stats}</ul>
       <p class="version">{site.version()}</p>
     </section>

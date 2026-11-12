@@ -44,7 +44,8 @@ DEFAULT_OUTPUT = Path(__file__).resolve().parent / "results.json"
 # The answers' sections written to files of their own next to answers.json, by file: GitHub takes no file over 100 MiB.
 # Each file carries answers.json's ANSWERS_HEADER so it stands alone, and answers.json lists them under `files`
 # (reproduce.load_answers merges them back). A file over ANSWERS_LIMIT stops the export: move a section out of it here.
-ANSWER_FILES = {"answers-repeats.json": ("repeat_runs", "repeat_check_runs")}
+ANSWER_FILES = {"answers-repeats.json": ("repeat_runs", "repeat_check_runs"),
+                "answers-english.json": ("english_runs", "english_dont_know_runs", "english_dont_know_turkish_runs")}
 ANSWERS_HEADER = ("schema_version", "dataset")
 ANSWERS_LIMIT = 80_000_000  # bytes
 # The English reading track's public record (runner translate_reading.py publish): flags, per-question hashes, prompts.

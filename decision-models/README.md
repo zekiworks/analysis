@@ -13,8 +13,9 @@ Site: <https://zekiworks.github.io/analysis/decision-models/>
 
 The site is this folder, served by GitHub Pages from the `main` branch. It is static. `build_site.py`
 writes the home page's generated parts and every other page from `results.json`, the aggregate results,
-and `answers.json` with `answers-repeats.json` beside it, which hold every answer of every main, repeat and routing
-run (the repeat runs in `answers-repeats.json`), with its
+and `answers.json` with `answers-repeats.json` and `answers-english.json` beside it, which hold every answer of every
+main, repeat and routing run (the repeat runs in `answers-repeats.json`, the English reading runs in
+`answers-english.json`), with its
 full-precision score and option probabilities but without the questions' text. `v3.js` draws the home
 page's tabs and charts in the browser; without JavaScript the home page shows the leaderboard as a plain
 table. `benchmark_metrics.py` is the benchmark's metric code, and `runner/` the code that ran the
@@ -28,7 +29,10 @@ shows. The preview addresses, `v2/` and `v3/`, and the page's first address,
 `key-changelog.md` lists every change to the answer key, and `results.json` names the key version every run is
 scored on (`answer_key`). `results-changelog.md` says what changed in each results version that went live, from
 results 0eb1e828 on; add a section for every new one. `CITATION.cff`, which `build_site.py` writes, gives the results
-version and the key version to cite.
+version and the key version to cite. `quality-manifest-<date>.json` lists scored questions found after publication to
+lack the source context their stem points at (metadata only: ID, part, a hash of the stored source, the bank status,
+which sets hold it); the Method page discloses them (`method.quality_manifests`) while every score and the uncertain
+filter stay as first published (the project lead via Zeki #5392).
 
 ## From a clean copy
 
@@ -942,7 +946,9 @@ English "I don't know" runs with their Turkish counterparts on the kept question
 and the hosted GLiDE rerun (`rerun_runs`), the web grounding test's own runs (`web_grounding_runs`) and the repeat
 checks' Text and English repeat runs (`repeat_check_runs`, each with its first run as `repeat_check`), with scores
 and option probabilities at full precision; no run is in two lists. The sections of `ANSWER_FILES` go to files of
-their own beside `answers.json` (`answers-repeats.json`: `repeat_runs`, the largest section, and `repeat_check_runs`), so that no file nears
+their own beside `answers.json` (`answers-repeats.json`: `repeat_runs`, the largest section, and `repeat_check_runs`;
+`answers-english.json`: `english_runs`, `english_dont_know_runs` and `english_dont_know_turkish_runs`, moved out on
+12 November 2026 when `answers.json` reached the limit), so that no file nears
 GitHub's 100 MiB limit: each repeats `answers.json`'s `schema_version` and `dataset`, and `answers.json` lists them
 under `files`. The export stops when a file would pass `ANSWERS_LIMIT` (80 MB); then move another section to a file
 of its own. `reproduce.py` (`load_answers`), `build_page.py` and the pages read them merged; the Data page lists each

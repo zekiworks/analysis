@@ -9,12 +9,44 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-12T12:13:09Z",
+    "updated": "2026-11-12T13:33:32Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
     },
     "models": [
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "claude-opus-5.5",
+      "name": "Claude Opus 5.5",
+      "display_name": "Claude Opus 5.5",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Claude Opus 5.5",
+      "maker": "Anthropic",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 95.22222222222221,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9617777777777777,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:claude-opus-5.5-sub_en",
+       "logic:claude-opus-5.5-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
      {
       "repo": null,
       "commit": null,
@@ -44,6 +76,38 @@
        "logic:deepseek-v4.1-flash-1017_en_dontknow"
       ],
       "notes": "hosted API via OpenRouter",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "claude-sonnet-5.5",
+      "name": "Claude Sonnet 5.5",
+      "display_name": "Claude Sonnet 5.5",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Claude Sonnet 5.5",
+      "maker": "Anthropic",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 94.33333333333333,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9546666666666667,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:claude-sonnet-5.5-sub_en",
+       "logic:claude-sonnet-5.5-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -2010,7 +2074,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-12T12:13:09Z",
+    "updated": "2026-11-12T13:33:32Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2296,9 +2360,10 @@
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "math:minicpm5-2b_en"
+       "math:minicpm5-2b_en",
+       "math:minicpm5-2b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.3605555555555556,
       "gpu_cost_usd": 0.8977833333333335
      },
@@ -4073,12 +4138,44 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-12T12:13:09Z",
+    "updated": "2026-11-12T13:33:32Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
     },
     "models": [
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "claude-opus-5.5",
+      "name": "Claude Opus 5.5",
+      "display_name": "Claude Opus 5.5",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Claude Opus 5.5",
+      "maker": "Anthropic",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 98.17518248175183,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9854014598540146,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:claude-opus-5.5-sub_en",
+       "math:claude-opus-5.5-sub_en"
+      ],
+      "notes": "hosted API (the maker's service); no complete 'I don't know' run",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
      {
       "repo": null,
       "commit": null,
@@ -4377,9 +4474,11 @@
       "improvement_points": null,
       "runs": [
        "logic:minicpm5-2b_en",
-       "math:minicpm5-2b_en"
+       "math:minicpm5-2b_en",
+       "logic:minicpm5-2b_en_dontknow",
+       "math:minicpm5-2b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 1.8980555555555556,
       "gpu_cost_usd": 4.726158333333334
      },
@@ -7192,7 +7291,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-12T12:13Z",
+    "updated": "2026-11-12T14:20Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }

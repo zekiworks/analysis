@@ -816,6 +816,11 @@ class Site:
         """answers.json with the files of its sections beside it, as reproduce.load_answers merges them (read once)."""
         return bp.method_answers()
 
+    def answer_file(self, section: str) -> str:
+        """The file that holds an answers.json section: the one of answers.json's `files` listing it, else answers.json."""
+        return next((name for name, sections in self.answers.get("files", {}).items() if section in sections),
+                    "answers.json")
+
     @cached_property
     def scored(self) -> list[int]:
         """Indices into answers.json's question columns of the scored questions: all but the key audit's exclusions."""
