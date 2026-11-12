@@ -258,7 +258,7 @@ table.lb-table tbody tr.hl-open > td { background: var(--row-hover); }
 /* A model's name opens its details box (site.js setupDetails; zeki #5462): no key under it. A name that is not a link
    (a Vision row, a chart row without a page) and a chart dot show they open something. */
 :is(span.model-name, span.hbar-name)[tabindex] { cursor: help; text-decoration: underline dotted; text-underline-offset: .15em; }
-svg g[data-box] { cursor: help; }
+svg [data-box] { cursor: help; }
 .chart-box > .hl-box { display: none; }  /* a dot's box, beside its SVG: only as a popover (without JavaScript none) */
 /* The Repeat checks (Experiments tab; zeki #4831, #4838): one compact table per part, ranked by the repeat; on a phone the
    rank, the model and status only, the numbers in the row's details (as the leaderboard), no sideways scroll. */
