@@ -2,6 +2,15 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 177ac9fd (12 November 2026)
+
+- Added KnowLine-2B-Gen1 (`PelaAI/KnowLine-2B-Gen1`, `53245d4`, a merged LoRA fine-tune of Qwen3.5-2B), the last of the tiny decision models of the project lead's batch (bus #4578; logic #4937, #5513), on its English side first (Zeki #5213): one NVIDIA DGX Spark (GB10), BF16, behind the KnowLine server its card ships (serve_knowline.sh), one question per request with its option probabilities.
+- English reading: run 1057 answered 390 of the 547 kept questions right (71.3%), 89th of the 105 English setups, between Erk-14B (72.0%) and LFM2.5-8B-A1B (70.4%); every answer has a letter and its probabilities pass the runner's check.
+- English "I don't know" (its row on the Turkish vs English page): run 1059, 374 right, 38 "I don't know" and 135 wrong (non-hallucination 22.0%), no invalid answer.
+- Its Turkish runs and Page images come in the Turkish phase.
+- Phones with Safari's engine (WebKit) send no tap to a plain chart mark unless something under the page body listens, so the chart tips of 16:22 UTC opened on few marks there; the page's main area now listens (logic #5525). In an emulated WebKit iPhone, every tapped mark on the five chart pages opens its tip (before: 0 to 2 of 6 to 10 per page). Real phones are untested.
+- No other number changed and no significance verdict moved.
+
 ## Results 7689a36f (12 November 2026)
 
 - Added MiniCPM5-2B (`openbmb/MiniCPM5-2B`, `42433e9`, 2.5B parameters, counted from its checkpoint), the next small chat model of the models joining Reading (the project lead via Zeki #5064, #5071; Ümit #5067), on its English side first (Zeki #5213). Same server and settings as its Logic & Math runs (logic #5377): logic's server, one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, thinking on; temperature 1.0, top-p 0.95, seed 0, up to 32,768 output tokens, from its generation_config. One question per request with a plain answer line, so no stated confidence.

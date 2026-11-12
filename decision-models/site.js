@@ -881,7 +881,8 @@ function renderScopes() {
    element's <title>), which a touch screen never shows (Ümit via Zeki #5462). On a touch screen a tap on such a mark
    shows the same text in a box beside it, in place of the mark's link, which the box keeps; a second tap on the mark,
    a tap elsewhere or Escape closes it. A mouse keeps the browser's own hover text and the links. Rows with a details
-   box (leaderboardDetails) are left to it. */
+   box (leaderboardDetails) are left to it. WebKit (Safari on iPhone and iPad) sends a click for a tap on a plain element
+   only when something below <body> listens for clicks (logic #5525), so <main> gets an empty listener. */
 (function chartTips() {
   let pointer = 'mouse';
   let mark = null;
@@ -927,6 +928,7 @@ function renderScopes() {
     place();
   };
   document.addEventListener('pointerdown', event => { pointer = event.pointerType || 'mouse'; }, true);
+  document.querySelector('main')?.addEventListener('click', () => {});
   document.addEventListener('click', event => {
     if (tip.contains(event.target)) return;
     const found = pointer === 'mouse' || event.detail === 0 ? null : markOf(event.target);

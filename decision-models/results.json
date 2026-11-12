@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "7689a36f",
-  "updated": "2026-11-12T14:10:01Z",
+  "results_version": "177ac9fd",
+  "updated": "2026-11-12T17:02:58Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -366964,6 +366964,60 @@
         }
       },
       {
+        "name": "KnowLine 2B Gen1",
+        "model": "PelaAI/KnowLine-2B-Gen1",
+        "provider": "knowline",
+        "reasoning": null,
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1057,
+        "runs": [
+          1057
+        ],
+        "dates": [
+          "2026-11-12"
+        ],
+        "parameters": 2274069824,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model (tied embeddings) + multi-token prediction layer + 0.33B vision encoder",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, PelaAI/KnowLine-2B-Gen1@53245d4",
+          "https://huggingface.co/PelaAI/KnowLine-2B-Gen1"
+        ],
+        "parameters_read": "2026-11-11",
+        "group": "decision",
+        "access": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16",
+        "billing": "local",
+        "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+        "note": "PelaAI's released KnowLine-2B-Gen1 (PelaAI/KnowLine-2B-Gen1 at 53245d4), a merged LoRA fine-tune of Qwen3.5-2B with its readout temperature (T = 1.32) folded into the weights. It ran on our hardware (one DGX Spark), one request at a time, through the card's serve_knowline.sh (SGLang 0.5.21 in BF16 and the repository's knowline_server.py, which reads a request of up to 3,000 tokens twice), with vision on: its vision tower is the base model's, not trained on images. Its card lists English and Chinese.",
+        "cost": {
+          "english": null
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 0.06216239999048412,
+            "p90_request_seconds": 0.07691804460482672,
+            "concurrency": 1,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 390,
+          "wrong": 157,
+          "invalid": 0,
+          "accuracy": 0.7129798903107861
+        },
+        "decision_score": {
+          "score": 77.81582860891653,
+          "accuracy": 0.7129798903107861,
+          "brier": 0.15666331813245543,
+          "n": 547,
+          "run": 1057
+        }
+      },
+      {
         "name": "LFM2.5-8B-A1B",
         "model": "lfm2.5-8b-a1b",
         "provider": "vllm-plain",
@@ -371837,6 +371891,31 @@
             "attempt_rate": 0.9049360146252285,
             "non_hallucination": 0.26424870466321243,
             "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "KnowLine 2B Gen1",
+          "model": "PelaAI/KnowLine-2B-Gen1",
+          "provider": "knowline",
+          "group": "decision",
+          "text_run": null,
+          "reading_run": 1057,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1059,
+            "runs": [
+              1059
+            ],
+            "invalid_replies": null,
+            "right": 374,
+            "wrong": 135,
+            "dont_know": 38,
+            "invalid": 0,
+            "accuracy": 0.6837294332723949,
+            "attempt_rate": 0.9305301645338209,
+            "non_hallucination": 0.21965317919075145,
+            "mean_dont_know_probability": 0.07334552287445273
           }
         },
         {

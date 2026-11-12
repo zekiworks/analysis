@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-12T16:15:27Z",
+    "updated": "2026-11-12T16:54:29Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1776,6 +1776,38 @@
       "gpu_cost_usd": 0.10236666666666668
      },
      {
+      "repo": "PelaAI/KnowLine-2B-Gen1",
+      "commit": "53245d470a4ce316e32fd0d18c24e142c697f40b",
+      "model_key": "knowline-2b-gen1",
+      "name": "KnowLine-2B-Gen1",
+      "display_name": "KnowLine-2B-Gen1",
+      "tag": "",
+      "class_label": "Open · 2.0B",
+      "base_model": "Qwen3.5-2B",
+      "setup_label": "KnowLine-2B-Gen1",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 2.0,
+      "params_active": 2.0,
+      "quantization": "BF16",
+      "score_0_100": 14.666666666666666,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.31733333333333336,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.08343323308142794,
+      "improvement_points": null,
+      "runs": [
+       "logic:knowline-2b_en",
+       "logic:knowline-2b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.02,
+      "gpu_cost_usd": 0.004256356521692845
+     },
+     {
       "repo": "startlux-models/StartLux-Decision-v1.1-2B-Instant",
       "commit": "f1e6cd147dda82c9ffa3e8e725d5c1f175566fb1",
       "model_key": "startlux-decision-v1.1-2b",
@@ -2074,7 +2106,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-12T16:15:27Z",
+    "updated": "2026-11-12T16:54:29Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -3904,6 +3936,38 @@
       "gpu_cost_usd": 0.0038425440820838187
      },
      {
+      "repo": "PelaAI/KnowLine-2B-Gen1",
+      "commit": "53245d470a4ce316e32fd0d18c24e142c697f40b",
+      "model_key": "knowline-2b-gen1",
+      "name": "KnowLine-2B-Gen1",
+      "display_name": "KnowLine-2B-Gen1",
+      "tag": "",
+      "class_label": "Open · 2.0B",
+      "base_model": "Qwen3.5-2B",
+      "setup_label": "KnowLine-2B-Gen1",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 2.0,
+      "params_active": 2.0,
+      "quantization": "BF16",
+      "score_0_100": 19.09385113268608,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.35275080906148865,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.09408551986577202,
+      "improvement_points": null,
+      "runs": [
+       "math:knowline-2b_en",
+       "math:knowline-2b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.0325,
+      "gpu_cost_usd": 0.006916579347750875
+     },
+     {
       "repo": "fastino/GLiDE-0.8B",
       "commit": "9eacdeec79fa48ec52a8d6f54b331376b4bbfaf0",
       "model_key": "glide-0.8b",
@@ -4138,7 +4202,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-12T16:15:27Z",
+    "updated": "2026-11-12T16:54:29Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -6015,6 +6079,40 @@
       "gpu_cost_usd": 0.04703333333333333
      },
      {
+      "repo": "PelaAI/KnowLine-2B-Gen1",
+      "commit": "53245d470a4ce316e32fd0d18c24e142c697f40b",
+      "model_key": "knowline-2b-gen1",
+      "name": "KnowLine-2B-Gen1",
+      "display_name": "KnowLine-2B-Gen1",
+      "tag": "",
+      "class_label": "Open · 2.0B",
+      "base_model": "Qwen3.5-2B",
+      "setup_label": "KnowLine-2B-Gen1",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 2.0,
+      "params_active": 2.0,
+      "quantization": "BF16",
+      "score_0_100": 17.579075425790748,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.340632603406326,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.0904408049532455,
+      "improvement_points": null,
+      "runs": [
+       "logic:knowline-2b_en",
+       "math:knowline-2b_en",
+       "logic:knowline-2b_en_dontknow",
+       "math:knowline-2b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.052500000000000005,
+      "gpu_cost_usd": 0.01117293586944372
+     },
+     {
       "repo": "fastino/GLiDE-0.8B",
       "commit": "9eacdeec79fa48ec52a8d6f54b331376b4bbfaf0",
       "model_key": "glide-0.8b",
@@ -7293,7 +7391,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-12T16:05Z",
+    "updated": "2026-11-12T17:05Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }
