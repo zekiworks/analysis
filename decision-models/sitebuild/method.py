@@ -53,7 +53,8 @@ SETUP_TEXTS = (
     "passed our check within 32-bit rounding, an experimental rule of ours.",
     "meraGPT's System One API: its own model, with no size or design published; the name serves meraGPT's current "
     "version, here the one of 19 October 2026.",
-    "Microsoft's and Inception's decision models via OpenRouter's System One route (paid); request times include OpenRouter's.",
+    "Microsoft's, Inception's and Google's decision models via OpenRouter's System One route (paid; Gemini Decision 1 from "
+    "Google AI Studio's endpoint); request times include OpenRouter's.",
     "Perplexity's released v1.2 checkpoints, run on our hardware: additional local setups; v1.2 also ran through the API.",
     "Fastino's released v1.2 checkpoint on our hardware, with the server it ships: one pass per question, nothing "
     "generated. The hosted GLiDE gave the same answers on 20 sample questions on 22 October; the other GLiDE row is the "
@@ -62,7 +63,8 @@ SETUP_TEXTS = (
     "endpoint (with --max-num-seqs 256, as the default did not fit the GPU at start-up).",
     "The vLLM Semantic Router's released d3-ultra checkpoint on our hardware, through the server its repository ships "
     "(its own Transformers runtime): vLLM does not serve it yet.",
-    "OmniJev's released checkpoint on our hardware, through the server its package ships, with its default settings.",
+    "OmniJev's released OneJev-27B on our hardware, through the server its package ships, with its default settings, and "
+    "OneJev1.6-0.8B on a DGX Spark in BF16, through Flide 0.1.11's server.",
     "Nace.AI's hosted Drex Max 1.1 and Drex 2.0, and its released Drex Max v1 on our hardware through Nace's own loader; "
     "Drex Max 1.1 and v1 are different checkpoints.",
     "Liquid AI's released d1-2B on our hardware, through its model card's own call; Turkish is not among the languages "
@@ -71,12 +73,15 @@ SETUP_TEXTS = (
     "cards list English only.",
     "REAX's released REAX 1.3 on our hardware in FP8, through the maker's own engine: the 50/50 mean of two parts' "
     "option probabilities (Gemma and Qwen lines), text only; its card lists English only.",
-    "PelaAI's released KnowLine 31B Gen1.5 (BF16) and KnowLine 4B Gen5.5 (FP8 at load, as its card's code does) on a DGX "
-    "Spark, through their repository's own server (SGLang; it reads a request of up to 3,000 tokens twice); open decision "
-    "models of the Jev Decision Index; their cards list English and Chinese.",
-    "StartLux Labs' released StartLux-Decision-v1.1-2B-Instant on a DGX Spark in BF16, through its package's own server "
-    "(vLLM 0.31.0, not the card's 0.19.1, which has no build for that processor); non-commercial weights, used for "
-    "evaluation; its card lists English only.",
+    "PelaAI's released KnowLine 31B Gen1.5 and 0.8B Gen1 (BF16) and KnowLine 4B Gen5.5 (FP8 at load, as its card's code "
+    "does) on a DGX Spark, through their repository's own server (SGLang; it reads a request of up to 3,000 tokens twice); "
+    "the 31B and 4B are open decision models of the Jev Decision Index; their cards list English and Chinese.",
+    "StartLux Labs' released StartLux-Decision-v1.1-2B-Instant and -0.8B-Instant on a DGX Spark in BF16, through their "
+    "package's own server (vLLM 0.31.0, not the card's 0.19.1, which has no build for that processor); non-commercial "
+    "weights, used for evaluation; their cards list English only.",
+    "Knowledgator's released GLiClass v4 Edge, a {size} parameter zero-shot classifier, on a DGX Spark in BF16, through "
+    "its model card's own System One mapping: the options are its labels, scored in one pass per question; an input over "
+    "the card's 16,384 tokens is refused, never cut; text only; its card lists English.",
     "Amazon's released model: an adapter and a scoring part on Qwen 3.5 2B Base, with its own server.",
     "Both released models, on our hardware; each scores all options in one pass.",
     "Fastino's {size} parameter text classifier, scoring the options as labels: a much smaller baseline.",

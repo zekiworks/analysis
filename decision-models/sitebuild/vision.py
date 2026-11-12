@@ -41,7 +41,7 @@ COLUMNS = (("A", "A · text only"), ("B", "B · image only"), ("C", "C · text p
 # What each leaderboard column measures and which way is better, under its header (and beside a phone's stacked cell).
 DIRECTION = "accuracy, higher is better"
 NOT_AVAILABLE = "Not available"
-# A cell of a model whose Page images are still being asked (page_config.json's in_progress: page_images running).
+# A cell of a model whose Page images are under way (page_config.json in_progress: page_images running or queued).
 RUNNING, QUEUED = "Running", "Queued"
 NO_IMAGE = '<span class="nm">No image input</span>'
 
@@ -66,11 +66,11 @@ def best_route(data: dict[str, Any], model: dict[str, Any]) -> tuple[str, dict[s
 
 
 def route_ready(site: Site, data: dict[str, Any], model: dict[str, Any]) -> bool:
-    """Whether the model's best OCR route can be shown: one is measured, and a model whose Page images are still being
-    asked (page_images_running) has all four routes in, so the best is never of a partial set (Zeki #5177)."""
+    """Whether the model's best OCR route can be shown: one is measured, and a model whose Page images are under way
+    (page_images_pending) has all four routes in, so the best is never of a partial set (Zeki #5177)."""
     if best_route(data, model) is None:
         return False
-    return not page_images_running(site, model) or all(label in model["conditions"] for label in ocr_labels(data))
+    return not page_images_pending(site, model) or all(label in model["conditions"] for label in ocr_labels(data))
 
 
 def accuracy_cell(head: str, got: dict[str, Any], route: str = "") -> str:
@@ -81,57 +81,66 @@ def accuracy_cell(head: str, got: dict[str, Any], route: str = "") -> str:
                 f'95% interval: {interval(got["correct"], got["questions"])}')
 
 
-def unavailable_cell(model: dict[str, Any], head: str, labels: list[str], running: bool = False, done: str = "") -> str:
+def unavailable_cell(model: dict[str, Any], head: str, labels: list[str], pending: str = "", done: str = "") -> str:
     """A condition not measured: "Not available" with its reason (vision.json's missing), never a number. While the model's
-    Page images are being asked (running: page_config.json's in_progress), a cell still being asked reads Running with how
-    many of the questions are asked, and one not started yet Queued (the project lead via Zeki #5172, #5177); `done` says
-    how many of the best OCR route's routes are in."""
+    Page images are under way (pending: its page_config.json in_progress state, running or queued), a cell still being
+    asked reads Running (Queued while the model's Page images wait, as for the Turkish phase, Zeki #5213) with how many
+    of the questions are asked, and one not started yet Queued (the project lead via Zeki #5172, #5177); `done` says how
+    many of the best OCR route's routes are in."""
     missing = model.get("missing") or {}
     absent = [label for label in labels if label not in missing]
     if absent:
         raise ValueError(f"vision.json: {model['name']} has no result and no reason for {', '.join(absent)}")
-    if running:
+    if pending:
+        word = RUNNING if pending == "running" else QUEUED
         partial = [(label, re.fullmatch(r"(\d+) of (\d+) questions answered", missing[label])) for label in labels]
         asked = [(label, found) for label, found in partial if found]
         if any(found is None and missing[label] != "not run" for label, found in partial):
             raise ValueError(f"vision.json: {model['name']}'s missing reasons are neither a count nor 'not run'")
         lead = f"{done}; " if done else ""
         if not asked:
-            return cell(f"{head} ({DIRECTION})", f'<span class="nm">{RUNNING}</span><span class="small">{esc(done)}</span>'
+            return cell(f"{head} ({DIRECTION})", f'<span class="nm">{word}</span><span class="small">{esc(done)}</span>'
                         if done else f'<span class="nm">{QUEUED}</span>')
         label, found = asked[0]
         via = f" via {OCR_NAMES[label.removeprefix('D ')]}" if label.startswith("D ") else ""
-        return cell(f"{head} ({DIRECTION})", f'<span class="nm">{RUNNING}</span><span class="small">{esc(lead)}'
+        return cell(f"{head} ({DIRECTION})", f'<span class="nm">{word}</span><span class="small">{esc(lead)}'
                     f'{int(found.group(1)):,} of {int(found.group(2)):,} asked{esc(via)}</span>')
     reasons = "; ".join(dict.fromkeys(missing[label] for label in labels))
     return cell(f"{head} ({DIRECTION})", f'<span class="nm">{NOT_AVAILABLE}: {esc(reasons)}</span>')
 
 
-def cells(data: dict[str, Any], model: dict[str, Any], running: bool = False) -> str:
+def cells(data: dict[str, Any], model: dict[str, Any], pending_state: str = "") -> str:
     """A model's A, B, C and best OCR route cells; a text-only model has no image input for B and C. While its Page images
-    are being asked (running), a cell without a result reads Running or Queued (unavailable_cell), and so does its best
-    OCR route until all four routes are in: the best of the routes done so far would be a partial result (Zeki #5177)."""
+    are under way (pending_state: running or queued), a cell without a result reads Running or Queued (unavailable_cell),
+    and so does its best OCR route until all four routes are in: the best of the routes done so far would be a partial
+    result (Zeki #5177)."""
     conditions = model["conditions"]
     out = []
     for label, head in COLUMNS:
         if label is None:
             best = best_route(data, model)
             pending = [item for item in ocr_labels(data) if item not in conditions]
-            if best is None or (running and pending):
+            if best is None or (pending_state and pending):
                 total = len(ocr_labels(data))
-                done = f"{total - len(pending)} of {total} OCR routes done" if running and len(pending) < total else ""
-                out.append(unavailable_cell(model, head, pending or ocr_labels(data), running, done))
+                done = f"{total - len(pending)} of {total} OCR routes done" if pending_state and len(pending) < total else ""
+                out.append(unavailable_cell(model, head, pending or ocr_labels(data), pending_state, done))
                 continue
             route, got = best
             run = sum(item in conditions for item in ocr_labels(data))
-            of = "" if run == len(ocr_labels(data)) else f", best of the {run} of {len(ocr_labels(data))} OCR models run"
+            # A route with some answers but not all (GLiClass v4 Edge's Unlimited OCR 2: one input over its token limit,
+            # refused, never cut) is named with its count; a route never run is only counted.
+            short = [item for item in ocr_labels(data)
+                     if item not in conditions and (model.get("missing") or {}).get(item, "not run") != "not run"]
+            of = "" if run == len(ocr_labels(data)) else (
+                f", best of the {run} of {len(ocr_labels(data))} OCR routes measured"
+                + "".join(f" ({OCR_NAMES[item.removeprefix('D ')]}: {model['missing'][item]})" for item in short))
             out.append(accuracy_cell(head, got, OCR_NAMES[route.removeprefix("D ")] + of))
         elif model["kind"] == "text" and label in ("B", "C"):
             out.append(cell(f"{head} ({DIRECTION})", NO_IMAGE))
         elif label in conditions:
             out.append(accuracy_cell(head, conditions[label]))
         else:
-            out.append(unavailable_cell(model, head, [label], running))
+            out.append(unavailable_cell(model, head, [label], pending_state))
     return "".join(out)
 
 
@@ -171,20 +180,21 @@ def class_attribute(site: Site, model: dict[str, Any]) -> str:
     return site.class_attribute(run) if run else ' data-class=""'
 
 
-def page_images_running(site: Site, model: dict[str, Any]) -> bool:
-    """Whether page_config.json's in_progress lists this setup's (provider and model) Page images as running."""
+def page_images_pending(site: Site, model: dict[str, Any]) -> str:
+    """This setup's (provider and model) Page images state in page_config.json's in_progress while they are under way:
+    "running", or "queued" (waiting, as in the Turkish phase, Zeki #5213); "" when not listed or in another state."""
     for item in site.config["in_progress"]["models"]:
         state = item["page_images"]["state"] if isinstance(item["page_images"], dict) else item["page_images"]
-        if (item["provider"], item["model"]) == (model["provider"], model["model"]) and state == "running":
-            return True
-    return False
+        if (item["provider"], item["model"]) == (model["provider"], model["model"]) and state in ("running", "queued"):
+            return state
+    return ""
 
 
 def model_table(site: Site, origin: str, data: dict[str, Any], models: list[dict[str, Any]]) -> str:
     """The leaderboard's columns for these models, in this order; every header says which way is better."""
     head = "".join(f'<th scope="col" class="num">{esc(name)}<span class="small">{DIRECTION}</span></th>' for _, name in COLUMNS)
     rows = "".join(f"<tr{class_attribute(site, model)}>{model_cell(site, origin, model)}"
-                   f"{cells(data, model, page_images_running(site, model))}</tr>" for model in models)
+                   f"{cells(data, model, page_images_pending(site, model))}</tr>" for model in models)
     return (f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr></thead>'
             f"<tbody>{rows}</tbody></table></div>")
 

@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-12T03:56:10Z",
+    "updated": "2026-11-12T09:26:00Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -263,9 +263,10 @@
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "logic:gemma-4-31b-it_en_t0"
+       "logic:gemma-4-31b-it_en_t0",
+       "logic:gemma-4-31b-it_en_t0_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); BF16 weights quantized to FP8 by vLLM at load; no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); BF16 weights quantized to FP8 by vLLM at load",
       "gpu_hours": 0.5619444444444445,
       "gpu_cost_usd": 1.3992416666666667
      },
@@ -1870,6 +1871,38 @@
       "gpu_cost_usd": 0.0020099461352438438
      },
      {
+      "repo": "knowledgator/gliclass-v4-edge",
+      "commit": "885af1af8a07edf4ed34df83ca0d995ed8201283",
+      "model_key": "gliclass-v4-edge",
+      "name": "GLiClass v4 Edge",
+      "display_name": "GLiClass v4 Edge",
+      "tag": "",
+      "class_label": "Open · 0.4B",
+      "base_model": "DeBERTa-v3-large",
+      "setup_label": "GLiClass v4 Edge",
+      "maker": null,
+      "kind": "decision",
+      "params_total": 0.4,
+      "params_active": 0.4,
+      "quantization": "BF16",
+      "score_0_100": 4.444444444444442,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.23555555555555555,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.0874588157467637,
+      "improvement_points": null,
+      "runs": [
+       "logic:gliclass-v4-edge_en",
+       "logic:gliclass-v4-edge_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.006944444444444444,
+      "gpu_cost_usd": 0.001477901570032238
+     },
+     {
       "repo": "fastino/GLiDE-0.4B",
       "commit": "6bda7ab91aeb36dcad6d27828a8871e548c7fc71",
       "model_key": "glide-0.4b",
@@ -1944,7 +1977,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-12T03:56:10Z",
+    "updated": "2026-11-12T09:26:00Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2167,9 +2200,10 @@
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "math:gemma-4-31b-it_en_t0"
+       "math:gemma-4-31b-it_en_t0",
+       "math:gemma-4-31b-it_en_t0_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); BF16 weights quantized to FP8 by vLLM at load; no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); BF16 weights quantized to FP8 by vLLM at load",
       "gpu_hours": 0.46111111111111114,
       "gpu_cost_usd": 1.1481666666666668
      },
@@ -3900,6 +3934,38 @@
       "gpu_cost_usd": 0.003665195893679951
      },
      {
+      "repo": "knowledgator/gliclass-v4-edge",
+      "commit": "885af1af8a07edf4ed34df83ca0d995ed8201283",
+      "model_key": "gliclass-v4-edge",
+      "name": "GLiClass v4 Edge",
+      "display_name": "GLiClass v4 Edge",
+      "tag": "",
+      "class_label": "Open · 0.4B",
+      "base_model": "DeBERTa-v3-large",
+      "setup_label": "GLiClass v4 Edge",
+      "maker": null,
+      "kind": "decision",
+      "params_total": 0.4,
+      "params_active": 0.4,
+      "quantization": "BF16",
+      "score_0_100": 3.3171521035598692,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.22653721682847897,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.07014710098192448,
+      "improvement_points": null,
+      "runs": [
+       "math:gliclass-v4-edge_en",
+       "math:gliclass-v4-edge_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.008611111111111111,
+      "gpu_cost_usd": 0.0018325979468399754
+     },
+     {
       "repo": "fastino/GLiDE-0.4B",
       "commit": "6bda7ab91aeb36dcad6d27828a8871e548c7fc71",
       "model_key": "glide-0.4b",
@@ -3942,7 +4008,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-12T03:56:10Z",
+    "updated": "2026-11-12T09:26:00Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -4142,9 +4208,11 @@
       "improvement_points": null,
       "runs": [
        "logic:gemma-4-31b-it_en_t0",
-       "math:gemma-4-31b-it_en_t0"
+       "math:gemma-4-31b-it_en_t0",
+       "logic:gemma-4-31b-it_en_t0_dontknow",
+       "math:gemma-4-31b-it_en_t0_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); BF16 weights quantized to FP8 by vLLM at load; no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); BF16 weights quantized to FP8 by vLLM at load",
       "gpu_hours": 1.0230555555555556,
       "gpu_cost_usd": 2.5474083333333333
      },
@@ -5917,6 +5985,40 @@
       "gpu_cost_usd": 0.08784166666666667
      },
      {
+      "repo": "knowledgator/gliclass-v4-edge",
+      "commit": "885af1af8a07edf4ed34df83ca0d995ed8201283",
+      "model_key": "gliclass-v4-edge",
+      "name": "GLiClass v4 Edge",
+      "display_name": "GLiClass v4 Edge",
+      "tag": "",
+      "class_label": "Open · 0.4B",
+      "base_model": "DeBERTa-v3-large",
+      "setup_label": "GLiClass v4 Edge",
+      "maker": null,
+      "kind": "decision",
+      "params_total": 0.4,
+      "params_active": 0.4,
+      "quantization": "BF16",
+      "score_0_100": 3.7028588807785887,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.22962287104622872,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.07604377483198181,
+      "improvement_points": null,
+      "runs": [
+       "logic:gliclass-v4-edge_en",
+       "math:gliclass-v4-edge_en",
+       "logic:gliclass-v4-edge_en_dontknow",
+       "math:gliclass-v4-edge_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.015555555555555555,
+      "gpu_cost_usd": 0.003310499516872213
+     },
+     {
       "repo": "fastino/GLiDE-0.4B",
       "commit": "6bda7ab91aeb36dcad6d27828a8871e548c7fc71",
       "model_key": "glide-0.4b",
@@ -6218,7 +6320,7 @@
       "maker": "Meta",
       "model_key": "muse-ember",
       "name": "Muse Ember",
-      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; provisional: played 17 of 19 matches; not played: GPT-6 Luna (Decisions API) (opponent's API out of credit); not played: Inception Mercury Decide (opponent no longer served on OpenRouter); Meta's Muse Ember through OpenRouter, pinned to Meta (fallbacks off) for every decision; never on our GPUs. Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 10–11 Nov 2026. It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #932 stopped before any decision, unbilled) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit). Every request sent reasoning_effort \"max\"; 21.76 M of its 22.09 M output tokens were reasoning. The endpoint returned no token probabilities, so it answers with one letter, read from the reply; 46 of its 1,713 answers named no option and a random legal play was made. Each decision is billed at Meta's list price from the tokens OpenRouter reported.; hosted (API or subscription)",
+      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Meta's Muse Ember through OpenRouter, pinned to Meta (fallbacks off) for every decision; never on our GPUs. Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 10–11 Nov 2026. It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #932 stopped before any decision, unbilled; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). Every request sent reasoning_effort \"max\"; 21.76 M of its 22.09 M output tokens were reasoning. The endpoint returned no token probabilities, so it answers with one letter, read from the reply; 46 of its 1,713 answers named no option and a random legal play was made. Each decision is billed at Meta's list price from the tokens OpenRouter reported.; hosted (API or subscription)",
       "params_active": null,
       "params_total": null,
       "quantization": null,
@@ -6243,7 +6345,7 @@
       "maker": "PelaAI",
       "model_key": "knowline-31b-gen1.5",
       "name": "KnowLine-31B-Gen1.5",
-      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; provisional: played 17 of 19 matches; not played: GPT-6 Luna (Decisions API) (opponent's API out of credit); not played: Inception Mercury Decide (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 10–11 Nov 2026. It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit). Each option's probability is a softmax over the option labels, stored as returned. Its first run played 4 matches at once (#933–936) on a server meant for one request at a time; those matches were voided (rows kept, left out of every number) and the pairs replayed from the start, one match at a time.; run on our GPUs",
+      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 10–11 Nov 2026. It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). Each option's probability is a softmax over the option labels, stored as returned. Its first run played 4 matches at once (#933–936) on a server meant for one request at a time; those matches were voided (rows kept, left out of every number) and the pairs replayed from the start, one match at a time.; run on our GPUs",
       "params_active": 31.27,
       "params_total": 31.27,
       "quantization": "BF16",
@@ -6268,7 +6370,7 @@
       "maker": "REAX",
       "model_key": "reax-1.3",
       "name": "REAX 1.3",
-      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; provisional: played 18 of 19 matches; not played: GPT-6 Luna (Decisions API) (opponent's API out of credit); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 7 Nov 2026. Each option's probability is the 50/50 mean of the two parts' probabilities, stored as returned; in the smoke test before the run every probability sum was 1.000000. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit. Run note: the server's container ran without Docker's no-new-privileges setting, approved for this run only (the host's Docker refused every container with it); every other protection was kept: all capabilities dropped, read-only root filesystem, non-root user, weights mounted read-only, no outside network.; run on our GPUs",
+      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 18 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 7 Nov 2026. Each option's probability is the 50/50 mean of the two parts' probabilities, stored as returned; in the smoke test before the run every probability sum was 1.000000. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit; the pair is outside the requested scope (Ümit, 12 Nov). Run note: the server's container ran without Docker's no-new-privileges setting, approved for this run only (the host's Docker refused every container with it); every other protection was kept: all capabilities dropped, read-only root filesystem, non-root user, weights mounted read-only, no outside network.; run on our GPUs",
       "params_active": 57.36,
       "params_total": 57.36,
       "quantization": "FP8",
@@ -6293,7 +6395,7 @@
       "maker": "Google",
       "model_key": "gemini-decision-1",
       "name": "Gemini Decision 1",
-      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; provisional: played 17 of 19 matches; not played: GPT-6 Luna (Decisions API) (opponent's API out of credit); not played: Inception Mercury Decide (opponent no longer served on OpenRouter); Google's Gemini Decision 1 through OpenRouter, pinned to Google AI Studio (fallbacks off) for every decision; never on our GPUs. Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 11 Nov 2026. It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1016 aborted) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit). Two runner builds: dab6da5 for its first 9 matches (#993–#1013, before 21:46:31 UTC), with no probability-map check, and 38024d6 (map-check v2) from 21:46:31 UTC for its last 8 (#1053–#1063). Under map-check v2 a returned probability map is used only if it covers exactly the options shown, every value is finite and in [0, 1], and the values sum to 1 within 1e-6; this sum rule is new (no frozen sum tolerance existed), was chosen on 11 Nov 2026 and applies to this entry only; a failed map still plays the returned choice and stores no probabilities. An offline audit of the first matches under the same rule found no failing map. Option order: we send the options in our seeded order, as for every setup, while Google's docs say the API sorts the option keys alphabetically (UTF-8 byte order; an exact tie goes to the alphabetically first key), so the order the model sees is probably not ours (Google's docs; not verified by us). Its cost is the billed cost of each decision; the entry, with its paid opponents, billed $1.1819 in all.; hosted (API or subscription)",
+      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Google's Gemini Decision 1 through OpenRouter, pinned to Google AI Studio (fallbacks off) for every decision; never on our GPUs. Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 11 Nov 2026. It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1016 aborted; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). Two runner builds: dab6da5 for its first 9 matches (#993–#1013, before 21:46:31 UTC), with no probability-map check, and 38024d6 (map-check v2) from 21:46:31 UTC for its last 8 (#1053–#1063). Under map-check v2 a returned probability map is used only if it covers exactly the options shown, every value is finite and in [0, 1], and the values sum to 1 within 1e-6; this sum rule is new (no frozen sum tolerance existed), was chosen on 11 Nov 2026 and applies to this entry only; a failed map still plays the returned choice and stores no probabilities. An offline audit of the first matches under the same rule found no failing map. Option order: we send the options in our seeded order, as for every setup, while Google's docs say the API sorts the option keys alphabetically (UTF-8 byte order; an exact tie goes to the alphabetically first key), so the order the model sees is probably not ours (Google's docs; not verified by us). Its cost is the billed cost of each decision; the entry, with its paid opponents, billed $1.1819 in all.; hosted (API or subscription)",
       "params_active": null,
       "params_total": null,
       "quantization": null,
@@ -6393,7 +6495,7 @@
       "maker": "Nace.AI",
       "model_key": "drex-max-v1",
       "name": "Drex Max",
-      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; provisional: played 18 of 19 matches; not played: GPT-6 Luna (Decisions API) (opponent's API out of credit); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit.; run on our GPUs",
+      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 18 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit; the pair is outside the requested scope (Ümit, 12 Nov).; run on our GPUs",
       "params_active": 26.09,
       "params_total": 26.09,
       "quantization": null,
@@ -6418,7 +6520,7 @@
       "maker": "Nace.AI",
       "model_key": "drex-max-1.1",
       "name": "Drex Max v1.1",
-      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; provisional: played 18 of 19 matches; not played: GPT-6 Luna (Decisions API) (opponent's API out of credit); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit.; hosted (API or subscription)",
+      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 18 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit; the pair is outside the requested scope (Ümit, 12 Nov).; hosted (API or subscription)",
       "params_active": null,
       "params_total": null,
       "quantization": null,
@@ -6693,7 +6795,7 @@
       "maker": "Nace.AI",
       "model_key": "drex-2.0",
       "name": "Drex 2.0",
-      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; provisional: played 18 of 19 matches; not played: GPT-6 Luna (Decisions API) (opponent's API out of credit); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities come rounded to 4 decimals by Nace's API and are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit.; hosted (API or subscription)",
+      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 18 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup); its matches were played on 6 Nov 2026. Probabilities come rounded to 4 decimals by Nace's API and are stored as returned. Its pair with GPT-6 Luna was not played: GPT-6 Luna's API was out of credit; the pair is outside the requested scope (Ümit, 12 Nov).; hosted (API or subscription)",
       "params_active": 3,
       "params_total": 35.11,
       "quantization": null,
@@ -6991,7 +7093,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-12T07:35Z",
+    "updated": "2026-11-12T10:35Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }

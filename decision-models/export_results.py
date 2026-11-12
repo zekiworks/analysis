@@ -2354,6 +2354,8 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
         ("onejev", "OmniJev/OneJev1.6-0.8B"))},
     ("openrouter", "google/gemini-decision-1", None): "added to the Hallucination tab on 11 November 2026 (Google's "
     "Decisions API through OpenRouter), after the option-word check; not asked with “I don't know” yet.",
+    ("gliclass", "knowledgator/gliclass-v4-edge", None): "added to the Hallucination tab on 12 November 2026 (run on our "
+    "GPU), after the option-word check; not asked with “I don't know” yet.",
 }
 # The hosted GLiDE rerun (results.json `hosted_glide_rerun`): Fastino changed the hosted model after 6 October, so a new
 # five-option run with the main prompts' version replaces RERUN_REPLACES as the original run of the model's "I don't

@@ -5,8 +5,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 101 comparisons (9 pass).
-━━ passes the Holm adjustment across these 101 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 103 comparisons (8 pass).
+━━ passes the Holm adjustment across these 103 comparisons   ━━ does not pass
 
                                                 Claude Fable 5.2 · max · chat minus Gemini 3.8 Flash · high · chat                              ⠠⠤⡧⠤                               +0.0
                                                     Gemini 3.8 Flash · high · chat minus GPT-6 Astra · high · chat                              ⠠⠤⡧⠤                               +0.1
@@ -59,7 +59,7 @@ shows a related but separate test, adjusted across these 101 comparisons (9 pass
                                           MiniMax-M3.1-Flash · high · chat minus Perplexity Decider 27B v1.2 · API                         ⠠⠤⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤⠤⠄                         +0.1
                          Perplexity Decider 27B v1.2 · API minus DeepSeek-V4.1-Flash · reasoning off · chat · 1017                          ⠤⠤⠤⠤⠤⠤⣿⠤⠤⠤⠤⠤⠤⠄                         +0.3
 DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash · reasoning off · chat · first release                            ⠠⠤⠤⠤⡧⠤⠤⠤                             +0.1
-                                DeepSeek-V4.1-Flash · reasoning off · chat · first release minus SubQ Snap Preview                           ⠐⠒⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠒⠂                        +0.7
+                                DeepSeek-V4.1-Flash · reasoning off · chat · first release minus SubQ Snap Preview                           ⠠⠤⠤⠤⠤⡧⠤⡧⠤⠤⠤⠤⠤⠄                        +0.7
                                                                              SubQ Snap Preview minus SubQ Snap 1.1                               ⠒⡗⠒⠒⠒⡗⠒⠒⠒⠒                        +1.4
                                                                     SubQ Snap 1.1 minus GPT-6 Luna · Decisions API                          ⠒⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒⠂                         +0.3
                                               GPT-6 Luna · Decisions API minus Qwen3.8 Flash · no reasoning · chat                           ⠒⠒⠒⠒⠒⡗⢺⠒⠒⠒⠒⠒⠒                         +0.5
@@ -73,7 +73,8 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                                                          OneJev-27B minus Jev 1.14                           ⠒⠒⠒⠒⠒⡗⡗⠒⠒⠒⠒⠒⠂                         +0.4
                                                                                      Jev 1.14 minus Mercury Decide                            ⠐⠒⠒⠒⡗⠒⢺⠒⠒⠒⠒⠒⠒                        +0.9
                                                          Mercury Decide minus GLM-5.3-Flash · reasoning off · chat                          ⠐⠒⠒⠒⠒⠒⡗⡗⠒⠒⠒⠒⠒⠒⠂                        +0.5
-                                                               GLM-5.3-Flash · reasoning off · chat minus Jev 1.13                          ⠒⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒⠂                         +0.3
+                                 GLM-5.3-Flash · reasoning off · chat minus Gemma 4 E4B · default reasoning · chat                         ⠒⠒⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒⠒                         +0.2
+                                                             Gemma 4 E4B · default reasoning · chat minus Jev 1.13                         ⠒⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒⠂                         +0.0
                                                                                                Jev 1.13 minus Clef                          ⠐⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒                          +0.2
                                                                           Clef minus Claude Haiku 5.5 · max · chat                         ⠐⠒⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒⠒                         +0.2
                                                                             Claude Haiku 5.5 · max · chat minus d1                        ⠐⠒⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒⠂                         +0.0
@@ -104,7 +105,8 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                       StartLux-Decision-v1.1-0.8B-Instant minus Strands Decider 2B                            ⠒⠒⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒⠒⠂                      +1.1
                                                                                 Strands Decider 2B minus Decider 1                          ⠒⠒⠒⠒⠒⠒⡗⠗⠒⠒⠒⠒⠒⠒⠂                        +0.4
                                                                                 Decider 1 minus KnowLine-0.8B-Gen1                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠂                          +0.0
-                                                                               KnowLine-0.8B-Gen1 minus GLiDE 0.4B                                ⡇      ⠒⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠒           +4.9
+                                                                         KnowLine-0.8B-Gen1 minus GLiClass v4 Edge                                ⡇   ⠒⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠂              +3.8
+                                                                                 GLiClass v4 Edge minus GLiDE 0.4B                            ⠒⠒⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒⠒⠂                      +1.1
                                                                            GLiDE 0.4B minus GLiNER2.5-multi-Decide                               ⠒⡗⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒                    +2.0
                                                                                  GLiNER2.5-multi-Decide minus Laya                            ⠐⠒⠒⠒⡗⠒⠒⠺⠒⠒⠒⠒⠒⠒⠂                      +1.2
                                                                                       Laya minus Laya Multilingual                             ⠒⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒⠒                       +1.1
