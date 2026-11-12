@@ -2,6 +2,18 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 241f6ccd (12 November 2026)
+
+- Claude Fable 5.2 (max effort, the Claude subscription, 16 questions per request) joins the Text tab:
+  - Turkish Text run 980 answered 2,157 of 2,198 right (98.1%), 1st of 100 setups, one question ahead of Gemini 3.8 Flash (high, 2,156) and four ahead of GPT-6 Astra (high, 2,153). It scored 97.7% on reading and 98.3% on grammar, with no invalid answers.
+  - The run stopped at the subscription's usage limit on 11 November at 1,904 answers and resumed in place once the limit lifted; it finished at 01:55 UTC on 12 November.
+  - $0 billed; the same tokens at Anthropic's list price would be $117.33.
+  - On the 547 kept questions its Turkish (535 right) and English (run 971, 536 right) differ by nothing that could not be chance (p = 1).
+  - Its English "I don't know" run is under way (Running); its Turkish "Bilmiyorum" run waits for the Turkish phase after its Logic & Math runs (the project lead via Zeki #5133, #5140; Queued).
+- The In progress table shows Inkling 2 Small as blocked by its data-use terms (Zeki #5147).
+- Records and runner, no number changed: setup and size records of the small chat models joining Reading; Gemini 4 Carbon through Can's Antigravity subscription bridge (`--provider agbench`); `frequency_penalty` allowed in plain requests.
+- Significance letters move with the new setup; no paired, "I don't know" or same-answers verdict changed.
+
 ## Results 16f12ba3 (11 November 2026)
 
 - Added OneJev1.6-0.8B, the third model of the tiny batch (the project lead, bus #4578; logic #5031): OmniJev's checkpoint `OmniJev/OneJev1.6-0.8B` at `bcd88a3`, an average of three full fine-tunes of Qwen3.5-0.8B, on one NVIDIA DGX Spark, one request at a time, behind `flide serve` (Flide 0.1.11) as its card says, BF16, with images.

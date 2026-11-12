@@ -5,9 +5,10 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 99 comparisons (9 pass).
-━━ passes the Holm adjustment across these 99 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 100 comparisons (9 pass).
+━━ passes the Holm adjustment across these 100 comparisons   ━━ does not pass
 
+                                                Claude Fable 5.2 · max · chat minus Gemini 3.8 Flash · high · chat                              ⠠⠤⡧⠤                               +0.0
                                                     Gemini 3.8 Flash · high · chat minus GPT-6 Astra · high · chat                              ⠠⠤⡧⠤                               +0.1
                                                          GPT-6 Astra · high · chat minus GPT-6.1 Sol · high · chat                               ⠠⣷⠤                               +0.2
                                                           GPT-6.1 Sol · high · chat minus GPT-6 Astra · low · chat                               ⠤⣷⠤                               +0.2
@@ -28,8 +29,8 @@ shows a related but separate test, adjusted across these 99 comparisons (9 pass)
                                                   Claude Sonnet 5.5 · high · chat minus Kimi K3.1 Pro · low · chat                                ⡇⠤⠤⠤⠤⠤⢴⠤⠤⠤⠤⠤⠄                    +2.3
                                                   Kimi K3.1 Pro · low · chat minus Qwen3.5-397B-A17B · high · chat                           ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠄                           +0.0
                                                          Qwen3.5-397B-A17B · high · chat minus KnowLine-31B-Gen1.5                             ⠤⠤⠤⡧⠤⢴⠤⠤⠤⠤⠤⠄                        +0.9
-                                                             KnowLine-31B-Gen1.5 minus Inkling-Small · high · chat                               ⠠⡧⠤⠤⠤⠤⡦⠤⠤⠤⠤⠤⠄                     +1.8
-                                             Inkling-Small · high · chat minus GLM-5.3-Flash · reasoning on · chat                              ⠤⠤⡧⠤⠤⢴⠤⠤⠤⠤⠤                        +1.2
+                                                  KnowLine-31B-Gen1.5 minus Inkling-Small · high · chat · Jul 2026                               ⠠⡧⠤⠤⠤⠤⡦⠤⠤⠤⠤⠤⠄                     +1.8
+                                  Inkling-Small · high · chat · Jul 2026 minus GLM-5.3-Flash · reasoning on · chat                              ⠤⠤⡧⠤⠤⢴⠤⠤⠤⠤⠤                        +1.2
                                                                 GLM-5.3-Flash · reasoning on · chat minus REAX 1.3                            ⠠⠤⠤⠤⡧⠤⢴⠤⠤⠤⠤⠤⠄                        +0.9
                                                                        REAX 1.3 minus Gemini Decision 1 · 20261111                           ⠠⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤⠄                          +0.4
                                                                        Gemini Decision 1 · 20261111 minus d1-ultra                           ⠠⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤⠤⠄                         +0.5
@@ -37,7 +38,7 @@ shows a related but separate test, adjusted across these 99 comparisons (9 pass)
                                                                Qwen3.8-27B · low · chat minus GLM-5.3 · low · chat                          ⠤⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤⠤                          +0.1
                                                      GLM-5.3 · low · chat minus Gemma 4 31B · reasoning off · chat                             ⠠⠤⠤⡧⠤⠤⠤⡦⠤⠤⠤⠤⠤⠄                      +1.4
                                       Gemma 4 31B · reasoning off · chat minus Kimi K3.1 Pro · no reasoning · chat                           ⠤⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤⠤⠄                         +0.4
-                                                              Gemma 4 31B · reasoning off · chat minus GLiDE · API                                ⡇        ⠤⠤⠤⠤⠤⠤⢴⠤⠤⠤⠤⠤⠤⠄          +5.2
+                                                              Gemma 4 31B · reasoning off · chat minus GLiDE · API                                ⡇        ⠤⠤⠤⠤⠤⠤⢼⠤⠤⠤⠤⠤⠤⠄          +5.2
                                            Kimi K3.1 Pro · no reasoning · chat minus MiMo-V2.6-Flash · high · chat                           ⠤⠤⠤⠤⠤⡧⢼⠤⠤⠤⠤⠤⠤⠄                        +0.6
                                                                      MiMo-V2.6-Flash · high · chat minus GLiDE 27B                            ⠠⠤⠤⠤⡧⠤⢼⠤⠤⠤⠤⠤⠤⠄                       +1.0
                                                       GLiDE 27B minus Perplexity Decider 27B v1.2 · API · with web                                ⡇ ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠄                    +2.4
@@ -57,7 +58,7 @@ shows a related but separate test, adjusted across these 99 comparisons (9 pass)
                                                        Perplexity Decider 27B v1.1 minus Perplexity Decider 27B v1                                ⡇             ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤        +6.5
                                           MiniMax-M3.1-Flash · high · chat minus Perplexity Decider 27B v1.2 · API                         ⠠⠤⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤⠤⠄                         +0.1
                          Perplexity Decider 27B v1.2 · API minus DeepSeek-V4.1-Flash · reasoning off · chat · 1017                          ⠤⠤⠤⠤⠤⠤⣿⠤⠤⠤⠤⠤⠤⠄                         +0.3
-DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash · reasoning off · chat · first release                            ⠠⠤⠤⠤⡧⠤⠤⠤                             +0.1
+DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash · reasoning off · chat · first release                            ⠐⠒⠒⠒⡗⠒⠒⠒                             +0.1
                                 DeepSeek-V4.1-Flash · reasoning off · chat · first release minus SubQ Snap Preview                           ⠐⠒⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠒⠂                        +0.7
                                                                              SubQ Snap Preview minus SubQ Snap 1.1                               ⠒⡗⠒⠒⠒⡗⠒⠒⠒⠒                        +1.4
                                                                     SubQ Snap 1.1 minus GPT-6 Luna · Decisions API                          ⠒⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒⠂                         +0.3

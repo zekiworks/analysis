@@ -667,9 +667,10 @@ MODELS: dict[str, dict[str, Any]] = {
         "access": "vLLM, self-hosted, BF16",
         "hardware": f"1 × {GPU}; BF16",
     },
-    # Ümit's small open models (bus #3446), Reading in English only, served by logic's queue (logic/work/small_models.py
-    # SETUPS, whose keys are the model IDs) on one RTX PRO 6000 Blackwell each: the official repo at a pinned revision,
-    # through backend in precision (vllm-plain's access text).
+    # Ümit's small open models (bus #3446; English only until 11 November) and the small chat models joining Reading
+    # (Ümit via Zeki #5064, #5071: all four runs), served by logic's queue (logic/work/small_models.py SETUPS, whose keys
+    # are the model IDs) on one RTX PRO 6000 Blackwell each: the official repo at a pinned revision, through backend in
+    # precision (vllm-plain's access text).
     **{key: {"name": name, "backend": backend, "precision": "BF16", "revision": revision, "hardware": f"1 × {GPU}; BF16"}
        for key, name, backend, revision in (
            ("vibethinker-3b", "VibeThinker-3B", "vLLM v0.30.0", "WeiboAI/VibeThinker-3B@77bd2cc"),
@@ -688,6 +689,14 @@ MODELS: dict[str, dict[str, Any]] = {
            ("qwen3.5-9b", "Qwen3.5-9B", "vLLM v0.30.0", "Qwen/Qwen3.5-9B@c202236"),
            ("lfm2.5-1.2b-thinking", "LFM2.5-1.2B-Thinking", "vLLM v0.30.0", "LiquidAI/LFM2.5-1.2B-Thinking@fa4681e"),
            ("lfm2-350m-math", "LFM2-350M-Math", "vLLM v0.30.0", "LiquidAI/LFM2-350M-Math@8eb8b70"),
+           ("lfm2.5-2.6b", "LFM2.5-2.6B", "vLLM v0.30.0", "LiquidAI/LFM2.5-2.6B@7141b56"),
+           ("minicpm5-2b", "MiniCPM5-2B", "vLLM v0.30.0", "openbmb/MiniCPM5-2B@42433e9"),
+           ("spark-x2.6-4b", "Spark-X2.6-4B", "llama.cpp (its BF16 GGUF; vLLM v0.30.0 has no Spark2_5ForCausalLM)",
+            "XHToken/Spark-X2.6-4B-GGUF@9d71677"),
+           ("granite-4.2-3b", "Granite-4.2-3B", "vLLM v0.30.0", "ibm-granite/granite-4.2-3b@4e9c275"),
+           ("granite-4.2-8b", "Granite-4.2-8B", "vLLM v0.30.0", "ibm-granite/granite-4.2-8b@a704214"),
+           ("lfm2.5-24b-a2b", "LFM2.5-24B-A2B", "vLLM v0.30.0", "LiquidAI/LFM2.5-24B-A2B@1769516"),
+           ("granite-4.2-30b", "Granite-4.2-30B", "vLLM v0.30.0", "ibm-granite/granite-4.2-30b@9e668ce"),
        )},
 }
 # Setups whose model ID another setup shares, by (provider, model, Perplexity mode): their entry replaces the model's in
@@ -1153,6 +1162,31 @@ SIZES: dict[str, dict[str, Any]] = {
                        "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM2-350M-Math@8eb8b70",
                                    "https://huggingface.co/LiquidAI/LFM2-350M-Math", "https://huggingface.co/LiquidAI/LFM2-350M"],
                        "read": READ},
+    # The small chat models joining Reading (Ümit via Zeki #5064, #5071), counted from the checkpoints logic serves
+    # (logic/work/small_models.py), read 12 November 2026. The cards: LFM2.5-2.6B "2.69B"; MiniCPM5-2B "2,516,756,480";
+    # Spark-X2.6-4B "4B" (its BF16 GGUF holds the same tensors); Granite 4.2 "3B", "8B", "30B"; LFM2.5-24B-A2B "24.0B
+    # total, 2.45B active".
+    **{key: {"total": total, "scope": scope, "repo": repo, "commit": commit,
+             "sources": [f"counted from the checkpoint's safetensors, {repo}@{commit}", f"https://huggingface.co/{repo}"],
+             "read": "2026-11-12"}
+       for key, total, scope, repo, commit in (
+           ("lfm2.5-2.6b", 2_697_198_592, "language model (tied embeddings, text only)", "LiquidAI/LFM2.5-2.6B", "7141b56"),
+           ("minicpm5-2b", 2_516_756_480, "language model with its LM head, text only", "openbmb/MiniCPM5-2B", "42433e9"),
+           ("spark-x2.6-4b", 4_112_079_360, "language model (tied embeddings, text only)", "XHToken/Spark-X2.6-4B",
+            "64ca8f2"),
+           ("granite-4.2-3b", 3_659_737_600, "language model with its LM head, text only", "ibm-granite/granite-4.2-3b",
+            "4e9c275"),
+           ("granite-4.2-8b", 8_791_592_960, "language model with its LM head, text only", "ibm-granite/granite-4.2-8b",
+            "a704214"),
+           ("granite-4.2-30b", 29_276_770_304, "language model with its LM head, text only", "ibm-granite/granite-4.2-30b",
+            "9e668ce"),
+       )},
+    "lfm2.5-24b-a2b": {"total": 23_971_587_712, "active": [2_454_808_192],
+                       "repo": "LiquidAI/LFM2.5-24B-A2B", "commit": "1769516",
+                       "scope": "mixture of experts, 4 of 64 experts per token: language model (tied embeddings, text "
+                                "only), counted; the card says 24.0B total, 2.45B active",
+                       "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM2.5-24B-A2B@1769516",
+                                   "https://huggingface.co/LiquidAI/LFM2.5-24B-A2B"], "read": "2026-11-12"},
 }
 # The variant a Perplexity mode adds to a setup's name in tables and charts.
 MODE_VARIANTS = {"web_grounding": "with web"}
