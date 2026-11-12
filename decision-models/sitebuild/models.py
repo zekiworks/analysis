@@ -375,17 +375,23 @@ def formats(site: Site, run: dict[str, Any]) -> str | None:
 
 
 def page_images(site: Site, run: dict[str, Any]) -> str | None:
-    """For a setup that is condition A of a model in the Page images tab: that model's row, as the tab shows it. Model
-    pages keep the Preliminary caveat and heading; only the tab itself dropped them."""
+    """For a setup that is condition A of a model in the Page images tab: that model's row, as the tab shows it; for a chat
+    model, a line that its calibration there is not measured (a plain answer line, no option probabilities) and, where
+    its condition A was asked otherwise than B, C and D, how (vision.asked_otherwise). Model pages keep the Preliminary
+    caveat and heading; only the tab itself dropped them."""
     found = [model for model in site.vision["models"] if model["a_run"] == run["run"]]
     if not found:
         return None
     path = site.model_path(run)
+    chat = [model for model in found if not site.decision(model)]
+    notes = " ".join(filter(None, (vision.asked_otherwise(site, model) for model in chat)))
     return (f'<p class="preliminary"><strong>Preliminary:</strong> these numbers are not final and may change. This setup is '
             f'condition A of the <a href="{rel(path, vision.PATH)}">Vision tab</a>, which asks the '
             f'{site.vision["subset"]["questions"]:,} questions with underlined or numbered words as text (A), as a page image (B), '
             "as both (C) and through OCR models (D); the share answered right, its 95% interval in the number's tooltip.</p>"
-            + vision.model_table(site, path, site.vision, found))
+            + vision.model_table(site, path, site.vision, found)
+            + ('<p class="note">Calibration on these questions (ECE, Brier score, AUROC): not measured, a plain answer line '
+               f"gives no option probabilities, so accuracy only.{' ' + esc(notes) if notes else ''}</p>" if chat else ""))
 
 
 def web_grounding(site: Site, run: dict[str, Any]) -> str | None:

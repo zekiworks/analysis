@@ -2,6 +2,13 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 7336e8a7 (12 November 2026)
+
+- Claude Fable 5.2's English "I don't know" run is in (run 1032; the Claude subscription, max effort, 16 questions per request as its other runs): 533 of the 547 kept questions right (97.4%), "I don't know" on 4 of the 14 it did not get right (non-hallucination 28.6%), no invalid answers, $0 billed. The Leaderboard's Non-hallucination column and the English pages show its English side; its Turkish "Bilmiyorum" side stays Queued: its Turkish runs come after its English and Logic & Math runs (the project lead via Zeki #5133, #5140).
+- The Page images tab can now show chat models, whose Page images are under way (Muse Ember's through OpenRouter, then the small chat models that read images): one copy of its charts per view group, the chat models' table under All and Chat, the chat route's method (one question per request, a plain answer line, no option probabilities, so accuracy only), a note where a chat model's condition A was asked differently from its B, C and D, and findings and averages over the decision models only. No chat model has a Page images result yet, so the tab's numbers are unchanged.
+- In progress table (as of 04:05 UTC): LFM2.5-2.6B's Reading runs Running on logic's server (logic #5173); Muse Ember's Page images Running, 578 of 763 picture-only answers asked (Zeki #5172).
+- No other number changed; no significance verdict moved.
+
 ## Results 241f6ccd (12 November 2026)
 
 - Claude Fable 5.2 (max effort, the Claude subscription, 16 questions per request) joins the Text tab:

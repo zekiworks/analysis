@@ -246,7 +246,7 @@
   },
   "dont_know": {
     "running": "Running: a chat model's runs with the option go English first, then Turkish, and each is added as it finishes.",
-    "under_way": {"about": "Setups whose runs with the option are not in yet, by model id and side (english: the English \"I don't know\" run; turkish: the Turkish \"Bilmiyorum\" run), each queued or running: the Leaderboard's Non-hallucination column and details box say so for that side instead of Not run (the project lead via Zeki #4748). The build stops when a listed side's run is in: take that side off.", "models": {"claude-fable-5-2": {"english": "running", "turkish": "queued"}}},
+    "under_way": {"about": "Setups whose runs with the option are not in yet, by model id and side (english: the English \"I don't know\" run; turkish: the Turkish \"Bilmiyorum\" run), each queued or running: the Leaderboard's Non-hallucination column and details box say so for that side instead of Not run (the project lead via Zeki #4748). The build stops when a listed side's run is in: take that side off.", "models": {"claude-fable-5-2": {"turkish": "queued"}}},
     "not_run": [
       {"name": "Perplexity Decider 27B v1.1", "reason": "Not run: Perplexity's API now answers requests for v1.1 with v1.2, so a new run could not measure v1.1."},
       {"name": "SubQ Snap Preview", "reason": "Not run: SubQ's API returns its probabilities in 32-bit precision, so their sums miss our 7-decimal check. An allowance for that was approved on 5 November 2026 for its English runs; a Turkish run with “Bilmiyorum” was not part of that request."}
@@ -381,31 +381,32 @@
   },
   "in_progress": {
     "about": "The In progress table under the Leaderboard (sitebuild/leaderboard.py in_progress; the project lead via Zeki #5064, #5065, #5071; Ümit #5067): models joining Reading, each side (english, turkish, page_images) queued, running, blocked, done or none (does not apply), as a word or {state, note}. provider and model are the runner's keys once the model is set up (null before). A side is done exactly when that setup has a published run of it; the build stops otherwise. Take a model off once all its sides are in. as_of: when the states were last set.",
-    "as_of": "12 November 2026, 02:40 UTC",
+    "as_of": "12 November 2026, 04:05 UTC",
     "lead": "Models joining Reading (the project lead via Zeki #5064, #5071; Ümit #5067). Each side shows its state until its run is published; nothing here is a score.",
     "notes": [
       "Chat models run on logic's server on bariton GPU 1 after its Logic & Math runs, one model at a time (logic #5080, #5091); Gemma 4 E4B and LFM2.5-8B-A1B are served again for their Turkish runs only.",
-      "Page images: chat models that read images would take the same conditions through a chat route, which is built and tested but awaits the lead's OK (Zeki #5104); – means the model reads no images.",
+      "Page images: chat models that read images take the same conditions through the chat route on their own server, one question per request with the plain prompt (accepted by Zeki #5157); – means the model reads no images.",
       "Muse Glimmer 30B, d1-Omni-2B, d1-3B and LFM3-VL-2B are being set up (logic #5089); their runs follow the brief's phases (Ümit #5067, Zeki #5090). Inkling 2 Small is blocked by its data-use terms: its only endpoint is Thinking Machines' free research one, which our questions may not go to; it waits for its released weights or a provider with compatible terms (Zeki #5126, #5147)."
     ],
     "models": [
-      {"name": "LFM2.5-2.6B", "maker": "Liquid AI", "kind": "chat", "provider": "vllm-plain", "model": "lfm2.5-2.6b", "english": "queued", "turkish": "queued", "page_images": "none"},
-      {"name": "Gemma 4 E4B", "maker": "Google", "kind": "chat", "provider": "vllm-plain", "model": "gemma-4-e4b-it", "english": "done", "turkish": "queued", "page_images": {"state": "blocked", "note": "awaits the lead's OK"}},
+      {"name": "LFM2.5-2.6B", "maker": "Liquid AI", "kind": "chat", "provider": "vllm-plain", "model": "lfm2.5-2.6b", "english": "running", "turkish": "running", "page_images": "none"},
+      {"name": "Gemma 4 E4B", "maker": "Google", "kind": "chat", "provider": "vllm-plain", "model": "gemma-4-e4b-it", "english": "done", "turkish": "queued", "page_images": "queued"},
       {"name": "LFM2.5-8B-A1B", "maker": "Liquid AI", "kind": "chat", "provider": "vllm-plain", "model": "lfm2.5-8b-a1b", "english": "done", "turkish": "queued", "page_images": "none"},
       {"name": "MiniCPM5-2B", "maker": "OpenBMB", "kind": "chat", "provider": "vllm-plain", "model": "minicpm5-2b", "english": "queued", "turkish": "queued", "page_images": "none"},
       {"name": "Spark-X2.6-4B", "maker": "XHToken", "kind": "chat", "provider": "vllm-plain", "model": "spark-x2.6-4b", "english": "queued", "turkish": "queued", "page_images": "none"},
-      {"name": "Qwen3.5-4B", "maker": "Alibaba", "kind": "chat", "provider": "vllm-plain", "model": "qwen3.5-4b", "english": "queued", "turkish": "queued", "page_images": {"state": "blocked", "note": "awaits the lead's OK"}},
+      {"name": "Qwen3.5-4B", "maker": "Alibaba", "kind": "chat", "provider": "vllm-plain", "model": "qwen3.5-4b", "english": "queued", "turkish": "queued", "page_images": "queued"},
       {"name": "Granite-4.2-3B", "maker": "IBM", "kind": "chat", "provider": "vllm-plain", "model": "granite-4.2-3b", "english": "queued", "turkish": "queued", "page_images": "none"},
-      {"name": "Qwen3.5-9B", "maker": "Alibaba", "kind": "chat", "provider": "vllm-plain", "model": "qwen3.5-9b", "english": "queued", "turkish": "queued", "page_images": {"state": "blocked", "note": "awaits the lead's OK"}},
+      {"name": "Qwen3.5-9B", "maker": "Alibaba", "kind": "chat", "provider": "vllm-plain", "model": "qwen3.5-9b", "english": "queued", "turkish": "queued", "page_images": "queued"},
       {"name": "Granite-4.2-8B", "maker": "IBM", "kind": "chat", "provider": "vllm-plain", "model": "granite-4.2-8b", "english": "queued", "turkish": "queued", "page_images": "none"},
       {"name": "LFM2.5-24B-A2B", "maker": "Liquid AI", "kind": "chat", "provider": "vllm-plain", "model": "lfm2.5-24b-a2b", "english": "queued", "turkish": "queued", "page_images": "none"},
       {"name": "Granite-4.2-30B", "maker": "IBM", "kind": "chat", "provider": "vllm-plain", "model": "granite-4.2-30b", "english": "queued", "turkish": "queued", "page_images": "none"},
       {"name": "LFM3-1.7B", "maker": "Liquid AI", "kind": "chat", "provider": "vllm-plain", "model": "lfm3-1.7b", "english": "queued", "turkish": "queued", "page_images": "none"},
       {"name": "d1-Omni-2B", "maker": "Liquid AI", "kind": "decision", "provider": null, "model": null, "english": "queued", "turkish": "queued", "page_images": "queued"},
       {"name": "d1-3B", "maker": "Liquid AI", "kind": "decision", "provider": null, "model": null, "english": "queued", "turkish": "queued", "page_images": "queued"},
-      {"name": "LFM3-VL-2B", "maker": "Liquid AI", "kind": "chat", "provider": null, "model": null, "english": "none", "turkish": {"state": "queued", "note": "condition A of its Page images"}, "page_images": {"state": "blocked", "note": "awaits the lead's OK"}},
-      {"name": "Muse Glimmer 30B", "maker": "Meta", "kind": "chat", "provider": null, "model": null, "english": "queued", "turkish": "queued", "page_images": {"state": "blocked", "note": "awaits the lead's OK"}},
-      {"name": "Inkling 2 Small", "maker": "Thinking Machines", "kind": "chat", "provider": null, "model": null, "english": {"state": "blocked", "note": "data-use terms"}, "turkish": {"state": "blocked", "note": "data-use terms"}, "page_images": {"state": "blocked", "note": "data-use terms"}}
+      {"name": "LFM3-VL-2B", "maker": "Liquid AI", "kind": "chat", "provider": null, "model": null, "english": "none", "turkish": {"state": "queued", "note": "condition A of its Page images"}, "page_images": "queued"},
+      {"name": "Muse Glimmer 30B", "maker": "Meta", "kind": "chat", "provider": null, "model": null, "english": "queued", "turkish": "queued", "page_images": "queued"},
+      {"name": "Inkling 2 Small", "maker": "Thinking Machines", "kind": "chat", "provider": null, "model": null, "english": {"state": "blocked", "note": "data-use terms"}, "turkish": {"state": "blocked", "note": "data-use terms"}, "page_images": {"state": "blocked", "note": "data-use terms"}},
+      {"name": "Muse Ember", "maker": "Meta", "kind": "chat", "provider": "openrouter-chat", "model": "meta/muse-ember", "english": "done", "turkish": "done", "page_images": {"state": "running", "note": "picture only: 578 of 763 asked; text plus picture and the four OCR routes next (Zeki #5172)"}}
     ]
   },
   "model_languages": {

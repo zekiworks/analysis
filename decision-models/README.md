@@ -66,10 +66,11 @@ python3 -m http.server 8000                                # preview at http://1
   `results.json`: counts and group letters must match exactly, AUROC, ECE, the refit's gaps, Brier scores and slopes, shares and accuracies within
   10⁻⁹, p-values and costs within a relative 10⁻⁹. The bootstrap intervals of AUROC and of the kept
   answers' accuracy, and the other tables, are not recomputed. For the Page images tab it also recomputes
-  `vision.json`'s per-condition numbers and paired tests from the answers it holds, and checks its `requests`
-  block (one stored answer per question and cell, answers naming an option plus refusals, the continued
-  cells and runs, the lower bound on requests sent) and that its full leak scan covers every OCR output of
-  every crop. Each engine check (`engine_checks`) must hold an answer for every question; its right answers,
+  `vision.json`'s per-condition numbers and paired tests from the answers it holds (a chat model's cell, without
+  option probabilities, must have every probability measure null), and checks its `requests`
+  block (one stored answer per question and cell, answers naming an option plus refusals, a chat cell's answer naming
+  one when it has a choice, the continued cells and runs, the lower bound on requests sent) and that its full leak scan
+  covers every OCR output of every crop. Each engine check (`engine_checks`) must hold an answer for every question; its right answers,
   the table run's, the paired exact McNemar test and the picks that differ are recomputed from the two answer sets.
   `vision-repeats.json` holds repeat passes kept outside the table: each pass's first-pass runs must be its cell's,
   and its right answers and the picks and option probabilities that differ from the cell are recomputed.
@@ -774,9 +775,21 @@ python3 -m http.server 8000                                # preview at http://1
     "Not available" with its reason, and a row without the result it is ranked by follows the ranked rows.
     Below: the models not run, with their reasons, and the OCR models' error rates and kept underlined and
     numbered words on the human-verified question text. A setup that is condition A there shows its row on
-    its own page. Every model there is a decision model (the build stops otherwise): the models' charts, tables and
-    findings carry `data-models="all decision"` and the chat view shows a note in their place; the OCR models' parts
-    show in every view. Hallucination and Web grounding do the same for their parts.
+    its own page. While every model there is a decision model, the models' charts, tables and findings carry
+    `data-models="all decision"` and the chat view shows a note in their place; the OCR models' parts show in every
+    view. Hallucination and Web grounding do the same for their parts. Once a chat model (`Site.decision` false) has a
+    result, the face's model charts come once per view-bar group (`data-models` all, chat, decision; the all group
+    keeps the plain ids, the others `-chat` and `-decision`, as on English reading): the decision group's charts and
+    table are as before, the chat group shows the chat models' charts and the "Other models: chat and general models"
+    table (shown for the all and chat groups), the all group every model. What we found, the summary's averages and
+    Highlights' Vision card stay computed over the decision models only (`vision.decision_only`), each with a line
+    saying so. The method then says how a chat model is asked, from `vision.json`'s `chat_conditions` (B, C and D one
+    question per request with a plain answer line, the crops as image parts after the text, D the same OCR text with
+    no images; A its Turkish Text run's answers; no option probabilities, so accuracy only), and names a chat model
+    whose condition A run was asked otherwise (more than one question per request, a stated confidence) there, under
+    the other models' table and on its model page; the build stops when `chat_conditions` no longer states this or a
+    chat cell holds probabilities. In `bench-scores.json` a chat model's question has as many options as the largest
+    option-probability map any model gave it, and its `calibration_error` is null.
   - **Other pages**: each module of `sitebuild/` (`PAGE_MODULES` in `build_site.py`) returns whole pages,
     written to `<path>index.html`: one page per setup (`models/<run>/`, opening with a summary: accuracy with its 95%
     interval, the answers kept at 99% confidence with the wrong ones among them, No answers at this threshold where

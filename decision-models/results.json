@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "241f6ccd",
-  "updated": "2026-11-12T02:31:28Z",
+  "results_version": "7336e8a7",
+  "updated": "2026-11-12T04:17:50Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -370410,6 +370410,30 @@
           }
         },
         {
+          "name": "Claude Fable 5.2",
+          "model": "claude-fable-5-2",
+          "provider": "claude",
+          "group": "chat",
+          "text_run": 980,
+          "reason": "Running: a chat model's runs with the option go English first, then Turkish, and each is added as it finishes.",
+          "running": true,
+          "english": {
+            "run": 1032,
+            "runs": [
+              1032
+            ],
+            "invalid_replies": null,
+            "right": 533,
+            "wrong": 10,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.9744058500914077,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.2857142857142857,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
           "name": "LFM2.5-8B-A1B",
           "model": "lfm2.5-8b-a1b",
           "provider": "vllm-plain",
@@ -370573,7 +370597,14 @@
             {
               "language": "English",
               "wording": "I don't know",
-              "run": null
+              "run": 1032,
+              "full_bank_restricted": false,
+              "right": 533,
+              "wrong": 10,
+              "abstained": 4,
+              "invalid": 0,
+              "coverage": 0.9926873857404022,
+              "risk": 0.01841620626151013
             }
           ],
           "curves": [
@@ -744653,7 +744684,17 @@
         {
           "name": "Claude Fable 5.2",
           "text_run": 980,
-          "english": null,
+          "english": {
+            "run": 1032,
+            "right": 533,
+            "wrong": 10,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.9744058500914077,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.2857142857142857,
+            "mean_dont_know_probability": null
+          },
           "turkish": null,
           "paired": null
         },

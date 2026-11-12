@@ -652,7 +652,8 @@ def main() -> int:
 def check_vision(docs: Path, answers: dict[str, Any], checks: Checks) -> list[str]:
     """Recompute vision.json's per-condition numbers from its answers (pick, option probabilities, right or not): right
     answers exactly; ECE, Brier score and AUROC within METRIC_TOLERANCE; the answers at SURE_SCORE or more, right and
-    wrong, exactly. Condition A's answers must be its run's in answers.json, and each paired test's counts and exact
+    wrong, exactly. A cell without option probabilities (a chat model's plain answer line) must have every probability
+    measure null. Condition A's answers must be its run's in answers.json, and each paired test's counts and exact
     McNemar p must follow from the two conditions' answers. The bootstrap intervals are not recomputed. Returns a line
     per condition or pair that differs."""
     path = docs / "vision.json"
@@ -669,22 +670,28 @@ def check_vision(docs: Path, answers: dict[str, Any], checks: Checks) -> list[st
             given = vision["answers"][f"{model['provider']}|{model['model']}|{label}"]
             right = [int(given[str(question_id)][2]) for question_id in ids]
             rights[label] = right
-            scored = []
-            for question_id in ids:
-                choice, probabilities, correct = given[str(question_id)]
-                if choice is not None and choice in probabilities:
-                    scored.append((probabilities[choice], int(correct)))
-            calibration = bm.calibration(scored)
-            sure = [correct for score, correct in scored if score >= bm.SURE_SCORE]
-            cells = [
-                checks.cell(sum(right) == published["correct"], f"{sum(right)} right", str(published["correct"])),
-                checks.metric(published["ece"], calibration["ece"]),
-                checks.metric(published["brier"], calibration["brier"]),
-                checks.metric(published["auroc"], bm.auroc(scored)),
-                checks.cell([len(sure), sum(sure)] == [published["at_0_99"]["answers"], published["at_0_99"]["right"]],
-                            f"{len(sure)} at 0.99, {sum(sure)} right",
-                            f"{published['at_0_99']['answers']}, {published['at_0_99']['right']} right"),
-            ]
+            if not any(given[str(question_id)][1] for question_id in ids):
+                # A chat model's plain answer line: no option probabilities, so every probability measure is null.
+                empty = all(published[key] is None for key in ("ece", "ece_interval", "brier", "auroc", "at_0_99"))
+                cells = [checks.cell(sum(right) == published["correct"], f"{sum(right)} right", str(published["correct"])),
+                         checks.cell(empty, "no probabilities", "probability measures null" if empty else "a probability measure")]
+            else:
+                scored = []
+                for question_id in ids:
+                    choice, probabilities, correct = given[str(question_id)]
+                    if choice is not None and choice in probabilities:
+                        scored.append((probabilities[choice], int(correct)))
+                calibration = bm.calibration(scored)
+                sure = [correct for score, correct in scored if score >= bm.SURE_SCORE]
+                cells = [
+                    checks.cell(sum(right) == published["correct"], f"{sum(right)} right", str(published["correct"])),
+                    checks.metric(published["ece"], calibration["ece"]),
+                    checks.metric(published["brier"], calibration["brier"]),
+                    checks.metric(published["auroc"], bm.auroc(scored)),
+                    checks.cell([len(sure), sum(sure)] == [published["at_0_99"]["answers"], published["at_0_99"]["right"]],
+                                f"{len(sure)} at 0.99, {sum(sure)} right",
+                                f"{published['at_0_99']['answers']}, {published['at_0_99']['right']} right"),
+                ]
             # Condition A against its run in answers.json, for the runs the text results hold; a run not on the text
             # leaderboard is checked from vision.json alone.
             run = runs.get(model["a_run"]) if label == "A" else None
@@ -784,7 +791,7 @@ def check_vision_engines(vision: dict[str, Any], checks: Checks) -> list[str]:
 def check_vision_requests(vision: dict[str, Any], checks: Checks) -> list[str]:
     """vision.json's requests and full leak scan against its own stored answers: one stored answer per question in each
     cell besides A (requests.retained_answers), split into answers that name an option and refusals (an answer without
-    an option of its own probabilities); the continued cells exactly the cells whose condition lists two runs; the runs
+    an option of its own probabilities); the continued cells exactly the cells whose condition lists more than one run; the runs
     those cells name; the lower bound on requests sent, the stored answers plus the logs' retries; and a full scan of
     every OCR model's output for every crop, none missing or extra. Returns a line per check that differs."""
     requests = vision["requests"]
@@ -792,10 +799,14 @@ def check_vision_requests(vision: dict[str, Any], checks: Checks) -> list[str]:
     cells = [(model, label) for model in vision["models"] for label in model["conditions"] if label != "A"]
     stored = [vision["answers"][f"{model['provider']}|{model['model']}|{label}"] for model, label in cells]
     given = [answer[str(question_id)] for answer in stored for question_id in ids]
-    valid = sum(1 for choice, probabilities, _ in given if choice is not None and choice in probabilities)
+    # An answer names an option when its choice is one of its option probabilities' or, in a cell without any (a chat
+    # model's plain answer line), when it has a choice.
+    bare = [not any(answer[str(question_id)][1] for question_id in ids) for answer in stored]
+    valid = sum(1 for answer, plain in zip(stored, bare) for choice, probabilities, _ in (answer[str(question_id)] for question_id in ids)
+                if choice is not None and (plain or choice in probabilities))
     extra = sum(len(answer) for answer in stored) - len(given)
     continued = sorted((f"{model['name']} {label}", list(model["conditions"][label]["runs"])) for model, label in cells
-                       if len(model["conditions"][label].get("runs", [])) == 2)
+                       if len(model["conditions"][label].get("runs", [])) > 1)
     named = sorted((item["cell"], list(item["runs"])) for item in requests["continued_cells"])
     runs = {run for model, label in cells for run in model["conditions"][label].get("runs", [])}
     retries = requests["recorded_client_retries"]
@@ -810,7 +821,7 @@ def check_vision_requests(vision: dict[str, Any], checks: Checks) -> list[str]:
                                           and requests["valid_choices"] + requests["refusals"] == requests["retained_answers"],
                                           f"{valid} valid, {len(given) - valid} refusals",
                                           f"{requests['valid_choices']} valid, {requests['refusals']} refusals"),
-        "continued cells": checks.cell(continued == named, f"{len(continued)} cells with two runs", f"{len(named)} listed"),
+        "continued cells": checks.cell(continued == named, f"{len(continued)} cells with more than one run", f"{len(named)} listed"),
         "runs": checks.cell(requests["runs"] == len(runs), f"{len(runs)} runs", str(requests["runs"])),
         "lower bound": checks.cell(requests["requests_lower_bound"] == requests["retained_answers"] + retries["total"]
                                    and retries["total"] == sum(retries["by_run"].values()),

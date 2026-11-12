@@ -133,16 +133,27 @@ def text_bench(site: Site, part: tuple[str, str, str] | None = None) -> dict[str
 
 
 def vision_bench(site: Site) -> dict[str, Any]:
+    """Reading · Vision: each image model's condition B. A question's number of options is the size of the option
+    probabilities its answer gave; for an answer without them (a chat model's plain answer line), the largest any model's
+    answer gave that question in vision.json (widest). A chat model has no calibration error."""
     data = site.vision
+    widest: dict[str, int] = {}
+    for answers in data["answers"].values():
+        for question, answer in answers.items():
+            widest[question] = max(widest.get(question, 0), len(answer[1]))
     models = []
     for model in data["models"]:
         if model["kind"] != "image":
             continue
         got = model["conditions"]["B"]
         answers = data["answers"][f"{model['provider']}|{model['model']}|B"]
-        # Each question's number of options, from the option probabilities its answer gave.
-        chance = sum(1 / len(answer[1]) for answer in answers.values()) / len(answers)
-        options = {len(answer[1]) for answer in answers.values()}
+        # Each question's number of options, from the option probabilities its answer gave, else from widest.
+        counts = [len(answer[1]) or widest[question] for question, answer in answers.items()]
+        if not all(counts):
+            raise SystemExit(f"vision.json: {model['name']} B has a question no model's answer gave option probabilities for, "
+                             "so its number of options is unknown")
+        chance = sum(1 / count for count in counts) / len(answers)
+        options = set(counts)
         run = site.by_id[model["a_run"]]
         repo, commit = checkpoint(run)
         params_total, params_active = sizes(run)
@@ -153,7 +164,7 @@ def vision_bench(site: Site) -> dict[str, Any]:
             "score_0_100": score(got["accuracy"], chance),
             "raw": {"metric": "accuracy", "value": got["accuracy"], "questions": got["questions"],
                     "options": options.pop() if len(options) == 1 else round(1 / chance, 3)},
-            "calibration_error": got["ece"], "improvement_points": None,
+            "calibration_error": got["ece"] if site.decision(model) else None, "improvement_points": None,
             "runs": [f"vision:{item}" for item in got["runs"]], "notes": f"{run['access']}; the page image only (condition B)"})
     questions = data["subset"]["questions"]
     return {"bench": "reading-vision", "title": TITLES["vision"], "url": site.config["site_url"] + "vision/",

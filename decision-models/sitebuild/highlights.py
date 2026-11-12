@@ -155,15 +155,20 @@ def small_english(site: Site) -> str:
 
 
 def page_images(site: Site) -> str:
-    """A short pointer to the Vision tab: its picture-alone average (vision.differences' B), with the one note on the
-    questions' language."""
-    found = vision.differences(site.vision)
+    """A short pointer to the Vision tab: its picture-alone average over the decision models (vision.differences' B of
+    vision.decision_only, as the tab's summary), with the one note on the questions' language; once a chat model has a
+    Vision result, a sentence that the average leaves it out."""
+    decided = vision.decision_only(site, site.vision)
+    found = vision.differences(decided)
     finding("B" in found, "Vision has results for the picture alone")
     picture, images = found["B"]
     finding(picture < 0, "the picture alone scores lower than the text on average")
+    chat = len(site.vision["models"]) - len(decided["models"])
     return card(f"From a page picture alone, models score {-picture:.1f} points lower than from the text",
                 [f"Averaged over {images} image models. Vision's questions are original Turkish page images; the Vision "
-                 "tab has every result."],
+                 "tab has every result."
+                 + (f" The average covers the decision models only; the Vision tab shows the {bp.in_words(chat)} chat "
+                    f"model{'' if chat == 1 else 's'} apart." if chat else "")],
                 vision.PATH, "The Vision tab")
 
 

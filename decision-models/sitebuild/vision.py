@@ -9,10 +9,13 @@ The leaderboard keeps decision models and other models apart (page_config.json's
 the image models ranked by B, then the text-only models ranked by their best OCR route. A condition vision.json does not
 hold reads "Not available" with its reason from the model's "missing"; a row without the result it is ranked by follows
 the ranked rows, in vision.json's order. model_table() also gives a model page its row. findings() puts the results in
-words, computed from vision.json when the site is built. Every model here is a decision model (the build stops
-otherwise), so the models' charts, tables and findings show for the view bar's all and decision groups (data-models)
-and the chat group shows a note instead; the page's Class row filters the models' rows and bars (data-class). The OCR
-models' parts show in every group."""
+words, computed from vision.json's decision models when the site is built (decision_only, as the summary's averages and
+the Highlights tab's card). While every model is a decision model, the models' charts, tables and findings show for the
+view bar's all and decision groups (data-models) and the chat group shows a note instead; once a chat model has a
+result, the charts come once per group (copies), the other models' leaderboard shows for the all and chat groups, and
+the method says how the chat models are asked (chat_method: one question per request, a plain answer line, no option
+probabilities, so accuracy only). The page's Class row filters the models' rows and bars (data-class). The OCR models'
+parts show in every group."""
 
 from __future__ import annotations
 
@@ -23,8 +26,8 @@ from typing import Any
 
 import build_page as bp
 from sitebuild import names
-from sitebuild.site import (DECISION_ONLY, ROOT, Site, chat_note, esc, family_icon, family_legend, hbars, interval, more_link,
-                            pct, rel, run_families)
+from sitebuild.site import (DECISION_ONLY, GROUPS, ROOT, Site, chat_note, esc, family_icon, family_legend, hbars, interval,
+                            more_link, pct, rel, request_size, run_families, shown)
 
 PATH = "vision/"
 OCR_NAMES = {
@@ -209,23 +212,41 @@ def not_run(items: list[dict[str, Any]]) -> str:
     return f'<h3 class="board-group">Not run</h3><ul>{lines}</ul>'
 
 
+def asked_otherwise(site: Site, model: dict[str, Any]) -> str:
+    """For a chat model whose condition A, its Turkish Text run, was asked otherwise than its B, C and D (one question per
+    request, a plain answer line): a sentence saying how (more than one question per request, a stated confidence), so
+    the page says so beside its row and in the method; empty for any other model."""
+    if site.decision(model):
+        return ""
+    run = text_run(site, model)
+    ways = ([request_size(run["questions_per_request"])] if run["questions_per_request"] > 1 else []) + (
+        ["a stated confidence"] if (run.get("confidence") or {}).get("source") == "stated" else [])
+    if not ways:
+        return ""
+    return (f"{plain_name(site, model)}'s condition A is its Text tab run, asked with {joined(ways)}; its B, C and D were "
+            "asked one question per request with a plain answer line, so A differs from them in how it was asked as well "
+            "as in its input.")
+
+
 def leaderboard(site: Site, data: dict[str, Any], decision: bool) -> str:
     """The decision models' leaderboard (shown for the all and decision groups of the view bar), or the other models'
-    (for the all group: the chat group shows the page's chat note instead, as build() stops on any chat model here),
-    which is left out while it has neither a model nor a skipped one."""
+    (for the all group, and the chat group once a chat model has a result; with a sentence for each chat model whose
+    condition A was asked otherwise, asked_otherwise), which is left out while it has neither a model nor a skipped one."""
     models = [model for model in data["models"] if site.decision(model) == decision]
     skipped = [item for item in data["skipped"] if site.decision(item) == decision]
     if not decision and not models and not skipped:
         return ""
     title = "Decision models" if decision else "Other models: chat and general models"
-    marks = DECISION_ONLY if decision else 'data-models="all"'
+    marks = DECISION_ONLY if decision else 'data-models="all chat"' if models else 'data-models="all"'
     start = (f'    <section class="card" id="{"decision" if decision else "other"}" {marks}>'
              f'\n      <h2>{title}</h2>\n      ')
     if not models:
         empty = "No chat or general model has been run on the page images yet." if not decision else "No decision model has been run on the page images yet."
         return f'{start}<p class="note">{empty}</p>{not_run(skipped)}\n    </section>'
     groups = "".join(group(site, data, [model for model in models if model["kind"] == kind], kind) for kind in ("image", "text"))
-    return f"{start}{groups}{not_run(skipped)}\n    </section>"
+    otherwise = " ".join(filter(None, (asked_otherwise(site, model) for model in models)))
+    notes = f'<p class="note">{esc(otherwise)}</p>' if otherwise else ""
+    return f"{start}{groups}{notes}{not_run(skipped)}\n    </section>"
 
 
 def ocr_table(data: dict[str, Any]) -> str:
@@ -390,11 +411,18 @@ def requests_note(site: Site, data: dict[str, Any]) -> str:
         groups.setdefault((name, status[run]), []).append(f"{count} in run {run}")
     parts = [f"{joined(items)}, {'both ' if len(items) == 2 else ''}{esc(name)} after HTTP {code}{' errors' if len(items) > 1 else ''}"
              for (name, code), items in groups.items()]
-    continued = requests["continued_cells"]
-    cells = "; ".join(f"{esc(cell_name(site, data, item['cell']))}, runs {joined([str(run) for run in item['runs']])}" for item in continued)
+    # A cell finished by a second run was interrupted; a cell over more runs was asked in chunks (Muse Ember's spending
+    # guard: Zeki #5167, #5172). Either way each later run asked only the questions still unanswered.
+    resumed = [item for item in requests["continued_cells"] if len(item["runs"]) == 2]
+    chunked = [item for item in requests["continued_cells"] if len(item["runs"]) > 2]
+    cells = "; ".join(f"{esc(cell_name(site, data, item['cell']))}, runs {joined([str(run) for run in item['runs']])}" for item in resumed)
+    chunks = "; ".join(f"{esc(cell_name(site, data, item['cell']))}, {run_span(item['runs'])}" for item in chunked)
     return (f"<p>Each cell holds one stored answer per question: {requests['retained_answers']:,} in all, from "
-            f"{requests['runs']:,} runs. {words(len(continued))} cells were finished by a second run after an interruption "
-            f"({cells}); these are continuations, not repeats. {requests['valid_choices']:,} answers name an option and "
+            f"{requests['runs']:,} runs. {words(len(resumed))} cells were finished by a second run after an interruption "
+            f"({cells})"
+            + (f"; {bp.in_words(len(chunked))} {'cell was' if len(chunked) == 1 else 'cells were'} asked in chunks, one "
+               f"run each, each run asking only the questions still unanswered ({chunks})" if chunked else "")
+            + f"; these are continuations, not repeats. {requests['valid_choices']:,} answers name an option and "
             f"{requests['refusals']:,} are refusals. The runs’ logs record {retries['total']:,} client retries: "
             f"{', and '.join(parts)}. The logs do not cover every run, and an attempt that failed and was asked again is not stored, so "
             f"{requests['requests_lower_bound']:,} is a lower bound on the requests sent. Tokens and costs come from the stored "
@@ -635,11 +663,32 @@ def inputs_sample(data: dict[str, Any]) -> str:
 MARKS_NOTES = {"chandra-ocr-2": "{shown} because its official markdown export drops underline marks; its raw output kept {raw:,} of {spans:,}."}
 
 
+def anchor(base: str, group: str) -> str:
+    """A part's id in its group's copy: the all group keeps the plain id, the one links from other pages use."""
+    return base if group == GROUPS[0] else f"{base}-{group}"
+
+
+def copies(site: Site, data: dict[str, Any]) -> list[tuple[str, str, list[dict[str, Any]]]]:
+    """The copies of the models' parts, each (group, its data-models attributes, its models): with decision models only,
+    one copy for the all and decision groups (DECISION_ONLY) under the plain ids; once a chat model has a result, one copy
+    per group of the view bar (shown, its ids by anchor), each with that group's models, a group without one left out."""
+    if all(site.decision(model) for model in data["models"]):
+        return [(GROUPS[0], DECISION_ONLY, data["models"])]
+    return [(group, shown(group), members) for group in GROUPS
+            if (members := [model for model in data["models"] if site.in_group(model, group)])]
+
+
+def with_images(models: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The models with conditions A, B and C: the picture alone's and the text plus the picture's charts."""
+    return [model for model in models if all(label in model["conditions"] for label in ("A", "B", "C"))]
+
+
 def face(site: Site, data: dict[str, Any]) -> str:
     """The tab's face: four chart cards, each with a line saying which way is better, every number from vision.json: the
     picture alone (B) against the text (A), the text plus the picture (C) against the text, the best OCR route against the
-    text, and the marks each OCR model kept. The models' bars are in their model family's colour (model_families), as on
-    the home page's charts, each marked with its class for the page's Class keys."""
+    text, and the marks each OCR model kept. The models' charts come once per copy (copies): one for the all and decision
+    groups while every model is a decision model, else one per group of the view bar. The models' bars are in their model
+    family's colour (model_families), as on the home page's charts, each marked with its class for the page's Class keys."""
     questions = f"{data['subset']['questions']:,}"
     acc = lambda model, label: model["conditions"][label]["correct"] / model["conditions"][label]["questions"]  # noqa: E731
 
@@ -658,46 +707,59 @@ def face(site: Site, data: dict[str, Any]) -> str:
         return rel(PATH, site.model_path(run)) if run else None
 
     def card(anchor: str, title: str, sub: str, rows: list[dict[str, Any]], legend: str, marks: str = DECISION_ONLY) -> str:
-        """A chart card; a card of the models' rows shows for the all and decision groups."""
+        """A chart card; a card of the models' rows shows for its copy's groups."""
         return (f'<figure class="panel chart-card" id="{anchor}" {marks}><div class="chart-head"><h2>{esc(title)}</h2>'
                 f'<p class="chart-sub">{esc(sub)}</p></div>{hbars(rows)}<p class="chart-legend">{legend}</p></figure>')
 
     marker = ' <span><i class="swatch swatch-marker"></i>The same model with the text (A)</span>'
-    image = [model for model in data["models"] if all(label in model["conditions"] for label in ("A", "B", "C"))]
-    by_b = sorted(image, key=lambda model: -acc(model, "B"))
-    first = card(
-        "chart-image", f"The picture alone (B) · {questions} Turkish questions", f"Share of the {questions} questions answered right from a picture of the question alone · higher is better",
-        [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model), "text": pct(acc(model, "B")),
-          "marker": acc(model, "A"), "bars": [{"value": acc(model, "B"), "colour": family(site, model)["colour"]}],
-          "title": f"{plain_name(site, model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text",
-          "class_key": class_key(model)}
-         for model in by_b],
-        family_legend([family(site, model) for model in by_b]) + marker)
-    by_c = sorted(image, key=lambda model: -acc(model, "C"))
-    second = card(
-        "chart-both", f"The text plus the picture (C) · {questions} Turkish questions", "Accuracy with the picture after the text, and with the text alone · higher is better",
-        [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model),
-          "text": f"{pct(acc(model, 'C'))} · {pct(acc(model, 'A'))}",
-          "bars": [{"value": acc(model, "C"), "colour": family(site, model)["colour"]}, {"value": acc(model, "A"), "kind": "base"}],
-          "title": f"{plain_name(site, model)}: {pct(acc(model, 'C'))} with the text plus the picture, {pct(acc(model, 'A'))} with the text",
-          "class_key": class_key(model)}
-         for model in by_c],
-        family_legend([family(site, model) for model in by_c])
-        + ' <span>Upper bar: text plus picture (C), in the family\'s colour</span> <span><i class="swatch swatch-base"></i>Text (A)</span>')
-    routes = [(model, *best_route(data, model)) for model in data["models"] if best_route(data, model)]
-    routes.sort(key=lambda item: -item[2]["correct"] / item[2]["questions"])
-    shares = [metrics["correct"] / metrics["questions"] for _, _, metrics in routes]
-    best_keys = {label.removeprefix("D ") for _, label, _ in routes}
-    same = (f" <span>The best route is {esc(OCR_NAMES[next(iter(best_keys))])} for every model.</span>"
-            if len(best_keys) == 1 else "")
-    third = card(
-        "chart-ocr-route", f"The best OCR route (D) · {questions} Turkish questions", "Accuracy with one OCR model's reading of the picture as text, the best of the four · higher is better",
-        [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model), "text": pct(share), "marker": acc(model, "A"),
-          "bars": [{"value": share, "colour": family(site, model)["colour"]}],
-          "title": f"{plain_name(site, model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text",
-          "class_key": class_key(model)}
-         for (model, label, _), share in zip(routes, shares)],
-        family_legend([family(site, model) for model, _, _ in routes]) + marker + same)
+
+    def image_card(group: str, marks: str, models: list[dict[str, Any]]) -> str:
+        by_b = sorted(with_images(models), key=lambda model: -acc(model, "B"))
+        return card(
+            anchor("chart-image", group), f"The picture alone (B) · {questions} Turkish questions", f"Share of the {questions} questions answered right from a picture of the question alone · higher is better",
+            [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model), "text": pct(acc(model, "B")),
+              "marker": acc(model, "A"), "bars": [{"value": acc(model, "B"), "colour": family(site, model)["colour"]}],
+              "title": f"{plain_name(site, model)}: {pct(acc(model, 'B'))} from the picture alone, {pct(acc(model, 'A'))} with the text",
+              "class_key": class_key(model)}
+             for model in by_b],
+            family_legend([family(site, model) for model in by_b]) + marker, marks) if by_b else ""
+
+    def both_card(group: str, marks: str, models: list[dict[str, Any]]) -> str:
+        by_c = sorted(with_images(models), key=lambda model: -acc(model, "C"))
+        return card(
+            anchor("chart-both", group), f"The text plus the picture (C) · {questions} Turkish questions", "Accuracy with the picture after the text, and with the text alone · higher is better",
+            [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model),
+              "text": f"{pct(acc(model, 'C'))} · {pct(acc(model, 'A'))}",
+              "bars": [{"value": acc(model, "C"), "colour": family(site, model)["colour"]}, {"value": acc(model, "A"), "kind": "base"}],
+              "title": f"{plain_name(site, model)}: {pct(acc(model, 'C'))} with the text plus the picture, {pct(acc(model, 'A'))} with the text",
+              "class_key": class_key(model)}
+             for model in by_c],
+            family_legend([family(site, model) for model in by_c])
+            + ' <span>Upper bar: text plus picture (C), in the family\'s colour</span> <span><i class="swatch swatch-base"></i>Text (A)</span>',
+            marks) if by_c else ""
+
+    def route_card(group: str, marks: str, models: list[dict[str, Any]]) -> str:
+        routes = [(model, *best_route(data, model)) for model in models if best_route(data, model)]
+        if not routes:
+            return ""
+        routes.sort(key=lambda item: -item[2]["correct"] / item[2]["questions"])
+        shares = [metrics["correct"] / metrics["questions"] for _, _, metrics in routes]
+        best_keys = {label.removeprefix("D ") for _, label, _ in routes}
+        same = (f" <span>The best route is {esc(OCR_NAMES[next(iter(best_keys))])} for every model.</span>"
+                if len(best_keys) == 1 else "")
+        return card(
+            anchor("chart-ocr-route", group), f"The best OCR route (D) · {questions} Turkish questions", "Accuracy with one OCR model's reading of the picture as text, the best of the four · higher is better",
+            [{"label": name(model), "tag": tag(model), "family": family(site, model)["name"], "href": href(model), "text": pct(share), "marker": acc(model, "A"),
+              "bars": [{"value": share, "colour": family(site, model)["colour"]}],
+              "title": f"{plain_name(site, model)}: {pct(share)} via {OCR_NAMES[label.removeprefix('D ')]}, {pct(acc(model, 'A'))} with the text",
+              "class_key": class_key(model)}
+             for (model, label, _), share in zip(routes, shares)],
+            family_legend([family(site, model) for model, _, _ in routes]) + marker + same, marks)
+
+    groups = copies(site, data)
+    first = "".join(image_card(*copy) for copy in groups)
+    second = "".join(both_card(*copy) for copy in groups)
+    third = "".join(route_card(*copy) for copy in groups)
     kept = []
     for key, item in data["ocr"]["models"].items():
         sent, raw = item["verified"]["marked_in_text_sent"], item["verified"].get("marked_in_raw_output")
@@ -719,12 +781,65 @@ def face(site: Site, data: dict[str, Any]) -> str:
     return f'<section class="charts" aria-label="Charts">{first}{second}{third}{fourth}</section>'
 
 
+def nav(site: Site, data: dict[str, Any]) -> str:
+    """The links to the face's parts: each models' chart's link once per copy that has the chart (copies, face), with its
+    copy's marks; Tables leads to the decision models' leaderboard, and for the chat group to the other models'."""
+    groups = copies(site, data)
+    has = {"chart-image": with_images, "chart-both": with_images,
+           "chart-ocr-route": lambda models: [model for model in models if best_route(data, model)]}
+    marked = lambda base, text: "".join(  # noqa: E731
+        f'<a href="#{anchor(base, group)}" {marks}>{text}</a>' if len(groups) > 1 else f'<a href="#{base}">{text}</a>'
+        for group, marks, models in groups if has[base](models))
+    tables = f'<a href="#decision" {DECISION_ONLY}>Tables</a>' + (
+        '<a href="#other" data-models="chat" hidden>Tables</a>' if len(groups) > 1 else "")
+    return (f'<nav class="face-nav" aria-label="On this page">{marked("chart-image", "Picture alone")}'
+            f'{marked("chart-both", "Text plus picture")}{marked("chart-ocr-route", "OCR route")}<a href="#chart-marks">OCR '
+            f'marks</a>{tables}<a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>')
+
+
 def family(site: Site, model: dict[str, Any]) -> dict[str, str]:
     """A model's family (name, maker, colour): its Text tab run's (Site.families), else by its provider and model
     (run_families)."""
     if model["a_run"] in site.families:
         return site.families[model["a_run"]]
     return run_families([{"run": 0, "provider": model["provider"], "model": model["model"], "name": model["name"]}])[0]
+
+
+def decision_only(site: Site, data: dict[str, Any]) -> dict[str, Any]:
+    """vision.json with its decision models only: what the findings, the summary's averages and the Highlights tab's
+    Vision card are computed over, so that a chat model's result changes none of their numbers or words."""
+    return dict(data, models=[model for model in data["models"] if site.decision(model)])
+
+
+# What chat_method's sentences say of each condition, as vision.json's chat_conditions must still state it.
+CHAT_ASKED = {"A": "Turkish Text run", "B": "plain answer-line instruction", "C": "image_url parts after the text",
+              "D": "no images"}
+
+
+def chat_method(site: Site, data: dict[str, Any], chat: list[dict[str, Any]]) -> str:
+    """How the chat models are asked, from vision.json's chat_conditions, with each chat model whose condition A was asked
+    otherwise (asked_otherwise); empty without a chat model. The build stops when chat_conditions no longer states what
+    the sentences say (CHAT_ASKED), or when a chat model's cells hold option probabilities or a probability measure."""
+    if not chat:
+        return ""
+    asked = data.get("chat_conditions") or {}
+    if any(label not in asked or words not in asked[label] for label, words in CHAT_ASKED.items()) or \
+            "image_url parts after the text" not in asked["B"]:
+        raise SystemExit("vision.json: chat_conditions no longer states how the chat models are asked as the method says it")
+    for model in chat:
+        for label, got in model["conditions"].items():
+            given = data["answers"][f"{model['provider']}|{model['model']}|{label}"]
+            if any(got[key] is not None for key in ("ece", "ece_interval", "brier", "auroc", "at_0_99")) or any(
+                    answer[1] for answer in given.values()) or any(item["ece"] is not None for item in model["paired"]):
+                raise SystemExit(f"vision.json: {model['name']} {label} holds option probabilities, which the chat models' "
+                                 "method says they do not give")
+    otherwise = " ".join(filter(None, (asked_otherwise(site, model) for model in chat)))
+    return (f"<h3>Chat models</h3><p>For B, C and D the chat models ({esc(listed(site, chat))}) are asked one question per "
+            "request and answer with a plain answer line: the crops go in as image parts after the text, and D gives the "
+            "same OCR text as for the decision models, with no images. Condition A is the model's Turkish Text run, its "
+            "answers to these questions. They give no option probabilities, so their cells give accuracy only."
+            f"{' ' + esc(otherwise) if otherwise else ''}</p>"
+            + listing([f"<strong>{label}</strong>: {esc(sentence(public(asked[label])))}" for label in ("A", "B", "C", "D")]))
 
 
 def build(site: Site) -> dict[str, str]:
@@ -735,10 +850,8 @@ def build(site: Site) -> dict[str, str]:
     if undecided:
         raise SystemExit("vision.json: decide whether each of these is a decision model, then list it under its provider in "
                          "page_config.json's mixed_providers: " + ", ".join(f"{model} ({provider})" for provider, model in undecided))
-    chat = [plain_name(site, model) for model in data["models"] if not site.decision(model)]
-    if chat:
-        raise SystemExit("vision.json: chat or general models, which the page's charts and the view bar's chat group do not "
-                         "show yet (give the face one copy per group, as english_view.py does): " + ", ".join(chat))
+    chat = [model for model in data["models"] if not site.decision(model)]
+    decided = decision_only(site, data)
     subset = data["subset"]
     reasons = subset["by_reason"]
     questions = f"{subset['questions']:,}"
@@ -758,15 +871,18 @@ def build(site: Site) -> dict[str, str]:
     ocr_methods = [f"<strong>{esc(OCR_NAMES[key])}</strong> ({esc(item['model'])} at {esc(item['revision'][:7])}): {esc(public(item['method']))}"
                    for key, item in data["ocr"]["models"].items()]
     # The chat group's key and note, and the other models' leaderboard (leaderboard()), show once a chat model has a
-    # vision result.
+    # vision result; then the models' charts come once per group (copies), and the findings and the summary's averages,
+    # over the decision models only, say so (scope).
     hidden = () if chat else ("chat",)
     charts = face(site, data)
+    scope = lambda what: (f'<p class="note">{what} the {len(decided["models"])} decision models only; the chat models\' '  # noqa: E731
+                          "results are in their own charts and in the table of other models.</p>") if chat else ""
     site.note(PATH, "Page images", f"""<p>The {questions} questions of the Text tab's {subset["scored_questions"]:,} that point at marked words on the printed page: {reasons["underline"]} at underlined words and {reasons["numbered"]} at numbered words ({subset["both_underline_and_numbered"]} at both). Each model answered them in up to four ways. This tab is ranked on its own; its numbers do not enter the Text tab's ranking.</p>
       {inputs_sample(data)}""")
     body = f"""    <section class="card">
       <p class="eyebrow">Vision</p>
       <h1>Same questions, as text and as a page image</h1>
-      <nav class="face-nav" aria-label="On this page"><a href="#chart-image">Picture alone</a><a href="#chart-both">Text plus picture</a><a href="#chart-ocr-route">OCR route</a><a href="#chart-marks">OCR marks</a><a href="#decision" {DECISION_ONLY}>Tables</a><a href="#ocr">OCR reading</a><a href="#info">Info</a></nav>
+      {nav(site, data)}
     </section>
     {charts}
 {leaderboard(site, data, True)}
@@ -778,8 +894,8 @@ def build(site: Site) -> dict[str, str]:
     </section>
     <section class="card" id="vision-note">
       <p><strong>Turkish:</strong> {questions} questions with underlined or numbered words (original Turkish pages). Each model answered them from the text (A), a picture (B), both (C) or an OCR reading (D). These rankings are separate from the Text tab.</p>
-      {summary(data)}
-      {"" if "chat" in hidden else chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
+      {f"<div {DECISION_ONLY}>{summary(decided)}{scope('These averages cover')}</div>" if chat else summary(decided)}
+      {"" if chat else chat_note("Chat models: none on this tab. Every model run on the page images is a decision model, so the models' charts and tables show under All models and Decision models. The OCR models' parts below show in every view.")}
       {more_link(PATH)}
     </section>
     <details class="info info-details" id="info">
@@ -787,16 +903,16 @@ def build(site: Site) -> dict[str, str]:
     <section class="card">
       <h2>About this test</h2>
       <p class="note">Accuracy: the share of the {questions} questions answered right ({esc(data["measures_method"]["accuracy"].split("; ")[1])}); in the tables its 95% interval shows when you hover over or tap a number.</p>
-      <p class="note">Download: <a href="{rel(PATH, "vision.json")}" download>vision.json</a> (every number on this page, and each answer's pick and option probabilities; no question text, page image or OCR text).</p>
+      <p class="note">Download: <a href="{rel(PATH, "vision.json")}" download>vision.json</a> (every number on this page, and each answer's pick and option probabilities{", none for a chat model's answers" if chat else ""}; no question text, page image or OCR text).</p>
     </section>
     <section class="card" id="findings" {DECISION_ONLY}>
       <h2>What we found</h2>
-      {findings(site, data)}
+      {scope("What we found covers")}{findings(site, decided)}
     </section>
     <section class="card method-notes" id="method">
       <h2>How the benchmark was run</h2>
       <h3>Conditions</h3>
-      {listing([f"<strong>{esc(label)}</strong>: {esc(text)}" for label, text in data["conditions"].items()])}
+      {listing([f"<strong>{esc(label)}</strong>: {esc(text)}" for label, text in data["conditions"].items()])}{chat_method(site, data, chat)}
       <p>Each cell is one run. It is one pass over the {questions} questions, not an average of repeated runs ({len(data["requests"]["continued_cells"])} passes were resumed after an interruption; see Models and cost under Run details).</p>
       <details class="method-more">
       <summary>Run details: pictures and leak checks, OCR models, models and cost</summary>
