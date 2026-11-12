@@ -186,7 +186,7 @@
   "model_families": {
     "about": "Each setup's model family, whose colour its bar or dot takes in the charts of the home page (Turkish reading and grammar, every model group), English reading and English and Turkish: a maker's line of models shares one colour, in every chart and in both model groups. A run belongs to its family by provider and, where one provider serves several families, by model; the build stops unless every run belongs to exactly one. Each family's maker and colour come from maker_colours.json, the one colour map of the three benchmark sites (kept by the Logic & Math site and copied here unchanged), which lists every maker's families; the build stops unless exactly one maker lists each family. Beside each setup's name, its family's icon: the maker's official mark, drawn in the text colour, where the family names one (icon, a Simple Icons slug in sitebuild/family_icons.py), otherwise a plain shape on the family's colour.",
     "families": [
-      {"name": "Gemini", "icon": "googlegemini", "runs": [{"provider": "gemini"}, {"provider": "gemini-decisions"}, {"provider": "openrouter", "model": "google/gemini-decision-1"}]},
+      {"name": "Gemini", "icon": "googlegemini", "runs": [{"provider": "gemini"}, {"provider": "gemini-decisions"}, {"provider": "openrouter", "model": "google/gemini-decision-1"}, {"provider": "agbench"}]},
       {"name": "Gemma", "icon": "google", "runs": [{"provider": "vllm", "model": "gemma-4-31B-it"}, {"provider": "vllm-plain", "model": "gemma-4-e4b-it"}, {"provider": "vllm-plain", "model": "gemma-4-e2b-it"}, {"provider": "vllm-plain", "model": "gemma-4-12b-it"}]},
       {"name": "GPT", "icon": "openai", "runs": [{"provider": "openai"}, {"provider": "openai-decisions"}]},
       {"name": "Claude", "icon": "claude", "runs": [{"provider": "claude"}, {"provider": "openrouter-chat", "model": "anthropic/claude-haiku-5.5"}]},
@@ -381,7 +381,7 @@
   },
   "in_progress": {
     "about": "The In progress table under the Leaderboard (sitebuild/leaderboard.py in_progress; the project lead via Zeki #5064, #5065, #5071; Ümit #5067): models joining Reading, each side (english, turkish, page_images) queued, running, blocked, done or none (does not apply), as a word or {state, note}. provider and model are the runner's keys once the model is set up (null before). A side is done exactly when that setup has a published run of it; the build stops otherwise. Take a model off once all its sides are in. as_of: when the states were last set.",
-    "as_of": "12 November 2026, 19:30 UTC",
+    "as_of": "12 November 2026, 21:45 UTC",
     "lead": "Models joining Reading (the project lead via Zeki #5064, #5071; Ümit #5067). Each side shows its state until its run is published; nothing here is a score.",
     "notes": [
       "Chat models run on logic's server on bariton GPU 1 after its Logic & Math runs, one model at a time (logic #5080, #5091, #5214). English comes first for every model: the Turkish runs and the Page images (the Turkish questions) come in a later phase of their own (the project lead via Zeki #5213).",
@@ -408,7 +408,7 @@
       {"name": "Muse Glimmer 30B", "maker": "Meta", "kind": "chat", "provider": null, "model": null, "english": "queued", "turkish": "queued", "page_images": "queued"},
       {"name": "Inkling 2 Small", "maker": "Thinking Machines", "kind": "chat", "provider": null, "model": null, "english": {"state": "blocked", "note": "data-use terms"}, "turkish": {"state": "blocked", "note": "data-use terms"}, "page_images": {"state": "blocked", "note": "data-use terms"}},
       {"name": "Muse Ember", "maker": "Meta", "kind": "chat", "provider": "openrouter-chat", "model": "meta/muse-ember", "english": "done", "turkish": "done", "page_images": {"state": "queued", "note": "five cells done; the last OCR route paused at 562 of 763, the rest in the Turkish phase (Zeki #5213, #5228)"}},
-      {"name": "Gemini 4 Carbon", "maker": "Google", "kind": "chat", "provider": "agbench", "model": "gemini-4-carbon", "english": {"state": "running", "note": "through Can's Google Antigravity subscription (Ümit #5133, #5452)"}, "turkish": {"state": "queued", "note": "in the Turkish phase (Zeki #5213)"}, "page_images": "none"},
+      {"name": "Gemini 4 Carbon", "maker": "Google", "kind": "chat", "provider": "agbench", "model": "gemini-4-carbon", "english": "done", "turkish": {"state": "queued", "note": "in the Turkish phase (Zeki #5213)"}, "page_images": "none"},
       {"name": "Gemini 4 Hydrogen", "maker": "Google", "kind": "chat", "provider": "agbench", "model": "gemini-4-hydrogen", "english": {"state": "queued", "note": "through the same subscription, after Gemini 4 Carbon's Logic & Math on the same one-request-at-a-time bridge (Ümit via Zeki #5663; logic #5671)"}, "turkish": {"state": "queued", "note": "in the Turkish phase (Zeki #5213)"}, "page_images": "none"}
     ]
   },

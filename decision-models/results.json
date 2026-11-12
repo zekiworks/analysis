@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "5a89d9dd",
-  "updated": "2026-11-12T19:52:15Z",
+  "results_version": "703b813f",
+  "updated": "2026-11-12T21:59:51Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -366654,6 +366654,83 @@
     ],
     "english_only": [
       {
+        "name": "Gemini 4 Carbon",
+        "model": "gemini-4-carbon",
+        "provider": "agbench",
+        "reasoning": "high",
+        "variant": null,
+        "questions_per_request": 16,
+        "perplexity_mode": null,
+        "run": 1055,
+        "runs": [
+          1055
+        ],
+        "dates": [
+          "2026-11-12"
+        ],
+        "parameters": null,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": null,
+        "parameters_source": [
+          "https://deepmind.google/models/model-cards/gemini-4-carbon/"
+        ],
+        "parameters_read": "2026-11-11",
+        "group": "chat",
+        "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, tools denied, thinking high; the bridge applies no response format, so the prompt adds a paragraph stating the answer layout",
+        "billing": "subscription",
+        "hardware": null,
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 20.815168,
+            "per_1000": 38.05332358318099,
+            "basis": "subscription",
+            "billing": "subscription",
+            "tokens": {
+              "input_tokens": 593337,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 922091
+            },
+            "requests": 36,
+            "price": {
+              "basis": "Google's Gemini API regular price (from 1 December 2026)",
+              "source": "https://ai.google.dev/gemini-api/docs/pricing",
+              "date": "2026-11-12",
+              "change": "introductory until 30 November 2026: $2.00 input, $10.00 output and $0.10 cached input per 1M tokens",
+              "applies_to": "billed",
+              "extra_input_per_request": 0,
+              "per_request": 0.0,
+              "rates": {
+                "input_tokens": 4.0,
+                "cached_input_tokens": 0.2,
+                "cache_write_input_tokens": 4.0,
+                "cache_write_1h_input_tokens": 4.0,
+                "output_tokens": 20.0
+              },
+              "text": "$4 input, $0.20 cached input, $20 output per 1M tokens"
+            },
+            "upper_bound": false
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 287.83934443601174,
+            "p90_request_seconds": 589.3641746710055,
+            "concurrency": 1,
+            "questions_per_request": 16
+          }
+        },
+        "english": {
+          "right": 516,
+          "wrong": 15,
+          "invalid": 16,
+          "accuracy": 0.943327239488117
+        }
+      },
+      {
         "name": "Sieve 31B v3",
         "model": "sthanika-ai/Sieve-31B-v3",
         "provider": "sieve",
@@ -372022,6 +372099,40 @@
             "accuracy": 0.6453382084095064,
             "attempt_rate": 0.9049360146252285,
             "non_hallucination": 0.26424870466321243,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "Gemini 4 Carbon",
+          "model": "gemini-4-carbon",
+          "provider": "agbench",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 1055,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1067,
+            "runs": [
+              1067
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 0,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {}
+            },
+            "right": 531,
+            "wrong": 12,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.9707495429616088,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.25,
             "mean_dont_know_probability": null
           }
         },

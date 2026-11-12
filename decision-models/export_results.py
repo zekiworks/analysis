@@ -134,6 +134,10 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     # The backgammon-paired runs: each model through the route, model ID and reasoning setting of its backgammon setup.
     "xai": {"access": "xAI Responses API, SuperGrok subscription", "scoring": False, "billing": "subscription"},
     "antigravity": {"access": "Google Antigravity, Google AI Ultra subscription", "scoring": False, "billing": "subscription"},
+    # Google's Gemini 4 Carbon through Can's agbench bridge to Google Antigravity (Ümit #5133, #5452): one request at a
+    # time, tools denied; the bridge applies no response format, so the prompt adds a paragraph stating the answer layout.
+    "agbench": {"access": "Google Antigravity through Can's agbench bridge, Google AI Ultra subscription", "scoring": False,
+                "billing": "subscription"},
     "openrouter-chat": {"access": "OpenRouter chat API, one provider endpoint, fallbacks off", "scoring": False, "billing": "api"},
 }
 # The token totals a price applies to (TOKEN_KINDS in benchmark_ollama.py): every prompt token, the cache reads
@@ -208,6 +212,20 @@ MODELS: dict[str, dict[str, Any]] = {
     },
     "grok-4.7": {"name": "Grok 4.7"},
     "gemini-4-argon": {"name": "Gemini 4 Argon"},
+    "gemini-4-carbon": {
+        "name": "Gemini 4 Carbon",
+        "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, "
+                  "tools denied, thinking high; the bridge applies no response format, so the prompt adds a paragraph "
+                  "stating the answer layout",
+    },
+    # Gemini 4 Hydrogen through the same bridge and subscription (Ümit via Zeki #5663; admitted by
+    # antigravity-benchmark #5668: 'gemini-4-hydrogen' is high effort), asked with Carbon's answer layout.
+    "gemini-4-hydrogen": {
+        "name": "Gemini 4 Hydrogen",
+        "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, "
+                  "tools denied, thinking high; the bridge applies no response format, so the prompt adds a paragraph "
+                  "stating the answer layout",
+    },
     "claude-fable-5-1": {"name": "Claude Fable 5.1"},
     "claude-fable-5-2": {"name": "Claude Fable 5.2"},
     "moonshotai/kimi-k3.1-pro": {
@@ -748,6 +766,8 @@ SIZES: dict[str, dict[str, Any]] = {
     "gemini-3.8-flash": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-3-8-flash/"], "read": READ},
     # The card: "a large scale sparse mixture-of-experts (MoE) ... transformer-based model", with no number.
     "gemini-4-argon": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-argon/"], "read": READ},
+    "gemini-4-carbon": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-carbon/"], "read": "2026-11-11"},
+    "gemini-4-hydrogen": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-hydrogen/"], "read": "2026-11-12"},
     "grok-4.7": {"total": None, "sources": ["https://media.x.ai/v1/website/4p7card-5eccc980.pdf", "https://x.ai/news/grok-4-7",
                                             "https://docs.x.ai/developers/models"], "read": READ},
     # Meta's announcement and model page give no size (read 10 November 2026; project lead bus #4021).
