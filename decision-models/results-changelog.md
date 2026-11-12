@@ -2,6 +2,15 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results a7e6a88e (12 November 2026)
+
+- Added LFM3-1.7B (`LiquidAI/LFM3-1.7B`, `0dc4268`, 1.73B parameters as its card states), a small chat model of the models joining Reading (the project lead via Zeki #5064, #5071), on its English side first (Zeki #5213). Same settings as its Logic & Math runs (logic #5682): logic's server, one RTX PRO 6000 Blackwell, BF16, thinking on (its template's default); temperature 0.1, top-k 50, top-p 1.0, min-p 0, repetition penalty 1.1, seed 0, up to 32,768 output tokens, from its generation_config. No released vLLM serves LFM3, so the server is a vLLM nightly (0.34.0rc1.dev302, commit be47189f). One question per request with a plain answer line, so no stated confidence.
+- English reading: run 1061 answered 389 of the 547 kept questions right (71.1%), 90th of the 106 English setups, between KnowLine 2B Gen1 (71.3%) and LFM2.5-8B-A1B (70.4%); every answer has a letter. As an English-only setup for now it has no paired test against a Turkish run.
+- English "I don't know" (its row on the Turkish vs English page; the Hallucination tab lists setups with a Turkish run): run 1062, 380 right, 26 "I don't know" and 141 wrong (non-hallucination 15.6%, answered 95.2%); no invalid answer.
+- Its card lists 16 languages, not Turkish; its Turkish runs come in the Turkish phase, until then the In progress table shows them Queued.
+- In progress: LFM3-VL-2B's Page images now read Blocked, not Queued: with thinking off its Reading smoke failed (3 of the first 25 answers unreadable, the stop line; #5587), and the next step is Ümit's. Gemini 4 Hydrogen is queued for its English runs through the same subscription bridge as Gemini 4 Carbon (Ümit via Zeki #5663).
+- No other number changed and no significance verdict moved.
+
 ## Results 177ac9fd (12 November 2026)
 
 - Added KnowLine-2B-Gen1 (`PelaAI/KnowLine-2B-Gen1`, `53245d4`, a merged LoRA fine-tune of Qwen3.5-2B), the last of the tiny decision models of the project lead's batch (bus #4578; logic #4937, #5513), on its English side first (Zeki #5213): one NVIDIA DGX Spark (GB10), BF16, behind the KnowLine server its card ships (serve_knowline.sh), one question per request with its option probabilities.

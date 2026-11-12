@@ -680,7 +680,10 @@ MODELS: dict[str, dict[str, Any]] = {
            ("ministral-3-8b-reasoning", "Ministral 3 8B Reasoning", "vLLM v0.30.0",
             "mistralai/Ministral-3-8B-Reasoning-2512@81eaece"),
            ("qwen3.5-4b", "Qwen3.5-4B", "vLLM v0.30.0", "Qwen/Qwen3.5-4B@851bf6e"),
-           ("lfm3-1.7b", "LFM3-1.7B", "llama.cpp b12020 (the official GGUF)", "LiquidAI/LFM3-1.7B-GGUF@cd0c74c"),
+           # LFM3-1.7B's Reading runs (logic #5682) are on a vLLM nightly, as no released vLLM has Lfm3ForCausalLM
+           # (logic #5446): the server reports 0.34.0rc1.dev302+gbe47189f3; logic's first Logic answers were on llama.cpp.
+           ("lfm3-1.7b", "LFM3-1.7B", "vLLM nightly 0.34.0rc1.dev302 (commit be47189f; no released vLLM serves LFM3)",
+            "LiquidAI/LFM3-1.7B@0dc4268"),
            ("gemma-4-e2b-it", "Gemma 4 E2B", "vLLM v0.30.0", "google/gemma-4-E2B-it@4adf157"),
            ("gemma-4-12b-it", "Gemma 4 12B", "vLLM v0.30.0", "google/gemma-4-12B-it@43c9d01"),
            ("ministral-3-3b-reasoning", "Ministral 3 3B Reasoning", "vLLM v0.30.0",

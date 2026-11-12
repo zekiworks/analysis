@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "177ac9fd",
-  "updated": "2026-11-12T17:02:58Z",
+  "results_version": "a7e6a88e",
+  "updated": "2026-11-12T19:12:38Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -367018,6 +367018,84 @@
         }
       },
       {
+        "name": "LFM3-1.7B",
+        "model": "lfm3-1.7b",
+        "provider": "vllm-plain",
+        "reasoning": "on",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1061,
+        "runs": [
+          1061
+        ],
+        "dates": [
+          "2026-11-12"
+        ],
+        "parameters": 1728801536,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model (tied embeddings, text only)",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, LiquidAI/LFM3-1.7B@0dc4268",
+          "https://huggingface.co/LiquidAI/LFM3-1.7B"
+        ],
+        "parameters_read": "2026-11-09",
+        "group": "chat",
+        "access": "our GPU (logic's server, vLLM nightly 0.34.0rc1.dev302 (commit be47189f; no released vLLM serves LFM3) BF16, revision LiquidAI/LFM3-1.7B@0dc4268), one question per request, plain answer line ANSWER: X (no answer schema); sampling min_p 0.0, repetition_penalty 1.1, seed 0, temperature 0.1, top_k 50, top_p 1.0, thinking on; output cap 32,768",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 0.21178732,
+            "per_1000": 0.3871797440585009,
+            "basis": "maker",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 148384,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 999583
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Liquid AI's list price for the same model (FP8 at its endpoint)",
+              "source": "https://openrouter.ai/liquid/lfm-3-1.7b",
+              "date": "2026-11-09",
+              "change": null,
+              "applies_to": "maker",
+              "extra_input_per_request": 0,
+              "per_request": 0.0,
+              "rates": {
+                "input_tokens": 0.08,
+                "cached_input_tokens": 0.08,
+                "cache_write_input_tokens": 0.08,
+                "cache_write_1h_input_tokens": 0.08,
+                "output_tokens": 0.2
+              },
+              "text": "$0.08 input, $0.20 output per 1M tokens"
+            },
+            "upper_bound": false
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 5.236762160027865,
+            "p90_request_seconds": 13.849902754207141,
+            "concurrency": 32,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 389,
+          "wrong": 158,
+          "invalid": 0,
+          "accuracy": 0.7111517367458866
+        }
+      },
+      {
         "name": "LFM2.5-8B-A1B",
         "model": "lfm2.5-8b-a1b",
         "provider": "vllm-plain",
@@ -371951,6 +372029,40 @@
             "accuracy": 0.7330895795246801,
             "attempt_rate": 0.9414990859232175,
             "non_hallucination": 0.19718309859154928,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "LFM3-1.7B",
+          "model": "lfm3-1.7b",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 1061,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1062,
+            "runs": [
+              1062
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 0,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {}
+            },
+            "right": 380,
+            "wrong": 141,
+            "dont_know": 26,
+            "invalid": 0,
+            "accuracy": 0.6946983546617916,
+            "attempt_rate": 0.9524680073126143,
+            "non_hallucination": 0.15568862275449102,
             "mean_dont_know_probability": null
           }
         },
