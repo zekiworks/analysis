@@ -585,7 +585,8 @@ Which of the following moves makes a point in front of the opponent's checkers, 
   Luna (Decisions API) and Mercury Decide are outside the requested scope (Ümit, 12 Nov): no longer work to close.
   They stay unplayed and are labelled so beside the reason they were not played, never a score or a loss; a late entry
   whose only unplayed pairs are these is no longer marked Provisional, since none of its pairs is left to play. No
-  number changed.</p>
+  number changed. 12 Nov 2026: <a href="#limits">Limits</a> (Runner commits) states how many original league matches
+  were started from a runner checkout with uncommitted changes (harness_dirty): provenance only. No number changed.</p>
 </section>
 
 <section class="card" id="confidence" aria-labelledby="confidence-title">
@@ -893,6 +894,9 @@ Which of the following moves makes a point in front of the opponent's checkers, 
     mark rows that got different inputs. The shared positions avoid group splits.</li>
   <li><strong>Providers vary.</strong> A hosted model can change without notice, and providers differ in quantization.
     We log them; we cannot control them.</li>
+  <li><strong>Runner commits.</strong> Many original league matches were started from a runner checkout with uncommitted
+    changes (League 1: 127 of 171 matches; League 2: 140 of 171 matches; League 3: 64 of 66 matches), recorded per match as harness_dirty. The recorded commit therefore does not fully identify the
+    code that ran. This is a provenance limit, not evidence that any score is wrong; no number changes.</li>
   <li><strong>Models only play each other</strong> and the anchor. Their strength against human players is not
     measured.</li>
 </ul>
@@ -1051,7 +1055,7 @@ Which of the following moves makes a point in front of the opponent's checkers, 
   <footer class="footer">
     <nav class="footer-links" aria-label="Site"><a href="../about/">About</a> · <a href="../method/">Method</a> · <a href="../data/">Data</a> · <a href="https://github.com/zekiworks/jevgammon">GitHub</a></nav>
     <p>Download: <a href="../data/results.json" download="results.json">results.json</a> · <a href="../decisions/index.json" download="decisions.json">decisions.json</a> · <a href="../data/">every data file</a></p>
-    <p>Results c6c3ed56, updated 12 November 2026, 11:50 UTC; scored by GNU Backgammon 1.08, 2-ply.</p>
+    <p>Results 5c26d002, updated 12 November 2026, 12:05 UTC; scored by GNU Backgammon 1.08, 2-ply.</p>
   </footer>
 </body>
 </html>
