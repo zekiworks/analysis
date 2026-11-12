@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-12T03:56:10Z",
+ "updated": "2026-11-12T08:36:12Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -256,9 +256,10 @@
    "calibration_error": null,
    "improvement_points": null,
    "runs": [
-    "logic:gemma-4-31b-it_en_t0"
+    "logic:gemma-4-31b-it_en_t0",
+    "logic:gemma-4-31b-it_en_t0_dontknow"
    ],
-   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); BF16 weights quantized to FP8 by vLLM at load; no complete 'I don't know' run",
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); BF16 weights quantized to FP8 by vLLM at load",
    "gpu_hours": 0.5619444444444445,
    "gpu_cost_usd": 1.3992416666666667
   },
@@ -1861,6 +1862,38 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.009444444444444445,
    "gpu_cost_usd": 0.0020099461352438438
+  },
+  {
+   "repo": "knowledgator/gliclass-v4-edge",
+   "commit": "885af1af8a07edf4ed34df83ca0d995ed8201283",
+   "model_key": "gliclass-v4-edge",
+   "name": "GLiClass v4 Edge",
+   "display_name": "GLiClass v4 Edge",
+   "tag": "",
+   "class_label": "Open · 0.4B",
+   "base_model": "DeBERTa-v3-large",
+   "setup_label": "GLiClass v4 Edge",
+   "maker": null,
+   "kind": "decision",
+   "params_total": 0.4,
+   "params_active": 0.4,
+   "quantization": "BF16",
+   "score_0_100": 4.444444444444442,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.23555555555555555,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": 0.0874588157467637,
+   "improvement_points": null,
+   "runs": [
+    "logic:gliclass-v4-edge_en",
+    "logic:gliclass-v4-edge_en_dontknow"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10)",
+   "gpu_hours": 0.006944444444444444,
+   "gpu_cost_usd": 0.001477901570032238
   },
   {
    "repo": "fastino/GLiDE-0.4B",
