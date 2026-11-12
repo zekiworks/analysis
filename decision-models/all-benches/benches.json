@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-12T16:54:29Z",
+    "updated": "2026-11-12T18:52:33Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -432,6 +432,38 @@
       "gpu_cost_usd": 1.4531916666666669
      },
      {
+      "repo": "LiquidAI/LFM3-1.7B-GGUF",
+      "commit": "cd0c74c575b5c416f3011b5b4c298077f26ca8c2",
+      "model_key": "lfm3-1.7b",
+      "name": "LFM3-1.7B",
+      "display_name": "LFM3-1.7B",
+      "tag": "on · chat",
+      "class_label": "Open · 1.7B",
+      "base_model": null,
+      "setup_label": "LFM3-1.7B (chat, thinking, on our GPU)",
+      "maker": "Liquid AI",
+      "kind": "chat",
+      "params_total": 1.73,
+      "params_active": 1.73,
+      "quantization": "BF16",
+      "score_0_100": 81.22222222222221,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8497777777777777,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:lfm3-1.7b_en",
+       "logic:lfm3-1.7b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 11.265833333333333,
+      "gpu_cost_usd": 28.051925
+     },
+     {
       "repo": "google/gemma-4-E4B-it",
       "commit": "4ecc2ba63bcac23ba4a767fc87025b1450f84c9c",
       "model_key": "gemma-4-e4b",
@@ -686,6 +718,38 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.17527777777777778,
       "gpu_cost_usd": 0.037302235627613686
+     },
+     {
+      "repo": "sthanika-ai/Sieve-31B-v3",
+      "commit": "8fcee858f7f20a50bfa3c8f984c22adb3cbb46a2",
+      "model_key": "sieve-31b-v3",
+      "name": "Sieve 31B v3",
+      "display_name": "Sieve 31B v3",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": null,
+      "setup_label": "Sieve 31B v3",
+      "maker": "Sthānika AI",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 47.33333333333333,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5786666666666667,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.02063599999999999,
+      "improvement_points": null,
+      "runs": [
+       "logic:sieve-31b_en",
+       "logic:sieve-31b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.3327777777777778,
+      "gpu_cost_usd": 0.07082104323594485
      },
      {
       "repo": "fastino/GLiDE",
@@ -2106,7 +2170,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-12T16:54:29Z",
+    "updated": "2026-11-12T18:52:33Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2139,6 +2203,38 @@
       "runs": [
        "math:claude-opus-5.5-sub_en",
        "math:claude-opus-5.5-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "claude-sonnet-5.5",
+      "name": "Claude Sonnet 5.5",
+      "display_name": "Claude Sonnet 5.5",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Claude Sonnet 5.5",
+      "maker": "Anthropic",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 99.59546925566343,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9967637540453075,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:claude-sonnet-5.5-sub_en",
+       "math:claude-sonnet-5.5-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
@@ -2430,6 +2526,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.4602777777777778,
       "gpu_cost_usd": 1.1460916666666667
+     },
+     {
+      "repo": "LiquidAI/LFM3-1.7B-GGUF",
+      "commit": "cd0c74c575b5c416f3011b5b4c298077f26ca8c2",
+      "model_key": "lfm3-1.7b",
+      "name": "LFM3-1.7B",
+      "display_name": "LFM3-1.7B",
+      "tag": "on · chat",
+      "class_label": "Open · 1.7B",
+      "base_model": null,
+      "setup_label": "LFM3-1.7B (chat, thinking, on our GPU)",
+      "maker": "Liquid AI",
+      "kind": "chat",
+      "params_total": 1.73,
+      "params_active": 1.73,
+      "quantization": "BF16",
+      "score_0_100": 98.7286176606565,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.989828941285252,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:lfm3-1.7b_en",
+       "math:lfm3-1.7b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.12583333333333332,
+      "gpu_cost_usd": 0.313325
      },
      {
       "repo": "google/gemma-4-12B-it",
@@ -2782,6 +2910,37 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.47638888888888886,
       "gpu_cost_usd": 0.10138404770421153
+     },
+     {
+      "repo": "sthanika-ai/Sieve-31B-v3",
+      "commit": "8fcee858f7f20a50bfa3c8f984c22adb3cbb46a2",
+      "model_key": "sieve-31b-v3",
+      "name": "Sieve 31B v3",
+      "display_name": "Sieve 31B v3",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": null,
+      "setup_label": "Sieve 31B v3",
+      "maker": "Sthānika AI",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 71.39389736477114,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7711511789181692,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.042755524734165495,
+      "improvement_points": null,
+      "runs": [
+       "math:sieve-31b_en"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10); no complete 'I don't know' run",
+      "gpu_hours": 0.3977777777777778,
+      "gpu_cost_usd": 0.0846542019314466
      },
      {
       "repo": null,
@@ -4202,7 +4361,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-12T16:54:29Z",
+    "updated": "2026-11-12T18:52:33Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -4273,6 +4432,38 @@
        "math:deepseek-v4.1-flash-1017_en_dontknow"
       ],
       "notes": "hosted API via OpenRouter",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "claude-sonnet-5.5",
+      "name": "Claude Sonnet 5.5",
+      "display_name": "Claude Sonnet 5.5",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Claude Sonnet 5.5",
+      "maker": "Anthropic",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 97.79501216545012,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.982360097323601,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:claude-sonnet-5.5-sub_en",
+       "math:claude-sonnet-5.5-sub_en"
+      ],
+      "notes": "hosted API (the maker's service); no complete 'I don't know' run",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -4583,6 +4774,40 @@
       "gpu_cost_usd": 2.463716666666667
      },
      {
+      "repo": "LiquidAI/LFM3-1.7B-GGUF",
+      "commit": "cd0c74c575b5c416f3011b5b4c298077f26ca8c2",
+      "model_key": "lfm3-1.7b",
+      "name": "LFM3-1.7B",
+      "display_name": "LFM3-1.7B",
+      "tag": "on · chat",
+      "class_label": "Open · 1.7B",
+      "base_model": null,
+      "setup_label": "LFM3-1.7B (chat, thinking, on our GPU)",
+      "maker": "Liquid AI",
+      "kind": "chat",
+      "params_total": 1.73,
+      "params_active": 1.73,
+      "quantization": "BF16",
+      "score_0_100": 92.73874695863745,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9419099756690997,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:lfm3-1.7b_en",
+       "math:lfm3-1.7b_en",
+       "logic:lfm3-1.7b_en_dontknow",
+       "math:lfm3-1.7b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 11.391666666666666,
+      "gpu_cost_usd": 28.36525
+     },
+     {
       "repo": "google/gemma-4-E4B-it",
       "commit": "4ecc2ba63bcac23ba4a767fc87025b1450f84c9c",
       "model_key": "gemma-4-e4b",
@@ -4853,6 +5078,38 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.8011111111111111,
       "gpu_cost_usd": 0.170490725118919
+     },
+     {
+      "repo": "sthanika-ai/Sieve-31B-v3",
+      "commit": "8fcee858f7f20a50bfa3c8f984c22adb3cbb46a2",
+      "model_key": "sieve-31b-v3",
+      "name": "Sieve 31B v3",
+      "display_name": "Sieve 31B v3",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": null,
+      "setup_label": "Sieve 31B v3",
+      "maker": "Sthānika AI",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 63.16149635036496,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7052919708029197,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.025529653284671536,
+      "improvement_points": null,
+      "runs": [
+       "logic:sieve-31b_en",
+       "math:sieve-31b_en"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10); no complete 'I don't know' run",
+      "gpu_hours": 0.7305555555555556,
+      "gpu_cost_usd": 0.15547524516739145
      },
      {
       "repo": null,
@@ -7391,7 +7648,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-12T17:05Z",
+    "updated": "2026-11-12T18:50Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }

@@ -381,7 +381,7 @@
   },
   "in_progress": {
     "about": "The In progress table under the Leaderboard (sitebuild/leaderboard.py in_progress; the project lead via Zeki #5064, #5065, #5071; Ümit #5067): models joining Reading, each side (english, turkish, page_images) queued, running, blocked, done or none (does not apply), as a word or {state, note}. provider and model are the runner's keys once the model is set up (null before). A side is done exactly when that setup has a published run of it; the build stops otherwise. Take a model off once all its sides are in. as_of: when the states were last set.",
-    "as_of": "12 November 2026, 15:30 UTC",
+    "as_of": "12 November 2026, 18:48 UTC",
     "lead": "Models joining Reading (the project lead via Zeki #5064, #5071; Ümit #5067). Each side shows its state until its run is published; nothing here is a score.",
     "notes": [
       "Chat models run on logic's server on bariton GPU 1 after its Logic & Math runs, one model at a time (logic #5080, #5091, #5214). English comes first for every model: the Turkish runs and the Page images (the Turkish questions) come in a later phase of their own (the project lead via Zeki #5213).",
@@ -406,7 +406,8 @@
       {"name": "Muse Glimmer 30B", "maker": "Meta", "kind": "chat", "provider": null, "model": null, "english": "queued", "turkish": "queued", "page_images": "queued"},
       {"name": "Inkling 2 Small", "maker": "Thinking Machines", "kind": "chat", "provider": null, "model": null, "english": {"state": "blocked", "note": "data-use terms"}, "turkish": {"state": "blocked", "note": "data-use terms"}, "page_images": {"state": "blocked", "note": "data-use terms"}},
       {"name": "Muse Ember", "maker": "Meta", "kind": "chat", "provider": "openrouter-chat", "model": "meta/muse-ember", "english": "done", "turkish": "done", "page_images": {"state": "queued", "note": "five cells done; the last OCR route paused at 562 of 763, the rest in the Turkish phase (Zeki #5213, #5228)"}},
-      {"name": "Gemini 4 Carbon", "maker": "Google", "kind": "chat", "provider": "agbench", "model": "gemini-4-carbon", "english": {"state": "running", "note": "through Can's Google Antigravity subscription (Ümit #5133, #5452)"}, "turkish": {"state": "queued", "note": "in the Turkish phase (Zeki #5213)"}, "page_images": "none"}
+      {"name": "Gemini 4 Carbon", "maker": "Google", "kind": "chat", "provider": "agbench", "model": "gemini-4-carbon", "english": {"state": "running", "note": "through Can's Google Antigravity subscription (Ümit #5133, #5452)"}, "turkish": {"state": "queued", "note": "in the Turkish phase (Zeki #5213)"}, "page_images": "none"},
+      {"name": "Gemini 4 Hydrogen", "maker": "Google", "kind": "chat", "provider": "agbench", "model": "gemini-4-hydrogen", "english": {"state": "queued", "note": "through the same subscription, after Gemini 4 Carbon's Logic & Math on the same one-request-at-a-time bridge (Ümit via Zeki #5663; logic #5671)"}, "turkish": {"state": "queued", "note": "in the Turkish phase (Zeki #5213)"}, "page_images": "none"}
     ]
   },
   "model_languages": {
