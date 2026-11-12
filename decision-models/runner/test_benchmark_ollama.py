@@ -1672,6 +1672,20 @@ class EmptyAndBrokenReplyTests(unittest.TestCase):
                 RuntimeError, r"OpenRouter replied with an error, not an answer: finish_reason error \(overloaded_error\)"):
             self.ask([self.error_reply("overloaded_error")] * (JEV_MAX_RETRIES + 1))
 
+    def test_an_error_on_the_choice_or_as_its_native_reason_is_asked_again_too(self) -> None:
+        # The other two shapes of the same failure (logic #5327): an error object on the choice, and "error" as the
+        # choice's native finish reason under another finish_reason.
+        good = self.reply('{"answers": {"1": {"answer": "B", "confidence": 0.9}, "2": {"answer": "A", "confidence": 0.5}, '
+                          '"3": {"answer": "C", "confidence": 0.7}}}')
+        on_choice = self.reply("")
+        on_choice["choices"][0]["error"] = {"code": 503, "message": "overloaded"}
+        native = self.reply("", finish=None)
+        native["choices"][0]["native_finish_reason"] = "error"
+        with mock.patch("benchmark_ollama.time.sleep"):
+            predictions, record, sent = self.ask([on_choice, native, good])
+        self.assertEqual((predictions, sent), (["B", "A", "C"], 3))
+        self.assertEqual(record["response"], good)
+
     def test_rescue_re_asks_a_stored_error_reply_and_keeps_it_beside_the_answers(self) -> None:
         path = self.bank()
         connection = open_result_database(path.parent / "results.sqlite")

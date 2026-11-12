@@ -434,8 +434,9 @@ its empty replies are asked again.
   the record's `answers`. A repeated number, a letter not allowed, a letter only in free text or any other form leaves
   that answer invalid. A read answer is scored like any other.
 - **Error in place of a reply** (Zeki #5264, 12 November 2026). OpenRouter reports an upstream failure with HTTP 200:
-  an `"error"` object in place of the reply (such as code 502), or a choice that finished with `finish_reason`
-  `"error"` (in mid-reply: a timeout or an overloaded provider; OpenRouter bills it nothing). Neither is the model's
+  an `"error"` object in place of the reply (such as code 502), a choice that finished with `"error"` as its
+  `finish_reason` or its `native_finish_reason` (in mid-reply: a timeout or an overloaded provider; OpenRouter bills it
+  nothing), or an `"error"` object on the choice (`reply_error`; the last two shapes after logic #5327). None is the model's
   reply: every chat path asks it again as it does a failed request (`post_reply`: `post_json`'s retries and delays,
   each logged as `request failed (…); retry`) and stops the request when the retries run out, so an error is never
   stored as an answer. Before this, such errors were stored as invalid answers: Claude Haiku 5.5's Turkish Text run 948

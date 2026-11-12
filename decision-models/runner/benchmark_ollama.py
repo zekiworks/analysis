@@ -3282,19 +3282,26 @@ def empty_reply(result: Any) -> bool:
 
 def reply_error(result: Any) -> str | None:
     """Why a chat completions reply that came back with HTTP 200 is a failure and not the model's reply, or None for a
-    reply: an "error" object in its place (OpenRouter reports an upstream failure so, e.g. code 502), or a first choice
-    that finished with "error" (OpenRouter's upstream failure in mid-reply, e.g. a timeout or an overloaded provider;
-    OpenRouter bills it nothing). Such replies were once stored as answers without a letter (Zeki #5264)."""
+    reply: an "error" object in its place (OpenRouter reports an upstream failure so, e.g. code 502), a first choice
+    that finished with "error", as its finish_reason or its native one (OpenRouter's upstream failure in mid-reply, e.g.
+    a timeout or an overloaded provider; OpenRouter bills it nothing), or an error object on that choice. Such replies
+    were once stored as answers without a letter (Zeki #5264; the last two shapes after logic #5327)."""
     if not isinstance(result, dict):
         return None
     if result.get("error") is not None:
         error = result["error"]
         code = error.get("code") if isinstance(error, dict) else None
         return f"error {code}" if code is not None else "an error object"
-    if finish_reason(result) == "error":
-        choice = result["choices"][0]
-        native = choice.get("native_finish_reason") if isinstance(choice, dict) else None
-        return f"finish_reason error ({native})" if native else "finish_reason error"
+    choices = result.get("choices")
+    choice = choices[0] if isinstance(choices, list) and choices and isinstance(choices[0], dict) else None
+    if choice is None:
+        return None
+    native = choice.get("native_finish_reason")
+    if choice.get("finish_reason") == "error" or native == "error":
+        return f"finish_reason error ({native})" if native and native != "error" else "finish_reason error"
+    if choice.get("error") is not None:
+        code = choice["error"].get("code") if isinstance(choice["error"], dict) else None
+        return f"an error on the reply ({code})" if code is not None else "an error on the reply"
     return None
 
 
