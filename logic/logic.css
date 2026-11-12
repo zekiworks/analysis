@@ -194,7 +194,7 @@ main > .card h1, .hero-card h1 { font-size: clamp(1.05rem, 1.6vw, 1.35rem); line
 .hero-links a:first-child { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
 /* The leaderboard (home.leaderboard): its keys in one row, two lines of text, the rows (rank, the model with its maker dot
    and the line under it, the main score as a bar with its 95% interval), five more columns from 900 px; a row's details
-   box opens on hover, focus or a tap (site.js). */
+   box opens on hover or focus, on a phone on a tap of the model's name (site.js). */
 .leaderboard > h2 { margin: 0 0 .4rem; }
 .lb-controls { display: flex; flex-wrap: wrap; gap: .4rem .9rem; margin: 0 0 .5rem; }
 .lb-keys { display: flex; flex-wrap: wrap; gap: .25rem; }
@@ -255,15 +255,11 @@ table.lb-table tbody tr.hl-open > td { background: var(--row-hover); }
 /* The models keys and All setups in one row (zeki #4793); the time of the last answer under the table. */
 .lb-keys-row { display: flex; flex-wrap: wrap; gap: .4rem .9rem; }
 .lb-updated { margin: .35rem 0 0; font-size: .8rem; }
-/* A row's Details key (zeki #4793, as Reading): on a phone, under the name, it opens the row's details box (site.js);
-   from 600 px the box opens on hover, focus or a tap on the row. */
-.lb-details { display: none; }
-@media (max-width: 599.98px) {
-  .js .lb-details { display: block; margin: .3rem 0 0; min-height: 1.6rem; padding: .05rem .55rem; color: var(--text); font: inherit;
-    font-size: .74rem; font-weight: 600; background: var(--key); border: 1px solid var(--control-edge); border-radius: 6px;
-    box-shadow: var(--key-shadow); cursor: pointer; }
-  .js .lb-details[aria-expanded="true"] { color: var(--view-current-text); background: var(--view-current-bg); border-color: var(--view-current-edge); }
-}
+/* A model's name opens its details box (site.js setupDetails; zeki #5462): no key under it. A name that is not a link
+   (a Vision row, a chart row without a page) and a chart dot show they open something. */
+:is(span.model-name, span.hbar-name)[tabindex] { cursor: help; text-decoration: underline dotted; text-underline-offset: .15em; }
+svg g[data-box] { cursor: help; }
+.chart-box > .hl-box { display: none; }  /* a dot's box, beside its SVG: only as a popover (without JavaScript none) */
 /* The Repeat checks (Experiments tab; zeki #4831, #4838): one compact table per part, ranked by the repeat; on a phone the
    rank, the model and status only, the numbers in the row's details (as the leaderboard), no sideways scroll. */
 #repeat-checks > h3 { margin: .7rem 0 .35rem; font-size: .92rem; }

@@ -281,10 +281,13 @@
    JavaScript every box is shown in its row. */
 (function setupDetails() {
   const board = document.getElementById('leaderboard');
-  let open = null, pinned = false, pointer = 'mouse', quiet = false, pointing = false, keyed = false;
+  // keyboard: the last input was a key, not a pointer (as :focus-visible). Not a timer cleared after pointerup: on a
+  // phone the focus and click of a tap come after it, so the tap's own focus counted as keyboard focus and opened the box
+  // that the Details key's click then toggled shut (zeki #5462, about half the taps).
+  let open = null, pinned = false, pointer = 'mouse', quiet = false, keyboard = false;
   const boxOf = host => document.getElementById(host.dataset.box);
   const hostOf = node => (node instanceof Element ? node.closest('[data-box]') : null);
-  const nameOf = host => host.querySelector('.model-name') || host;
+  const nameOf = host => host.querySelector('.model-name, .hbar-name') || host;
   const inBox = node => !!open && node instanceof Node && !!boxOf(open)?.contains(node);
   const within = node => inBox(node) || (!!open && node instanceof Node && open.contains(node));
   const hide = () => {
@@ -333,7 +336,7 @@
     box.classList.add('open');
     place();
   };
-  const held = () => keyed && within(document.activeElement);
+  const held = () => keyboard && within(document.activeElement);
   const focusName = host => {
     const name = nameOf(host);
     if (name === host || name.tabIndex < 0 || document.activeElement === name) return;
@@ -342,12 +345,10 @@
     quiet = false;
   };
   document.addEventListener('pointerdown', event => {
-    pointing = true;
+    keyboard = false;
     pointer = event.pointerType || 'mouse';
   }, true);
-  const released = () => setTimeout(() => { pointing = false; });
-  document.addEventListener('pointerup', released, true);
-  document.addEventListener('pointercancel', released, true);
+  document.addEventListener('keydown', () => { keyboard = true; }, true);
   document.addEventListener('pointerover', event => {
     if (event.pointerType !== 'mouse' || pinned || held() || within(event.target)) return;
     const host = hostOf(event.target);
@@ -357,9 +358,8 @@
     if (event.pointerType === 'mouse' && open && !pinned && !held() && within(event.target) && !within(event.relatedTarget)) hide();
   });
   document.addEventListener('focusin', event => {
-    keyed = !pointing;
     const host = hostOf(event.target);
-    if (keyed && host && !quiet && !within(event.target)) show(host, false);
+    if (keyboard && host && !quiet && !within(event.target)) show(host, false);
   });
   document.addEventListener('focusout', event => {
     if (open && !pinned && within(event.target) && !within(event.relatedTarget)) hide();
@@ -367,16 +367,20 @@
   document.addEventListener('click', event => {
     const host = hostOf(event.target);
     const tap = pointer !== 'mouse' && event.detail !== 0;
-    if (tap && host && !boxOf(host)?.contains(event.target) && nameOf(host).contains(event.target)) {
-      event.preventDefault();  // a tap on the name shows the box; the name's link is in it
+    // On a touch screen a tap on the name or anywhere else on its row (as Reading's leaderboardDetails, turkce #5470)
+    // toggles the box; a link in the box, the other-settings key or a cost's own tip does its own job.
+    const control = event.target instanceof Element ? event.target.closest('a, button, summary, input, select, [tabindex]') : null;
+    const own = !control || !host?.contains(control) || nameOf(host).contains(control);
+    if (tap && host && own && !boxOf(host)?.contains(event.target)) {
+      event.preventDefault();  // instead of the name's link, which is in the box
       if (open === host && pinned) hide(); else show(host, true);
       return;
     }
     if (!open || inBox(event.target) || (!pinned && open.contains(event.target))) return;
-    const was = open, back = pinned;
+    const was = open, active = document.activeElement;
+    const back = pinned && (!active || active === document.body || within(active));
     hide();
-    // A tap outside: the focus goes back to the name unless the tap gave it to something else.
-    if (back && (!document.activeElement || document.activeElement === document.body || within(document.activeElement))) focusName(was);
+    if (back) focusName(was);  // a tap outside: the focus back on the name, unless the tap gave it to something else
   });
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape' || !open) return;
