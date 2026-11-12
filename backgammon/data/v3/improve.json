@@ -501,10 +501,10 @@
    },
    {
     "reason": null,
-    "series_done": 3,
+    "series_done": 4,
     "setup": "Qwen3.8-27B (low)",
     "status": "running",
-    "updated_at": "2026-11-12T07:50:39+00:00"
+    "updated_at": "2026-11-12T11:32:50+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-12T11:03:38+00:00"
+  "updated_at": "2026-11-12T11:33:49+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -4302,7 +4302,7 @@
      "risks_found": 8.166666666666664
     },
     "cost": {
-     "api_equivalent_usd": 196.8671,
+     "api_equivalent_usd": 197.4463,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -5507,20 +5507,20 @@
    },
    {
     "after": {
-     "error_rate": 40.24998026589552,
-     "right_safety": 82.33333333333333,
-     "risks_found": 50.666666666666664
+     "error_rate": 39.85643908381462,
+     "right_safety": 82.75,
+     "risks_found": 51.0
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 600,
-     "expected": 600,
+     "answered": 800,
+     "expected": 800,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 300,
-     "safety_pays": 300,
-     "tests": 3,
-     "valid": 600
+     "risk_pays": 400,
+     "safety_pays": 400,
+     "tests": 4,
+     "valid": 800
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -5539,9 +5539,9 @@
      "risks_found": 33.5
     },
     "change": {
-     "error_rate": -6.27568249901136,
-     "right_safety": -6.666666666666671,
-     "risks_found": 17.166666666666664
+     "error_rate": -6.669223681092262,
+     "right_safety": -6.25,
+     "risks_found": 17.5
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -5586,9 +5586,9 @@
     "key": "qwen3.8-27b-on",
     "progress": {
      "reason": null,
-     "series_done": 3,
+     "series_done": 4,
      "status": "running",
-     "updated_at": "2026-11-12T07:50:39+00:00"
+     "updated_at": "2026-11-12T11:32:50+00:00"
     },
     "range": null,
     "reason": null,
@@ -5799,18 +5799,88 @@
        "wall_seconds": 13623.8
       },
       "wins": 6
+     },
+     {
+      "finished": true,
+      "game_decisions": 199,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- After hitting, prefer follow-up moves that keep checkers on safe points rather than creating new blots.\n- After entering from the bar, use your second die to advance or strengthen other checkers rather than immediately moving the re-entered one.\n- In the mid-game, prefer advancing checkers from higher points over creating blots in your prime or home board.\n- Look for hit opportunities on opponent blots before defaulting to quiet moves.\n- When multiple hits are available, choose the one that gives you the stronger follow-up position."
+       },
+       {
+        "game": 2,
+        "text": "- When you can make an inner point with your dice, prioritize it over advancing back checkers or taking extra hits.\n- When advancing checkers, push them as far as your dice allow rather than stopping at intermediate points.\n- Prefer advancing your most advanced checker further over making a small step on a closer one.\n- Avoid moving the same checker twice when spreading checkers out creates a stronger position."
+       },
+       {
+        "game": 3,
+        "text": "- When you have a checker on your 24-point (or can reach a hitting slot), always check for the hit first before moving your own checkers forward. You missed available hits three times in this game.\n- When bearing off on doubles, prioritize making your inner points (especially the 2-point) over bearing off extra checkers that may be hit and sent back.\n- In the middle game, \"missed risk\" errors cost far more than small positional mistakes; when the engine flags a hit, seriously consider it even if your instinct is to develop your position."
+       },
+       {
+        "game": 4,
+        "text": "- When a lone checker sits on a far outer point (23), push it forward aggressively with both dice rather than making safe inner-board moves; I \"missed risk\" six times this game by defaulting to safety.\n- In race/endgame positions, use both numbers to advance your outermost checkers as far as possible; don't waste moves rearranging inner-board points while the race is on.\n- Be consistent with risk: I was too aggressive once but too passive six times—when the opponent is already bearing off, the right default is usually to advance, not to stay safe.\n- Don't hit a blotted inner-board checker when a safe build is available with the same dice; unnecessary hits in the midgame cost real equity."
+       },
+       {
+        "game": 5,
+        "text": "- You keep missing hitting moves by defaulting to safe plays. When a blott is available, weigh the hit seriously before falling back on passive moves.\n- In the middle game you leave checkers scattered and slow to build. Prioritize advancing checkers into your home board to create a prime or at least consolidate.\n- With quadruples, don't over-stack on a single point. Splitting down (e.g., making two separate points) gives flexibility and often primes better.\n- When you're behind or roughly equal, \"missed risk\" calls cost you. Ask: is there a checker I can push forward or a blot I can hit that GNUbg sees but I skip?\n- In the late game, avoid making redundant touches on the same point when you could advance a checker toward bearing off."
+       },
+       {
+        "game": 6,
+        "text": "- When a hit is available, evaluate it before defaulting to safe moves; you missed several in this game (turns 11, 17).\n- Don't be too passive with a lone back checker—advancing it off the 24-point is often stronger than consolidating in your own board.\n- After making a hit, use the second roll to advance a strong checker rather than making a weak or temporary point.\n- Avoid over-splitting: moving a checker two steps deep into a prime when one step would do creates needless exposure."
+       },
+       {
+        "game": 7,
+        "text": "- After hitting, often continue advancing the hit checker rather than making a separate direct move; the advanced checker creates more threats.\n- I tend to be too passive in the middle game; look for aggressive options before defaulting to safe moves.\n- When re-entering from the bar, prefer bringing a checker home to build over making a direct shot from a remote point.\n- In the bear-off, avoid needless risks; the safe move is often correct even when a hit is possible.\n- With doubles, prefer building stacks in the home board over splitting into weaker positions."
+       },
+       {
+        "game": 8,
+        "text": "- When priming, advance checkers and strengthen the wall rather than hitting or playing in your home board.\n- Avoid needless hits; if a quiet advance serves your position, prefer it over creating complications.\n- In a winning priming game, resist playing passively in your home board—keep pushing checkers forward.\n- In the endgame, bring in distant checkers before over-building your home board.\n- When in doubt between a safe and aggressive line in a winning position, the aggressive one is often correct."
+       },
+       {
+        "game": 9,
+        "text": "- When doubles allow a double hit on a high point, take it rather than advancing back checkers that leave you with blots.\n- Don't hit just because you can; if a safe advance is available and the hit creates a new blot, play it safe.\n- In the bear-off, always move from your highest occupied point first — don't advance a lower checker when you can bear off a higher one.\n- When building your front, prefer advancing your most advanced checkers over stacking on lower points."
+       },
+       {
+        "game": 10,
+        "text": "- Default to advancing your most advanced checker rather than making interior moves (splits, building points). This was the dominant error pattern all game.\n- With doubles, use all four moves to push your most advanced checkers forward; don't waste moves on interior building.\n- In the endgame, bear off whenever possible instead of making holding or safety moves.\n- When you can advance a checker toward or past your inner board, do so before making moves that keep checkers inside."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 4,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 38.67581553757191,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 84.0,
+       "risk_pays": 100,
+       "risks_found": 52.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 13154.0
+      },
+      "wins": 4
      }
     ],
-    "series_finished": 3,
+    "series_finished": 4,
     "setup": "Qwen3.8-27B (low)",
     "state": "running",
-    "status": "running on our GPU, 3 of 5 series",
+    "status": "running on our GPU, 4 of 5 series",
     "steps_done": [
      "E1",
      "S1",
      "S2",
      "E2",
-     "S3"
+     "S3",
+     "S4"
     ],
     "threshold": null,
     "verdict": false
@@ -5955,11 +6025,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-12T11:03:38+00:00"
+  "updated_at": "2026-11-12T11:33:49+00:00"
  },
- "source_sha256": "ee27bc18e500f0f8216df855f068d005ff056f0a92e18263dc2f12e413f994bd",
+ "source_sha256": "b3e9b7a7c43c7b924c61f83b48f3602d36dfa930e717f8bab90a72ecbe8b0b7f",
  "status": {
-  "last_update": "2026-11-12T11:03:38+00:00",
+  "last_update": "2026-11-12T11:33:49+00:00",
   "line": "10 of 15 models with a verdict · 2 running · 3 paused · 0 incomplete or stopped",
   "models": 15,
   "paused": 3,
