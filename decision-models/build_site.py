@@ -672,10 +672,12 @@ def reading_grammar_heading(cw: str, kind: str, ahead: int, count: int) -> str |
     return f"{ahead} of {count} {cw}{noun} score higher on reading than on grammar" if count > 1 and 2 * ahead > count else None
 
 
-def calibration_heading(cw: str, kind: str, name: str, count: int, points: str, unique: bool) -> str | None:
+def calibration_heading(cw: str, kind: str, name: str, count: int, points: str, unique: bool, partial: bool = False) -> str | None:
     """Calibration for the view: the decision models (the chat setups with Chat models in view) of its classes, a claim
-    while one has the smallest gap among two or more."""
+    while one has the smallest gap among two or more; partial when some of the view's setups give no confidence (a
+    plain answer line), which the claim then counts out by saying "with a confidence"."""
     noun = "chat setups" if kind == "chat" else "decision models"
+    noun += " with a confidence" if partial else ""
     return (f"{bp.esc(name)} has the smallest calibration gap of the {count} {cw}{noun}, as shipped: {points} points"
             if count > 1 and unique else None)
 
@@ -715,10 +717,12 @@ def variant_headings(data: Data, site: Site) -> dict[str, dict[str, str]]:
         shown = [run for run in data.runs if classed(run) and site.in_group(run, kind)]
         heads["reading-grammar"] = reading_grammar_heading(
             cw, kind, sum(share(run, "reading") > share(run, "grammar") for run in shown), len(shown))
-        gaps = sorted(runs["chat" if kind == "chat" else "decision"], key=lambda run: (run["confidence"]["ece"], run["run"]))
+        group = runs["chat" if kind == "chat" else "decision"]
+        # A setup asked for a plain answer line gives no confidence, so no calibration gap: counted out, and said so.
+        gaps = sorted((run for run in group if run["confidence"]), key=lambda run: (run["confidence"]["ece"], run["run"]))
         heads["calibration"] = calibration_heading(
             cw, kind, site.plain(gaps[0]) if gaps else "", len(gaps), f"{100 * gaps[0]['confidence']['ece']:.1f}" if gaps else "",
-            len(gaps) > 1 and gaps[0]["confidence"]["ece"] < gaps[1]["confidence"]["ece"])
+            len(gaps) > 1 and gaps[0]["confidence"]["ece"] < gaps[1]["confidence"]["ece"], len(gaps) < len(group))
         for key, heading in heads.items():
             out[key][view] = heading or ""
     return out
@@ -834,11 +838,12 @@ def variant_checks(page: str, data: Data, site: Site) -> list[str]:
                             > run["groups"]["grammar"]["correct"] * run["groups"]["reading"]["questions"] for run in setups)
                 expected = reading_grammar_heading(cw, kind, ahead, len(setups))
             else:
-                group = kinds["chat" if kind == "chat" else "decision"]
+                members = kinds["chat" if kind == "chat" else "decision"]
+                group = [run for run in members if run["confidence"]]
                 low = min((run["confidence"]["ece"] for run in group), default=None)
                 lowest = sorted((run for run in group if run["confidence"]["ece"] == low), key=lambda run: run["run"])
                 expected = calibration_heading(cw, kind, site.plain(lowest[0]) if lowest else "", len(group),
-                                               f"{100 * low:.1f}" if lowest else "", len(lowest) == 1)
+                                               f"{100 * low:.1f}" if lowest else "", len(lowest) == 1, len(group) < len(members))
             if shown.get(view_key(kind, chosen)) != (expected or ""):
                 found.append(f"finding {key}, view {view_key(kind, chosen)}: {shown.get(view_key(kind, chosen))!r} "
                              f"(expected {expected!r})")

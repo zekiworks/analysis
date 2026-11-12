@@ -294,6 +294,16 @@ def main() -> int:
                 cells.append("not in results")
         rows.append(cells)
 
+    # vllm-plain Text tab runs answered with the plain answer line's Turkish prompts (plain_prompts' turkish, the runner's
+    # PLAIN_PROMPTS), as their English runs with the English ones (check_english_reading).
+    plain = (answers.get("plain_prompts") or {}).get("turkish")
+    for run_id in runs:
+        if exported[run_id]["provider"] == "vllm-plain":
+            version = None if plain is None else hashed(plain)
+            if "≠" in checks.cell(exported[run_id]["prompt_version"] == version, str(version), exported[run_id]["prompt_version"]):
+                print(f"MISMATCH: vllm-plain run {run_id} has prompt version {exported[run_id]['prompt_version']}, "
+                      f"plain_prompts' turkish {version}")
+
     # Tied groups: the runs in rank order (more correct first, then the older run), every pair tested,
     # Holm-adjusted over all pairs.
     ranked = sorted(runs, key=lambda run_id: (-sum(correct[run_id]), run_id))
@@ -932,6 +942,33 @@ def check_chat_prompts(published: dict[str, Any] | None, prompts: dict[str, Any]
     return version
 
 
+def check_plain_prompts(published: dict[str, Any] | None, answers: dict[str, Any], option: str, used: bool,
+                        check: Callable[[str, Any, Any], None]) -> str | None:
+    """Check a section's plain answer line prompts with the "I don't know" option (`plain`) against answers.json's
+    plain_prompts (the runner's PLAIN_PROMPTS) when a vllm-plain run is among its runs (`used`): turkish_dont_know's
+    option, its instruction the five-option one (turkish) plus a sentence, the rest the five-option prompts', and the
+    published instruction, sentence and version (turkish_dont_know hashed). Returns that version, or None without such a
+    run (then the section has no `plain`)."""
+    if not used:
+        # Without such a run the section has no `plain`; a stray one is a mismatch (counted only then).
+        if published is not None:
+            check("plain prompts", published, None)
+        return None
+    found = answers.get("plain_prompts") or {}
+    prompts, base = found.get("turkish_dont_know") or {}, found.get("turkish") or {}
+    instruction, start = prompts.get("plain_instruction") or "", f"{base.get('plain_instruction')} "
+    check("plain option", prompts.get("dont_know_option"), option)
+    check("plain instruction is the five-option one plus a sentence", instruction.startswith(start), True)
+    check("plain prompts besides the instruction and the option",
+          {key: value for key, value in prompts.items() if key not in ("plain_instruction", "dont_know_option")},
+          {key: value for key, value in base.items() if key != "plain_instruction"})
+    version = hashed(prompts)
+    check("plain prompts", published, {"instruction": instruction, "sentence": instruction.removeprefix(start),
+                                       "prompt_version": version})
+    return version
+
+
+
 def check_dont_know(docs: Path, results: dict[str, Any], answers: dict[str, Any], scored: list[int], checks: Checks) -> list[str]:
     """Recompute results.json's `dont_know` from answers.json's `dont_know_runs` on the scored questions: each model's
     group (group_of), right, wrong, "Bilmiyorum" (the letter DONT_KNOW_LETTER, which must be the last label of every
@@ -975,9 +1012,14 @@ def check_dont_know(docs: Path, results: dict[str, Any], answers: dict[str, Any]
           [f"{answers['prompts']['system_one_instructions']} {sentence}"] * 2)
     check("prompt version", section["prompt_version"], hashed(prompts))
     chat_version = check_chat_prompts(section.get("chat"), answers.get("dont_know_chat_prompts"), answers["prompts"], option, check)
+    plain_version = check_plain_prompts(section.get("plain"), answers, option,
+                                        any(run["provider"] == "vllm-plain" for run in runs.values()), check)
     for run_id, run in sorted(runs.items()):
-        decision = system_one(docs, run["provider"])
-        check(f"run {run_id} prompt version", run["prompt_version"], section["prompt_version"] if decision else chat_version)
+        # A vllm-plain run answered with the plain answer line (plain_prompts' turkish_dont_know), a run of a System One
+        # provider with the System One instructions, any other with the chat prompts.
+        expected = (plain_version if run["provider"] == "vllm-plain"
+                    else section["prompt_version"] if system_one(docs, run["provider"]) else chat_version)
+        check(f"run {run_id} prompt version", run["prompt_version"], expected)
     tests = []
     for model in section["models"]:
         cells = []
@@ -1041,6 +1083,15 @@ def check_dont_know(docs: Path, results: dict[str, Any], answers: dict[str, Any]
             continue
         accuracy = sum(int(original["correct"][index]) for index in scored) / total
         cells.append(checks.cell(close(model["original_accuracy"], accuracy, METRIC_TOLERANCE), f"original accuracy {number(accuracy)}", number(model["original_accuracy"])))
+        if model["provider"] == "vllm-plain":
+            # A plain answer line gives no confidence: no derived abstention and no comparison with confidence.
+            cells.append(checks.cell(model["derived"] is None and model.get("vs_confidence") is None,
+                                     "no derived abstention (no confidence)", str([model["derived"], model.get("vs_confidence")])))
+            cells.append(checks.cell(all(original["score"][index] is None for index in scored), "no scores in its Text tab run",
+                                     "scores"))
+            if any("≠" in cell for cell in cells):
+                mismatches.append(f"  {label(model)}: " + ", ".join(cell for cell in cells if "≠" in cell))
+            continue
         derived = derived_abstention(
             [(None if original["score"][index] is None else float(original["score"][index]), int(original["correct"][index])) for index in scored],
             first["attempt_rate"],
@@ -2134,10 +2185,10 @@ def kept_at(run: dict[str, Any], positions: list[int], cutoff: float) -> tuple[i
 def check_high_confidence(docs: Path, results: dict[str, Any], answers: dict[str, Any], scored: list[int],
                           checks: Checks) -> list[str]:
     """Recompute results.json's `high_confidence` from answers.json: per main run (results.json runs order) the answers
-    kept at the threshold on the scored questions and the wrong ones; d1-ultra's repeat runs; the three models' runs
-    (HIGH_CONFIDENCE, equal to their results.json repeat sets) at each cutoff and the check over k/100, k = 0..98; and
-    d1-ultra's English runs on english-reading.json's kept questions with the wrong question ids. Returns a line per
-    mismatch."""
+    kept at the threshold on the scored questions and the wrong ones (both None for a run without a confidence, whose
+    answers then carry no score); d1-ultra's repeat runs; the three models' runs (HIGH_CONFIDENCE, equal to their
+    results.json repeat sets) at each cutoff and the check over k/100, k = 0..98; and d1-ultra's English runs on
+    english-reading.json's kept questions with the wrong question ids. Returns a line per mismatch."""
     section = results.get("high_confidence")
     if section is None:
         checks.failed += 1
@@ -2153,6 +2204,11 @@ def check_high_confidence(docs: Path, results: dict[str, Any], answers: dict[str
     check("threshold", section["threshold"], threshold)
     expected = []
     for run in results["runs"]:
+        if run["confidence"] is None:
+            check(f"{run['name']} (run {run['run']}) has no scores", True,
+                  all(score is None for score in by_run[run["run"]]["score"]))
+            expected.append({"name": run["name"], "text_run": run["run"], "kept": None, "wrong": None})
+            continue
         kept, wrong = kept_at(by_run[run["run"]], scored, threshold)
         expected.append({"name": run["name"], "text_run": run["run"], "kept": kept, "wrong": len(wrong)})
     check("models, count and order", [(m["name"], m["text_run"]) for m in section["models"]],

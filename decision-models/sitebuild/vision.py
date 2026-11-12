@@ -65,6 +65,14 @@ def best_route(data: dict[str, Any], model: dict[str, Any]) -> tuple[str, dict[s
     return max(measured, key=lambda item: item[1]["accuracy"]) if measured else None
 
 
+def route_ready(site: Site, data: dict[str, Any], model: dict[str, Any]) -> bool:
+    """Whether the model's best OCR route can be shown: one is measured, and a model whose Page images are still being
+    asked (page_images_running) has all four routes in, so the best is never of a partial set (Zeki #5177)."""
+    if best_route(data, model) is None:
+        return False
+    return not page_images_running(site, model) or all(label in model["conditions"] for label in ocr_labels(data))
+
+
 def accuracy_cell(head: str, got: dict[str, Any], route: str = "") -> str:
     """Accuracy on the questions, with its 95% interval (Wilson, as everywhere on the site) in the cell's title and, for
     the best OCR route, the OCR model."""
@@ -73,10 +81,11 @@ def accuracy_cell(head: str, got: dict[str, Any], route: str = "") -> str:
                 f'95% interval: {interval(got["correct"], got["questions"])}')
 
 
-def unavailable_cell(model: dict[str, Any], head: str, labels: list[str], running: bool = False) -> str:
+def unavailable_cell(model: dict[str, Any], head: str, labels: list[str], running: bool = False, done: str = "") -> str:
     """A condition not measured: "Not available" with its reason (vision.json's missing), never a number. While the model's
     Page images are being asked (running: page_config.json's in_progress), a cell still being asked reads Running with how
-    many of the questions are asked, and one not started yet Queued (the project lead via Zeki #5172, #5177)."""
+    many of the questions are asked, and one not started yet Queued (the project lead via Zeki #5172, #5177); `done` says
+    how many of the best OCR route's routes are in."""
     missing = model.get("missing") or {}
     absent = [label for label in labels if label not in missing]
     if absent:
@@ -86,26 +95,32 @@ def unavailable_cell(model: dict[str, Any], head: str, labels: list[str], runnin
         asked = [(label, found) for label, found in partial if found]
         if any(found is None and missing[label] != "not run" for label, found in partial):
             raise ValueError(f"vision.json: {model['name']}'s missing reasons are neither a count nor 'not run'")
+        lead = f"{done}; " if done else ""
         if not asked:
-            return cell(f"{head} ({DIRECTION})", f'<span class="nm">{QUEUED}</span>')
+            return cell(f"{head} ({DIRECTION})", f'<span class="nm">{RUNNING}</span><span class="small">{esc(done)}</span>'
+                        if done else f'<span class="nm">{QUEUED}</span>')
         label, found = asked[0]
         via = f" via {OCR_NAMES[label.removeprefix('D ')]}" if label.startswith("D ") else ""
-        return cell(f"{head} ({DIRECTION})", f'<span class="nm">{RUNNING}</span><span class="small">{int(found.group(1)):,} of '
-                    f'{int(found.group(2)):,} asked{esc(via)}</span>')
+        return cell(f"{head} ({DIRECTION})", f'<span class="nm">{RUNNING}</span><span class="small">{esc(lead)}'
+                    f'{int(found.group(1)):,} of {int(found.group(2)):,} asked{esc(via)}</span>')
     reasons = "; ".join(dict.fromkeys(missing[label] for label in labels))
     return cell(f"{head} ({DIRECTION})", f'<span class="nm">{NOT_AVAILABLE}: {esc(reasons)}</span>')
 
 
 def cells(data: dict[str, Any], model: dict[str, Any], running: bool = False) -> str:
     """A model's A, B, C and best OCR route cells; a text-only model has no image input for B and C. While its Page images
-    are being asked (running), a cell without a result reads Running or Queued (unavailable_cell)."""
+    are being asked (running), a cell without a result reads Running or Queued (unavailable_cell), and so does its best
+    OCR route until all four routes are in: the best of the routes done so far would be a partial result (Zeki #5177)."""
     conditions = model["conditions"]
     out = []
     for label, head in COLUMNS:
         if label is None:
             best = best_route(data, model)
-            if best is None:
-                out.append(unavailable_cell(model, head, ocr_labels(data), running))
+            pending = [item for item in ocr_labels(data) if item not in conditions]
+            if best is None or (running and pending):
+                total = len(ocr_labels(data))
+                done = f"{total - len(pending)} of {total} OCR routes done" if running and len(pending) < total else ""
+                out.append(unavailable_cell(model, head, pending or ocr_labels(data), running, done))
                 continue
             route, got = best
             run = sum(item in conditions for item in ocr_labels(data))
@@ -765,7 +780,7 @@ def face(site: Site, data: dict[str, Any]) -> str:
             marks) if by_c else ""
 
     def route_card(group: str, marks: str, models: list[dict[str, Any]]) -> str:
-        routes = [(model, *best_route(data, model)) for model in models if best_route(data, model)]
+        routes = [(model, *best_route(data, model)) for model in models if route_ready(site, data, model)]
         if not routes:
             return ""
         routes.sort(key=lambda item: -item[2]["correct"] / item[2]["questions"])
@@ -812,7 +827,7 @@ def nav(site: Site, data: dict[str, Any]) -> str:
     copy's marks; Tables leads to the decision models' leaderboard, and for the chat group to the other models'."""
     groups = copies(site, data)
     has = {"chart-image": lambda models: with_condition(models, "B"), "chart-both": lambda models: with_condition(models, "C"),
-           "chart-ocr-route": lambda models: [model for model in models if best_route(data, model)]}
+           "chart-ocr-route": lambda models: [model for model in models if route_ready(site, data, model)]}
     marked = lambda base, text: "".join(  # noqa: E731
         f'<a href="#{anchor(base, group)}" {marks}>{text}</a>' if len(groups) > 1 else f'<a href="#{base}">{text}</a>'
         for group, marks, models in groups if has[base](models))

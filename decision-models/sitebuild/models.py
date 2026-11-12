@@ -15,8 +15,9 @@ import build_page as bp
 from sitebuild import english_view, holding_back as hold, vision
 from sitebuild.english_reading import (ENGLISH_ANCHOR, PATH as COMPARISON, english_only, measure_cell, missing_side,
                                        setup_labels)
-from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, REPO_URL, ROUTE_LLMS, Site, cost_missing, cost_per, cost_switch,
-                            cost_value, esc, interval, latency_text, parameters_text, pct, rel, request_size, size_sentence)
+from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, NOT_MEASURED_CONFIDENCE, REPO_URL, ROUTE_LLMS, Site, cost_missing, cost_per,
+                            cost_switch, cost_value, esc, interval, latency_text, parameters_text, pct, rel, request_size,
+                            size_sentence)
 
 GROUP_TIP = "The all-pairs test did not detect a difference between setups that share a letter. This does not establish equality."
 # The documentation page page_config.json's reasoning_levels cite, by its host, as the Settings line names it.
@@ -128,7 +129,7 @@ def called(site: Site, run: dict[str, Any]) -> str:
         ("Parameters", size_fact(run)),
         ("Hardware", esc(run["hardware"]) if run.get("hardware") else None),
         ("Note", esc(run["note"]) if run.get("note") else None),
-        ("Confidence from", esc(run["confidence"]["label"])),
+        ("Confidence from", esc(run["confidence"]["label"]) if run["confidence"] else NOT_MEASURED_CONFIDENCE),
         ("Run", f"{run['run']}, {bp.long_date(run['started'])}" if run.get("started") else str(run["run"])),
     ]
     return facts(items)
@@ -215,6 +216,11 @@ def results(site: Site, run: dict[str, Any]) -> str:
 
 def confidence(site: Site, run: dict[str, Any]) -> str:
     item = run["confidence"]
+    if item is None:
+        # A plain answer line (vllm-plain): no stated confidence and no option probabilities, so none of these measures.
+        return (f"<p>{NOT_MEASURED}: this setup was asked for a plain answer line, so it states no confidence and reports "
+                "no option probabilities. It has no answers kept at a confidence threshold, no calibration gap, ranking "
+                "score (AUROC) or Brier score, and no typical score of a right or wrong answer.</p>")
     sure = item["sure"]
     threshold = pct(site.config["threshold"], 0)
     skipped = site.results["questions"] - sure["questions"]
@@ -473,13 +479,16 @@ def summary(site: Site, run: dict[str, Any]) -> str:
     detail."""
     path = site.model_path(run)
     correct, total = site.accuracy(run)
-    sure = run["confidence"]["sure"]
+    sure = run["confidence"]["sure"] if run["confidence"] else None
     threshold = pct(site.config["threshold"], 0)
-    wrong = sure["questions"] - sure["correct"]
-    kept_value = (f"{sure['questions']:,} of {site.results['questions']:,}" if sure["questions"]
-                  else f'<span class="nm">{NO_ANSWERS}</span>')
-    kept_detail = (f"{wrong:,} wrong; share right {interval(sure['correct'], sure['questions'])}, 95% interval"
-                   if sure["questions"] else f"none of the {site.results['questions']:,} questions at {threshold} or more")
+    if sure is None:
+        kept_value, kept_detail = NOT_MEASURED, "a plain answer line, no confidence"
+    else:
+        wrong = sure["questions"] - sure["correct"]
+        kept_value = (f"{sure['questions']:,} of {site.results['questions']:,}" if sure["questions"]
+                      else f'<span class="nm">{NO_ANSWERS}</span>')
+        kept_detail = (f"{wrong:,} wrong; share right {interval(sure['correct'], sure['questions'])}, 95% interval"
+                       if sure["questions"] else f"none of the {site.results['questions']:,} questions at {threshold} or more")
     item = run.get("latency")
     if item:
         latency_value = latency_text(item["median_request_seconds"])

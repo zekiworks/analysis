@@ -52,6 +52,26 @@ SUITE_HTML = "suite-bar.html"
 SUITE_HERE = "/analysis/decision-models/"
 # A value nobody measured reads as words; a value a filter leaves out is a dash with its reason; a zero is a number.
 NOT_MEASURED = '<span class="nm">Not measured</span>'
+# A setup asked for a plain answer line (vllm-plain): no option probabilities and no stated confidence, so no measure of
+# confidence (calibration, holding back by confidence, ranking by it); such a cell reads NOT_MEASURED_CONFIDENCE.
+PLAIN_PROVIDERS = ("vllm-plain",)
+NOT_MEASURED_CONFIDENCE = '<span class="nm">Not measured</span><span class="small">a plain answer line, no confidence</span>'
+
+
+def plain_line(run: dict[str, Any]) -> bool:
+    """Whether a setup (a run, or an entry with its provider) was asked for a plain answer line (PLAIN_PROVIDERS)."""
+    return run["provider"] in PLAIN_PROVIDERS
+
+
+def plain_prompt(answers: dict[str, Any], variant: str) -> tuple[str, str]:
+    """A plain answer line's instruction ({letters} the question's own letters) and prompt version, hashed as the runner
+    hashes its prompts, from answers.json's plain_prompts (the runner's PLAIN_PROMPTS) of `variant` ("english",
+    "turkish", "english_dont_know", "turkish_dont_know")."""
+    prompts = answers["plain_prompts"][variant]
+    text = json.dumps(prompts, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return prompts["plain_instruction"], hashlib.sha256(text.encode("utf-8")).hexdigest()[:12]
+
+
 # A setup that keeps no answers at a confidence threshold (Ümit #4665): these words in a muted style, never "0 wrong" or
 # "0.0%", after the setups that keep answers and never in a "fewest wrong" or best claim.
 NO_ANSWERS = "No answers at this threshold"

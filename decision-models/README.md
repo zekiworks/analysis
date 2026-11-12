@@ -302,6 +302,22 @@ python3 -m http.server 8000                                # preview at http://1
     and the model's `backend`, `precision` and `revision` in `MODELS` (`plain_access` in `export_results.py`), its
     confidence reads not measured, its cost is the GPU time as for the other local runs, and its prompt version is
     that of the answers file's `plain_prompts` (the runner's `PLAIN_PROMPTS`), published in `answers.json` with it.
+    **`vllm-plain` setups with Turkish runs**: once such a setup has its Turkish Text run (2,198 questions, plain answer
+    line "CEVAP: X", `plain_prompts`' `turkish`) and its Turkish "Bilmiyorum" run (`turkish_dont_know`), it is a setup
+    like any chat setup: on the Text tab, the Leaderboard, its model page, the Hallucination tab, Turkish vs English
+    (paired, in the chat Holm families) and the English page with its Turkish side. Its runs carry no confidence, so
+    the measures a plain answer line cannot give are left out or read the site's words, never 0 or blank:
+    `runs[].confidence` is null (no refit, no calibration gap, no ranking score; the model page's Confidence reads Not
+    measured, the Leaderboard's details box "Confidence: not measured", the home page's Confidence tab and Compare
+    "Not measured · a plain answer line, no confidence", `NOT_MEASURED_CONFIDENCE` and `PLAIN_PROVIDERS` in
+    `sitebuild/site.py`); `high_confidence.models[]` has `kept` and `wrong` null; its Hallucination-tab row has
+    `derived` and `vs_confidence` null (Not measured in the table, named under the held-back chart) and its mean
+    probability of the option reads Not measured; `dont_know.plain` gives its instruction, sentence and prompt version
+    (checked against `plain_prompts`, `plain_dont_know_prompts`); the same number of answers and the risk-coverage plots
+    leave it out as not measured (no score to rank by, no line); the chat-view calibration claim counts only the chat
+    setups with a confidence and says so. The export checks each such run's prompt version against `plain_prompts`
+    (Text and repeats `turkish`, "Bilmiyorum" `turkish_dont_know`, English as above), its access text names the
+    language's answer line (ANSWER: X in English, CEVAP: X in Turkish), and `reproduce.py` rechecks them the same way.
   - **The benchmarks**: each with its own address and its own rankings, never combined: Turkish reading and grammar
     (the Leaderboard, 2,198 questions), Page images (`vision/`, from `vision.json`), Hallucination
     (`dont-know/`, from `results.json`'s `dont_know`, `dont_know_option_word`, `hosted_glide_rerun` and
@@ -606,7 +622,9 @@ python3 -m http.server 8000                                # preview at http://1
       holds every one of its cells, and the build stops otherwise; a model leaves the table once all its sides are in.
       Page images publish cell by cell (Zeki #5177): while a model's Page images side is Running here, the Page images
       tab's cells it has not finished read Running with how many of the 763 questions are asked, or Queued, never a
-      partial number (`vision.unavailable_cell`), and its charts show each condition once that cell is complete.
+      partial number (`vision.unavailable_cell`), and its charts show each condition once that cell is complete; its
+      best OCR route reads Running with the routes done until all four are in (`vision.route_ready`), so it is never the
+      best of a partial set.
     - **Turkish support** (Ümit #5067 item 3, confirmed by Zeki #5085): on the Leaderboard's Turkish parts (Turkish,
       Turkish reading, Turkish grammar) a model whose own card or maker docs do not list Turkish carries ‡ beside its
       name (`leaderboard.TR_MARK`), its details box says "Turkish not officially supported" and why (it lists other

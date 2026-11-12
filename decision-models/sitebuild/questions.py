@@ -100,7 +100,8 @@ def picks(site: Site) -> dict[str, Any]:
             "tag": site.tag(run),
             "detail": site.detail(run),
             "decision": site.decision(run),
-            "score": run["confidence"]["label"],
+            # A plain answer line (vllm-plain) gives no confidence: each of its scores is null and reads Not measured.
+            "score": run["confidence"]["label"] if run["confidence"] else "Not measured: a plain answer line, no confidence",
             "picks": letters,
             "scores": [score_text(answers["score"][index]) for index in order],
         })

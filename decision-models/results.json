@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "7336e8a7",
-  "updated": "2026-11-12T04:17:50Z",
+  "results_version": "d998ed9a",
+  "updated": "2026-11-12T07:21:57Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -1401,6 +1401,26 @@
         "output_tokens": 3.0
       },
       "text": "$0.50 input, $0.10 cached input, $3 output per 1M tokens"
+    },
+    {
+      "provider": "vllm-plain",
+      "model": "lfm2.5-2.6b",
+      "perplexity_mode": null,
+      "basis": "Liquid AI's list price for the same model (FP8 at its endpoint)",
+      "source": "https://openrouter.ai/liquid/lfm-2.5-2.6b",
+      "date": "2026-11-12",
+      "change": null,
+      "applies_to": "maker",
+      "extra_input_per_request": 0,
+      "per_request": 0.0,
+      "rates": {
+        "input_tokens": 0.35,
+        "cached_input_tokens": 0.35,
+        "cache_write_input_tokens": 0.35,
+        "cache_write_1h_input_tokens": 0.35,
+        "output_tokens": 0.5
+      },
+      "text": "$0.35 input, $0.50 output per 1M tokens"
     },
     {
       "provider": "vllm-sr",
@@ -43370,6 +43390,111 @@
       "single_question_latency": null
     },
     {
+      "run": 1037,
+      "model": "lfm2.5-2.6b",
+      "name": "LFM2.5-2.6B",
+      "variant": null,
+      "reasoning": "default",
+      "provider": "vllm-plain",
+      "perplexity_mode": null,
+      "note": null,
+      "parameters": 2697198592,
+      "active_parameters": null,
+      "effective_parameters": null,
+      "parameters_scope": "language model (tied embeddings, text only)",
+      "parameters_source": [
+        "counted from the checkpoint's safetensors, LiquidAI/LFM2.5-2.6B@7141b56",
+        "https://huggingface.co/LiquidAI/LFM2.5-2.6B"
+      ],
+      "parameters_read": "2026-11-12",
+      "access": "our GPU (logic's server, vLLM v0.30.0 BF16, revision LiquidAI/LFM2.5-2.6B@7141b56), one question per request, plain answer line CEVAP: X (no answer schema); sampling repetition_penalty 1.1, seed 0, temperature 0.1, top_k 50; output cap 32,768",
+      "questions_per_request": 1,
+      "concurrency": 32,
+      "correct": 745,
+      "invalid": 40,
+      "invalid_replies": {
+        "invalid_without_rule": 40,
+        "read_from_broken_replies": 0,
+        "read_without_confidence": 0,
+        "empty_replies_asked_again": 0,
+        "asked_again_with_answers": 0,
+        "answers_after_asking_again": 0,
+        "invalid_by_kind": {
+          "cut off": 9,
+          "unreadable": 31
+        }
+      },
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 298
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 447
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 743
+        }
+      },
+      "tyt_mix": 0.4255009134478504,
+      "questions_per_minute": 33.153948729613106,
+      "request_seconds": 3977.806718455977,
+      "median_request_seconds": 51.20819945249241,
+      "p90_request_seconds": 96.91006861727801,
+      "billing": "local",
+      "api_equivalent_usd": 6.0685373,
+      "cost_basis": "maker",
+      "cost_upper_bound": false,
+      "requests": 2198,
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+      "input_tokens": 600368,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "cache_write_1h_input_tokens": 0,
+      "output_tokens": 11716817,
+      "confidence": null,
+      "previous": null,
+      "units": [
+        44,
+        76,
+        35,
+        59,
+        38,
+        46,
+        45,
+        12,
+        33,
+        20,
+        17,
+        19,
+        54,
+        21,
+        24,
+        51,
+        20,
+        29,
+        42,
+        60
+      ],
+      "started": "2026-11-12T04:09:47Z",
+      "updated": "2026-11-12T05:16:04Z",
+      "format_of": null,
+      "group": "RS",
+      "latency": {
+        "source": "run",
+        "runs": [
+          1037
+        ],
+        "concurrency": 32,
+        "median_request_seconds": 51.20819945249241,
+        "p90_request_seconds": 96.91006861727801
+      },
+      "single_question_latency": null
+    },
+    {
       "run": 340,
       "model": "LiquidAI/d1-2B",
       "name": "Liquid d1-2B (open weights)",
@@ -43823,7 +43948,7 @@
       "started": "2026-11-01T12:00:08Z",
       "updated": "2026-11-01T12:00:56Z",
       "format_of": null,
-      "group": "S",
+      "group": "ST",
       "latency": {
         "source": "run",
         "runs": [
@@ -44292,7 +44417,7 @@
       "started": "2026-11-10T12:56:04Z",
       "updated": "2026-11-10T12:57:01Z",
       "format_of": null,
-      "group": "S",
+      "group": "ST",
       "latency": {
         "source": "run",
         "runs": [
@@ -44758,7 +44883,7 @@
       "started": "2026-11-11T21:05:47Z",
       "updated": "2026-11-11T21:06:32Z",
       "format_of": null,
-      "group": "S",
+      "group": "ST",
       "latency": {
         "source": "run",
         "runs": [
@@ -45224,7 +45349,7 @@
       "started": "2026-11-11T19:42:08Z",
       "updated": "2026-11-11T19:43:17Z",
       "format_of": null,
-      "group": "S",
+      "group": "T",
       "latency": {
         "source": "run",
         "runs": [
@@ -45690,7 +45815,7 @@
       "started": "2026-10-07T19:49:08Z",
       "updated": "2026-10-07T19:50:14Z",
       "format_of": null,
-      "group": "S",
+      "group": "T",
       "latency": {
         "source": "run",
         "runs": [
@@ -46156,7 +46281,7 @@
       "started": "2026-11-11T18:18:21Z",
       "updated": "2026-11-11T18:19:45Z",
       "format_of": null,
-      "group": "ST",
+      "group": "TU",
       "latency": {
         "source": "run",
         "runs": [
@@ -46622,7 +46747,7 @@
       "started": "2026-10-19T10:31:37Z",
       "updated": "2026-10-19T10:46:02Z",
       "format_of": null,
-      "group": "ST",
+      "group": "TU",
       "latency": {
         "source": "run",
         "runs": [
@@ -47088,7 +47213,7 @@
       "started": "2026-11-10T13:03:56Z",
       "updated": "2026-11-10T13:04:39Z",
       "format_of": null,
-      "group": "TU",
+      "group": "UV",
       "latency": {
         "source": "run",
         "runs": [
@@ -47554,7 +47679,7 @@
       "started": "2026-10-07T17:25:44Z",
       "updated": "2026-10-07T17:26:07Z",
       "format_of": null,
-      "group": "UV",
+      "group": "VW",
       "latency": {
         "source": "run",
         "runs": [
@@ -48050,7 +48175,7 @@
       "started": "2026-10-04T08:46:03Z",
       "updated": "2026-10-04T08:46:34Z",
       "format_of": null,
-      "group": "UV",
+      "group": "VW",
       "latency": {
         "source": "repeats",
         "runs": [
@@ -48562,7 +48687,7 @@
       "started": "2026-10-04T08:31:15Z",
       "updated": "2026-10-04T08:31:44Z",
       "format_of": null,
-      "group": "UV",
+      "group": "VW",
       "latency": {
         "source": "repeats",
         "runs": [
@@ -49038,7 +49163,7 @@
       "started": "2026-10-05T19:34:39Z",
       "updated": "2026-10-05T19:35:51Z",
       "format_of": null,
-      "group": "V",
+      "group": "W",
       "latency": {
         "source": "run",
         "runs": [
@@ -49051,7 +49176,7 @@
       "single_question_latency": null
     }
   ],
-  "group_pairs": 4950,
+  "group_pairs": 5050,
   "paired": [
     {
       "first": 980,
@@ -49128,8 +49253,8 @@
       "low": 0.00315656599695682,
       "high": 0.013221959935709241,
       "p": 0.0021024015732109547,
-      "p_holm": 0.18921614158898592,
-      "p_holm_all": 0.9124422827735543
+      "p_holm": 0.19131854316219687,
+      "p_holm_all": 0.9166470859199762
     },
     {
       "first": 124,
@@ -49167,7 +49292,7 @@
       "low": 0.0036661100122780893,
       "high": 0.019081842671980327,
       "p": 0.0052282430040142824,
-      "p_holm": 0.46008538435325685,
+      "p_holm": 0.4653136273572711,
       "p_holm_all": 1.0
     },
     {
@@ -49271,8 +49396,8 @@
       "low": 0.03225197249317953,
       "high": 0.06419934688807616,
       "p": 4.460847421739139e-09,
-      "p_holm": 4.371630473304356e-07,
-      "p_holm_all": 3.5151477683304416e-06
+      "p_holm": 4.416238947521748e-07,
+      "p_holm_all": 3.559756242547833e-06
     },
     {
       "first": 939,
@@ -49453,8 +49578,8 @@
       "low": 0.030679166621566563,
       "high": 0.07396141572602216,
       "p": 2.7673699726562264e-06,
-      "p_holm": 0.00026566751737499775,
-      "p_holm_all": 0.0017268388629374852
+      "p_holm": 0.00026843488734765397,
+      "p_holm_all": 0.0017434430827734226
     },
     {
       "first": 315,
@@ -49492,7 +49617,7 @@
       "low": 0.0068147555519082505,
       "high": 0.04050098603134926,
       "p": 0.006946613741516137,
-      "p_holm": 0.6043553955119039,
+      "p_holm": 0.61130200925342,
       "p_holm_all": 1.0
     },
     {
@@ -49544,8 +49669,8 @@
       "low": -0.06598964347625874,
       "high": -0.027731921582885947,
       "p": 2.0485146663561087e-06,
-      "p_holm": 0.00019870592263654255,
-      "p_holm_all": 0.0012946612691370606
+      "p_holm": 0.00020075443730289865,
+      "p_holm_all": 0.0013069523571351974
     },
     {
       "first": 129,
@@ -49570,8 +49695,8 @@
       "low": 0.056521036069118194,
       "high": 0.09361545164698735,
       "p": 3.678091628881056e-15,
-      "p_holm": 3.6780916288810563e-13,
-      "p_holm_all": 3.788434377747488e-12
+      "p_holm": 3.714872545169867e-13,
+      "p_holm_all": 3.825215294036299e-12
     },
     {
       "first": 259,
@@ -49674,8 +49799,8 @@
       "low": 0.047455943209440694,
       "high": 0.08266234614451745,
       "p": 6.670084191087266e-13,
-      "p_holm": 6.603383349176393e-11,
-      "p_holm_all": 6.296559476386379e-10
+      "p_holm": 6.670084191087265e-11,
+      "p_holm_all": 6.363260318297252e-10
     },
     {
       "first": 862,
@@ -49856,7 +49981,7 @@
       "low": 0.008033138518606254,
       "high": 0.04929170224572496,
       "p": 0.007404857447081556,
-      "p_holm": 0.6368177404490138,
+      "p_holm": 0.6442225978960954,
       "p_holm_all": 1.0
     },
     {
@@ -49999,8 +50124,8 @@
       "low": 0.01794483214073702,
       "high": 0.05757837077100093,
       "p": 0.00022780042456489667,
-      "p_holm": 0.020957639059970494,
-      "p_holm_all": 0.11253340973505896
+      "p_holm": 0.02141323990910029,
+      "p_holm_all": 0.11344461143331855
     },
     {
       "first": 127,
@@ -50090,7 +50215,7 @@
       "low": 0.010895396464384408,
       "high": 0.05734846158839084,
       "p": 0.004537732991457217,
-      "p_holm": 0.4038582362396923,
+      "p_holm": 0.4083959692311495,
       "p_holm_all": 1.0
     },
     {
@@ -50168,8 +50293,8 @@
       "low": 0.017970916928709595,
       "high": 0.06665146705673171,
       "p": 0.0007641053000487032,
-      "p_holm": 0.06953358230443199,
-      "p_holm_all": 0.355308964522647
+      "p_holm": 0.07029768760448069,
+      "p_holm_all": 0.3568371751227444
     },
     {
       "first": 126,
@@ -50181,8 +50306,8 @@
       "low": 0.030053368305295636,
       "high": 0.07913680457914476,
       "p": 1.606345265308735e-05,
-      "p_holm": 0.0015260280020432983,
-      "p_holm_all": 0.009364992896749925
+      "p_holm": 0.0015420914546963858,
+      "p_holm_all": 0.00946137361266845
     },
     {
       "first": 915,
@@ -50199,16 +50324,29 @@
     },
     {
       "first": 977,
+      "second": 1037,
+      "questions": 2198,
+      "first_only": 407,
+      "second_only": 399,
+      "difference": 0.003639672429481347,
+      "low": -0.02167591792005524,
+      "high": 0.028955262779017932,
+      "p": 0.8052638607158661,
+      "p_holm": 1.0,
+      "p_holm_all": 1.0
+    },
+    {
+      "first": 1037,
       "second": 340,
       "questions": 2198,
-      "first_only": 419,
-      "second_only": 312,
-      "difference": 0.04868061874431301,
-      "low": 0.024657232463104865,
-      "high": 0.07270400502552116,
-      "p": 8.600351365061709e-05,
-      "p_holm": 0.008084330283158006,
-      "p_holm_all": 0.04515184466657397
+      "first_only": 438,
+      "second_only": 339,
+      "difference": 0.045040946314831666,
+      "low": 0.02025593412206603,
+      "high": 0.0698259585075973,
+      "p": 0.0004314839100601958,
+      "p_holm": 0.04012800363559821,
+      "p_holm_all": 0.20797524464901437
     },
     {
       "first": 340,
@@ -50298,8 +50436,8 @@
       "low": 0.02400411873768813,
       "high": 0.0733571187509379,
       "p": 0.0001317651713299896,
-      "p_holm": 0.012254160933689034,
-      "p_holm_all": 0.06693670703563472
+      "p_holm": 0.012517691276349012,
+      "p_holm_all": 0.06759553289228466
     },
     {
       "first": 931,
@@ -352132,6 +352270,11 @@
       "confidence_instruction": "Aşağıdaki çoktan seçmeli soruların her birini yanıtlayın. Açıklama yapmadan, her soru için doğru seçeneğin harfini ve cevabınızın doğru olduğundan ne kadar emin olduğunuzu gösteren 0 ile 1 arasında bir güven puanını belirtilen JSON biçiminde birlikte döndürün. Cevabı bilmiyorsanız Bilmiyorum seçeneğini seçin.",
       "prompt_version": "d3c64e8c862e"
     },
+    "plain": {
+      "instruction": "Aşağıdaki çoktan seçmeli soruyu çöz. Yanıtının son satırına yalnızca 'CEVAP: X' yaz (X = {letters}). Cevabı bilmiyorsanız Bilmiyorum seçeneğini seçin.",
+      "sentence": "Cevabı bilmiyorsanız Bilmiyorum seçeneğini seçin.",
+      "prompt_version": "711479895d19"
+    },
     "vs_confidence_share": 0.01,
     "questions": 2198,
     "models": [
@@ -354787,6 +354930,43 @@
           "p": 0.1506141469346891,
           "p_holm": null
         }
+      },
+      {
+        "name": "LFM2.5-2.6B",
+        "model": "lfm2.5-2.6b",
+        "provider": "vllm-plain",
+        "perplexity_mode": null,
+        "group": "chat",
+        "run": 1038,
+        "runs": [
+          1038
+        ],
+        "right": 659,
+        "wrong": 1134,
+        "dont_know": 372,
+        "invalid": 33,
+        "invalid_replies": {
+          "invalid_without_rule": 33,
+          "read_from_broken_replies": 0,
+          "read_without_confidence": 0,
+          "empty_replies_asked_again": 0,
+          "asked_again_with_answers": 0,
+          "answers_after_asking_again": 0,
+          "invalid_by_kind": {
+            "cut off": 14,
+            "unreadable": 19
+          }
+        },
+        "accuracy": 0.29981801637852595,
+        "attempt_rate": 0.8157415832575068,
+        "non_hallucination": 0.24701195219123506,
+        "mean_dont_know_probability": null,
+        "spread": null,
+        "answers_changed": null,
+        "original_run": 1037,
+        "original_accuracy": 0.33894449499545043,
+        "derived": null,
+        "vs_confidence": null
       },
       {
         "name": "StartLux-Decision v1.1 2B",
@@ -364242,6 +364422,99 @@
         }
       },
       {
+        "name": "LFM2.5-2.6B",
+        "model": "lfm2.5-2.6b",
+        "provider": "vllm-plain",
+        "run": 1034,
+        "runs": [
+          1034
+        ],
+        "dates": [
+          "2026-11-12"
+        ],
+        "perplexity_mode": null,
+        "turkish_run": 1037,
+        "turkish_runs": [
+          1037
+        ],
+        "cost": {
+          "english": {
+            "usd": 0.5271934,
+            "per_1000": 0.9637904936014625,
+            "basis": "maker",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 148384,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 950518
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Liquid AI's list price for the same model (FP8 at its endpoint)",
+              "source": "https://openrouter.ai/liquid/lfm-2.5-2.6b",
+              "date": "2026-11-12",
+              "change": null,
+              "applies_to": "maker",
+              "extra_input_per_request": 0,
+              "per_request": 0.0,
+              "rates": {
+                "input_tokens": 0.35,
+                "cached_input_tokens": 0.35,
+                "cache_write_input_tokens": 0.35,
+                "cache_write_1h_input_tokens": 0.35,
+                "output_tokens": 0.5
+              },
+              "text": "$0.35 input, $0.50 output per 1M tokens"
+            },
+            "upper_bound": false
+          },
+          "turkish": {
+            "usd": 6.0685373,
+            "per_1000": 2.7609359872611465,
+            "basis": "maker",
+            "upper_bound": false
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 14.99205531302141,
+            "p90_request_seconds": 25.425886514410376,
+            "concurrency": 32,
+            "questions_per_request": 1
+          },
+          "turkish": {
+            "median_request_seconds": 51.20819945249241,
+            "p90_request_seconds": 96.91006861727801,
+            "concurrency": 32,
+            "questions_per_request": 1,
+            "source": "run"
+          }
+        },
+        "english": {
+          "right": 404,
+          "wrong": 143,
+          "invalid": 0,
+          "accuracy": 0.7385740402193784
+        },
+        "turkish": {
+          "right": 262,
+          "wrong": 271,
+          "invalid": 14,
+          "accuracy": 0.4789762340036563
+        },
+        "difference": 0.25959780621572215,
+        "spread": null,
+        "answers_changed": null,
+        "paired": {
+          "english_only_right": 175,
+          "turkish_only_right": 33,
+          "p": 1.474858241680115e-24,
+          "p_holm": 1.4158639120129103e-22
+        }
+      },
+      {
         "name": "Erk-14B",
         "model": "erk-14b",
         "provider": "vllm",
@@ -364747,7 +365020,7 @@
           "english_only_right": 222,
           "turkish_only_right": 38,
           "p": 8.493716039465006e-33,
-          "p_holm": 8.153967397886406e-31
+          "p_holm": 8.238904558281056e-31
         },
         "decision_score": {
           "score": 69.84327454412265,
@@ -367111,6 +367384,72 @@
             "turkish_only_wrong": 95,
             "p": 4.491803346422254e-05,
             "p_holm": 0.0015272131377835664
+          }
+        },
+        {
+          "name": "LFM2.5-2.6B",
+          "model": "lfm2.5-2.6b",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": 1037,
+          "english": {
+            "run": 1035,
+            "runs": [
+              1035
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 3,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "invalid_by_kind": {
+                "unreadable": 3
+              }
+            },
+            "right": 410,
+            "wrong": 113,
+            "dont_know": 21,
+            "invalid": 3,
+            "accuracy": 0.7495429616087751,
+            "attempt_rate": 0.9561243144424132,
+            "non_hallucination": 0.15671641791044777,
+            "mean_dont_know_probability": null
+          },
+          "turkish": {
+            "run": 1038,
+            "runs": [
+              1038
+            ],
+            "subset": false,
+            "invalid_replies": {
+              "invalid_without_rule": 33,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "invalid_by_kind": {
+                "cut off": 14,
+                "unreadable": 19
+              }
+            },
+            "right": 267,
+            "wrong": 229,
+            "dont_know": 43,
+            "invalid": 8,
+            "accuracy": 0.48811700182815354,
+            "attempt_rate": 0.906764168190128,
+            "non_hallucination": 0.15808823529411764,
+            "mean_dont_know_probability": null
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 44,
+            "turkish_only_wrong": 160,
+            "p": 1.1281099734141455e-16,
+            "p_holm": 5.076494880363654e-15
           }
         },
         {
@@ -647246,6 +647585,53 @@
           ]
         },
         {
+          "name": "LFM2.5-2.6B",
+          "text_run": 1037,
+          "native": [
+            {
+              "language": "Turkish",
+              "wording": "Bilmiyorum",
+              "run": 1038,
+              "full_bank_restricted": true,
+              "right": 267,
+              "wrong": 229,
+              "abstained": 43,
+              "invalid": 8,
+              "coverage": 0.906764168190128,
+              "risk": 0.46169354838709675
+            },
+            {
+              "language": "Turkish",
+              "wording": "I don't know",
+              "run": null
+            },
+            {
+              "language": "English",
+              "wording": "I don't know",
+              "run": 1035,
+              "full_bank_restricted": false,
+              "right": 410,
+              "wrong": 113,
+              "abstained": 21,
+              "invalid": 3,
+              "coverage": 0.9561243144424132,
+              "risk": 0.21606118546845124
+            }
+          ],
+          "curves": [
+            {
+              "language": "Turkish",
+              "run": 1037,
+              "points": []
+            },
+            {
+              "language": "English",
+              "run": 1034,
+              "points": []
+            }
+          ]
+        },
+        {
           "name": "Erk-14B",
           "text_run": 132,
           "native": [
@@ -746149,6 +746535,23 @@
           "paired": null
         },
         {
+          "name": "LFM2.5-2.6B",
+          "text_run": 1037,
+          "english": {
+            "run": 1035,
+            "right": 410,
+            "wrong": 113,
+            "dont_know": 21,
+            "invalid": 3,
+            "accuracy": 0.7495429616087751,
+            "attempt_rate": 0.9561243144424132,
+            "non_hallucination": 0.15671641791044777,
+            "mean_dont_know_probability": null
+          },
+          "turkish": null,
+          "paired": null
+        },
+        {
           "name": "Erk-14B",
           "text_run": 132,
           "english": {
@@ -748457,6 +748860,18 @@
           ]
         },
         {
+          "name": "LFM2.5-2.6B",
+          "text_run": 1037,
+          "five_option_run": 1037,
+          "wrong": null,
+          "wrong_of_answers": null,
+          "difference": null,
+          "interval": null,
+          "p": null,
+          "p_holm": null,
+          "wrong_by_rank": ""
+        },
+        {
           "name": "Liquid d1-2B (open weights)",
           "text_run": 340,
           "five_option_run": 340,
@@ -750242,6 +750657,19 @@
           ]
         },
         {
+          "name": "LFM2.5-2.6B",
+          "text_run": 1037,
+          "five_option_run": 1034,
+          "wrong": null,
+          "wrong_of_answers": null,
+          "difference": null,
+          "interval": null,
+          "p": null,
+          "p_holm": null,
+          "wrong_by_rank": "",
+          "points": []
+        },
+        {
           "name": "Erk-14B",
           "text_run": 132,
           "five_option_run": 762,
@@ -751721,6 +752149,12 @@
         "text_run": 977,
         "kept": 7,
         "wrong": 0
+      },
+      {
+        "name": "LFM2.5-2.6B",
+        "text_run": 1037,
+        "kept": null,
+        "wrong": null
       },
       {
         "name": "Liquid d1-2B (open weights)",

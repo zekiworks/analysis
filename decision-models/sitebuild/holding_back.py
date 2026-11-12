@@ -20,7 +20,8 @@ KINDS = (("decision", "Decision models"), ("chat", "Chat models"))
 # A run's kind of confidence (results.json runs[].confidence.source), as a block's line says it.
 SOURCES = {"probability": "option probabilities", "stated": "the confidence the model states",
            "votes": "agreement across ten answers"}
-NO_CONFIDENCE = "No confidence reported"
+# A setup without a confidence (a vllm-plain run's plain answer line), named under its block in the site's words.
+NO_CONFIDENCE = "Confidence not measured (a plain answer line, no confidence)"
 
 
 def measures(option: str, total: int) -> tuple[tuple[str, str], ...]:

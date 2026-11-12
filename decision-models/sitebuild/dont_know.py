@@ -28,8 +28,9 @@ from typing import Any, Callable
 
 import build_page as bp
 from sitebuild import holding_back as hold
-from sitebuild.site import (DECISION_ONLY, GROUPS, NO_ANSWERS, Site, esc, hbars, legend_mark, line_plot, marker_path,
-                            measure_rows, more_link, pct, rank_fill, rel, scale_legend, shown)
+from sitebuild.site import (DECISION_ONLY, GROUPS, NO_ANSWERS, NOT_MEASURED_CONFIDENCE, Site, esc, hbars, legend_mark,
+                            line_plot, marker_path, measure_rows, more_link, pct, plain_line, rank_fill, rel, scale_legend,
+                            shown)
 from sitebuild.names import entry as shared_entry, tag_html
 from sitebuild.vision import cell, joined, run_span
 
@@ -105,7 +106,7 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
     percent = lambda value: '<span class="nm">Undefined</span>' if value is None else pct(value, digits)  # noqa: E731
     heads = [f"{head} ({direction})" for head, direction in columns(option, total)]
     derived = model["derived"]
-    cut = ("no cut-off (no answer has a score)" if derived["cut_off"] is None else
+    cut = ("" if derived is None else "no cut-off (no answer has a score)" if derived["cut_off"] is None else
            f"cut-off {derived['cut_off']:.4f}: {derived['right']:,} right + {derived['wrong']:,} wrong answered, "
            f"{derived['abstained']:,} held back")
     invalid = f", {model['invalid']:,} invalid" if model["invalid"] else ""
@@ -118,6 +119,8 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
             f"{name} {percent(spread[key][0])} to {percent(spread[key][1])}" if spread[key] else f"{name} undefined in a run"
             for key, name in (("attempt_rate", "Answered"), ("non_hallucination", "Non-hallucination"),
                               ("accuracy", "Accuracy"), ("mean_dont_know_probability", "Mean probability"))
+            # A plain answer line reports no probabilities: no range of them (its cell says not measured).
+            if not (key == "mean_dont_know_probability" and plain_line(model))
         ]
         changed = model["answers_changed"]
         ranges.append(f"{changed:,} answer{'' if changed == 1 else 's'} changed between runs")
@@ -127,9 +130,11 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
         f'{model["dont_know"] + model["wrong"]:,} not right</span>',
         answered_cell(model, total, digits, f', {model["dont_know"]:,} “{esc(option)}”{invalid}'),
         wrong_cell(model, digits),
+        NOT_MEASURED_CONFIDENCE if derived is None else
         f'{percent(derived["non_hallucination"])}<span class="small">{cut}, attempt rate {percent(derived["attempt_rate"])}</span>',
         f'{percent(model["accuracy"])}<span class="small">{model["right"]:,} of {total:,} right</span>',
         percent(model["mean_dont_know_probability"]) if model["group"] == "decision" else
+        NOT_MEASURED_CONFIDENCE if plain_line(model) else
         '<span class="nm">No probabilities</span><span class="small">a chat model states a confidence, not option probabilities</span>',
         f'{percent(model["original_accuracy"])}<span class="small"><a href="{rel(PATH, site.model_path(run))}">run {run["run"]}</a></span>',
         runs_text,
@@ -422,12 +427,14 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
                                       ", in its five-option run on the Text tab")
     first = (f'<figure class="panel chart-card" id="{anchor("chart-non-hallucination", group)}"><div class="chart-head">'
              f'<h2>Non-hallucination, answered and error rate</h2></div>{hold.pair(confidence, with_option)}</figure>')
+    # A model asked for a plain answer line has no confidence to hold back by (derived None): named under its block.
+    unmeasured = [model for model in rated if model["derived"] is None]
     second = split_card(
         "chart-confidence", "Saying “I don't know”, or held back by confidence",
         f"Each model's non-hallucination rate with “{option}”, and its five-option run held back by its own confidence at "
         "about the same attempt rate · higher is better; beside them the run with the option's share answered and error "
         "rate among the answers",
-        [model for model in rated if model["derived"]["non_hallucination"] is not None],
+        [model for model in rated if model["derived"] is not None and model["derived"]["non_hallucination"] is not None],
         lambda mine: [{"label": title(model), "tag": tag(model), "family": site.families[model["original_run"]]["name"], "href": href(model),
                        "class_key": site.model_class(run_of(model)),
                        "texts": [pct(model["non_hallucination"], digits), pct(model["derived"]["non_hallucination"], digits),
@@ -438,7 +445,10 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
                                 f"{pct(model['derived']['non_hallucination'], digits)} held back by confidence"}
                       for model in mine],
         lambda mine, heading: f'<span><i class="swatch swatch-lead"></i>With “{option}”</span> '
-                              '<span><i class="swatch swatch-base"></i>Held back by its own confidence (the derived rate)</span>',
+                              '<span><i class="swatch swatch-base"></i>Held back by its own confidence (the derived rate)</span>'
+                              + (f" <span>Held back by confidence not measured (a plain answer line, no confidence): "
+                                 f"{esc(joined([label(model) for model in unmeasured]))}.</span>"
+                                 if unmeasured and mine[0]["group"] == "chat" else ""),
         columns=[(f"Non-hallucination with “{shown_option(data['option'])}”", "With"), ("Held back by confidence", "Held back"),
                  ("Answered", "Ans."), ("Error rate (wrong / answered)", "Error")])
     # The paired test (vs_confidence, decision models only): for each of the group's models in Holm's family (every
@@ -1160,10 +1170,23 @@ def same_short(model: dict[str, Any]) -> bool:
     return model["wrong"] is None and not model["reference"]
 
 
+def same_unmeasured(site: Site, model: dict[str, Any]) -> bool:
+    """Whether a model's five-option run gives no confidence (its setup was asked for a plain answer line): it has no
+    most confident answers to keep, so it is left out (same_short) as not measured, and has no curve."""
+    return plain_line(site.by_id[model["text_run"]])
+
+
+def same_reason(site: Site, model: dict[str, Any], k: int) -> str:
+    """Why a left-out model (same_short) keeps no k answers: not measured (same_unmeasured), or too few scored answers."""
+    if same_unmeasured(site, model):
+        return "not measured, a plain answer line gives no confidence to rank its answers by"
+    return f"its run has {len(model['wrong_by_rank']):,} scored answers, fewer than k = {k:,}"
+
+
 def same_left_out(site: Site, family: dict[str, Any]) -> str:
-    """The family's left-out models (same_short), each named once with its scored answers and k; empty when none."""
-    return "; ".join(f"{esc(same_label(site, model, family))} is left out: its run has {len(model['wrong_by_rank']):,} "
-                     f"scored answers, fewer than k = {family['k']:,}" for model in family["models"] if same_short(model))
+    """The family's left-out models (same_short), each named once with its reason (same_reason); empty when none."""
+    return "; ".join(f"{esc(same_label(site, model, family))} is left out: {same_reason(site, model, family['k'])}"
+                     for model in family["models"] if same_short(model))
 
 
 def same_families(site: Site, same: dict[str, Any]) -> list[dict[str, Any]]:
@@ -1418,8 +1441,8 @@ def same_colours(site: Site, families: list[dict[str, Any]]) -> dict[int, tuple[
 
 def same_plotted(family: dict[str, Any]) -> list[dict[str, Any]]:
     """The family's models drawn in its plot: in Turkish the tab's models (those with runs with the option), in English
-    all."""
-    return [model for model in family["models"] if family["key"] != "turkish" or model["points"] is not None]
+    all; a model without a curve (no scored answer: a plain answer line, same_unmeasured) in neither."""
+    return [model for model in family["models"] if (family["key"] != "turkish" or model["points"] is not None) and model["curve"]]
 
 
 def same_drawn(curve: list[tuple[int, int]], k: int, total: int, step: float) -> list[tuple[int, int]]:
@@ -1489,7 +1512,9 @@ def same_plot(site: Site, same: dict[str, Any], family: dict[str, Any], colours:
             f"answering only its most confident answers (the line), and its own runs with the option (the marker: {shapes})"
             + (f"; the table under Info has all {len(family['models'])} {same_unit(family, len(family['models']))}, the plot "
                f"the {len(plotted)} with runs with the option (<a href=\"#same-answers-curves\">every setup's curve under "
-               "Info</a>)" if len(plotted) < len(family["models"]) else "")
+               "Info</a>)" if family["key"] == "turkish" and len(plotted) < len(family["models"]) else
+               "; not drawn: " + esc(joined([same_label(site, model, family) for model in family["models"] if model not in plotted]))
+               + ", not measured (a plain answer line, no confidence)" if len(plotted) < len(family["models"]) else "")
             + " · lower is better at the same coverage</p></div>"
             f'<div class="chart-box" style="min-height:0;overflow-x:auto">'
             + line_plot(series, f"Answered (coverage, of {total:,})", "Wrong of answers", y_top,
@@ -1609,7 +1634,8 @@ def same_curves(site: Site, same: dict[str, Any], family: dict[str, Any]) -> str
             marks += (f'<g><title>{esc(tip)}</title>'
                       f'{marker_path(er.SHAPES[point["wording"]], px(point["answered"] / total), py(share))}</g>')
         short = same_short(model)
-        wrong = ("— (left out: its run has "
+        wrong = ("— (not measured: a plain answer line, no confidence)" if same_unmeasured(site, model) else
+                 "— (left out: its run has "
                  f"{len(model['wrong_by_rank']):,} scored answers, fewer than k)" if short else
                  f"{same_wrong_text(model['wrong'])} ({pct(model['wrong_of_answers'], digits)})")
         versus = ("the reference, dashed in every plot" if model["reference"] else "not tested" if short else
@@ -1626,12 +1652,13 @@ def same_curves(site: Site, same: dict[str, Any], family: dict[str, Any]) -> str
         svg = (f'<svg viewBox="0 0 {width} {height}" width="100%" role="img" aria-label="{esc(name)}: wrong of answers '
                f'against answered, with {esc(reference)}\'s curve dashed"><use href="#same-frame-{key}"/>'
                f'<use href="#same-ref-{key}" fill="none" stroke="var(--text-2)" stroke-width="1.3" stroke-dasharray="4 3"/>'
-               f'<polyline fill="none" stroke="{SAME_SMALL_COLOUR}" stroke-width="1.6" stroke-linejoin="round" '
-               f'points="{points(model["curve"])}"><title>{esc(name)}: five options, run {model["five_option_run"]}, from 1 to '
-               f'{model["curve"][-1][0]:,} answers; '
-               + (f'left out: fewer than k = {k:,} scored answers' if short else
-                  f'{same_wrong_text(model["wrong"])} wrong of its {k:,} most confident') + '</title>'
-               f'</polyline><g fill="{SAME_SMALL_COLOUR}" stroke="var(--panel)" stroke-width="1">{marks}</g></svg>')
+               + (f'<polyline fill="none" stroke="{SAME_SMALL_COLOUR}" stroke-width="1.6" stroke-linejoin="round" '
+                  f'points="{points(model["curve"])}"><title>{esc(name)}: five options, run {model["five_option_run"]}, from 1 to '
+                  f'{model["curve"][-1][0]:,} answers; '
+                  + (f'left out: fewer than k = {k:,} scored answers' if short else
+                     f'{same_wrong_text(model["wrong"])} wrong of its {k:,} most confident') + '</title></polyline>'
+                  if model["curve"] else "")
+               + f'<g fill="{SAME_SMALL_COLOUR}" stroke="var(--panel)" stroke-width="1">{marks}</g></svg>')
         return (f'<li{site.class_attribute(run)}><figure style="margin:0">{svg}<figcaption class="note" style="margin:.25rem 0 0">'
                 f'{site.icon(run)}<a class="model-name" href="{rel(PATH, site.model_path(run))}" title="{esc(site.detail(run))}">{esc(site.title(run))}</a>{tag_html(site.tag(run))} {site.label(run)} '
                 f'Wrong of the {k:,} answers: {wrong}, {versus}<br>'
@@ -1672,8 +1699,9 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
 
         def row(model: dict[str, Any]) -> str:
             five = f"{model['five_option_run']}"
-            short = same_short(model)
-            wrong = (f'—<span class="small">left out: its run has {len(model["wrong_by_rank"]):,} scored answers, fewer '
+            short, unmeasured = same_short(model), same_unmeasured(site, model)
+            wrong = (NOT_MEASURED_CONFIDENCE if unmeasured else
+                     f'—<span class="small">left out: its run has {len(model["wrong_by_rank"]):,} scored answers, fewer '
                      f"than k = {k:,}</span>" if short else
                      f'{pct(model["wrong_of_answers"], digits)}<span class="small">{same_wrong_text(model["wrong"])} of '
                      f"{k:,}</span>")
@@ -1696,7 +1724,8 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
                           f'{own["wrong"]:,} wrong of {own["answered"]:,} ({pct(own["wrong"] / own["answered"], digits)}), '
                           "not part of the test</span>", "reference", "reference", context]
             elif short:
-                values = [five, wrong, '—<span class="small">left out, fewer than k scored answers</span>', "—", "—", context]
+                values = [five, wrong, '—<span class="small">left out, '
+                          + ("not measured" if unmeasured else "fewer than k scored answers") + "</span>", "—", "—", context]
             else:
                 low, high = model["interval"]
                 values = [five, wrong,
@@ -1730,9 +1759,14 @@ def same_info(site: Site, same: dict[str, Any], families: list[dict[str, Any]]) 
         '(<a href="#hosted-glide-rerun-method">Our method for the hosted GLiDE rerun</a>), so its line and its markers '
         "come from two models, as the legend and the table say." for model in glide)
     refs = {family["key"]: next(model for model in family["models"] if model["reference"]) for family in families}
+    lacking = [model for family in families for model in family["models"] if same_short(model)]
     short_text = (" A run with fewer than k scored answers keeps no k answers: it is left out of the bootstrap and of "
-                  "Holm's adjustment, and its line ends before k." if any(same_short(model) for family in families
-                                                                          for model in family["models"]) else "")
+                  "Holm's adjustment, and its line ends before k." if any(not same_unmeasured(site, model) for model in lacking)
+                  else "")
+    if any(same_unmeasured(site, model) for model in lacking):
+        short_text += (" A setup asked for a plain answer line states no confidence and reports no option probabilities, so "
+                       "its answers have no score to rank by: not measured, it is left out of the bootstrap and of Holm's "
+                       "adjustment and has no line.")
     compared = lambda family: sum(1 for model in family["models"] if not model["reference"] and not same_short(model))  # noqa: E731
     plotted = len(same_plotted(turkish))
     owns = {key: next(point for point in model["points"] if point["run"] == families[index]["k_run"])
@@ -1796,7 +1830,12 @@ def check_high_confidence(site: Site, high: dict[str, Any]) -> None:
     def fail(text: str) -> SystemExit:
         return SystemExit(f"results.json high_confidence: {text}")
 
-    pairs = [(model["name"], model["kept"], model["wrong"]) for model in high["models"]]
+    # A run without a confidence (a plain answer line) keeps no answers by it: kept and wrong are null, never 0.
+    unmeasured = [model for model in high["models"] if model["kept"] is None or model["wrong"] is None]
+    if any(model["kept"] is not None or model["wrong"] is not None or site.by_id[model["text_run"]]["confidence"]
+           for model in unmeasured):
+        raise fail("a row without kept or wrong answers is not a run without a confidence")
+    pairs = [(model["name"], model["kept"], model["wrong"]) for model in high["models"] if model not in unmeasured]
     pairs += [(f"run {run['run']}", run["kept"], run["wrong"]) for entry in high["repeats"] for run in entry["runs"]]
     pairs += [(f"English run {run['run']}", run["kept"], run["wrong"]) for run in high["english"]["runs"]]
     pairs += [(f"run {run['run']} at {cut:g}", kept, wrong) for model in high["cutoffs"]["models"] for run in model["runs"]
@@ -1940,8 +1979,12 @@ def build(site: Site) -> dict[str, str]:
     if data["questions"] != site.total:
         raise SystemExit(f"results.json dont_know: {data['questions']} questions, the Text tab {site.total}")
     chat_rows = [model for model in data["models"] if model["group"] == "chat"]
-    if chat_rows and not data.get("chat"):
+    # The chat setups asked for a plain answer line (vllm-plain) have prompts of their own (dont_know.plain).
+    plain_rows = [model for model in chat_rows if plain_line(model)]
+    if len(plain_rows) < len(chat_rows) and not data.get("chat"):
         raise SystemExit("results.json dont_know: chat models' rows without the chat models' prompts")
+    if plain_rows and not data.get("plain"):
+        raise SystemExit("results.json dont_know: rows asked for a plain answer line without their prompts")
     if any(site.by_id[model["original_run"]]["questions_per_request"] != 1 for model in data["models"] if model["group"] == "decision"):
         raise SystemExit("results.json dont_know: a decision model's Text tab run asks more than one question per request")
     # The parts about decision models only read the decision models' rows.
@@ -1965,18 +2008,32 @@ def build(site: Site) -> dict[str, str]:
     high = site.results.get("high_confidence")
     if high:
         check_high_confidence(site, high)
-    chat = data.get("chat")
+    chat, plain = data.get("chat"), data.get("plain")
     counts = {group: len(group_models(site, data, group)) for group in GROUPS}
     running = [run for run in running_setups(site) if not site.decision(run)]
     chat_sentence = (f" A chat model's instructions end with its own sentence instead: “{esc(chat['sentence'])}”"
                      if chat else "")
     chat_models = (f" With them, every chat model setup of the Text tab as its run finishes: {bp.in_words(counts['chat'])} so far"
                    + (f", {bp.in_words(len(running))} still running in Turkish" if running else "") + ".") if chat_rows or running else ""
-    chat_prompts = (f"<p>A chat model is asked as on the Text tab, with the option after each question's own and one sentence "
+    chat_prompts = (f"<p>{'Any other' if plain else 'A'} chat model is asked as on the Text tab, with the option after each "
+                    f"question's own and one sentence "
                     f"added at the end of each instruction of its prompts: “{esc(chat['sentence'])}” Its system prompt and "
                     f"instruction when it states a confidence, in full:</p><blockquote><p>{esc(chat['confidence_system'])}</p>"
                     f"<p>{esc(chat['confidence_instruction'])}</p></blockquote><p>Prompt version {esc(chat['prompt_version'])} "
                     "(the chat models' prompts with the sentence and the option, hashed the same way).</p>") if chat else ""
+    plain_names = joined([site.plain(site.by_id[model["original_run"]]) for model in plain_rows]) if plain_rows else ""
+    if plain:
+        chat_prompts = (f"<p>A chat model asked for a plain answer line ({esc(plain_names)}) is asked as on the Text tab: one "
+                        "question per request, a user message with one instruction and the question, no system prompt and no "
+                        "answer schema, its answer the letter on the reply's last “CEVAP: X” line. With the option, F is among "
+                        f"the letters of its instruction and one sentence is added at its end: “{esc(plain['sentence'])}” Its "
+                        f"instruction in full ({{letters}} is the question's own letters):</p><blockquote><p>"
+                        f"{esc(plain['instruction'])}</p></blockquote><p>Prompt version {esc(plain['prompt_version'])} (the "
+                        "plain answer line's prompts with the sentence and the option, hashed the same way). It states no "
+                        "confidence and reports no option probabilities, so its derived non-hallucination rate and its mean "
+                        f"probability of “{option}” are not measured.</p>") + chat_prompts
+    no_score = (f" A chat model asked for a plain answer line ({esc(plain_names)}) states none, so its derived rate is not "
+                "measured." if plain_rows else "")
     site.note(PATH, "Hallucination",
               f"<p>A wrong answer counts as a hallucination: the model could have chosen “{option}” "
               "instead. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its "
@@ -2017,7 +2074,7 @@ def build(site: Site) -> dict[str, str]:
       <h2>Our method</h2>
       <p>We measure hallucination by offering a way out. Every question gets “{option}” as a sixth option, and the instructions tell the model to choose it when it does not know the answer. A hallucination is then a wrong answer: the model chose one of the question's own options, not the key, when it could have said it did not know. Everything else is the Text tab's: the questions, the answer key and each model's settings.</p>
       <h3>How it differs from our confidence method</h3>
-      <p>On the Text tab a model must pick one of the five options, and we judge each answer by its confidence: the probability the model gives the option it picked (its <a href="{rel(PATH, "method/")}#confidence-sources">option score</a>), or for a chat model the confidence it states. Our confidence method keeps an answer when that confidence reaches a cut-off, and a stronger model answers the rest (<a href="{rel(PATH, "method/")}#routing">How we chose which answers to keep</a>). Here no cut-off decides: the model can say itself that it does not know, by choosing “{option}”, and the rates count those choices. The two meet in the derived non-hallucination rate, which applies the confidence method to the same model's five-option run at about the same attempt rate; side by side, the two non-hallucination columns compare a model that says it does not know with the same model held back by its own confidence.</p>
+      <p>On the Text tab a model must pick one of the five options, and we judge each answer by its confidence: the probability the model gives the option it picked (its <a href="{rel(PATH, "method/")}#confidence-sources">option score</a>), or for a chat model the confidence it states.{no_score} Our confidence method keeps an answer when that confidence reaches a cut-off, and a stronger model answers the rest (<a href="{rel(PATH, "method/")}#routing">How we chose which answers to keep</a>). Here no cut-off decides: the model can say itself that it does not know, by choosing “{option}”, and the rates count those choices. The two meet in the derived non-hallucination rate, which applies the confidence method to the same model's five-option run at about the same attempt rate; side by side, the two non-hallucination columns compare a model that says it does not know with the same model held back by its own confidence.</p>
       <h3>The rates</h3>
       <p>Each answer is right, wrong, “{option}” or invalid; an invalid answer counts as none of the others. Out of all {total} questions:</p>
       <ul>
@@ -2025,7 +2082,7 @@ def build(site: Site) -> dict[str, str]:
         <li><strong>Answered</strong> (the attempt rate) = (right + wrong) / {total}: how often the model chose one of the question's own options.</li>
         <li><strong>Error rate</strong> = wrong / (right + wrong): among the answers the model gave, the share that were wrong. With no answer it is undefined.</li>
         <li><strong>Non-hallucination rate</strong> = “{option}” / (“{option}” + wrong): among the answers that were wrong or “{option}”, the share where the model said it did not know. The hallucination rate is its complement, wrong / (“{option}” + wrong).</li>
-        <li><strong>Mean probability of “{option}”</strong>: the probability the model gave that option, averaged over its answers that report option probabilities. A chat model states a confidence and reports no option probabilities.</li>
+        <li><strong>Mean probability of “{option}”</strong>: the probability the model gave that option, averaged over its answers that report option probabilities. A chat model states a confidence and reports no option probabilities.{" A chat model asked for a plain answer line reports neither: not measured." if plain_rows else ""}</li>
       </ul>
       <h3>How to read them</h3>
       <p>The non-hallucination rate says how a model is wrong, not how often it is right, and it is not a direct measure of what the model does not know. Read it with accuracy and the attempt rate: a model that always chose “{option}” would reach 100% with no right answers, and one that never chose it would reach 0% as soon as it answered one question wrongly. With neither a wrong answer nor “{option}”, there is nothing to divide by and the rate is undefined (the table shows Undefined).</p>
@@ -2035,7 +2092,7 @@ def build(site: Site) -> dict[str, str]:
       <p>Prompt version {esc(data["prompt_version"])} (a hash of the prompts with these instructions and this option, computed as for the Text tab's prompt version).</p>
       {chat_prompts}
       <h3>Derived non-hallucination rate</h3>
-      <p>For comparison, each model's run with five options (its run on the Text tab, on the same questions) is made to abstain by its own confidence: it answers only where its score (a decision model's option score, a chat model's stated confidence) reaches a cut-off and abstains on the rest. The cut-off is the one whose attempt rate comes nearest the attempt rate of the run with “{option}”; on a tie, the higher cut-off. An answer without a score never counts as an attempt. The derived non-hallucination rate is then the abstentions over the abstentions plus the wrong answers. The table shows the cut-off and the attempt rate it reached. The paired test of the two is among the decision models.</p>
+      <p>For comparison, each model's run with five options (its run on the Text tab, on the same questions) is made to abstain by its own confidence: it answers only where its score (a decision model's option score, a chat model's stated confidence) reaches a cut-off and abstains on the rest. The cut-off is the one whose attempt rate comes nearest the attempt rate of the run with “{option}”; on a tie, the higher cut-off. An answer without a score never counts as an attempt. The derived non-hallucination rate is then the abstentions over the abstentions plus the wrong answers. The table shows the cut-off and the attempt rate it reached.{no_score} The paired test of the two is among the decision models.</p>
       <h3>Repeats</h3>
       <p>One full run per model. A model whose repeated text runs changed answers gets five runs with the option. Those runs form a repeat set of their own and are never mixed with the Text tab's runs. The table shows the first run; the range covers all of them, and the changed answers are the scored questions whose answer differs between the runs.</p>
     </section><div {DECISION_ONLY}>{english_option_info(site, english) if english else ""}{option_word_info(site, decision, word) if word else ""}{vs_confidence_info(site, decision, against) if against else ""}{rerun_info(site, decision, rerun, glide) if rerun else ""}{same_info(site, same, families) if same else ""}</div>

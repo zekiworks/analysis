@@ -43,10 +43,11 @@ import benchmark_metrics as bm
 import build_page as bp
 from sitebuild.data import BLOB_URL
 from sitebuild.dont_know import check_option_word, group_data, option_word_rows
-from sitebuild.site import (DECISION_ONLY, GROUPS, NO_LIST_PRICE, NOT_MEASURED, ROOT, Site, chat_note, cost_missing,
-                            cost_per, cost_switch, cost_tick, cost_unit_in, cost_value, cost_words, esc, experiments,
-                            family_icon, family_legend, hbars, legend_mark, line_plot, log_axis, measure_rows, more_link,
-                            pct, rel, request_size, run_families, seconds_tick, shown)
+from sitebuild.site import (DECISION_ONLY, GROUPS, NO_LIST_PRICE, NOT_MEASURED, NOT_MEASURED_CONFIDENCE, PLAIN_PROVIDERS, ROOT,
+                            Site, chat_note, cost_missing, cost_per, cost_switch, cost_tick, cost_unit_in, cost_value,
+                            cost_words, esc, experiments, family_icon, family_legend, hbars, legend_mark, line_plot, log_axis,
+                            measure_rows, more_link, pct, plain_line, plain_prompt, rel, request_size, run_families,
+                            seconds_tick, shown)
 from sitebuild.names import tag_html
 from sitebuild.vision import cell, joined, run_span
 
@@ -308,10 +309,12 @@ def check(site: Site, data: dict[str, Any], record: dict[str, Any]) -> None:
     both = [model["paired"] for model in data["models"]]
     if any(abs(paired["p_holm"] - adjusted) > 1e-9 for paired, adjusted in zip(both, bm.holm([paired["p"] for paired in both]))):
         problems.append(f"the Holm-adjusted p values are not Holm's over the {len(both)} setups")
-    if group_models(site, data, "chat"):
+    if any(not plain_line(model) for model in group_models(site, data, "chat")):
         prompts = data.get("chat_prompts") or {}
         if not data.get("chat_prompt_version") or not prompts.get("confidence_system") or not prompts.get("confidence_instruction"):
             problems.append("chat setups in English without the chat prompts and their version")
+    if any(plain_line(model) for model in data["models"]) and not {"english", "turkish"} <= set(site.answers.get("plain_prompts") or {}):
+        problems.append("chat setups asked for a plain answer line without answers.json's plain prompts in both languages")
     if problems:
         raise SystemExit("english_reading:\n  " + "\n  ".join(problems))
     not_run(site, data)
@@ -1522,7 +1525,8 @@ def dont_know_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str
         value("english", "accuracy", f"{model['english']['right']:,} of {total:,} right"),
         value("turkish", "accuracy", f"{model['turkish']['right']:,} of {total:,} right"),
         *((value("english", "mean_dont_know_probability", ""), value("turkish", "mean_dont_know_probability", ""))
-          if model["group"] == "decision" else (NO_PROBABILITIES, NO_PROBABILITIES)),
+          if model["group"] == "decision" else (NOT_MEASURED_CONFIDENCE,) * 2 if plain_line(model)
+          else (NO_PROBABILITIES, NO_PROBABILITIES)),
         f"{paired['english_only_wrong']:,}", f"{paired['turkish_only_wrong']:,}",
         esc(bp.p_text(paired["p"]).removeprefix("p = ").removeprefix("p ")),
         esc(bp.p_text(paired["p_holm"]).removeprefix("p = ").removeprefix("p ")) + (" *" if idk_significant(model) else ""),
@@ -1537,9 +1541,6 @@ def dont_know_row(site: Site, idk: dict[str, Any], model: dict[str, Any]) -> str
 NO_PROBABILITIES = '<span class="nm">No probabilities</span><span class="small">a chat model states a confidence</span>'
 # A rate with nothing to divide by (no wrong answer and no “I don't know”).
 NO_RATE = '<span class="nm">No rate</span>'
-# A setup asked for a plain answer line (vllm-plain): no option probabilities and no stated confidence.
-PLAIN_PROVIDERS = ("vllm-plain",)
-NOT_MEASURED_CONFIDENCE = '<span class="nm">Not measured</span><span class="small">a plain answer line, no confidence</span>'
 
 
 def one_side_row(site: Site, idk: dict[str, Any], model: dict[str, Any], side: str) -> str:
@@ -1653,13 +1654,28 @@ def dont_know_info(site: Site, idk: dict[str, Any], tables: str | None = None) -
     holm = joined([f"the {bp.in_words(count)} {kind} model{'' if count == 1 else 's'}" for kind, count in sorted(families.items(), reverse=True)])
     holm_text = f"over {holm}" + (", each group a family of its own" if len(families) > 1 else "")
     chat = idk.get("chat")
-    chat_text = (f"<p>A chat model is asked with the chat models' English prompts, the option after each question's own and "
-                 f"one sentence added at the end of each instruction: “{esc(chat['sentence'])}” Its system prompt and "
+    entries = idk["models"] + english_only(idk) + turkish_only(idk)
+    # The chat setups asked for a plain answer line (vllm-plain), said apart once one has a Turkish side.
+    plain = [model for model in entries if plain_line(model)]
+    plain_text = ""
+    if any(plain_line(model) for model in idk["models"] + turkish_only(idk)):
+        base, english_version = plain_prompt(site.answers, "english")
+        instruction, idk_version = plain_prompt(site.answers, "english_dont_know")
+        names = joined([esc(site.plain(site.by_id[model["text_run"]]) if model.get("text_run") else model["name"]) for model in plain])
+        plain_text = (f"<p>A chat model asked for a plain answer line ({names}) is asked with its plain answer line's "
+                      f"English instruction, the option's letter among its letters and one sentence added at its end: "
+                      f"“{esc(instruction.removeprefix(base).strip())}” Plain prompt version {esc(idk_version)}. Its "
+                      "Turkish side uses the Hallucination tab's plain prompts with “Bilmiyorum” unchanged. It states no "
+                      "confidence and reports no option probabilities, so its mean probability of the option is not "
+                      "measured.</p>")
+    chat_text = (f"<p>{'Any other' if plain_text else 'A'} chat model is asked with the chat models' English prompts, the "
+                 f"option after each question's own and one sentence added at the end of each instruction: "
+                 f"“{esc(chat['sentence'])}” Its system prompt and "
                  f"instruction when it states a confidence:</p><blockquote><p>{esc(chat['confidence_system'])}</p>"
                  f"<p>{esc(chat['confidence_instruction'])}</p></blockquote><p>Chat prompt version "
                  f"{esc(chat['prompt_version'])}. Its Turkish side uses the Hallucination tab's chat prompts unchanged.</p>"
-                 if chat and any(model["group"] == "chat" for model in idk["models"] + english_only(idk) + turkish_only(idk))
-                 else "")
+                 if chat and any(model["group"] == "chat" and not (plain_text and plain_line(model)) for model in entries)
+                 else "") + plain_text
     return f"""
     <section class="card" id="dont-know-results">
       <h2>Results with an “I don't know” option</h2>{measure_rows(PATH, (PATH, "dont-know-results"))}
@@ -2198,6 +2214,13 @@ def instructions(site: Site, data: dict[str, Any]) -> str:
                   (f"Chat models, in English (prompt version {data['chat_prompt_version']}): the system prompt",
                    chat["confidence_system"]),
                   ("Chat models, in English: the instruction", chat["confidence_instruction"])]
+    # The chat setups asked for a plain answer line (vllm-plain) with a Text tab run: their one instruction per language.
+    plain = any(plain_line(model) for model in group_models(site, data, "chat"))
+    if plain:
+        for language, variant in (("Turkish (the Text tab)", "turkish"), ("English", "english")):
+            text, version = plain_prompt(site.answers, variant)
+            parts.append((f"Chat models asked for a plain answer line, in {language} (prompt version {version}): the "
+                          "instruction", text))
     with_option = []
     if idk:
         with_option += [(f"With the option, in Turkish (“{site.results['dont_know']['option']}”, the Hallucination tab)",
@@ -2210,10 +2233,20 @@ def instructions(site: Site, data: dict[str, Any]) -> str:
         if prompts:
             chat_option.append((f"Chat models with the option, in {language} (prompt version {prompts['prompt_version']}): "
                                 "the instruction", prompts["confidence_instruction"]))
+    turkish_plain = site.results["dont_know"].get("plain")
+    if turkish_plain:
+        chat_option.append((f"Chat models asked for a plain answer line with the option, in Turkish (prompt version "
+                            f"{turkish_plain['prompt_version']}): the instruction", turkish_plain["instruction"]))
+    if idk and any(plain_line(model) for model in idk["models"] + turkish_only(idk)):
+        text, version = plain_prompt(site.answers, "english_dont_know")
+        chat_option.append((f"Chat models asked for a plain answer line with the option, in English (prompt version "
+                            f"{version}): the instruction", text))
     listed = lambda items: "".join(f"<h3>{esc(title)}</h3>{quote(text)}" for title, text in items)  # noqa: E731
     return ('<section class="card method-notes" id="instructions"><h2>The instructions of each kind of run</h2>'
             "<p>Each decision model run's System One instructions in full, and each chat model run's system prompt and "
-            "instruction, as results.json and answers.json give them; a chat model's run with the option keeps the "
+            "instruction" + (" (a run asked for a plain answer line has one instruction and no system prompt; its "
+                             "{letters} is the question's own letters)" if plain or turkish_plain else "")
+            + ", as results.json and answers.json give them; a chat model's run with the option keeps the "
             "system prompt of its five-option run. The question and its options follow in the run's "
             "language; their text is not published.</p>" + listed(parts)
             + (f"<div {DECISION_ONLY}>{listed(with_option)}</div>" if with_option else "")
@@ -2300,6 +2333,10 @@ def coverage(site: Site, data: dict[str, Any]) -> str:
         for model in members(group):
             colour, keys = colours[model["text_run"]], []
             for curve in (curve for curve in model["curves"] if curve["language"] == language):
+                if plain_line(site.by_id[model["text_run"]]):
+                    # A plain answer line has no score to hold back by: no curve, said in the legend.
+                    keys.append("confidence not measured (a plain answer line, no confidence)")
+                    continue
                 title = (f"{name(model)}: {language}, five options, held back by confidence, run {curve['run']} "
                          f"({len(curve['points']):,} points)")
                 series.append({"colour": colour, "line": True, "title": title,
@@ -2355,9 +2392,32 @@ def coverage(site: Site, data: dict[str, Any]) -> str:
             "“I don't know” comparison or, for a model outside it, its Hallucination tab run, restricted to these; "
             "Turkish with “I don't know” is the option's word control on the Hallucination tab's questions, restricted "
             "to these, for decision models only. A run not yet in reads Not run for a decision model and Running for a "
-            "chat model.</p>"
+            "chat model."
+            + (" A setup asked for a plain answer line (one question per request, no stated confidence and no option "
+               "probabilities) has no confidence curve: not measured, only its runs with the option."
+               if any(plain_line(site.by_id[model["text_run"]]) for model in cov["models"]) else "")
+            + "</p>"
             f'<p class="note">{esc(cov["definitions"])}</p>'
             f"{table_html}</section>" + "".join(plots(group) for group in GROUPS))
+
+
+def plain_method(site: Site, models: list[dict[str, Any]]) -> str:
+    """The method's part on the chat setups asked for a plain answer line (vllm-plain; `models`, the comparison's
+    entries): how they are asked in both languages, quoted from answers.json's plain_prompts, and that their confidence
+    is not measured; empty without such a setup."""
+    if not models:
+        return ""
+    english, english_version = plain_prompt(site.answers, "english")
+    turkish, turkish_version = plain_prompt(site.answers, "turkish")
+    names = joined([esc(site.plain(site.by_id[model["turkish_run"]])) for model in models])
+    one = len(models) == 1
+    return f"""
+      <h3>Asking the chat models for a plain answer line</h3>
+      <p>{names} {"is" if one else "are"} asked in English as {"its" if one else "their"} Text tab run{"" if one else "s"} {"was" if one else "were"} in Turkish: one question per request on logic's server with only the request settings of logic's own runs of the same model (How we called it, on the model page), a user message with one instruction, word for word that of logic's runs, a blank line and the question as the other runs in its language show it; no system prompt and no answer schema. The answer is the letter on the reply's last “ANSWER: X” line in English, “CEVAP: X” in Turkish. {"It states" if one else "They state"} no confidence and report{"s" if one else ""} no option probabilities, so {"its" if one else "their"} confidence is not measured. The instruction in English ({{letters}} is the question's own letters, as “A, B, C, D or E”):</p>
+      <blockquote><p>{esc(english)}</p></blockquote>
+      <p>In Turkish:</p>
+      <blockquote><p>{esc(turkish)}</p></blockquote>
+      <p>Plain prompt versions {esc(english_version)} (English) and {esc(turkish_version)} (Turkish).</p>"""
 
 
 def build(site: Site) -> dict[str, str]:
@@ -2430,16 +2490,19 @@ def build(site: Site) -> dict[str, str]:
         return "".join(render(group) for group in GROUPS if counts[group])
 
     chat = group_models(site, data, "chat")
-    sizes = Counter(site.by_id[model["turkish_run"]]["questions_per_request"] for model in chat)
+    # The chat setups asked for a plain answer line (vllm-plain) are asked with their own prompts (plain_method), not the
+    # chat prompts.
+    prompted = [model for model in chat if not plain_line(model)]
+    sizes = Counter(site.by_id[model["turkish_run"]]["questions_per_request"] for model in prompted)
     size_text = joined([f"{bp.count(size)} question{'' if size == 1 else 's'} per request for {bp.in_words(number)}"
                         for size, number in sorted(sizes.items(), key=lambda item: (-item[1], item[0]))])
     chat_method = (f"""
       <h3>Asking the chat models</h3>
-      <p>Each chat model setup is asked as its Text tab run was, with the same settings (reasoning, and {size_text}), and with the Text tab's chat prompts in English: the system prompt and the instruction that ask for each answer's letter with a confidence score between 0 and 1, the question header and the options heading “{esc(data["chat_prompts"]["options_heading"].strip())}”. A chat model gives no option probabilities, so its confidence score is the one it stated. The English runs' system prompt:</p>
+      <p>Each chat model setup{" not asked for a plain answer line (below)" if len(prompted) < len(chat) else ""} is asked as its Text tab run was, with the same settings (reasoning, and {size_text}), and with the Text tab's chat prompts in English: the system prompt and the instruction that ask for each answer's letter with a confidence score between 0 and 1, the question header and the options heading “{esc(data["chat_prompts"]["options_heading"].strip())}”. A chat model gives no option probabilities, so its confidence score is the one it stated. The English runs' system prompt:</p>
       <blockquote><p>{esc(data["chat_prompts"]["confidence_system"])}</p></blockquote>
       <p>Their instruction:</p>
       <blockquote><p>{esc(data["chat_prompts"]["confidence_instruction"])}</p></blockquote>
-      <p>Chat prompt version {esc(data["chat_prompt_version"])}; the Text tab's Turkish prompts are under <a href="#instructions">The instructions of each kind of run</a>. The chat models' runs with an “I don't know” option are under <a href="#dont-know-method">Our method with an “I don't know” option</a>.</p>""" if chat else "")
+      <p>Chat prompt version {esc(data["chat_prompt_version"])}; the Text tab's Turkish prompts are under <a href="#instructions">The instructions of each kind of run</a>. The chat models' runs with an “I don't know” option are under <a href="#dont-know-method">Our method with an “I don't know” option</a>.</p>""" if prompted else "") + plain_method(site, [model for model in chat if plain_line(model)])
     makers = {run["provider"] for run in site.runs if run["model"] == record["translator"]["model"]}
     maker_chat = list(dict.fromkeys(model["name"] for model in chat if model["provider"] in makers))
     own = any(model["model"] == record["translator"]["model"] for model in chat)

@@ -1206,11 +1206,11 @@ def size_record(model: str) -> dict[str, Any]:
             "parameters_scope": size.get("scope"), "parameters_source": size["sources"], "parameters_read": size["read"]}
 
 
-def plain_access(info: dict[str, Any], request_params: str) -> str:
+def plain_access(info: dict[str, Any], request_params: str, english: bool) -> str:
     """A vllm-plain run's access text: logic's server with the model's backend, precision and revision (MODELS), the
-    plain answer line, and the run identity's request settings (`request_params`, sorted compact JSON): every key but
-    max_tokens and chat_template_kwargs as "key value", thinking on or off where chat_template_kwargs sets it, and the
-    output cap from max_tokens."""
+    plain answer line of the run's language (ANSWER: X in English, CEVAP: X in Turkish), and the run identity's request
+    settings (`request_params`, sorted compact JSON): every key but max_tokens and chat_template_kwargs as "key value",
+    thinking on or off where chat_template_kwargs sets it, and the output cap from max_tokens."""
     params = json.loads(request_params)
     sampling = [f"{key} {value}" for key, value in params.items() if key not in ("max_tokens", "chat_template_kwargs")]
     kwargs = params.get("chat_template_kwargs") or {}
@@ -1218,7 +1218,8 @@ def plain_access(info: dict[str, Any], request_params: str) -> str:
     if thinking is not None:
         sampling.append(f"thinking {'on' if thinking else 'off'}")
     text = (f"our GPU (logic's server, {info['backend']} {info['precision']}, revision {info['revision']}), one question "
-            f"per request, plain answer line ANSWER: X (no answer schema); sampling {', '.join(sampling) or 'none set'}")
+            f"per request, plain answer line {'ANSWER' if english else 'CEVAP'}: X (no answer schema); sampling "
+            f"{', '.join(sampling) or 'none set'}")
     return text + (f"; output cap {params['max_tokens']:,}" if "max_tokens" in params else "")
 
 
@@ -1228,13 +1229,13 @@ def access_text(provider: str, info: dict[str, Any], record: dict[str, Any]) -> 
     if provider == "vllm-plain":
         if not record.get("request_params"):
             raise ValueError(f"run {record['run_id']} ({record['model']}, vllm-plain): no request_params in its record")
-        return plain_access(info, record["request_params"])
+        return plain_access(info, record["request_params"], bool(record.get("english")))
     return info.get("access", PROVIDERS[provider]["access"])
 
 
 def plain_version(document: dict[str, Any], variant: str) -> str | None:
-    """The prompt version of a vllm-plain run of a PLAIN_PROMPTS variant ("english", "english_dont_know"), from the
-    answers file's plain_prompts hashed as the runner hashes them; None without them."""
+    """The prompt version of a vllm-plain run of a PLAIN_PROMPTS variant ("english", "english_dont_know", "turkish",
+    "turkish_dont_know"), from the answers file's plain_prompts hashed as the runner hashes them; None without them."""
     prompts = (document.get("plain_prompts") or {}).get(variant)
     return None if prompts is None else hashed_prompts(prompts)
 
@@ -2222,10 +2223,12 @@ def chat_dont_know_prompts(prompts: dict[str, Any] | None, base: dict[str, Any],
 def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], answers: dict[str, Any]) -> dict[str, Any]:
     """The `dont_know` section with what comes from the answers file: the option, the decision models' instructions with
     their added sentence and the prompt version (DONT_KNOW_PROMPTS, hashed as the runner hashes them), the chat models'
-    prompts with theirs (`chat`, chat_dont_know_prompts; omitted without a chat model's run); every run must carry its
-    kind's version, decision for a scoring provider and chat for any other. Per setup with more than one run the scored
-    questions whose answer differs across its runs; per chat model the derived abstention on its Text tab run at its
-    first run's attempt rate, on the scored questions; and per decision model `vs_confidence`: its first run against
+    prompts with theirs (`chat`, chat_dont_know_prompts; omitted without a chat model's run) and the plain answer line's
+    (`plain`, plain_dont_know_prompts; omitted without a vllm-plain run); every run must carry its kind's version,
+    decision for a scoring provider, plain_prompts' turkish_dont_know for vllm-plain and chat for any other. Per setup
+    with more than one run the scored questions whose answer differs across its runs; per chat model the derived
+    abstention on its Text tab run at its first run's attempt rate, on the scored questions (None for a vllm-plain
+    model: its Text tab run gives no confidence); and per decision model `vs_confidence`: its first run against
     its original run held back by its own confidence at the derived cut-off, on the scored questions, as wrong answers
     in each (the exact McNemar test, bm.paired_comparison: first the option, second confidence), with Holm's correction
     over the decision models that chose the option on at least VS_CONFIDENCE_SHARE of the questions (p_holm None for
@@ -2239,11 +2242,18 @@ def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], an
         raise ValueError(f"dont_know_prompts: the instructions are not the System One instructions plus {sentence!r}")
     version = hashed_prompts(prompts)
     by_id = {run["run"]: run for run in answers["dont_know_runs"]}
-    chat = None
-    if any(not PROVIDERS[run["provider"]]["scoring"] for run in by_id.values()):
+    chat = plain = None
+    if any(not PROVIDERS[run["provider"]]["scoring"] and run["provider"] != "vllm-plain" for run in by_id.values()):
         chat = chat_dont_know_prompts(document.get("dont_know_chat_prompts"), document["prompts"], option, "dont_know_chat_prompts")
-    wrong = sorted(run for run, item in by_id.items()
-                   if item["prompt_version"] != (version if PROVIDERS[item["provider"]]["scoring"] else chat["prompt_version"]))
+    if any(run["provider"] == "vllm-plain" for run in by_id.values()):
+        plain = plain_dont_know_prompts(document, option)
+
+    def expected(item: dict[str, Any]) -> str:
+        if item["provider"] == "vllm-plain":
+            return plain["prompt_version"]
+        return version if PROVIDERS[item["provider"]]["scoring"] else chat["prompt_version"]
+
+    wrong = sorted(run for run, item in by_id.items() if item["prompt_version"] != expected(item))
     if wrong:
         raise ValueError(f"\"I don't know\" runs {wrong} were not run with their kind's prompt version")
     scored = [index for index, status in enumerate(answers["questions"]["status"]) if status != "excluded"]
@@ -2256,6 +2266,10 @@ def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], an
     family = []
     for model in section["models"]:
         run, original = by_id[model["runs"][0]], main[model["original_run"]]
+        if model["provider"] == "vllm-plain":
+            # A plain answer line gives no confidence, so there is nothing to hold back by: no derived abstention.
+            model["derived"], model["vs_confidence"] = None, None
+            continue
         if model["group"] == "chat" or model["derived"] is None:
             pairs = [(None if original["score"][index] is None else float(original["score"][index]), int(original["correct"][index]))
                      for index in scored]
@@ -2282,9 +2296,31 @@ def dont_know_answers_part(section: dict[str, Any], document: dict[str, Any], an
         "instructions": instructions,
         "prompt_version": version,
         **({"chat": chat} if chat else {}),
+        **({"plain": plain} if plain else {}),
         "vs_confidence_share": VS_CONFIDENCE_SHARE,
         **section,
     }
+
+
+def plain_dont_know_prompts(document: dict[str, Any], option: str) -> dict[str, Any]:
+    """The plain answer line's Turkish prompts with the "I don't know" option (plain_prompts' turkish_dont_know), checked
+    against its five-option ones (turkish): the option is `option`, the instruction the five-option one (whose {letters}
+    is each question's own letters, F among them with the option) plus the prompts' own sentence, the rest the same.
+    Returns the published part: the instruction, the sentence and the version, hashed as the runner hashes it."""
+    found = document.get("plain_prompts") or {}
+    prompts, base = found.get("turkish_dont_know"), found.get("turkish")
+    if prompts is None or base is None:
+        raise ValueError("the answers file has vllm-plain \"I don't know\" runs but no plain_prompts turkish and turkish_dont_know")
+    if prompts.get("dont_know_option") != option:
+        raise ValueError(f"plain_prompts turkish_dont_know: the option is {prompts.get('dont_know_option')!r}, not {option!r}")
+    if not prompts["plain_instruction"].startswith(f"{base['plain_instruction']} "):
+        raise ValueError("plain_prompts turkish_dont_know: the instruction is not the five-option one plus a sentence")
+    if {key: value for key, value in prompts.items() if key not in ("plain_instruction", "dont_know_option")} != \
+            {key: value for key, value in base.items() if key != "plain_instruction"}:
+        raise ValueError("plain_prompts turkish_dont_know: besides the instruction and the option, not the five-option prompts")
+    return {"instruction": prompts["plain_instruction"],
+            "sentence": prompts["plain_instruction"].removeprefix(f"{base['plain_instruction']} "),
+            "prompt_version": hashed_prompts(prompts)}
 
 
 # The option-word check (results.json `dont_know_option_word`): the Hallucination tab's test with the option's word in
@@ -4028,7 +4064,8 @@ def confident(run: dict[str, Any], positions: list[int], cutoff: float) -> tuple
 
 def high_confidence(data: dict[str, Any], answers: dict[str, Any], public: dict[str, Any]) -> dict[str, Any]:
     """`high_confidence`: per main run, on the scored questions, the answers kept at HIGH_CONFIDENCE_THRESHOLD and the
-    wrong ones among them; Liquid d1-ultra's repeat runs at the threshold; the three-model family's runs at each of
+    wrong ones among them (both None for a run without a confidence, a vllm-plain run's plain answer line: not measured,
+    never 0 kept); Liquid d1-ultra's repeat runs at the threshold; the three-model family's runs at each of
     HIGH_CONFIDENCE_CUTOFFS, with the check that at every whole percent from 0% to 98% d1-ultra's highest wrong share
     is lower than the lowest of each other model; and d1-ultra's English runs on the English track's kept questions."""
     questions = answers["questions"]
@@ -4037,6 +4074,9 @@ def high_confidence(data: dict[str, Any], answers: dict[str, Any], public: dict[
     threshold = HIGH_CONFIDENCE_THRESHOLD
     models = []
     for run in data["runs"]:
+        if run["confidence"] is None:
+            models.append({"name": run["name"], "text_run": run["run"], "kept": None, "wrong": None})
+            continue
         kept, wrong = confident(lists[run["run"]], scored, threshold)
         models.append({"name": run["name"], "text_run": run["run"], "kept": kept, "wrong": len(wrong)})
     repeat_sets = {item["runs"][0]: item["runs"] for item in data["repeats"] if item["variant"] is None}
@@ -4465,6 +4505,12 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
     if mixed or any(not by_id[run].get("question_list") for run in turkish_idk_sets):
         raise ValueError(f"runs {mixed or sorted(turkish_idk_sets)}: the Hallucination tab's runs and the Turkish \"I don't "
                          f"know\" runs on the kept questions are mixed up")
+    # A vllm-plain run in Turkish without the option (a Text tab run, a repeat) was asked with the plain answer line's
+    # Turkish prompts (plain_prompts' turkish), as its English runs with their English ones (english_reading_answers_part).
+    turkish_plain = plain_version(document, "turkish")
+    wrong = sorted(run for run in others if by_id[run]["provider"] == "vllm-plain" and by_id[run]["prompt_version"] != turkish_plain)
+    if wrong:
+        raise ValueError(f"vllm-plain runs {wrong} were not run with plain_prompts' turkish prompt version {turkish_plain}")
     return {
         "schema_version": document["schema_version"],
         "dataset": {"name": dataset["name"], "graded_sha256": dataset["graded_sha256"]},
@@ -4472,7 +4518,8 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
         **({"dont_know_prompts": document["dont_know_prompts"]} if dont_know_sets or turkish_idk_sets else {}),
         # The chat models' prompts with the option, when one of their runs is published.
         **({"dont_know_chat_prompts": document["dont_know_chat_prompts"]}
-           if any(not PROVIDERS[by_id[run]["provider"]]["scoring"] for run in dont_know_sets) else {}),
+           if any(not PROVIDERS[by_id[run]["provider"]]["scoring"] and by_id[run]["provider"] != "vllm-plain"
+                  for run in dont_know_sets) else {}),
         **({"english_prompts": document["english_prompts"]} if english_sets else {}),
         **({"english_chat_prompts": document["english_chat_prompts"]} if english_sets and "english_chat_prompts" in document else {}),
         **({"english_dont_know_prompts": document["english_dont_know_prompts"]} if english_idk_sets else {}),
@@ -4481,7 +4528,7 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
                   for run in english_idk_sets) else {}),
         # The plain answer line's prompts (the runner's PLAIN_PROMPTS), when a vllm-plain run is published.
         **({"plain_prompts": document["plain_prompts"]}
-           if any(by_id[run]["provider"] == "vllm-plain" for run in {**english_sets, **english_idk_sets}) else {}),
+           if any(by_id[run]["provider"] == "vllm-plain" for run in listed) else {}),
         **({"dont_know_word_prompts": document["dont_know_word_prompts"]} if word_runs else {}),
         "questions": dataset["questions"],
         "runs": [by_id[run] for run in sorted(main)],

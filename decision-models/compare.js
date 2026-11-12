@@ -85,6 +85,8 @@ const total = run => ({
   questions: run.groups.reading.questions + run.groups.grammar.questions,
 });
 
+/* A setup asked for a plain answer line (vllm-plain) has no confidence (results.json confidence null): the site's words. */
+const NO_CONFIDENCE = '<span class="nm">Not measured</span><span class="small">a plain answer line, no confidence</span>';
 /* Each row: label (or a function that writes it, as the cost's unit follows the reader's choice, site.js), then the value
    for one run as HTML. */
 const MEASURES = [
@@ -94,10 +96,10 @@ const MEASURES = [
   ['Median latency per request', run => (run.latency ? duration(run.latency.median_request_seconds) : NOT_MEASURED)],
   [() => `$ ${costLabel()} ${costSwitch()}`, run => (costPer1000(run) == null ? costMissing(run) : `${upperMark(run)}$${costNumber(costPer1000(run) * costScale())}`)],
   ['Cost basis', costBasis],
-  ['Kept at 99% (wrong)', run => `${run.confidence.sure.questions.toLocaleString('en-US')} (${run.confidence.sure.questions - run.confidence.sure.correct})`],
-  ['Calibration gap', run => `${(100 * run.confidence.ece).toFixed(1)} points`],
-  ['AUROC reading', run => run.confidence.parts.meaning.auroc.toFixed(2)],
-  ['AUROC grammar', run => run.confidence.parts.form.auroc.toFixed(2)],
+  ['Kept at 99% (wrong)', run => (run.confidence ? `${run.confidence.sure.questions.toLocaleString('en-US')} (${run.confidence.sure.questions - run.confidence.sure.correct})` : NO_CONFIDENCE)],
+  ['Calibration gap', run => (run.confidence ? `${(100 * run.confidence.ece).toFixed(1)} points` : NO_CONFIDENCE)],
+  ['AUROC reading', run => (run.confidence ? run.confidence.parts.meaning.auroc.toFixed(2) : NO_CONFIDENCE)],
+  ['AUROC grammar', run => (run.confidence ? run.confidence.parts.form.auroc.toFixed(2) : NO_CONFIDENCE)],
 ];
 
 let results;

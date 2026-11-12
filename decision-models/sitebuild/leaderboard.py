@@ -27,7 +27,7 @@ from sitebuild import holding_back as hold
 from sitebuild.english_reading import (BASIS_WORDS, english_only, entry_href, idk_key, setup_families, setup_run, under_way)
 from sitebuild.names import base_model, tag_html
 from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, Site, cost_missing, cost_per, cost_value, esc, family_icon,
-                            measure_keys, parameters_text, pct, rel, size_sentence, stated_total)
+                            measure_keys, parameters_text, pct, plain_line, rel, size_sentence, stated_total)
 
 # The reasoning settings in order, as the requests sent them: none and off (and a setup without a setting, or a chat
 # template's default, vllm-plain's "default") lowest; "on" is the setting of a model with thinking on or off only, above
@@ -308,6 +308,7 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
             turkish_line(site, run),
             held_line(board.option, model, digits, pending),
             kept_line(sure, kept, questions),
+            "Confidence: not measured" if plain_line(run) else None,
             " · ".join(filter(None, (cost_text(site, run, value, run.get("cost_basis"), bool(run.get("cost_upper_bound"))),
                                      bp.count(run["questions_per_request"]) + " question"
                                      + ("" if run["questions_per_request"] == 1 else "s") + " per request"))),
@@ -357,9 +358,9 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
                                            f"{bp.count(size)} question{'' if size == 1 else 's'} per request" if size else None))),
                   # An English-only setup (no Text tab run, no model page): said so, with how it was called.
                   *(["English only: no Text tab run, so not in the Turkish and Both parts",
-                     f"How we called it: {esc(model['access'])}",
-                     "Confidence: not measured" if model["provider"] == "vllm-plain" else None]
-                    if tr is None else [])])
+                     f"How we called it: {esc(model['access'])}"]
+                    if tr is None else []),
+                  "Confidence: not measured" if plain_line(model) else None])
         if both:
             cells = [pct(tr["accuracy"]), pct(en["accuracy"]), f"{100 * model['difference']:+.1f}"]
         else:

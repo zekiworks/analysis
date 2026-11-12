@@ -17,7 +17,7 @@ import benchmark_metrics as bm
 import build_page as bp
 from sitebuild import names
 from sitebuild.models import REPLY_ANCHOR, REPLY_RULE, idk_runs, reply_counts
-from sitebuild.site import MODEL_GROUPS, REPO_URL, ROOT, SITE_NAME, TABS, Site, esc, parameters_text, rel
+from sitebuild.site import MODEL_GROUPS, PLAIN_PROVIDERS, REPO_URL, ROOT, SITE_NAME, TABS, Site, esc, parameters_text, rel
 
 PATH = "method/"
 TITLE = "Method"
@@ -93,6 +93,8 @@ SETUP_TEXTS = (
     "Z.ai's model with TensorFold: {size} parameters, about {active} used per token (a mixture of experts); it writes its "
     "confidence. Mia's AI Lab's EXL3 checkpoint, with DFlash2 speculative decoding.",
     "Erk continues this Qwen model's training on Turkish text; both ran with the same requests and settings.",
+    "Small open chat models on logic's servers, one question per request with a plain answer line (“CEVAP: X”, no answer "
+    "schema) and logic's own request settings; they state no confidence, so it is not measured.",
 )
 REFERENCES = (
     ("Mitchell, M., &amp; Krakauer, D. C. (2023). The debate over understanding in AI's large language models. Proceedings "
@@ -258,6 +260,9 @@ def setups_table(site: Site, snap: bp.Snapshot) -> str:
     rows = []
     for (specs, _), text in zip(bp.METHOD_SETUPS, SETUP_TEXTS):
         runs = [run for run in snap.runs if any(bp.matches(run, spec) for spec in specs)]
+        # The plain answer line's row (vllm-plain) waits for its first Text tab run: its setups ran in English first.
+        if not runs and all(spec.get("provider") in PLAIN_PROVIDERS for spec in specs):
+            continue
         if not runs or used & {run["run"] for run in runs}:
             raise ValueError(f"the setup row {specs} matches no run or a run another row has")
         used |= {run["run"] for run in runs}
@@ -348,8 +353,13 @@ def refit_table(site: Site, snap: bp.Snapshot) -> str:
             + "".join(f'<td class="num" data-label="{head}">{cell}</td>' for head, cell in zip(heads[1:], cells)) + "</tr>"
         )
     head = "".join(f'<th scope="col"{"" if index == 0 else " class=\"num\""}>{text}</th>' for index, text in enumerate(heads))
+    # A setup asked for a plain answer line has no confidence, so no row: the caption says so.
+    without = len(snap.runs) - len(scored)
     return (f'<div class="table-wrap"><table class="overview cards"><caption>Calibration before and after the refit, every '
-            f'setup, by Better than a flat guess, highest first</caption><thead><tr>{head}</tr></thead>'
+            f'setup{" with a confidence" if without else ""}, by Better than a flat guess, highest first'
+            + (f" (not measured for the {bp.in_words(without)} setup{'' if without == 1 else 's'} asked for a plain answer "
+               "line)" if without else "")
+            + f'</caption><thead><tr>{head}</tr></thead>'
             f'<tbody>{"".join(rows)}</tbody></table></div>')
 
 
@@ -607,6 +617,9 @@ def glance(site: Site) -> str:
     option = esc(dont_know["option"])
     english = site.results["english_reading"]["questions"]
     pws = json.loads((ROOT / "pws-decisions.json").read_text(encoding="utf-8"))
+    plain = [run for run in site.runs if run["provider"] in PLAIN_PROVIDERS]
+    plain_ask = ("; the small open chat models asked for a plain answer line (" + esc(bp.and_list([site.plain(run) for run in plain]))
+                 + ") write only a last line “CEVAP: X”, with no schema and no confidence, so theirs is not measured") if plain else ""
     table_rows = (
         ("", "Turkish reading and grammar", v["questions"], "Reading comprehension and grammar, in native Turkish", "Accuracy: right answers over the questions"),
         ("english/", "English reading", f"{english:,}", "The Turkish test's kept reading questions, translated into English",
@@ -642,7 +655,7 @@ def glance(site: Site) -> str:
 <h3>How we ask the models</h3>
 <ul>
 <li><strong>Decision models</strong>: each question goes to the model with its lettered options; we use only its pick and its score for each option (<a href="#setups">Models and setups</a>).</li>
-<li><strong>Chat models</strong>: asked in Turkish for their answer's letter and, where needed, a confidence score, in a structured reply (<a href="#sending">What we sent</a>).</li>
+<li><strong>Chat models</strong>: asked in Turkish for their answer's letter and, where needed, a confidence score, in a structured reply (<a href="#sending">What we sent</a>){plain_ask}.</li>
 </ul>
 <h3>Turkish reading and grammar</h3>
 <ul>
@@ -699,6 +712,19 @@ def build(site: Site) -> dict[str, str]:
     flat = flat_guess_examples(snap)
     if bm.REFIT_FOLDS != 5:
         raise ValueError("the Method page describes the refit's five parts")
+    # The setups asked for a plain answer line have no confidence score: the sources list says so once there are any.
+    unscored = [run for run in snap.runs if not run.get("confidence")]
+    one = len(unscored) == 1
+    plain_source = (f"<dt>None (not measured)</dt><dd>{esc(bp.and_list([site.plain(run) for run in unscored]))}, asked for a "
+                    f"plain answer line, {'writes' if one else 'write'} only the answer letter: no confidence score, so "
+                    f"{'its' if one else 'their'} confidence is not measured.</dd>\n") if unscored else ""
+    plain_runs = [run for run in snap.runs if run["provider"] in PLAIN_PROVIDERS]
+    plain_names = esc(bp.and_list([site.plain(run) for run in plain_runs])) if plain_runs else ""
+    plain_sent = (f"\n<p>{plain_names}, small open chat models on logic's servers, were asked one question per request for a "
+                  "plain answer line instead: the letter on the reply's last “CEVAP: X” line, with no structured reply and "
+                  "no confidence, and only the request settings of logic's own runs of each model.</p>") if plain_runs else ""
+    plain_row = ("\n<tr><td>Small open chat models, plain answer line</td><td>The request settings of logic's own runs of "
+                 "each model, as its model page's How we called it gives them</td></tr>") if plain_runs else ""
 
     sections = [
         ("main-findings", "What we found", f"""
@@ -794,7 +820,7 @@ only this site ran ({esc(bp.and_list(left_out_names(site)))}) are in no class; t
 <p>Each question went with its lettered options. Chat models were asked, in Turkish, for their answer's letter and, where
 needed, a confidence score, in a structured reply (JSON); a connector turned the same question into each decision service's
 format. Most chat setups got {v['batch_size']} questions per request; decision models, Luna through the Decisions API,
-GLiNER and the Qwen 3.8 setups got one.</p>
+GLiNER and the Qwen 3.8 setups got one.</p>{plain_sent}
 <p>Claude Code and Codex runs were closed-book: no web search, no file or command tools, and an empty folder for each
 request. Earlier trial runs could find the source book online.</p>
 <p>A missing answer, a refusal or a letter outside the options counts as wrong. The Decisions API declined
@@ -806,7 +832,7 @@ request. Earlier trial runs could find the source book online.</p>
 <tr><td>GLM 5.3 Flash, reasoning on</td><td>Server default: temperature 1.0, top p 0.95 (Z.ai's settings), top k 20; TensorFold's high reasoning</td></tr>
 <tr><td>Qwen 3.8 27B, reasoning on</td><td>Server default: temperature 1.0, top p 0.95, top k 20 (Qwen's settings); the chat template's low reasoning effort</td></tr>
 <tr><td>Qwen, ten answers</td><td>Temperature 0.7, top p 0.8, top k 20, presence penalty 1.5</td></tr>
-<tr><td>Hosted chat models</td><td>The reasoning setting each setup names, in its provider's words; the provider's own sampling where temperature cannot be set, temperature 1.0 through OpenRouter; Gemini reported no reasoning tokens at low</td></tr>
+<tr><td>Hosted chat models</td><td>The reasoning setting each setup names, in its provider's words; the provider's own sampling where temperature cannot be set, temperature 1.0 through OpenRouter; Gemini reported no reasoning tokens at low</td></tr>{plain_row}
 </tbody></table></div>
 <p class="table-note">Sampling picks the next token at random by its probability. Temperature sets how strongly it favours
 likely tokens, top p and top k limit the candidates, and a presence penalty discourages repeats.</p>"""),
@@ -829,7 +855,7 @@ Each run with one question per request is a setup of its own.</p>
 rescaled over the option letters to 100%; with reasoning on, it comes after the reasoning.</dd>
 <dt>Agreement across ten answers</dt><dd>The share of Qwen's ten answers that agree with the most common one (eight of ten
 gives 80%).</dd>
-</dl>
+{plain_source}</dl>
 <p>We test each mechanism against the real answers before we trust it. Some services round: Luna through the Decisions API
 gave {v['method_luna_api_distinct']} distinct scores across {v['method_luna_api_scored']} answered questions, and Celeris
 {v['method_celeris_distinct']} across {v['method_celeris_scored']}, none above {v['method_celeris_top']}; our calculations

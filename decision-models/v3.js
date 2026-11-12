@@ -129,6 +129,8 @@ const esc = text =>
 const tip = (text, content = '—') => `<span class="hint" tabindex="0" data-tip="${esc(text)}">${content}</span>`;
 /* A value nobody measured reads as words; one a filter leaves out is a dash with its reason; a zero is a number. */
 const NM = `<span class="nm">${EMPTY.notMeasured}</span>`;
+/* A setup asked for a plain answer line (vllm-plain) has no confidence: each confidence cell reads so, and sorts last. */
+const NO_CONFIDENCE = `${NM}<span class="small">a plain answer line, no confidence</span>`;
 const costMissing = run => (run.billing === 'local' ? EMPTY.noListPrice : EMPTY.notMeasured);
 const MISSING = tip(EMPTY.allOnly);
 
@@ -387,28 +389,30 @@ const TABS = {
       {
         key: 'sure-correct', label: `Correct answers at ${pct(SETTINGS.threshold, 0)}`,
         tip: `Answers scored ${pct(SETTINGS.threshold, 0)} or more that were right: the score a model would get if it answered only the questions it was ${pct(SETTINGS.threshold, 0)} sure of.`,
-        value: run => (filtered() || !run.confidence.sure.questions ? null : run.confidence.sure.correct),
+        value: run => (filtered() || !run.confidence || !run.confidence.sure.questions ? null : run.confidence.sure.correct),
         cell: run => {
           if (filtered()) return MISSING;
+          if (!run.confidence) return NO_CONFIDENCE;
           const sure = sureCounts(run);
           return sure.kept ? keptText(sure) : NO_ANSWERS;
         },
       },
       {
         key: 'auroc', label: 'Ranking score', tip: RANKING_TIP,
-        value: run => (filtered() ? null : run.confidence.auroc),
-        cell: run => (filtered() ? MISSING : run.confidence.auroc.toFixed(3)),
+        value: run => (filtered() || !run.confidence ? null : run.confidence.auroc),
+        cell: run => (filtered() ? MISSING : !run.confidence ? NO_CONFIDENCE : run.confidence.auroc.toFixed(3)),
       },
       {
         key: 'gap', label: 'Calibration gap (points)', tip: GAP_TIP, low: true,
-        value: run => (filtered() ? null : run.confidence.ece),
-        cell: run => (filtered() ? MISSING : (100 * run.confidence.ece).toFixed(1)),
+        value: run => (filtered() || !run.confidence ? null : run.confidence.ece),
+        cell: run => (filtered() ? MISSING : !run.confidence ? NO_CONFIDENCE : (100 * run.confidence.ece).toFixed(1)),
       },
       {
         key: 'flat', label: 'Better than a flat guess (%)', tip: FLAT_TIP, qualifier: 'after refit',
-        value: run => (filtered() ? null : flatGain(run)),
+        value: run => (filtered() || !run.confidence ? null : flatGain(run)),
         cell: run => {
           if (filtered()) return MISSING;
+          if (!run.confidence) return NO_CONFIDENCE;
           const value = flatGain(run).toFixed(1);
           return reversedRefit(run) ? `${value}<span class="small">${tip(REVERSED_TIP, 'reversed')}</span>` : value;
         },
@@ -450,8 +454,8 @@ function aurocColumn(part, stored, label) {
   const available = () => state.topic == null && (state.part === 'all' || state.part === part);
   return {
     key: `auroc-${part}`, label, tip: AUROC_TIP, className: part,
-    value: run => (available() ? run.confidence.parts[stored].auroc : null),
-    cell: run => (available() ? run.confidence.parts[stored].auroc.toFixed(2) : MISSING),
+    value: run => (available() && run.confidence ? run.confidence.parts[stored].auroc : null),
+    cell: run => (!available() ? MISSING : !run.confidence ? NO_CONFIDENCE : run.confidence.parts[stored].auroc.toFixed(2)),
   };
 }
 
