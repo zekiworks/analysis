@@ -202,8 +202,9 @@
     board.querySelectorAll('[data-lb-part]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbPart === state.part)));
     board.querySelectorAll('[data-lb-filter]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbFilter === state.filter)));
     board.querySelectorAll('[data-lb-class]').forEach(k => k.setAttribute('aria-pressed', String(k.dataset.lbClass === state.size)));
-    board.querySelector('[data-lb-setups]').setAttribute('aria-pressed', String(state.setups));
-    board.querySelector('.lb-size-rule').hidden = state.size === 'all';
+    board.querySelector('[data-lb-setups]')?.setAttribute('aria-pressed', String(state.setups));
+    const sizeRule = board.querySelector('.lb-size-rule');
+    if (sizeRule) sizeRule.hidden = state.size === 'all';
     board.querySelectorAll('[data-lb-panel]').forEach(panel => {
       panel.hidden = panel.dataset.lbPanel !== state.part;
       panel.querySelectorAll('[data-lb-view]').forEach(view => { view.hidden = (view.dataset.lbView === 'setups') !== state.setups; });
@@ -211,16 +212,18 @@
       panel.querySelectorAll('tbody tr[data-hl-type]').forEach(tr => {
         tr.classList.toggle('hl-off', !shows(tr));
         tr.classList.remove('lb-tier-start');
-        if (!tr.classList.contains('hl-sub') && !tr.classList.contains('hl-off') && !tr.closest('[data-lb-view]').hidden) {
+        if (!tr.classList.contains('hl-sub') && !tr.classList.contains('hl-off') && !tr.closest('[data-lb-view]')?.hidden) {
           shown += 1;
-          if (tr.dataset.untiered) { tr.querySelector('.lb-rank').textContent = '–'; return; }
+          const rank = tr.querySelector('.lb-rank');
+          if (tr.dataset.untiered) { if (rank) rank.textContent = '–'; return; }
           const tier = tierOf(tr);
-          tr.querySelector('.lb-rank').textContent = tier;
+          if (rank) rank.textContent = tier;
           if (last !== null && tier !== last) tr.classList.add('lb-tier-start');
           last = tier;
         }
       });
-      panel.querySelector('.lb-empty').hidden = shown > 0;
+      const empty = panel.querySelector('.lb-empty');
+      if (empty) empty.hidden = shown > 0;
       if (!panel.hidden) {
         const rows = [...panel.querySelectorAll(`[data-lb-view="${state.setups ? 'setups' : 'models'}"] tbody tr.lb-row`)].filter(ofType);
         board.querySelectorAll('[data-lb-class]').forEach(k => {
@@ -250,7 +253,7 @@
   board.querySelectorAll('[data-lb-class]').forEach(k => k.addEventListener('click', () => {
     const key = k.dataset.lbClass;
     state.size = state.size !== key ? key : 'all'; apply(true); }));
-  board.querySelector('[data-lb-setups]').addEventListener('click', () => { state.setups = !state.setups; apply(true); });
+  board.querySelector('[data-lb-setups]')?.addEventListener('click', () => { state.setups = !state.setups; apply(true); });
   board.querySelectorAll('.hl-more').forEach(b => b.addEventListener('click', () => {
     const open = b.getAttribute('aria-expanded') !== 'true';
     b.setAttribute('aria-expanded', String(open));
@@ -260,68 +263,84 @@
   // On a narrow screen the keys scroll sideways in their row: bring the models key in use into view (?models=small).
   const controls = board.querySelector('.lb-controls');
   const pressed = board.querySelector('[data-lb-filter][aria-pressed="true"]');
-  const past = pressed.getBoundingClientRect().right - controls.getBoundingClientRect().right;
-  if (past > 0) controls.scrollLeft += past + 12;
+  if (controls && pressed) {
+    const past = pressed.getBoundingClientRect().right - controls.getBoundingClientRect().right;
+    if (past > 0) controls.scrollLeft += past + 12;
+  }
 })();
 
-/* A model's details box (as the backgammon site's, bg.js headlineDetails): a leaderboard row's, and on the test pages a
-   chart bar's or a full-table row's (every element with data-box). A tap opens it and a second tap on
-   the row, a tap outside it or Escape closes it; with a mouse it shows while the pointer is on the row; with the keyboard
-   while the focus is in the row (the model's name, then the box's links), and focus beats the pointer. The box is placed
-   under the row (above it near the bottom of the window), within the window's width, capped and scrolling inside where
-   neither side has room. Without JavaScript every box is shown in its row. */
+/* A model's details box (as the backgammon site's, bg.js headlineDetails; zeki #5462): a leaderboard row's, a test page's
+   chart bar, chart dot or full-table row's, a Vision chart bar or table row's (every element with data-box; a chart
+   dot's box sits beside its SVG). One set of listeners on the document, so a row that a filter, tab, measure or view key
+   shows later works as one shown at load. With a mouse the box shows while the pointer is on the row; with the keyboard
+   while the focus is in the row (the model's name, then the box's links), and focus beats the pointer. On a touch screen
+   the model's name is the trigger (a dot, which has none, is its own): a tap opens the box as a popover under the name
+   (the name's link is in the box), and a second tap on it, a tap outside or Escape closes it, the focus back on the name.
+   The box is placed under the row (under the name when tapped; above it near the bottom of the window), within the
+   window, capped and scrolling inside where neither side has room, and follows the page as it scrolls. Without
+   JavaScript every box is shown in its row. */
 (function setupDetails() {
-  const rows = document.querySelectorAll('#leaderboard tbody tr[data-box], main [data-box]');
-  if (!rows.length) return;
   const board = document.getElementById('leaderboard');
-  let open = null, pinned = false, pointer = 'mouse', quiet = false;
-  const boxOf = tr => document.getElementById(tr.dataset.box);
+  let open = null, pinned = false, pointer = 'mouse', quiet = false, pointing = false, keyed = false;
+  const boxOf = host => document.getElementById(host.dataset.box);
+  const hostOf = node => (node instanceof Element ? node.closest('[data-box]') : null);
+  const nameOf = host => host.querySelector('.model-name') || host;
+  const inBox = node => !!open && node instanceof Node && !!boxOf(open)?.contains(node);
+  const within = node => inBox(node) || (!!open && node instanceof Node && open.contains(node));
+  const hide = () => {
+    if (!open) return;
+    boxOf(open)?.classList.remove('open');
+    open.classList.remove('hl-open');
+    open = null;
+    pinned = false;
+  };
   const place = () => {
     if (!open) return;
-    const box = boxOf(open), row = open.getBoundingClientRect(), cell = open.querySelector('td.model, .hbar-label').getBoundingClientRect();
+    if (!open.getClientRects().length) { hide(); return; }  // its row went out of view (a filter, a tab, a view key)
+    const box = boxOf(open);
+    const anchor = (pinned ? nameOf(open) : open).getBoundingClientRect();
+    const cell = (pinned ? nameOf(open) : open.querySelector('td.model, .hbar-label') || open).getBoundingClientRect();
     const vw = document.documentElement.clientWidth;
     const width = Math.min(400, vw - 16);
     box.style.width = `${width}px`;
     box.style.left = `${Math.max(8, Math.min(cell.left, vw - width - 8))}px`;
     box.style.maxHeight = '';
     const height = box.offsetHeight;
-    const header = document.querySelector('.site-header')?.getBoundingClientRect().bottom || 0;
-    const below = row.bottom;
+    const header = Math.max(document.querySelector('.site-header')?.getBoundingClientRect().bottom || 0, 0);
+    const below = anchor.bottom;
     const bottom = innerHeight - 8;
-    const roomBelow = bottom - below, roomAbove = row.top - header - 4;
-    if (height <= roomBelow) box.style.top = `${below}px`;
-    else if (height <= roomAbove) box.style.top = `${row.top - height}px`;
+    const roomBelow = bottom - below, roomAbove = anchor.top - header - 4;
+    let top;
+    if (height <= roomBelow) top = below;
+    else if (height <= roomAbove) top = anchor.top - height;
     else if (Math.max(roomBelow, roomAbove) >= 120) {
       box.style.maxHeight = `${Math.max(roomBelow, roomAbove)}px`;
-      box.style.top = `${roomBelow >= roomAbove ? below : row.top - roomAbove}px`;
+      top = roomBelow >= roomAbove ? below : anchor.top - roomAbove;
     } else {
       box.style.maxHeight = `${Math.max(bottom - header - 4, 80)}px`;
-      box.style.top = `${header + 4}px`;
+      top = header + 4;
     }
+    // The name scrolled under the header or off the window: the box stays at that edge, in view.
+    box.style.top = `${Math.max(header + 4, Math.min(top, bottom - box.offsetHeight))}px`;
   };
-  // A row's Details key (phones, zeki #4793) says whether its box is open.
-  const expand = (tr, value) => tr.querySelector(':scope > td .lb-details')?.setAttribute('aria-expanded', String(value));
-  const hide = () => {
-    if (!open) return;
-    boxOf(open).classList.remove('open');
-    open.classList.remove('hl-open');
-    expand(open, false);
-    open = null;
-    pinned = false;
-  };
-  const show = (tr, pin) => {
-    if (open !== tr) hide();
-    const box = boxOf(tr);
+  const show = (host, pin) => {
+    const box = boxOf(host);
     if (!box) return;
-    open = tr;
+    if (open !== host) hide();
+    open = host;
     pinned = pin;
-    tr.classList.add('hl-open');
-    expand(tr, true);
+    host.classList.add('hl-open');
     box.classList.add('open');
     place();
   };
-  let pointing = false, keyed = false;
-  const held = () => !!open && keyed && open.contains(document.activeElement);
+  const held = () => keyed && within(document.activeElement);
+  const focusName = host => {
+    const name = nameOf(host);
+    if (name === host || name.tabIndex < 0 || document.activeElement === name) return;
+    quiet = true;
+    name.focus({ preventScroll: true });
+    quiet = false;
+  };
   document.addEventListener('pointerdown', event => {
     pointing = true;
     pointer = event.pointerType || 'mouse';
@@ -329,36 +348,45 @@
   const released = () => setTimeout(() => { pointing = false; });
   document.addEventListener('pointerup', released, true);
   document.addEventListener('pointercancel', released, true);
-  rows.forEach(tr => {
-    tr.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && !pinned && !held()) show(tr, false); });
-    tr.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse' && !pinned && open === tr && !held()) hide(); });
-    tr.addEventListener('focusin', () => {
-      keyed = !pointing;
-      if (keyed && open !== tr && !quiet) show(tr, false);
-    });
-    tr.addEventListener('focusout', event => { if (open === tr && !pinned && !tr.contains(event.relatedTarget)) hide(); });
-    tr.addEventListener('click', event => {
-      if (event.target.closest('.lb-details')) {  // the Details key opens and closes the same box: a tap, a click or the keyboard
-        event.preventDefault();
-        if (open === tr) hide(); else show(tr, true);
-        return;
-      }
-      if (pointer === 'mouse' || event.detail === 0 || boxOf(tr).contains(event.target) || event.target.closest('.hl-more')) return;
-      event.preventDefault();  // a tap opens the box; its own link opens the answers
-      if (open === tr && pinned) hide(); else show(tr, true);
-    });
+  document.addEventListener('pointerover', event => {
+    if (event.pointerType !== 'mouse' || pinned || held() || within(event.target)) return;
+    const host = hostOf(event.target);
+    if (host) show(host, false);
   });
-  document.addEventListener('click', event => { if (open && !open.contains(event.target)) hide(); });
+  document.addEventListener('pointerout', event => {
+    if (event.pointerType === 'mouse' && open && !pinned && !held() && within(event.target) && !within(event.relatedTarget)) hide();
+  });
+  document.addEventListener('focusin', event => {
+    keyed = !pointing;
+    const host = hostOf(event.target);
+    if (keyed && host && !quiet && !within(event.target)) show(host, false);
+  });
+  document.addEventListener('focusout', event => {
+    if (open && !pinned && within(event.target) && !within(event.relatedTarget)) hide();
+  });
+  document.addEventListener('click', event => {
+    const host = hostOf(event.target);
+    const tap = pointer !== 'mouse' && event.detail !== 0;
+    if (tap && host && !boxOf(host)?.contains(event.target) && nameOf(host).contains(event.target)) {
+      event.preventDefault();  // a tap on the name shows the box; the name's link is in it
+      if (open === host && pinned) hide(); else show(host, true);
+      return;
+    }
+    if (!open || inBox(event.target) || (!pinned && open.contains(event.target))) return;
+    const was = open, back = pinned;
+    hide();
+    // A tap outside: the focus goes back to the name unless the tap gave it to something else.
+    if (back && (!document.activeElement || document.activeElement === document.body || within(document.activeElement))) focusName(was);
+  });
   document.addEventListener('keydown', event => {
     if (event.key !== 'Escape' || !open) return;
-    const name = open.querySelector('.model-name, a');
-    const inside = open.contains(document.activeElement);
+    const was = open, back = pinned || within(document.activeElement);
     hide();
-    if (inside && name) { quiet = true; name.focus(); quiet = false; }
+    if (back) focusName(was);
   });
   addEventListener('scroll', place, { passive: true });
   addEventListener('resize', place);
-  board?.addEventListener('lb-change', () => { if (open && (open.classList.contains('hl-off') || open.closest('[hidden]'))) hide(); });
+  board?.addEventListener('lb-change', place);
 })();
 
 /* The cost unit, one choice for the whole site (tb-next site.js setupCostUnit): ?cost-unit= or localStorage. */
