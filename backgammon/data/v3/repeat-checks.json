@@ -5,6 +5,7 @@
    "blocked_today": [
     {
      "opponent": "Inception Mercury Decide",
+     "out_of_scope": true,
      "played_in_original": true
     }
    ],
@@ -20,7 +21,7 @@
    },
    "differences": [
     "Name: '<original> [repeat 1]', a new players row; settings otherwise as the original's (the changed fields are listed under Settings); one match at a time, where the original played several at once.",
-    "Not replayable today, though played in the original: Mercury Decide (blockers today); their seed pins are kept so they replay with the original seeds once unblocked."
+    "Not replayed, though played in the original: Inception Mercury Decide (no OpenRouter endpoint): outside the requested scope (Ümit, 12 Nov), and blocked today as well; their seed pins are kept."
    ],
    "field": 19,
    "id": "drex-max-v1-r1",
@@ -29,6 +30,7 @@
    "not_played": [
     {
      "opponent": "GPT-6 Luna (Decisions API)",
+     "out_of_scope": true,
      "reason": "opponent's API out of credit"
     }
    ],
@@ -117,10 +119,12 @@
    "blocked_today": [
     {
      "opponent": "GPT-6 Luna (Decisions API)",
+     "out_of_scope": true,
      "played_in_original": true
     },
     {
      "opponent": "Inception Mercury Decide",
+     "out_of_scope": true,
      "played_in_original": true
     }
    ],
@@ -139,7 +143,7 @@
     "Runner: its 18 League 1 matches were played by six runner builds (17f3b8e, 2421d9e, 6425197, 356e32a with uncommitted changes; bef3ec8, ec555d6 clean); the repeat uses the clean acfd89c build, the one that played Liquid d1-ultra as an opponent in REAX's late entry (#920). Same prompt version bg-v2, option-order seed and rules; mirror games off as in its originals.",
     "Opponent hardware: Clef (#180), Cygnet (#184) and Decider v1.1 27B (#182) answered from DGX Spark (GB10) servers then; they now run on our RTX PRO 6000 cards with the same checkpoints and arguments (their players.device records the move and its 20-request replays: same play 20/20, 20/20 and 19/20).",
     "Hosted model: d1-ultra is served by Liquid; whether the hosted model behind liquid/d1-ultra changed since 2026-10-19 cannot be checked from here.",
-    "Not replayable today, though played in the original: GPT-6 Luna, Mercury Decide (blockers today); their seed pins are kept so they replay with the original seeds once unblocked."
+    "Not replayed, though played in the original: GPT-6 Luna (Decisions API) (no credit), Inception Mercury Decide (no OpenRouter endpoint): outside the requested scope (Ümit, 12 Nov), and blocked today as well; their seed pins are kept."
    ],
    "field": 18,
    "id": "d1-ultra-r1",
@@ -229,10 +233,12 @@
    "blocked_today": [
     {
      "opponent": "GPT-6 Luna (Decisions API)",
+     "out_of_scope": true,
      "played_in_original": true
     },
     {
      "opponent": "Inception Mercury Decide",
+     "out_of_scope": true,
      "played_in_original": true
     }
    ],
@@ -248,7 +254,7 @@
    },
    "differences": [
     "Name: '<original> [repeat 1]', a new players row; settings otherwise as the original's (the changed fields are listed under Settings); one match at a time, where the original played several at once.",
-    "Not replayable today, though played in the original: GPT-6 Luna, Mercury Decide (blockers today); their seed pins are kept so they replay with the original seeds once unblocked."
+    "Not replayed, though played in the original: GPT-6 Luna (Decisions API) (no credit), Inception Mercury Decide (no OpenRouter endpoint): outside the requested scope (Ümit, 12 Nov), and blocked today as well; their seed pins are kept."
    ],
    "field": 19,
    "id": "mammoth-1-r1",
@@ -340,6 +346,7 @@
    "blocked_today": [
     {
      "opponent": "Inception Mercury Decide",
+     "out_of_scope": true,
      "played_in_original": true
     }
    ],
@@ -357,7 +364,7 @@
     "Name: '<original> [repeat 1]', a new players row; settings otherwise as the original's (the changed fields are listed under Settings); one match at a time, where the original played several at once.",
     "Server: logic's container logic-dm-reax13 on Docker's default bridge, its API published on the host's loopback (outbound network open; offline Hugging Face variables set as before), where the original ran reax13-late on the internal network reax13-offline (no outbound route), reached on the container's address; logic's env lacks HF_HUB_DISABLE_IMPLICIT_TOKEN=1 (offline either way). Same image, engine, kit, weights, config and serve.py arguments.",
     "no-new-privileges: the original ran without it under Can's one-run exception (#2199); logic's server drops it only with REAX_NO_NNP_EXCEPTION=1 and its own approval, otherwise it does not start.",
-    "Not replayable today, though played in the original: Mercury Decide (blockers today); their seed pins are kept so they replay with the original seeds once unblocked."
+    "Not replayed, though played in the original: Inception Mercury Decide (no OpenRouter endpoint): outside the requested scope (Ümit, 12 Nov), and blocked today as well; their seed pins are kept."
    ],
    "field": 19,
    "id": "reax-1.3-r1",
@@ -366,6 +373,7 @@
    "not_played": [
     {
      "opponent": "GPT-6 Luna (Decisions API)",
+     "out_of_scope": true,
      "reason": "opponent's API out of credit"
     }
    ],
@@ -454,6 +462,7 @@
    "blocked_today": [
     {
      "opponent": "Inception Mercury Decide",
+     "out_of_scope": true,
      "played_in_original": true
     }
    ],
@@ -472,7 +481,7 @@
     "Runner: the pinned-pairs build 4ca4f08 (the pins are its only change for these leagues), where the original ran e58fc6c (clean); the same prompt version, option-order seed and rules.",
     "Hosted model: Drex Max 1.1 is served by Nace; whether the model behind drex-max-v1.1 changed since 2026-11-06 cannot be checked from here.",
     "Nace pre-send cap: the settings (unchanged) book every request in the original's ledger workspace/drex/state/nace-budget.db, cap $1.25 shared with Drex 2.0, which the original started empty and which held $0.7856 settled on 2026-11-11 (Drex Max 1.1 $0.2853, Drex 2.0 $0.5003); the repeat has the $0.4644 left. Its expected own bill ($0.2751 at $0.03/M) fits; reaching the cap would refuse its requests and leave the repeat incomplete.",
-    "Not replayable today, though played in the original: Mercury Decide (blockers today); their seed pins are kept so they replay with the original seeds once unblocked."
+    "Not replayed, though played in the original: Inception Mercury Decide (no OpenRouter endpoint): outside the requested scope (Ümit, 12 Nov), and blocked today as well; their seed pins are kept."
    ],
    "field": 19,
    "id": "drex-max-1.1-r1",
@@ -481,6 +490,7 @@
    "not_played": [
     {
      "opponent": "GPT-6 Luna (Decisions API)",
+     "out_of_scope": true,
      "reason": "opponent's API out of credit"
     }
    ],
@@ -569,10 +579,12 @@
    "blocked_today": [
     {
      "opponent": "GPT-6 Luna (Decisions API)",
+     "out_of_scope": true,
      "played_in_original": true
     },
     {
      "opponent": "Inception Mercury Decide",
+     "out_of_scope": true,
      "played_in_original": true
     }
    ],
@@ -591,7 +603,7 @@
     "Runner: its 18 League 1 matches were played by d2f1f9e with uncommitted changes (#482-#486) and ec555d6 (clean, #487-#499); the repeat uses the pinned-pairs build 4ca4f08. Same prompt version bg-v2, option-order seed and rules; mirror games off as in its originals.",
     "Opponent hardware: Clef (#484) and Cygnet (#486) answered from DGX Spark (GB10) servers then, Decider v1.1 27B (#483) from spark3 until 22:41 UTC; they now run on our RTX PRO 6000 cards with the same checkpoints and arguments (their players.device records the move and its 20-request replays: same play 20/20, 20/20 and 19/20).",
     "Server: the same script, snapshot and Python environment; the original ran on one RTX PRO 6000 card beside the opponents' servers on two others and the DGX Sparks, the repeat runs it on one card with the opponents one at a time on the same or a second card.",
-    "Not replayable today, though played in the original: GPT-6 Luna, Mercury Decide (blockers today); their seed pins are kept so they replay with the original seeds once unblocked."
+    "Not replayed, though played in the original: GPT-6 Luna (Decisions API) (no credit), Inception Mercury Decide (no OpenRouter endpoint): outside the requested scope (Ümit, 12 Nov), and blocked today as well; their seed pins are kept."
    ],
    "field": 18,
    "id": "glide-v1.2-r1",
