@@ -1,0 +1,449 @@
+/* zw-ui.css: the shared UI kit of the Zeki Works bench sites (markup: zw_ui.py; contract: zw-ui.md). Copied byte for
+   byte (sha256) into every site; never edit a copy. Base: logic's kit-form draft (bus #4885), completed by turkce.
+   Sections: 0 theme variables, 1 page head and key rows (filters, Measure, Chart / Table), 2 results: panels, compact
+   table, chart and legend, Top N, 3 details box, 4 cost cell, 5 header and the phone's Filters bar. html.zw-js is set
+   early in <head> (zw_ui.page) and by zw-ui.js; every state class acts only under it, so without JavaScript every
+   panel, view, list, row, box and calculation shows. */
+
+/* --- 0. Theme variables -----------------------------------------------------------------------------------------
+   Every colour the kit paints. Each falls back to the tb-next v3.css name a site already defines (Logic & Math shares
+   them), then to Reading's light value; the dark values apply under data-theme="dark", or with no data-theme when the
+   system prefers dark (the suite bar's rule), so a site without --view-current-* (Backgammon) still gets a dark fill.
+   Override any --zw-* on :root to give a site its own look. */
+:root {
+  --zw-text: var(--text, #23221f);
+  --zw-text-2: var(--text-2, #4b4944);
+  --zw-panel: var(--panel, #f7f6f2);
+  --zw-sunk: var(--sunk, #efede8);
+  --zw-edge: var(--edge, #cbc7bf);
+  --zw-link: var(--link, #1d4ed8);
+  --zw-focus: var(--focus, #23221f);
+  --zw-key-bg: var(--key, #e9e7e2);
+  --zw-key-text: var(--text, #23221f);
+  --zw-key-edge: var(--control-edge, #7c7871);
+  --zw-key-shadow: var(--key-shadow, inset 0 1px 0 rgba(255, 255, 255, .9), 0 1px 2px rgba(40, 36, 30, .28));
+  --zw-on-bg: var(--view-current-bg, #14213d);      /* the selected key, filled */
+  --zw-on-text: var(--view-current-text, #ffffff);
+  --zw-on-edge: var(--view-current-edge, #14213d);
+  --zw-row-hover: var(--row-hover, #efede8);
+  --zw-row-open: var(--row-selected, #e2dfd8);
+  --zw-tier-line: var(--text-2, #4b4944);
+  --zw-mark-edge: var(--mark-edge, #7c7871);
+  --zw-shadow: var(--shadow, 0 1px 2px rgba(40, 36, 30, .12), 0 6px 18px rgba(40, 36, 30, .12));
+  --zw-head-bg: var(--view-bg, var(--panel, #f7f6f2));
+  --zw-mono: var(--mono, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+  --zw-label-w: 5.6rem;   /* the key rows' label column */
+  --zw-head-h: 44px;      /* the sticky header's height, kept current by zw-ui.js */
+  --zw-model-min: 13rem;  /* the model column's least width from 900 px, so a name such as 'Mammoth-1' keeps one line */
+}
+:root[data-theme="dark"] {
+  --zw-text: var(--text, #ebe9e4);
+  --zw-text-2: var(--text-2, #bab7b0);
+  --zw-panel: var(--panel, #1a1a18);
+  --zw-sunk: var(--sunk, #131312);
+  --zw-edge: var(--edge, #34332f);
+  --zw-link: var(--link, #86b9f3);
+  --zw-focus: var(--focus, #f2f0ea);
+  --zw-key-bg: var(--key, #272624);
+  --zw-key-text: var(--text, #ebe9e4);
+  --zw-key-edge: var(--control-edge, #78746d);
+  --zw-key-shadow: var(--key-shadow, inset 0 1px 0 rgba(255, 255, 255, .07), 0 1px 2px rgba(0, 0, 0, .65));
+  --zw-on-bg: var(--view-current-bg, #24508f);
+  --zw-on-text: var(--view-current-text, #ffffff);
+  --zw-on-edge: var(--view-current-edge, #9cc8ff);
+  --zw-row-hover: var(--row-hover, #222220);
+  --zw-row-open: var(--row-selected, #2c2b28);
+  --zw-tier-line: var(--text-2, #bab7b0);
+  --zw-mark-edge: var(--mark-edge, #78746d);
+  --zw-shadow: var(--shadow, 0 1px 2px rgba(0, 0, 0, .55), 0 8px 24px rgba(0, 0, 0, .35));
+  --zw-head-bg: var(--view-bg, var(--panel, #1a1a18));
+}
+@media screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --zw-text: var(--text, #ebe9e4);
+    --zw-text-2: var(--text-2, #bab7b0);
+    --zw-panel: var(--panel, #1a1a18);
+    --zw-sunk: var(--sunk, #131312);
+    --zw-edge: var(--edge, #34332f);
+    --zw-link: var(--link, #86b9f3);
+    --zw-focus: var(--focus, #f2f0ea);
+    --zw-key-bg: var(--key, #272624);
+    --zw-key-text: var(--text, #ebe9e4);
+    --zw-key-edge: var(--control-edge, #78746d);
+    --zw-key-shadow: var(--key-shadow, inset 0 1px 0 rgba(255, 255, 255, .07), 0 1px 2px rgba(0, 0, 0, .65));
+    --zw-on-bg: var(--view-current-bg, #24508f);
+    --zw-on-text: var(--view-current-text, #ffffff);
+    --zw-on-edge: var(--view-current-edge, #9cc8ff);
+    --zw-row-hover: var(--row-hover, #222220);
+    --zw-row-open: var(--row-selected, #2c2b28);
+    --zw-tier-line: var(--text-2, #bab7b0);
+    --zw-mark-edge: var(--mark-edge, #78746d);
+    --zw-shadow: var(--shadow, 0 1px 2px rgba(0, 0, 0, .55), 0 8px 24px rgba(0, 0, 0, .35));
+    --zw-head-bg: var(--view-bg, var(--panel, #1a1a18));
+  }
+}
+/* A panel page opened on its own (zw_ui.Fragments(theme="auto"), html.zw-panel-page): its script sets data-theme from
+   the reader's stored choice or the system; without the script it has none, and the system's scheme decides here, over
+   a site stylesheet that is dark (or light) unless told otherwise (v3.css: dark unless data-theme="light"). The values
+   are the tb-next v3.css names and Reading's values, those the kit falls back to above, and the page background. */
+@media screen and (prefers-color-scheme: light) {
+  html.zw-panel-page:not([data-theme]) {
+    color-scheme: light;
+    --bg: #dcd9d2; --text: #23221f; --text-2: #4b4944; --panel: #f7f6f2; --sunk: #efede8; --edge: #cbc7bf; --link: #1d4ed8;
+    --focus: #23221f; --key: #e9e7e2; --control-edge: #7c7871;
+    --key-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 1px 2px rgba(40, 36, 30, .28);
+    --view-current-bg: #14213d; --view-current-text: #ffffff; --view-current-edge: #14213d; --row-hover: #efede8;
+    --row-selected: #e2dfd8; --mark-edge: #7c7871; --shadow: 0 1px 2px rgba(40, 36, 30, .12), 0 6px 18px rgba(40, 36, 30, .12);
+    --view-bg: #f7f6f2;
+  }
+}
+@media screen and (prefers-color-scheme: dark) {
+  html.zw-panel-page:not([data-theme]) {
+    color-scheme: dark;
+    --bg: #0e0e0d; --text: #ebe9e4; --text-2: #bab7b0; --panel: #1a1a18; --sunk: #131312; --edge: #34332f; --link: #86b9f3;
+    --focus: #f2f0ea; --key: #272624; --control-edge: #78746d;
+    --key-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 1px 2px rgba(0, 0, 0, .65);
+    --view-current-bg: #24508f; --view-current-text: #ffffff; --view-current-edge: #9cc8ff; --row-hover: #222220;
+    --row-selected: #2c2b28; --mark-edge: #78746d; --shadow: 0 1px 2px rgba(0, 0, 0, .55), 0 8px 24px rgba(0, 0, 0, .35);
+    --view-bg: #1a1a18;
+  }
+}
+html.zw-panel-page body { color: var(--text, var(--zw-text)); background: var(--bg, var(--zw-sunk)); }
+.zw-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0; }
+/* What the view takes away (a show rule, a filter, the Top N cut): only with the script. */
+.zw-js .zw-away, .zw-js .zw-cut { display: none !important; }
+/* The controls that need the script. */
+html:not(.zw-js) :is(.zw-filterbar, .zw-filters, .zw-measures, .zw-viewkeys, .zw-showall) { display: none !important; }
+
+/* --- 1. Page head and key rows ------------------------------------------------------------------------------------
+   The fixed order: short title → scope line → (phone: Filters bar) → filter rows Part · Models · Class · Rows →
+   Measure keys → results. One labelled row per URL parameter, the selected key filled in --zw-on-*; rows wrap, never
+   scroll sideways (logic.css:300-307, zeki #4177). */
+.zw-block { min-width: 0; }
+.zw-pagehead { margin: 0 0 .55rem; }
+.zw-title { margin: 0 0 .2rem; color: var(--zw-text); font-size: clamp(1.05rem, 1.6vw, 1.35rem); line-height: 1.2; text-wrap: balance; }
+.zw-scope { margin: 0; color: var(--zw-text-2); font-size: .86rem; }
+html:not(.zw-js) .zw-scope-part { display: block; }
+.zw-filters { display: flex; flex-direction: column; gap: .3rem; margin: 0 0 .3rem; scroll-margin-top: calc(var(--zw-head-h) + 8px); }
+.zw-row { display: flex; align-items: flex-start; gap: .25rem .5rem; min-width: 0; }
+.zw-row-label { flex: none; width: var(--zw-label-w); padding-top: .36rem; color: var(--zw-text-2); font-size: .7rem;
+  font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.zw-keys { display: flex; flex-wrap: wrap; gap: .25rem; min-width: 0; }
+.zw-key { display: inline-flex; align-items: center; min-height: 1.9rem; margin: 0; padding: .15rem .65rem; font: inherit;
+  font-size: .82rem; font-weight: 600; line-height: 1.2; white-space: nowrap; color: var(--zw-key-text); background: var(--zw-key-bg);
+  border: 1.5px solid var(--zw-key-edge); border-radius: 6px; box-shadow: var(--zw-key-shadow); cursor: pointer; }
+.zw-key:hover { border-color: var(--zw-text-2); }
+.zw-key[aria-pressed="true"] { color: var(--zw-on-text); background: var(--zw-on-bg); border-color: var(--zw-on-edge); box-shadow: none; }
+.zw-key:focus-visible, .zw-filters-toggle:focus-visible, .zw-nav a:focus-visible,
+.zw-calc > summary:focus-visible, a.zw-calc-key:focus-visible, .zw-name:focus-visible { outline: 2px solid var(--zw-focus); outline-offset: 2px; }
+.zw-key[hidden] { display: none !important; }
+.zw-measures { margin: 0 0 .75rem; }
+/* Without the script, where panels load on first show (Bench.lazy_panels): the Measure keys as links, each to its
+   panel's own page (the default one to its place here); a panel page's link back to the main view. */
+.zw-nojs-measures { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; margin: 0 0 .75rem; }
+.zw-js .zw-nojs-measures { display: none; }
+a.zw-key { text-decoration: none; }
+a.zw-key[aria-current] { color: var(--zw-on-text); background: var(--zw-on-bg); border-color: var(--zw-on-edge); box-shadow: none; }
+.zw-back { margin: .3rem 0 0; font-size: .86rem; }
+/* A panel's Chart / Table keys: smaller, their label for screen readers only. */
+.zw-viewkeys .zw-row-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.zw-viewkeys .zw-key { min-height: 1.75rem; padding: .1rem .55rem; font-size: .78rem; }
+@media (max-width: 599.98px) {
+  :root { --zw-label-w: 4.1rem; }
+  .zw-key { min-height: 1.75rem; padding: .1rem .45rem; font-size: .76rem; }
+  .zw-row-label { padding-top: .32rem; font-size: .64rem; }
+  .zw-measures { margin-bottom: .55rem; }
+}
+
+/* --- 2. Results: one panel per part and measure, its views, the compact table, the chart, Top N -------------------
+   The table after the leaderboard (logic.css:213-231, 288-314; home.py:303-348): tier/rank · model · the measure · two
+   helper columns; it fits its box at every width, nothing scrolls inside it. */
+.zw-results { min-width: 0; }
+.zw-panel { min-width: 0; margin: 0 0 1rem; padding: .85rem 1.1rem; background: var(--zw-panel); border: 1px solid var(--zw-edge);
+  border-radius: 10px; box-shadow: var(--zw-shadow); }
+.zw-panel-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .35rem 1rem; margin: 0 0 .6rem; }
+.zw-panel-title { margin: 0; color: var(--zw-text); font-size: 1.05rem; line-height: 1.25; }
+.zw-panel-sub { margin-left: .35rem; color: var(--zw-text-2); font-size: .8rem; font-weight: 400; }
+.zw-view, .zw-list { min-width: 0; }
+html:not(.zw-js) .zw-view + .zw-view, html:not(.zw-js) .zw-list + .zw-list { margin-top: 1rem; }
+.zw-list-title { margin: 0 0 .4rem; font-size: .92rem; }
+.zw-js .zw-list-title { display: none; }
+.zw-note { margin: .6rem 0 0; color: var(--zw-text-2); font-size: .82rem; }
+.zw-note > :first-child { margin-top: 0; }
+.zw-note > :last-child { margin-bottom: 0; }
+/* A note that opens (a Note with a summary): its summary as a link-coloured line, its body under it. */
+.zw-note-more > summary { width: fit-content; color: var(--zw-link); cursor: pointer; }
+.zw-note-body { margin: .3rem 0 0; }
+.zw-table { width: 100%; border-collapse: collapse; font-size: .88rem; font-variant-numeric: tabular-nums; }
+.zw-table th, .zw-table td { padding: .42rem .5rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--zw-edge); }
+.zw-table thead th { color: var(--zw-text); font-weight: 650; vertical-align: bottom; border-bottom-color: var(--zw-key-edge); }
+.zw-table thead .zw-sub { display: block; color: var(--zw-text-2); font-size: .72rem; font-weight: 400; }
+.zw-table .zw-num { text-align: right; }
+.zw-table tbody tr { background: var(--zw-panel); }
+.zw-js .zw-table tbody tr[data-zw-box] { cursor: pointer; }
+.zw-table tbody tr:hover { background: var(--zw-row-hover); }
+.zw-table tbody tr.zw-open { background: var(--zw-row-open); }
+.zw-table tbody tr.zw-tier-start > td { border-top: 2px solid var(--zw-tier-line); }  /* 2px wins over the row above's 1px */
+.zw-rank { width: 2.4rem; text-align: right; white-space: nowrap; font-weight: 650; }
+/* The rank head's explanation (Columns.rank_note): under the head, opened by hover, keyboard focus or a tap on its key
+   (aria-expanded); Escape quiets it (data-zw-quiet) until the pointer or the focus leaves. */
+.zw-table th.zw-rank { position: relative; }
+.zw-tip { position: relative; display: inline-block; }
+.zw-tip-key { min-height: 24px; margin: 0; padding: 0; color: inherit; background: none; border: 0; font: inherit; font-weight: inherit;
+  text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+.zw-tip-key:focus-visible { outline: 2px solid var(--zw-focus); outline-offset: 2px; }
+.zw-tip-body { display: none; position: absolute; left: 0; top: 100%; z-index: 35; width: max-content; max-width: min(18rem, calc(100vw - 2rem));
+  padding: .45rem .6rem; color: var(--zw-text); background: var(--zw-panel); border: 1px solid var(--zw-key-edge); border-radius: 6px;
+  box-shadow: var(--zw-shadow); font-size: .78rem; font-weight: 400; line-height: 1.4; text-align: left; white-space: normal; }
+.zw-tip:not([data-zw-quiet]):hover .zw-tip-body, .zw-tip:not([data-zw-quiet]) .zw-tip-key:focus-visible + .zw-tip-body,
+.zw-tip-key[aria-expanded="true"] + .zw-tip-body, html:not(.zw-js) .zw-tip:focus-within .zw-tip-body { display: block; }
+/* A model's other settings: sub-rows under its row, closed until its expander opens them (Reading's Leaderboard). */
+.zw-js .zw-table tbody tr.zw-sub-closed { display: none; }
+.zw-table tbody tr.zw-sub > td { background: var(--zw-sunk); }
+.zw-table tbody tr.zw-sub > td.zw-model { padding-left: 1.4rem; }
+/* One list for two Rows choices (Bench.one_list): a chart's sub-rows (li.zw-sub) wait behind their row as the table's
+   do; in the list's flat view (zw-flat-on: All setups) every sub-row shows as a row of its own, without expanders. */
+.zw-js .zw-bars > li.zw-sub { display: none; }
+.zw-bars > li.zw-sub .zw-bar-label { color: var(--zw-text-2); }
+.zw-js .zw-flat-on .zw-bars > li.zw-sub { display: grid; }
+.zw-js .zw-flat-on .zw-bars > li.zw-sub .zw-bar-label { color: var(--zw-text); }
+.zw-js .zw-flat-on .zw-table tbody tr.zw-sub-closed { display: table-row; }
+.zw-flat-on .zw-table tbody tr.zw-sub > td { background: none; }
+.zw-flat-on .zw-table tbody tr.zw-sub > td.zw-model { padding-left: .5rem; }
+.zw-js .zw-flat-on .zw-more { display: none; }
+.zw-more { display: none; }
+.zw-js .zw-more { display: block; min-height: 24px; margin: .15rem 0 0; padding: 0; color: var(--zw-link); background: none; border: 0;
+  font: inherit; font-size: .78rem; text-align: left; text-decoration: underline dotted; cursor: pointer; }
+.zw-more::before { content: "\25B8\00a0"; }
+.zw-more[aria-expanded="true"]::before { content: "\25BE\00a0"; }
+.zw-more:focus-visible { outline: 2px solid var(--zw-focus); outline-offset: 2px; }
+td.zw-model { min-width: 0; overflow-wrap: anywhere; }
+@media (min-width: 900px) { td.zw-model { min-width: var(--zw-model-min); } }
+/* The family icon (Model.icon), after the maker dot; a reference row (Row.pinned: a program, a baseline). */
+.zw-icon { display: inline-flex; margin-right: .3rem; vertical-align: -.12em; }
+.zw-icon > svg, .zw-icon > img { width: 1em; height: 1em; }
+.zw-table tbody tr[data-zw-pinned] > td { border-top-style: dashed; }
+.zw-dot { display: inline-block; width: .7rem; height: .7rem; margin-right: .4rem; border-radius: 50%; vertical-align: -.05rem;
+  background: var(--zw-dot, var(--zw-text-2)); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25); }
+.zw-name { font-weight: 650; color: var(--zw-text); text-decoration: none; }
+a.zw-name:hover { text-decoration: underline; }
+.zw-tag { display: inline-block; max-width: 100%; padding: 0 .3rem; color: var(--zw-text-2); border: 1px solid var(--zw-edge);
+  border-radius: 4px; font-size: .72rem; font-weight: 400; line-height: 1.35; white-space: normal; vertical-align: .05em; }
+.zw-class { margin-left: .4rem; color: var(--zw-text-2); font-size: .76rem; white-space: nowrap; }
+.zw-flag { margin-left: .3rem; padding: 0 .35rem; color: var(--zw-text-2); font-size: .7rem; white-space: nowrap;
+  border: 1px solid var(--zw-text-2); border-radius: .6rem; }
+.zw-table .zw-measure { width: 34%; min-width: 8rem; }
+/* The measure as a bar: --v the value 0..1, --lo/--hi its interval, --c the colour. */
+.zw-bar { position: relative; display: block; height: .75rem; margin: .2rem 0 .2rem; background: var(--zw-sunk); border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--zw-edge); }
+.zw-bar::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--v, 0) * 100%); border-radius: 2px;
+  background: var(--c, var(--zw-text-2)); box-shadow: inset 0 0 0 1px var(--zw-mark-edge); }
+.zw-bar::after { content: ""; position: absolute; top: 50%; height: 2px; margin-top: -1px; left: calc(var(--lo, 0) * 100%);
+  width: calc((var(--hi, 0) - var(--lo, 0)) * 100%); background: var(--zw-text); box-shadow: 0 0 0 1px var(--zw-panel); }
+.zw-val { font-family: var(--zw-mono); font-size: .84rem; white-space: nowrap; }
+.zw-val .zw-int { margin-left: .4rem; color: var(--zw-text-2); font-size: .74rem; }
+/* A bar without an interval (bar() with low and high None): no whisker. */
+.zw-bar-plain::after { display: none; }
+/* Two series in one cell or chart row (bar(second=…), Bar.second: Reading's Turkish over English): the second striped
+   under the first, its number after the first's; the legend's keys the same. */
+.zw-bar-pair { display: grid; gap: 2px; margin: .2rem 0; }
+.zw-bar-pair > .zw-bar { height: .6rem; margin: 0; }
+.zw-bar.zw-bar-second::before { background: repeating-linear-gradient(135deg, var(--c, var(--zw-text-2)) 0 3px, var(--zw-panel) 3px 5px); }
+.zw-val-second { margin-left: .5rem; color: var(--zw-text-2); }
+.zw-bars .zw-val-second { display: block; margin-left: 0; }
+.zw-pair-key { display: inline-block; width: 1.1rem; height: .6rem; margin-right: .35rem; vertical-align: -.02rem; border-radius: 2px;
+  background: var(--zw-text-2); }
+.zw-pair-key.zw-bar-second { background: repeating-linear-gradient(135deg, var(--zw-text-2) 0 3px, transparent 3px 5px);
+  box-shadow: inset 0 0 0 1px var(--zw-text-2); }
+/* A list in groups (Row.group): each group under its heading, ranked and cut on its own. */
+.zw-table tbody tr.zw-group-head > th { padding: .8rem .5rem .3rem; color: var(--zw-text-2); background: var(--zw-panel); font-size: .74rem;
+  font-weight: 700; letter-spacing: .06em; text-align: left; text-transform: uppercase; border-bottom: 1px solid var(--zw-key-edge); }
+.zw-bars > li.zw-group-head { display: block; margin: .5rem 0 0; color: var(--zw-text-2); font-size: .74rem; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase; }
+/* A panel whose measure the part lacks (Bench.measured): its one line in place of the table. */
+.zw-not-measured { margin: .3rem 0; color: var(--zw-text-2); }
+/* A panel loaded on first show (zw_ui.Fragments): its stub keeps the head and keys; 'Loading…' while its file loads,
+   a line with a reload link if it fails; without the script a link to its file, a page of its own. */
+.zw-lazy-body { min-height: 4rem; }
+.zw-lazy-loading, .zw-js .zw-lazy-link { display: none; }
+.zw-js .zw-loading > .zw-lazy-loading { display: block; color: var(--zw-text-2); }
+.zw-lazy-failed[hidden] { display: none; }
+.zw-lazy-body p { margin: .4rem 0; }
+.zw-nowrap { white-space: nowrap; }
+td.zw-help { white-space: nowrap; }
+/* A helper column kept on the phone (Column(phone=True)) wraps, words and long tokens alike, so the table fits its box
+   at 375 px too (jevgammon #4934). */
+.zw-table .zw-keep-phone, .zw-table .zw-keep-phone .zw-val { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.zw-empty { margin: .45rem 0 0; color: var(--zw-text-2); font-size: .84rem; }
+.zw-showall { margin: .55rem 0 0; }
+/* The chart view: name, bar, value; the legend lists only the series in view (zw-ui.js). */
+.zw-bars { display: grid; gap: .3rem; margin: 0; padding: 0; list-style: none; }
+.zw-bars > li { display: grid; grid-template-columns: minmax(8rem, 16rem) minmax(0, 1fr) 4.6rem; align-items: center; gap: .6rem; }
+.zw-bars .zw-bar { margin: 0; }
+.zw-bar-label { min-width: 0; color: var(--zw-text); font-size: .84rem; text-align: right; overflow-wrap: anywhere; }
+.zw-bars .zw-val { text-align: right; }
+.zw-legend { display: flex; flex-wrap: wrap; gap: .2rem .9rem; margin: .7rem 0 0; padding: .45rem 0 0; list-style: none;
+  color: var(--zw-text-2); font-size: .78rem; border-top: 1px solid var(--zw-edge); }
+.zw-legend li { white-space: nowrap; }
+.zw-legend .zw-dot { margin-right: .3rem; }
+/* A bar with no value: the adapter's words ('Not measured'); a chart that shows ranks or tiers (Bench.chart_rank). */
+.zw-bar-missing { color: var(--zw-text-2); font-size: .8rem; font-style: italic; }
+/* A chart's axis (Bench.axis; log_axis for a log scale): ticks under the bar column, its name in the label column. */
+.zw-axis-row { display: grid; grid-template-columns: minmax(8rem, 16rem) minmax(0, 1fr) 4.6rem; gap: .6rem; margin: .35rem 0 0; }
+.zw-axis-row.zw-ranked { grid-template-columns: 2rem minmax(8rem, 16rem) minmax(0, 1fr) 4.6rem; }
+.zw-axis-row.zw-ranked .zw-axis-name { grid-column: 1 / 3; }
+.zw-axis-name { color: var(--zw-text-2); font-size: .74rem; text-align: right; }
+.zw-axis { position: relative; height: 1.4rem; border-top: 1px solid var(--zw-key-edge); }
+.zw-tick { position: absolute; top: 0; padding-top: .25rem; color: var(--zw-text-2); font-size: .7rem; white-space: nowrap; transform: translateX(-50%); }
+.zw-tick::before { content: ""; position: absolute; left: 50%; top: 0; height: .2rem; border-left: 1px solid var(--zw-key-edge); }
+.zw-tick:first-child { transform: none; }
+.zw-tick:first-child::before { left: 0; }
+.zw-tick:last-child { transform: translateX(-100%); }
+.zw-tick:last-child::before { left: auto; right: 0; }
+/* A reference mark in a bar (bar(ref=…), Bar.ref): a dashed vertical line; its words in the legend, with the same key. */
+.zw-bar-ref { position: absolute; top: -3px; bottom: -3px; width: 0; margin-left: -1px; border-left: 2px dashed var(--zw-text); }
+.zw-ref-key { display: inline-block; width: 0; height: .85rem; margin-right: .4rem; vertical-align: -.12rem; border-left: 2px dashed var(--zw-text); }
+.zw-bars.zw-ranked > li { grid-template-columns: 2rem minmax(8rem, 16rem) minmax(0, 1fr) 4.6rem; }
+.zw-bars .zw-rank { width: auto; color: var(--zw-text); font-size: .84rem; }
+/* Phone: rank, model and the selected measure; the two helper columns move into the details box (Ümit #4862 item 9). */
+@media (max-width: 599.98px) {
+  .zw-panel { padding: .65rem .55rem; border-radius: 8px; }
+  .zw-panel-sub { display: block; margin-left: 0; }
+  .zw-table { font-size: .84rem; }
+  .zw-table th, .zw-table td { padding: .36rem .25rem; }
+  .zw-table thead .zw-sub { font-size: .64rem; white-space: normal; }
+  .zw-table th { white-space: normal; }
+  .zw-table th.zw-rank, .zw-table td.zw-rank { width: 1.6rem; padding-left: 0; }
+  .zw-js .zw-table .zw-help:not(.zw-keep-phone) { display: none; }
+  /* A kept helper column takes at most a third of the row and a smaller face, so the model and its measure keep room. */
+  .zw-table .zw-help.zw-keep-phone { width: 30%; font-size: .72rem; }
+  .zw-table .zw-keep-phone .zw-val { font-size: inherit; }
+  /* Without the script the helper columns stay (there is no box to open): small, wrapping, so the table still fits. */
+  html:not(.zw-js) .zw-table .zw-help { font-size: .7rem; white-space: normal; overflow-wrap: anywhere; }
+  html:not(.zw-js) .zw-table .zw-help .zw-cost-label { white-space: normal; }
+  /* Their numbers wrap too, with their marks and units ('178,680 ms' with its †: logic #4978), so no helper cell can
+     push the table past the screen; with the script these columns move into the details box instead. */
+  html:not(.zw-js) .zw-table .zw-help :is(.zw-val, .zw-cost, .zw-cost-num, .zw-cost-mark, .zw-int, .cost-1k, .cost-1m) {
+    white-space: normal; overflow-wrap: anywhere; }
+  html:not(.zw-js) .zw-table .zw-measure { min-width: 4.5rem; }
+  .zw-table .zw-measure { width: 40%; min-width: 6rem; }
+  .zw-val { font-size: .8rem; }
+  .zw-val .zw-int { display: block; margin-left: 0; font-size: .68rem; }
+  .zw-class { display: block; margin-left: 0; white-space: normal; }
+  .zw-bars > li { grid-template-columns: minmax(0, 1fr) 4.4rem; gap: .1rem .5rem; }
+  .zw-bar-label { grid-column: 1 / -1; text-align: left; }
+  .zw-bars.zw-ranked > li { grid-template-columns: 1.6rem minmax(0, 1fr) 4.4rem; }
+  .zw-bars.zw-ranked .zw-rank { grid-row: 1 / span 2; align-self: start; }
+  .zw-bars.zw-ranked .zw-bar-label { grid-column: 2 / -1; }
+  .zw-axis-row { grid-template-columns: minmax(0, 1fr) 4.4rem; gap: .1rem .5rem; }
+  .zw-axis-row.zw-ranked { grid-template-columns: 1.6rem minmax(0, 1fr) 4.4rem; }
+  .zw-axis-row.zw-ranked .zw-axis { grid-column: 2; }
+  .zw-axis-row .zw-axis-name, .zw-axis-row.zw-ranked .zw-axis-name { grid-column: 1 / -1; order: 2; text-align: left; }
+}
+
+/* --- 3. Details box: every other value of a row (logic.css:241-266; site.js:201-290) ---------------------------------
+   Without JavaScript each box shows inside its row's model cell. With it, a box floats under its row (above it near the
+   window's bottom) and opens on a tap, a click, a mouse pointing at the row, or Enter/Space on the row's Details button.
+   The Details button shows below 600 px; from 600 px it stays out of sight until it gets keyboard focus. The helper
+   columns' values (zw-box-phone) show in the box below 600 px only. */
+.zw-box { margin: .35rem 0 0; color: var(--zw-text); font-size: .82rem; font-weight: 400; line-height: 1.4; white-space: normal;
+  overflow-wrap: anywhere; cursor: auto; }
+.zw-box p { margin: .14rem 0; }
+.zw-box p:first-child { margin-top: 0; }
+.zw-box a { color: var(--zw-link); }
+.zw-box-phone { display: none; margin: .14rem 0; }
+/* Shared boxes (zw_ui.Boxes): with the script, the box goes into the row that opens it, with that row's own lines
+   (zw-row-lines) on top; without it the boxes read as a list after the results and each row links to its own. */
+.zw-row-lines { display: none; }
+.zw-box > .zw-row-lines { display: block; }
+.zw-details-link { display: none; }
+html:not(.zw-js) .zw-details-link { display: inline-block; margin: .2rem 0 0; font-size: .78rem; }
+.zw-js .zw-boxes { display: none; }
+.zw-boxes { margin: 1rem 0 0; }
+.zw-boxes-title { margin: 0 0 .5rem; font-size: 1rem; }
+html:not(.zw-js) .zw-boxes .zw-box { margin: 0 0 .5rem; padding: .5rem .7rem; background: var(--zw-panel); border: 1px solid var(--zw-edge);
+  border-radius: 6px; }
+html:not(.zw-js) .zw-box { padding-top: .3rem; border-top: 1px dashed var(--zw-edge); }
+.zw-js .zw-box { display: none; position: fixed; z-index: 40; box-sizing: border-box; max-width: calc(100vw - 16px); margin: 0; padding: .6rem .75rem;
+  overflow: auto; overscroll-behavior: contain; background: var(--zw-panel); border: 1px solid var(--zw-key-edge); border-radius: 8px;
+  box-shadow: var(--zw-shadow); }
+.zw-js .zw-box.zw-open { display: block; }
+@media (max-width: 599.98px) {
+  .zw-box-phone { display: block; }
+}
+
+/* --- 4. Cost cell: the number and one short label ('List price', 'GPU estimate', 'Subscription', 'No list price');
+   a tap on the label opens its calculation (a details element: in place without JavaScript and inside a details box,
+   else in a box under the label). After shell.py:206-226 estimate_cell / cost_marked. */
+.zw-cost { display: inline-block; text-align: right; }
+.zw-cost-num { display: block; font-family: var(--zw-mono); font-size: .84rem; }
+.zw-cost-label { display: block; color: var(--zw-text-2); font-size: .7rem; white-space: nowrap; }
+a.zw-calc-key { font-size: .7rem; }
+.zw-cost[data-kind="estimate"] :is(.zw-cost-label, .zw-calc-key) { font-style: italic; }
+.zw-box .zw-cost-method { color: var(--zw-text-2); }
+/* A structured amount (zw_ui.Cost): its mark muted; per 1,000 or per 1M questions as the site's switch says. */
+.zw-cost-mark { color: var(--zw-text-2); }
+.zw-block .cost-1m { display: none; }
+:root[data-cost-unit="1m"] .zw-block .cost-1k { display: none; }
+:root[data-cost-unit="1m"] .zw-block .cost-1m { display: inline; }
+.zw-box .zw-cost, .zw-box .zw-cost-num, .zw-box .zw-cost-label { display: inline; text-align: left; }
+/* In a details box the amount and its label stay on one line, wrapping between them only where they do not fit. */
+.zw-box .zw-cost-num, .zw-box .zw-calc-key { white-space: nowrap; }
+.zw-calc { display: block; }
+.zw-box .zw-calc { display: inline; margin-left: .3rem; }
+.zw-calc > summary, a.zw-calc-key { display: inline-flex; align-items: center; min-height: 24px; padding: 0 .3rem; color: var(--zw-link);
+  border: 1px dashed currentColor; border-radius: 4px; cursor: pointer; list-style: none; text-decoration: none; white-space: nowrap; }
+.zw-box a.zw-calc-key { margin-left: .3rem; }
+.zw-calc > summary::-webkit-details-marker { display: none; }
+.zw-calc[open] > summary, a.zw-calc-key[aria-expanded="true"] { color: var(--zw-on-text); background: var(--zw-on-bg); border-style: solid;
+  border-color: var(--zw-on-edge); }
+.zw-calc-body { display: block; margin: .25rem 0 0; color: var(--zw-text); font-size: .8rem; font-style: normal; line-height: 1.4;
+  text-align: left; white-space: normal; }
+/* The calculations, one per distinct text (zw_ui.Calcs), after the results: a list without the script; with it each
+   opens from its labels in a box under the one tapped. */
+.zw-calcs { margin: 1rem 0 0; }
+.zw-calcs-title { margin: 0 0 .5rem; font-size: 1rem; }
+.zw-calcs .zw-calc-body { margin: 0 0 .4rem; }
+.zw-js .zw-calcs { margin: 0; }
+.zw-js .zw-calcs-title, .zw-js .zw-calcs .zw-calc-body { display: none; }
+.zw-js .zw-calcs .zw-calc-body { position: fixed; z-index: 41; box-sizing: border-box; max-width: calc(100vw - 16px); margin: 0;
+  padding: .55rem .7rem; background: var(--zw-panel); border: 1px solid var(--zw-key-edge); border-radius: 8px; box-shadow: var(--zw-shadow); }
+.zw-js .zw-calcs .zw-calc-body.zw-open { display: block; }
+
+/* --- 5. Header: one row of page tabs; the phone's Filters bar ------------------------------------------------------
+   After the site bar (logic.css:5-28; shell.py:571-581). The tab row scrolls inside itself, never the page. Below
+   600 px the brand gives way, and the filter rows fold behind the Filters button (job8-look's Filters key with logic's
+   count badge), beside a one-line summary of the scope. */
+.zw-head { position: sticky; top: 0; z-index: 30; background: var(--zw-head-bg); border-bottom: 1px solid var(--zw-edge); box-shadow: var(--zw-shadow); }
+.zw-head-in { display: flex; align-items: center; gap: .6rem; max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+.zw-brand { flex: none; color: var(--zw-text); font-size: 1.05rem; font-weight: 700; white-space: nowrap; text-decoration: none; }
+.zw-nav { flex: 1 1 auto; min-width: 0; }
+.zw-nav ul { display: flex; gap: .15rem; margin: 0; padding: 0 .1rem; list-style: none; overflow-x: auto; scrollbar-width: none; }
+.zw-nav ul::-webkit-scrollbar { display: none; }
+.zw-nav li { flex: none; }
+.zw-nav a { display: block; padding: .62rem .55rem .45rem; color: var(--zw-text-2); font-size: .9rem; font-weight: 600; line-height: 1.2;
+  white-space: nowrap; text-decoration: none; border-bottom: 3px solid transparent; }
+.zw-nav a:hover { color: var(--zw-text); border-bottom-color: var(--zw-edge); }
+.zw-nav a[aria-current] { color: var(--zw-text); border-bottom-color: var(--zw-link); }
+.zw-nav a:focus-visible { outline-offset: -2px; }
+.zw-filterbar { display: none; }
+.zw-filter-count { min-width: 1.15rem; padding: 0 .3rem; color: var(--zw-on-text); background: var(--zw-on-bg); border: 1px solid var(--zw-on-edge);
+  border-radius: 999px; font-size: .7rem; font-weight: 700; line-height: 1.3; text-align: center; }
+.zw-filter-count[hidden] { display: none; }
+.zw-summary { flex: 1 1 auto; min-width: 0; margin: 0; overflow: hidden; color: var(--zw-text-2); font-size: .8rem; white-space: nowrap;
+  text-overflow: ellipsis; }
+@media (max-width: 599.98px) {
+  .zw-head-in { gap: .35rem; padding: 0 .5rem; }
+  .zw-brand { display: none; }
+  .zw-nav a { padding: .6rem .45rem .42rem; font-size: .86rem; }
+  .zw-js .zw-filterbar { display: flex; align-items: center; gap: .5rem; margin: 0 0 .45rem; }
+  .zw-filters-toggle { display: inline-flex; flex: none; align-items: center; gap: .3rem; min-height: 1.9rem; margin: 0; padding: .1rem .55rem;
+    font: inherit; font-size: .8rem; font-weight: 650; color: var(--zw-key-text); background: var(--zw-key-bg);
+    border: 1.5px solid var(--zw-key-edge); border-radius: 6px; box-shadow: var(--zw-key-shadow); cursor: pointer; }
+  .zw-filters-toggle[aria-expanded="true"] { color: var(--zw-on-text); background: var(--zw-on-bg); border-color: var(--zw-on-edge); }
+  .zw-filters-toggle[aria-expanded="true"] .zw-filter-count { color: var(--zw-on-bg); background: var(--zw-on-text); }
+  .zw-js .zw-filters.zw-foldable:not(.zw-filters-open) { display: none; }
+  .zw-filters.zw-filters-open { margin-bottom: .5rem; }
+}
+@media print { .zw-filterbar, .zw-filters, .zw-measures, .zw-viewkeys, .zw-showall { display: none !important; } }

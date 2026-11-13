@@ -379,19 +379,18 @@ button.mode:hover, a.mode:hover { border-color: var(--view-key-hover); }
 button.mode[aria-selected="true"], a.mode[aria-selected="true"] {
   color: var(--tab-current-text); background: var(--tab-current-bg); border-color: var(--tab-current-bg); box-shadow: none; }
 button.mode[aria-selected="true"]::after, a.mode[aria-selected="true"]::after { background: var(--tab-current-bg); }
-#filters button.key, .cost-unit button.key, .view-switch button.key, .col-switch button.key, .hl-filter button.key { border-radius: 999px; }
+#filters button.key, .cost-unit button.key, .view-switch button.key, .col-switch button.key { border-radius: 999px; }
 button.key[aria-pressed="true"] { color: var(--tab-text); background: var(--tab-bg);
   border: 2px solid var(--tab-edge); box-shadow: var(--key-inset); font-weight: 700; }
 button.key[aria-pressed="true"]::before { content: "\2713"; margin-right: .3rem; }
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
-  [data-filter-runs="all"], [data-filter-weights="all"]), .hl-filter button.key[aria-pressed="true"]:is([data-hl-filter="all"], [data-class-key="all"]) {
+  [data-filter-runs="all"], [data-filter-weights="all"]) {
   color: var(--view-text); background: var(--view-key); border: 1.5px solid var(--view-key-edge); box-shadow: var(--key-shadow);
   font-weight: 700; }
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
   [data-filter-runs="all"], [data-filter-weights="all"]) { border-width: 1px; font-weight: 400; }
 #filters button.key[aria-pressed="true"]:is([data-league-pick="all"], [data-filter-kind="all"], [data-filter-setting="all"],
-  [data-filter-runs="all"], [data-filter-weights="all"])::before,
-.hl-filter button.key[aria-pressed="true"]:is([data-hl-filter="all"], [data-class-key="all"])::before { content: none; }
+  [data-filter-runs="all"], [data-filter-weights="all"])::before { content: none; }
 /* The theme keys keep the sibling's look: a lit lamp says which theme is on. */
 .theme-switch button.key[aria-pressed="true"] { border-radius: 6px; }
 .theme-switch button.key[aria-pressed="true"]::before { content: none; }
@@ -431,69 +430,19 @@ i.swatch-refline { width: 0; height: .8rem; border-left: 2px dashed var(--text-2
   .hbar-label a { overflow-wrap: anywhere; }
 }
 
-/* --- The home page as a story (Ümit, bus #2570; story.py): the headline table and the finding sections. --------------- */
-.headline .chart-head .keys { margin-left: auto; }
-table.headline td.model { min-width: 15rem; }
-table.headline td.model .swatch { margin-right: .3rem; }
-table.headline thead th:nth-child(2) { text-align: left; }
-td.hl-judgement { width: 55%; min-width: 13rem; }
-.hl-bar { position: relative; display: block; height: .8rem; margin: .2rem 0 .25rem; background: var(--sunk);
-  border-radius: 2px; box-shadow: inset 0 0 0 1px var(--edge); }
-.hl-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; box-shadow: inset 0 0 0 1px var(--mark-edge); }
-.hl-fill.other { background: var(--data-grey); }
-.hl-int { position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--text); box-shadow: 0 0 0 1px var(--panel); }
-/* The line at 50 (always safe): a white tick with a thin edge, so it shows on every fill and in both themes. */
-.hl-safe { position: absolute; left: 50%; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: #fff;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, .45); }
-.hl-val { font-family: var(--mono); font-size: .84rem; }
-.js [data-headline-panel][hidden] { display: none; }
-/* The leaderboard rows (Ümit, bus #2745; #2904, #2907; #2921; #3039; #3193): the rank, the model (maker dot, the name,
-   one small grey chip after it: setting · type, a late entry's tag in it, 'program' for a program; the expander of its
-   other settings, shown without script; nothing under the name, its maker is in the dot and its details box) and the
-   risk judgement; the programs grey and unranked under a group heading. */
-table.headline td.model .hl-dot, #improve-results-table .model .hl-dot { width: .7rem; height: .7rem; border-radius: 50%; }
-table.headline td.model > .hl-tag { display: inline-block; margin: .1rem 0 0 .35rem; padding: 0 .4rem; color: var(--text-2);
-  font-size: .74rem; line-height: 1.35; white-space: nowrap; vertical-align: .05rem; background: var(--sunk);
-  border: 1px solid var(--edge); border-radius: 999px; }
-tr.hl-sub td.model > .hl-tag { background: var(--panel); }
-.hl-filter { display: flex; flex-wrap: wrap; gap: .3rem; margin: .1rem 0 .2rem; }
-.hl-filter .key { min-height: 1.9rem; padding: .15rem .65rem; font-size: .82rem; }
-/* The Class row (Ümit #4217): its label before the keys, a key with no model in the type in view hidden; each
-   model's class label after its name, small grey text, which a narrow cell wraps under the name. */
+/* --- The home page as a story (Ümit, bus #2570; story.py): the finding sections. The leaderboard is the bench kit's
+   block (zw-ui.css). ------------------------------------------------------------------------------------------------- */
+/* The Class row of the Nackgammon table (Ümit #4217): its label before the keys, a key with no model in the type in
+   view hidden; each model's class label after its name, small grey text, which a narrow cell wraps under the name. */
 .class-keys { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; }
 .class-keys-label { color: var(--text-2); font-size: .82rem; }
 .class-keys .key[hidden] { display: none; }
 .hl-size { display: inline-block; margin-left: .6rem; color: var(--text-2); font-size: .74rem; white-space: nowrap; }
-tr.hl-off { display: none !important; }
-table.headline tbody tr.hl-open > td, #improve-results-table tbody tr.hl-open > * { background: var(--row-hover); }
-/* The "Did they improve?" table's boxes sit in its sticky first column: the open row's cell above the other rows' (and
-   the header's) sticky cells, the box in plain text, not the row header's bold. */
-#improve-results-table tbody tr.hl-open > th:first-child { z-index: 4; }
-#improve-results-table .hl-box { font-weight: 400; text-align: left; }
-/* On a phone the table fits the screen (Ümit): Model, Change, Bar and Improved? only (the first four columns, so
-   Improved? is in view without a sideways scroll at any width, #4665); the group, status, series and right safety are
-   in each row's details box. */
-@media (max-width: 640px) {
-  #improve-results-table :is(th, td):nth-child(n+5),
-  #improve-results .swipe-hint { display: none !important; }
-  #improve-results-table .model-name { white-space: normal; overflow-wrap: anywhere; }
-  /* The four columns fit a 375-pixel screen: tighter cells, the before → after and spread lines wrap, a narrower
-     sticky model column. */
-  #improve-results-table :is(th, td) { padding: .4rem .3rem; }
-  #improve-results-table thead th { min-width: 0; }
-  #improve-results-table td.num { white-space: normal; }
-  #improve-results-table tr > :first-child { width: 30vw; min-width: 30vw; max-width: 30vw; }
-  #improve-results-table .hl-size { white-space: normal; }
-}
-@media (max-width: 360px) {
-  #improve-results-table { font-size: .74rem; }
-  #improve-results-table td.num { font-size: .76rem; }
-  #improve-results-table tr > :first-child { width: 27vw; min-width: 27vw; max-width: 27vw; }
-}
-/* A row's details box (site.js modelBoxes): every value of the setup, a line per kind; in its row without script, else
-   over the page beside its row where the window has room, else under it (fixed to the window, within its width),
-   opened by hover or the focus; on a touch screen a popover at the model's name, opened by a tap. A chart mark's
-   tooltip on a touch screen (.chart-tip) is the same kind of box, as wide as its text. */
+/* A row's details box outside the bench kit's tables (site.js modelBoxes: the Repeat checks): every value of the
+   setup, a line per kind; in its row without script, else over the page beside its row where the window has room, else
+   under it (fixed to the window, within its width), opened by hover or the focus; on a touch screen a popover at the
+   model's name, opened by a tap. A chart mark's tooltip on a touch screen (.chart-tip) is the same kind of box, as wide
+   as its text. */
 .hl-box { margin: .35rem 0 0; color: var(--text); font-size: .82rem; line-height: 1.4; white-space: normal; }
 .hl-box p { margin: .12rem 0; }
 .hl-box p:first-child { margin-top: 0; }
@@ -505,44 +454,9 @@ table.headline tbody tr.hl-open > td, #improve-results-table tbody tr.hl-open > 
 @media (hover: none), (pointer: coarse) {
   .js tr[data-box] .model-name, li.hbar[title], svg.chart-svg :not(svg):has(> title) { cursor: pointer; }
 }
-.hl-more { display: block; margin-top: .2rem; padding: 0; border: 0; background: none; color: var(--link, var(--text-2));
-  font: inherit; font-size: .8rem; cursor: pointer; text-decoration: underline dotted; }
-.hl-more::before { content: "\25B8\00a0"; }
-.hl-more[aria-expanded="true"]::before { content: "\25BE\00a0"; }
-tr.hl-sub[hidden] { display: table-row; }
-.js tr.hl-sub[hidden] { display: none; }
-tr.hl-sub td { background: var(--sunk); }
-tr.hl-sub td.model { padding-left: 1.6rem; }
-tr.hl-group th { padding-top: .8rem; text-align: left; font-size: .8rem; font-weight: 600; color: var(--text-2); }
-table.headline tr.reference td { color: var(--text-2); }
 .hbar-fill.ts-found, i.swatch-ts-found { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
 .hbar-fill.ts-grey, i.swatch-ts-grey { background-color: var(--data-grey); }
 i.swatch-ts-safety, i.swatch-ts-found { background-color: var(--text-2); }
-/* Wide screens: four more columns (Ümit #2938 item 3: risks found, safe right, error rate, $ per 1,000). */
-table.headline th[data-wide], table.headline td.hl-wide, .hl-wide-note { display: none; }
-@media (min-width: 900px) {
-  table.headline th[data-wide], table.headline td.hl-wide { display: table-cell; white-space: nowrap; }
-  td.hl-judgement { width: 34%; }
-  /* Tier (same positions), Ümit #4313: the wide heads wrap (their cells do not) so the fifth column fits at 1280. */
-  table.headline th[data-wide] { white-space: normal; }
-  .hl-wide-note { display: inline; }
-}
-/* Wide desktop windows: the model column wide enough for the name and its chip on one line (Ümit #3193). */
-@media (min-width: 1200px) {
-  table.headline td.model { min-width: 22.5rem; }
-}
-/* At phone width: the three columns fit the width (no sticky column, no sideways scrolling), the bar column narrower. */
-@media (max-width: 640px) {
-  table.headline th:first-child, table.headline td:first-child { position: static; width: auto; min-width: 0; max-width: none;
-    box-shadow: none; }
-  table.headline td.model { min-width: 0; }
-  table.headline th, table.headline td { padding-left: .35rem; padding-right: .35rem; }
-  table.headline tr.hl-sub td.model { padding-left: .6rem; }
-  /* The bar column takes only what the model column leaves (min 8rem), and the chip may wrap between its parts, so
-     names stay readable and the chip never pushes the score and its interval past the table's frame (Zeki #3240). */
-  table.headline td.hl-judgement { width: auto; min-width: 8rem; }
-  table.headline td.model > .hl-tag { white-space: normal; border-radius: .6rem; }
-}
 .finding h2 { font-size: 1.25rem; }
 .finding-text { max-width: 80ch; margin: 0 0 .75rem; }
 .finding-chart { margin: 0; }
@@ -559,8 +473,6 @@ table.headline th[data-wide], table.headline td.hl-wide, .hl-wide-note { display
 .chart-svg .th-dot { stroke-width: 2; }
 .finding #too-safe-values { margin-top: .6rem; }
 .finding .lp-chart { margin: 0; }
-/* The front page's hero (Ümit via Zeki #4666): the question and the buttons, nothing else above the leaderboard. */
-.hero-card h1 { margin-top: 0; }
 .footer-links { margin: .25rem 0 .4rem; }
 .decisions-links, .about-links { margin: 0 0 1rem; }
 /* Highlights: a filled slot shows its board beside the plays. */

@@ -9,10 +9,13 @@
    - Click a row to open what it is about: its data-href, else the first link in the row (a setup's page, a decision,
      a league). Clicks on links, buttons and form fields keep their own meaning; Ctrl/Cmd-click opens a new tab.
    - A link to an anchor inside a closed <details> opens it.
+   The bench kit's tables (table.zw-table, zw-ui.js) are left alone: their order is their ranking, and a tap on a row
+   opens its details box.
    Works for tables written later by other scripts (Every decision), through one listener on the document. */
 
 (function tables() {
   const SKIP = '.small, .mark, .nm, .status';
+  const own = el => el && !el.closest('table.zw-table');
 
   function key(td) {
     if (!td) return null;
@@ -71,6 +74,7 @@
 
   function prepare(root) {
     root.querySelectorAll('thead th:not([tabindex]):not([data-nosort])').forEach(th => {
+      if (!own(th)) return;
       th.tabIndex = 0;
       th.title = 'Sort by this column';
     });
@@ -78,11 +82,11 @@
 
   document.addEventListener('click', event => {
     const th = event.target.closest('thead th');
-    if (th) { if (!th.hasAttribute('data-nosort')) sortBy(th); return; }
+    if (th) { if (own(th) && !th.hasAttribute('data-nosort')) sortBy(th); return; }
     const row = event.target.closest('tbody tr');
-    // A click the row's own handler took (a tap that opens a model's details box, site.js modelBoxes) does not navigate;
-    // nor does a tap on a tooltip (.hint: the own-machine cost explanation opens on focus instead).
-    if (!row || event.defaultPrevented || event.target.closest('a, button, select, input, label, summary, .hint')) return;
+    // A click the row's own handler took (a tap that opens a model's details box, site.js modelBoxes) does not
+    // navigate; nor does a tap on a tooltip (.hint: the own-machine cost explanation opens on focus instead).
+    if (!own(row) || event.defaultPrevented || event.target.closest('a, button, select, input, label, summary, .hint')) return;
     if (String(window.getSelection())) return;
     const link = row.dataset.href || row.querySelector('a[href]')?.getAttribute('href');
     if (!link) return;
@@ -92,7 +96,7 @@
   });
   document.addEventListener('keydown', event => {
     const th = event.target.closest && event.target.closest('thead th');
-    if (th && !th.hasAttribute('data-nosort') && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); sortBy(th); }
+    if (own(th) && !th.hasAttribute('data-nosort') && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); sortBy(th); }
   });
 
   prepare(document);
