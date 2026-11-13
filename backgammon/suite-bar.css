@@ -1,7 +1,8 @@
-/* The suite strip: one row of four links, All benches first, then the three benchmark sites (All benches, Reading &
-   Grammar, Logic & Math, Backgammon; project lead, 10 November, bus #4172 and #4224), identical on every page of the three sites and
-   of All benches. Self-contained: it needs no other stylesheet. The snippet is suite-bar.html; put it as the first row
-   of the page's sticky header (or at the very top of <body>).
+/* The suite strip: one row of six links, All benches first, then the benchmark pages (All benches, Reading & Grammar,
+   Logic & Math, Backgammon; project lead, 10 November, bus #4172 and #4224; Grading and Toolbench since 13 November,
+   Ümit #6420, Zeki #6424), identical on every page of the sites and of All benches. Self-contained: it needs no other
+   stylesheet. The snippet is suite-bar.html; put it as the first row of the page's sticky header (or at the very top
+   of <body>).
 
    Theme: it follows data-theme on <html> ("light" or "dark"), as the sites' own stylesheets do; without the attribute
    it follows the reader's system setting (prefers-color-scheme). Every link is a framed key, so it reads as a button
@@ -9,12 +10,10 @@
    faint fill in the dark one. The current site's link carries aria-current="page" and is filled, with a thicker ring.
 
    The links sit in the middle of the strip (project lead, 9 November), every label whole. Where one line no longer
-   fits (below about 700 px wide), the links wrap onto a second centred line (up to about 385 px: All benches and
-   Reading & Grammar, then Logic & Math and Backgammon; wider, the first three, then Backgammon), so the strip never
-   scrolls sideways and never cuts a label. On a desktop one line about 57 px tall: 10 px above and below the links,
-   the links 36 px high with 10 px by 18 px inside and 24 px between them, 14 px text. Below 600 px wide the full
-   labels in 13 px text (Zeki, bus #3924), links 31 px high with 8 px inside and 8 px between them, 6 px between the
-   two lines: about 48 px tall on one line, 85 px on two. */
+   fits, the links wrap onto further centred lines, so the strip never scrolls sideways and never cuts a label. On a
+   desktop one line about 57 px tall: 10 px above and below the links, the links 36 px high with 10 px by 18 px inside
+   and 24 px between them, 14 px text. Below 600 px wide the full labels in 13 px text (Zeki, bus #3924), links 31 px
+   high with 8 px inside and 8 px between them, 6 px between the lines. */
 .suite-bar {
   --suite-bg: #ecebe6;
   --suite-edge: #c9c6bf;
