@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-13T14:48:56Z",
+ "updated": "2026-11-13T15:24:53Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -15,7 +15,7 @@
    "name": "Claude Opus 5.5",
    "display_name": "Claude Opus 5.5",
    "tag": "chat",
-   "class_label": "Closed · Undisclosed",
+   "class_label": "Closed · Flagship",
    "base_model": null,
    "setup_label": "Claude Opus 5.5",
    "maker": "Anthropic",
@@ -83,7 +83,7 @@
    "name": "Claude Sonnet 5.5",
    "display_name": "Claude Sonnet 5.5",
    "tag": "chat",
-   "class_label": "Closed · Undisclosed",
+   "class_label": "Closed · Workhorse",
    "base_model": null,
    "setup_label": "Claude Sonnet 5.5",
    "maker": "Anthropic",
@@ -381,6 +381,38 @@
    "notes": "hosted API via OpenRouter",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "ibm-granite/granite-4.2-3b",
+   "commit": "4e9c275e232f10211ec88644d106a1f6a1b60e06",
+   "model_key": "granite-4.2-3b",
+   "name": "Granite-4.2-3B",
+   "display_name": "Granite-4.2-3B",
+   "tag": "high · chat",
+   "class_label": "Open · 3.0B",
+   "base_model": "Granite-4.1-3B-Base",
+   "setup_label": "Granite-4.2-3B (chat, thinking, on our GPU)",
+   "maker": "IBM",
+   "kind": "chat",
+   "params_total": 3.0,
+   "params_active": 3.0,
+   "quantization": "BF16",
+   "score_0_100": 95.7801094890511,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9662408759124088,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:granite-4.2-3b-64k_en",
+    "math:granite-4.2-3b-64k_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 5.599722222222223,
+   "gpu_cost_usd": 13.943308333333334
   },
   {
    "repo": "openbmb/MiniCPM5-2B",
