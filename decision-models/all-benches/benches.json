@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-13T12:26:57Z",
+    "updated": "2026-11-13T15:37:25Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -22,7 +22,7 @@
       "name": "Claude Opus 5.5",
       "display_name": "Claude Opus 5.5",
       "tag": "chat",
-      "class_label": "Closed · Undisclosed",
+      "class_label": "Closed · Flagship",
       "base_model": null,
       "setup_label": "Claude Opus 5.5",
       "maker": "Anthropic",
@@ -86,7 +86,7 @@
       "name": "Claude Sonnet 5.5",
       "display_name": "Claude Sonnet 5.5",
       "tag": "chat",
-      "class_label": "Closed · Undisclosed",
+      "class_label": "Closed · Workhorse",
       "base_model": null,
       "setup_label": "Claude Sonnet 5.5",
       "maker": "Anthropic",
@@ -172,6 +172,38 @@
        "logic:inkling-small-64k_en_dontknow"
       ],
       "notes": "hosted API via OpenRouter",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "claude-fable-5.1",
+      "name": "Claude Fable 5.1",
+      "display_name": "Claude Fable 5.1",
+      "tag": "chat",
+      "class_label": "Closed · Flagship",
+      "base_model": null,
+      "setup_label": "Claude Fable 5.1",
+      "maker": "Anthropic",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 94.0,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.952,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:claude-fable-5.1-sub_en",
+       "logic:claude-fable-5.1-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -304,6 +336,38 @@
       "gpu_cost_usd": null
      },
      {
+      "repo": null,
+      "commit": null,
+      "model_key": "qwen3.8-flash",
+      "name": "Qwen3.8 Flash",
+      "display_name": "Qwen3.8 Flash",
+      "tag": "off · chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Qwen3.8 Flash",
+      "maker": "Alibaba",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 92.44444444444444,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9395555555555556,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:qwen3.8-flash_en",
+       "logic:qwen3.8-flash_en_dontknow"
+      ],
+      "notes": "hosted API via OpenRouter",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
       "repo": "google/gemma-4-31B-it",
       "commit": "842da3794eaa0b77d5f08bae87a17459d91ff475",
       "model_key": "gemma-4-31b",
@@ -398,6 +462,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 1.5925,
       "gpu_cost_usd": 3.9653250000000004
+     },
+     {
+      "repo": "ibm-granite/granite-4.2-3b",
+      "commit": "4e9c275e232f10211ec88644d106a1f6a1b60e06",
+      "model_key": "granite-4.2-3b",
+      "name": "Granite-4.2-3B",
+      "display_name": "Granite-4.2-3B",
+      "tag": "high · chat",
+      "class_label": "Open · 3.0B",
+      "base_model": "Granite-4.1-3B-Base",
+      "setup_label": "Granite-4.2-3B (chat, thinking, on our GPU)",
+      "maker": "IBM",
+      "kind": "chat",
+      "params_total": 3.0,
+      "params_active": 3.0,
+      "quantization": "BF16",
+      "score_0_100": 89.55555555555556,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9164444444444444,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:granite-4.2-3b-64k_en",
+       "logic:granite-4.2-3b-64k_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 4.921388888888889,
+      "gpu_cost_usd": 12.254258333333334
      },
      {
       "repo": "openbmb/MiniCPM5-2B",
@@ -2266,7 +2362,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-13T12:26:57Z",
+    "updated": "2026-11-13T15:37:25Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2279,7 +2375,7 @@
       "name": "Claude Opus 5.5",
       "display_name": "Claude Opus 5.5",
       "tag": "chat",
-      "class_label": "Closed · Undisclosed",
+      "class_label": "Closed · Flagship",
       "base_model": null,
       "setup_label": "Claude Opus 5.5",
       "maker": "Anthropic",
@@ -2311,7 +2407,7 @@
       "name": "Claude Sonnet 5.5",
       "display_name": "Claude Sonnet 5.5",
       "tag": "chat",
-      "class_label": "Closed · Undisclosed",
+      "class_label": "Closed · Workhorse",
       "base_model": null,
       "setup_label": "Claude Sonnet 5.5",
       "maker": "Anthropic",
@@ -2622,6 +2718,37 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.3605555555555556,
       "gpu_cost_usd": 0.8977833333333335
+     },
+     {
+      "repo": "ibm-granite/granite-4.2-3b",
+      "commit": "4e9c275e232f10211ec88644d106a1f6a1b60e06",
+      "model_key": "granite-4.2-3b",
+      "name": "Granite-4.2-3B",
+      "display_name": "Granite-4.2-3B",
+      "tag": "high · chat",
+      "class_label": "Open · 3.0B",
+      "base_model": "Granite-4.1-3B-Base",
+      "setup_label": "Granite-4.2-3B (chat, thinking, on our GPU)",
+      "maker": "IBM",
+      "kind": "chat",
+      "params_total": 3.0,
+      "params_active": 3.0,
+      "quantization": "BF16",
+      "score_0_100": 99.01756819232546,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9921405455386038,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:granite-4.2-3b-64k_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 0.6783333333333333,
+      "gpu_cost_usd": 1.6890500000000002
      },
      {
       "repo": "Qwen/Qwen3.8-27B",
@@ -4554,7 +4681,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-13T12:26:57Z",
+    "updated": "2026-11-13T15:37:25Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -4567,7 +4694,7 @@
       "name": "Claude Opus 5.5",
       "display_name": "Claude Opus 5.5",
       "tag": "chat",
-      "class_label": "Closed · Undisclosed",
+      "class_label": "Closed · Flagship",
       "base_model": null,
       "setup_label": "Claude Opus 5.5",
       "maker": "Anthropic",
@@ -4635,7 +4762,7 @@
       "name": "Claude Sonnet 5.5",
       "display_name": "Claude Sonnet 5.5",
       "tag": "chat",
-      "class_label": "Closed · Undisclosed",
+      "class_label": "Closed · Workhorse",
       "base_model": null,
       "setup_label": "Claude Sonnet 5.5",
       "maker": "Anthropic",
@@ -4933,6 +5060,38 @@
       "notes": "hosted API via OpenRouter",
       "gpu_hours": null,
       "gpu_cost_usd": null
+     },
+     {
+      "repo": "ibm-granite/granite-4.2-3b",
+      "commit": "4e9c275e232f10211ec88644d106a1f6a1b60e06",
+      "model_key": "granite-4.2-3b",
+      "name": "Granite-4.2-3B",
+      "display_name": "Granite-4.2-3B",
+      "tag": "high · chat",
+      "class_label": "Open · 3.0B",
+      "base_model": "Granite-4.1-3B-Base",
+      "setup_label": "Granite-4.2-3B (chat, thinking, on our GPU)",
+      "maker": "IBM",
+      "kind": "chat",
+      "params_total": 3.0,
+      "params_active": 3.0,
+      "quantization": "BF16",
+      "score_0_100": 95.7801094890511,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9662408759124088,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:granite-4.2-3b-64k_en",
+       "math:granite-4.2-3b-64k_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 5.599722222222223,
+      "gpu_cost_usd": 13.943308333333334
      },
      {
       "repo": "openbmb/MiniCPM5-2B",
@@ -7947,7 +8106,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-13T12:35Z",
+    "updated": "2026-11-13T15:35Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }

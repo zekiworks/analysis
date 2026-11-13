@@ -473,6 +473,21 @@ def counted(entries: list[dict[str, Any]], key: str, unit: Callable[[int], str])
                    for index, (value, number) in enumerate(tally)])
 
 
+def machine_moves(site: Site, local: list[dict[str, Any]]) -> str:
+    """The latency note's clause on where the Text tab runs ran: on the machine of the setup's English runs, except the
+    setups whose English runs ran elsewhere (results.json english_machine), named with the machine of their Text tab
+    runs (their hardware)."""
+    moved: dict[str, list[str]] = {}
+    for model in local:
+        if model.get("english_machine"):
+            hardware = setup_run(site, model)["hardware"] or ""
+            where = "an NVIDIA DGX Spark" if "DGX Spark" in hardware else "our RTX PRO 6000 GPUs"
+            moved.setdefault(where, []).append(label(site, model))
+    return "; their Text tab runs ran on the same machine" + "".join(
+        f"{', except' if index == 0 else ';'} those of {esc(joined(names))}, which ran on {where}"
+        for index, (where, names) in enumerate(moved.items()))
+
+
 def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sides: tuple[str, ...],
                  link: Callable[[Site, dict[str, Any]], str], method: str,
                  members: Callable[[Site, dict[str, Any], str], list[dict[str, Any]]] = group_models) -> str:
@@ -550,15 +565,20 @@ def measure_card(site: Site, data: dict[str, Any], group: str, measure: str, sid
                 runs = "Text tab runs" if side == "turkish" else "English runs"
                 notes.append(f"{runs}: {counted(entries, 'questions_per_request', request_size)}; "
                              f"{counted(entries, 'concurrency', in_flight)}.")
-        local = [model for model in models if site.decision(setup_run(site, model))
-                 and setup_run(site, model)["billing"] == "local"
+        local = [model for model in models if setup_run(site, model)["billing"] == "local"
                  and model["latency"]["english"] is not None]
         if local:
-            spark = [label(site, model) for model in local if "DGX Spark" in (setup_run(site, model)["hardware"] or "")]
-            notes.append(f"The English runs of the {bp.in_words(len(local))} self-hosted decision "
-                         f"model{'' if len(local) == 1 else 's'} ran on our RTX PRO 6000 GPU"
-                         + (f"; the Text tab runs of {esc(joined(spark))} ran on an NVIDIA DGX Spark "
-                            f'(<a href="{method}">Our method</a>)' if spark else "") + ".")
+            # Where the runs ran: an English run on its setup's english_machine, else on the machine its hardware names
+            # (the Text tab run's for a setup with one); check_machines.py compares both with the runs' server addresses.
+            where = {id(model): model.get("english_machine") or setup_run(site, model)["hardware"] or "" for model in local}
+            spark = [label(site, model) for model in local if "DGX Spark" in where[id(model)]]
+            notes.append((f"Of the {bp.in_words(len(local))} self-hosted setups, {esc(joined(spark))} ran "
+                          f"{'its' if len(spark) == 1 else 'their'} English runs on an NVIDIA DGX Spark, the others on our "
+                          "RTX PRO 6000 GPUs" if spark else
+                          f"The English runs of the {bp.in_words(len(local))} self-hosted setups ran on our RTX PRO 6000 GPUs")
+                         + (machine_moves(site, local) if "turkish" in sides else "")
+                         + f' (<a href="{method}">Our method</a>).')
+            local = [model for model in local if site.decision(setup_run(site, model))]
             clef = [label(site, model) for model in local if setup_run(site, model)["provider"] == "clef"]
             if len(clef) > 1:
                 notes.append(f"{esc(joined(clef))} ran their English runs at the same time on one GPU.")

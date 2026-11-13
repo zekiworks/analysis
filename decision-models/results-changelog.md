@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 62c108f4 (13 November 2026)
+
+- The latency charts' note on the English pages said where the self-hosted setups ran, and was wrong: "the English runs of the 36 self-hosted decision models ran on our RTX PRO 6000 GPU". The English runs of 15 of them ran on an NVIDIA DGX Spark, the machine their rows name: the GLiDE, KnowLine, StartLux and OneJev1.6 sizes, GLiClass v4 Edge, Sieve 31B v3 and Turion Jev 31B. The note now says which setups ran their English runs on a DGX Spark and which on our RTX PRO 6000 GPUs. On the Turkish vs English page it adds that each setup's Text tab runs ran on the same machine, except those of GLiDE v1.2, Perplexity Decider 27B v1.2 (local GPU) and Perplexity Decider Flash v1.2, which ran on a DGX Spark while their English runs ran on the RTX PRO 6000.
+- `results.json` gains `english_machine` on those three setups' English reading entries: the machine of their English runs, where it differs from their Text tab runs'. Every release now checks every self-hosted run against the server address its requests went to; on 13 November all 172 such runs matched their records.
+- No number changed and no significance verdict moved.
+
 ## Results 96f6cc48 (13 November 2026)
 
 - Added Turion Jev 31B (`turion-ai/turion-jev-31b`, `866c0fc`), a merged LoRA fine-tune of Gemma-4-31B-it and one of the project lead's Decision Index models (Ümit #4057, #4577; logic #6164), on its English side first (Zeki #5213). It ran on one NVIDIA DGX Spark (GB10) through the server its package ships (`turion_jev.serve` on vLLM 0.32.0), with its BF16 weights quantised to FP8 at load and no second reading of unsure questions, both as in its card's own benchmark run; text only, one question per request with option probabilities, which its own code rounds to 6 decimals.

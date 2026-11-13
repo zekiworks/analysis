@@ -3028,6 +3028,17 @@ ENGLISH_DONT_KNOW_ENGLISH_ONLY = {
 ENGLISH_ONLY_SETUP = "no Turkish run: an English-only setup"
 
 
+# The self-hosted setups whose English runs ran on another machine than their Text tab runs (the machine their MODELS
+# hardware names): the machine of their English runs. From the runs' server addresses in the runner's database, which
+# release-english/check_machines.py compares with these records at every release (13 November 2026); every other
+# self-hosted setup ran its English runs where its Text tab runs ran.
+ENGLISH_MACHINE = {
+    ("glide", "glide-v1.2"): GPU,
+    ("pplx-decider", "pplx-decider-v1.2"): GPU,
+    ("pplx-decider", "pplx-decider-flash-v1.2"): GPU,
+}
+
+
 def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, Any] | None:
     """The runs of the English reading track (results.json `english_reading`) from the report's records of runs in
     English: one entry per setup (provider, model, reasoning, questions per request, Perplexity mode) with its runs, the
@@ -3139,6 +3150,7 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
                 "perplexity_mode": mode,
                 "turkish_run": turkish["run"],
                 "turkish_runs": repeats.get(turkish["run"], [turkish["run"]]),
+                "english_machine": ENGLISH_MACHINE.get((provider, model)),
                 "cost": {
                     "english": english_cost,
                     "turkish": None if text_cost is None else {
@@ -3158,6 +3170,9 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
                 },
             }
         )
+    stray = set(ENGLISH_MACHINE) - {(entry["provider"], entry["model"]) for entry in models}
+    if stray:
+        raise ValueError(f"ENGLISH_MACHINE: {sorted(stray)} have no English runs beside a Text tab run")
     return {"models": models, "english_only": english_only, "records": {record["run_id"]: record for record in records}}
 
 
