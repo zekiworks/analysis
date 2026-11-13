@@ -871,9 +871,12 @@ def compact_table(columns: Columns, rows: Sequence[Row], ids: Iterable[str], *, 
             body.append(f'<tr{_row_attrs(other, {"id": sub_id, "data-zw-of": row_id, "data-zw-box": other_box}, classes("zw-sub zw-sub-closed", mark))}>'
                         '<td class="zw-rank"></td>' + cells(other, other_box) + "</tr>")
     # More than two helpers (v2.6: Grading's every measure side by side): the measure column takes no fixed share of the
-    # width, only its minimum, so the helpers' columns fit (zw-ui.css .zw-many).
-    return (f'<table{attrs({"class": classes("zw-table", "zw-many" if len(columns.helpers) > 2 else None), "data-zw-tier-by": " ".join(tier_by) or None, "aria-labelledby": label_id})}>'
-            f'{head}<tbody>{"".join(body)}</tbody></table>')
+    # width, only its minimum, so the helpers' columns fit (zw-ui.css .zw-many); where they still do not (a tablet), the
+    # table scrolls inside its own box, never the page (.zw-wide, zw-ui.js wides).
+    many = len(columns.helpers) > 2
+    table = (f'<table{attrs({"class": classes("zw-table", "zw-many" if many else None), "data-zw-tier-by": " ".join(tier_by) or None, "aria-labelledby": label_id})}>'
+             f'{head}<tbody>{"".join(body)}</tbody></table>')
+    return f'<div class="zw-wide"><div class="zw-wide-box">{table}</div></div>' if many else table
 
 
 def bar_chart(rows: Sequence[Row], *, marks: Sequence[str | None] = (), label: str = "",

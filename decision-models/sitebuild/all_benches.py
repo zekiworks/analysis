@@ -1029,11 +1029,12 @@ class GradingBench(ui.Bench):
         if value is None:
             return None
         metrics = self.metrics[model["scores"][GRADING]["runs"][0]]
-        seconds = lambda value: f"{value:.2f} s" if value < 10 else f"{value:.1f} s"  # noqa: E731
+        # Unbroken spaces inside each phrase: a narrow column breaks the line between phrases, never inside one.
+        seconds = lambda value: f"{value:.2f}\u00a0s" if value < 10 else f"{value:.1f}\u00a0s"  # noqa: E731
         return {
             "score": (number(value), ()), "accuracy": (f"{100 * value:.1f}%", ()), "calibration": (number(value), ()),
             "caught": (f"{100 * value:.1f}%", (f"{100 * metrics['false_alarm_rate']:.1f}%\u00a0false\u00a0alarms",)),
-            "latency": (seconds(value), (f"p90 {seconds(metrics['latency_s_p90'])}", f"{metrics['requests_in_flight']} at a time")),
+            "latency": (seconds(value), (f"p90\u00a0{seconds(metrics['latency_s_p90'])}", f"{metrics['requests_in_flight']}\u00a0at\u00a0a\u00a0time")),
             "price": (f"${value:.3f}" if value < 1 else f"${value:.2f}", ()),
             "gpu": (f"{value:,.0f} s" if value >= 10 else f"{value:.1f} s", ()),
         }[key]
@@ -1115,7 +1116,9 @@ class GradingBench(ui.Bench):
                 model=ui.Model(name=model["name"], colour=model["colour"], dot_title=model["maker"] or "",
                                class_label=self.class_text(model), href=self.up + model_href(model),
                                tag=row.get("tag") or model["tag"], icon=icon(model), flag=flag),
-                measure=(ui.bar(self.share(model, key), colour=model["colour"], text=written[0], interval=" · ".join(written[1]))
+                # The bar's second line (Latency's p90 and requests at a time) reads under its value, as in the helpers'
+                # columns, so the bar's column stays as narrow as the others (zw-stack).
+                measure=(f'<span class="zw-stack">{ui.bar(self.share(model, key), colour=model["colour"], text=written[0], interval=" · ".join(written[1]))}</span>'
                          if written else self.shown(model, key)),
                 helpers=tuple(self.shown(model, other) for other, *_ in GRADING_MEASURES if other != key),  # type: ignore[arg-type]
                 details=self.details(model),

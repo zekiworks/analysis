@@ -624,6 +624,31 @@
       });
     });
 
+    /* --- wide tables (v2.6): a table with more than two helpers (zw_ui compact_table: .zw-wide around it) wider than
+       its box, as Grading's every measure on a tablet, scrolls inside its box, never the page (zw-scrolls), with a shade
+       at the right edge while more of it lies to the right (zw-wide-more); it fits again, nothing scrolls, once the box is
+       wide enough. A hidden view or panel measures on its first show (ResizeObserver). --------------------------- */
+    const wides = (() => {
+      const fit = wide => {
+        const box = wide.firstElementChild;
+        const scrolls = box.scrollWidth > box.clientWidth + 1;
+        wide.classList.toggle('zw-scrolls', scrolls);
+        wide.classList.toggle('zw-wide-more', scrolls && box.scrollLeft + box.clientWidth < box.scrollWidth - 1);
+      };
+      // The box's size changes with the window and the table's with its rows and the fonts: either refits.
+      const watch = 'ResizeObserver' in window ? new ResizeObserver(entries => entries.forEach(entry => fit(entry.target.closest('.zw-wide')))) : null;
+      const adopt = scope => scope.querySelectorAll('.zw-wide').forEach(wide => {
+        if (wide.dataset.zwAdopted !== undefined) return;
+        wide.dataset.zwAdopted = '';
+        wide.firstElementChild.addEventListener('scroll', () => fit(wide), { passive: true });
+        if (watch) [wide, wide.querySelector('table')].forEach(node => watch.observe(node));
+        else fit(wide);
+      });
+      if (!watch) addEventListener('resize', () => host.querySelectorAll('.zw-wide').forEach(fit));
+      adopt(host);
+      return { adopt };
+    })();
+
     /* --- panels: a panel outside the default view (section.zw-panel[data-zw-src]: zw_ui.Fragments wrote it as a stub
        with its head and keys) is fetched from its fragment file the first time it shows (a key, the address on load, a
        fragment such as #cost), and its body goes in as written, with the boxes and calculations its rows refer to that
@@ -662,6 +687,7 @@
           panel.removeAttribute('aria-busy');
           details.adopt(panel);
           calcs.prep(panel);
+          wides.adopt(panel);
           apply(false);
           const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
           if (target && panel.contains(target)) target.scrollIntoView();

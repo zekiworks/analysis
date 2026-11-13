@@ -245,7 +245,20 @@ a.zw-name:hover { text-decoration: underline; }
 .zw-table .zw-measure { width: 34%; min-width: 8rem; }
 /* A table with more than two helpers (v2.6, compact_table: zw-many): above a phone's width, where the helpers show, the
    bar takes its minimum and the helpers the rest. */
-@media (min-width: 601px) { .zw-table.zw-many .zw-measure { width: auto; min-width: 7rem; } }
+@media (min-width: 601px) { .zw-table.zw-many .zw-measure { width: auto; min-width: 6rem; } }
+/* Where such a table is still wider than its box (a tablet), it scrolls inside the box, never the page (zw-ui.js wides:
+   zw-scrolls; without JavaScript always): the model column stays in place while the measures pass under it, a shade at
+   the right edge shows there is more (zw-wide-more), and a head's tip opens as on a phone, in a box at the bottom of the
+   screen, which the scrolling box cannot cut. */
+.zw-wide { position: relative; min-width: 0; }
+.zw-wide.zw-scrolls > .zw-wide-box, html:not(.zw-js) .zw-wide-box { overflow-x: auto; overscroll-behavior-x: contain; }
+.zw-wide.zw-scrolls td.zw-model, .zw-wide.zw-scrolls thead th:nth-child(2) { position: sticky; left: 0; z-index: 2; background: inherit; }
+.zw-wide.zw-scrolls thead th:nth-child(2) { background: var(--zw-panel); }
+.zw-wide.zw-scrolls tr.zw-sub > td.zw-model { background: var(--zw-sunk); }
+.zw-wide.zw-wide-more::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; z-index: 3; width: 1.5rem; pointer-events: none;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--zw-text) 22%, transparent)); }
+.zw-wide.zw-scrolls .zw-table th .zw-tip-body { position: fixed; left: .5rem; right: .5rem; top: auto; bottom: .5rem; width: auto;
+  max-width: 36rem; margin: 0 auto; font-size: .85rem; }
 /* The measure as a bar: --v the value 0..1, --lo/--hi its interval, --c the colour. */
 .zw-bar { position: relative; display: block; height: .75rem; margin: .2rem 0 .2rem; background: var(--zw-sunk); border-radius: 2px;
   box-shadow: inset 0 0 0 1px var(--zw-edge); }
