@@ -823,6 +823,7 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("d1-server", "LiquidAI/d1-Omni-2B"): 1,
     ("d1-server", "LiquidAI/d1-3B"): 1,
     ("vllm-plain", "minicpm5-2b"): 1,
+    ("vllm-plain", "minicpm5-2b-nothink"): 1,
     ("vllm-plain", "spark-x2.6-4b"): 1,
     ("vllm-plain", "granite-4.2-3b"): 1,
     ("vllm-plain", "granite-4.2-30b"): 1,
