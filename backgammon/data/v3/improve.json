@@ -38,6 +38,46 @@
   "user": "You just played game {game} of a series of games against the same opponent. Below is the record of that game: every decision you made, with the GNU Backgammon engine's evaluation of it (2-ply: its best play, the equity you lost, and its verdict). Boards are given in your point numbering.\n\n{record}\n\nWrite at most 5 lessons for your next games in this series, at most 150 words in total. Each lesson is one line starting with \"- \", general advice rather than a comment on one specific position. Reply with the lessons only.\n"
  },
  "plan": {
+  "amendments": [
+   {
+    "at": "2026-11-12",
+    "models": [
+     {
+      "maker": "Google",
+      "route": "local vLLM",
+      "setting": "on",
+      "setup": "Gemma 4 E4B (on)"
+     },
+     {
+      "maker": "OpenBMB",
+      "route": "local vLLM",
+      "setting": "on",
+      "setup": "MiniCPM5-2B (on)"
+     },
+     {
+      "maker": "Liquid AI",
+      "route": "local vLLM",
+      "setting": "on",
+      "setup": "LFM2.5-2.6B (on)"
+     },
+     {
+      "maker": "Liquid AI",
+      "route": "local vLLM",
+      "setting": "on",
+      "setup": "LFM2.5-8B-A1B (on)"
+     },
+     {
+      "maker": "Liquid AI",
+      "route": "local llama.cpp",
+      "setting": "on",
+      "setup": "LFM3-1.7B (on)"
+     }
+    ],
+    "note": "Added 12 Nov, after the plan was published: the Tiny and Small chat models tested on Logic & Math, each at its highest reasoning setting, under the same rule, lesson prompt, test and schedule. Listed here once the setup's settings are in the league database; Gemma 4 E2B, Gemma 4 12B, Erk-14B and Qwen3-14B follow when theirs are.",
+    "record": "Ümit native 1570509348072063026 (cohort) and 1570507658425933987 (priority and cash), relayed by Zeki #5674/#5689 (not shown: the page names no internal message)",
+    "source": "Ümit's decision of 12 Nov 2026"
+   }
+  ],
   "commitment": "Results will be published whichever way they go.",
   "cygnet": "**Cygnet (Gemma 4 12B): not tested** (Ümit #3111), listed with the decision models: it plays through a layer that never sees the lessons (decision models can't write lessons). Not replaced by another model. Scope = the 15 chat models above.",
   "decision_models": "**Decision models: not tested: cannot write lessons.** They return probabilities over the options and cannot write text. The 22: Liquid d1-ultra, Base Labs Mammoth-1, Base Labs Elephant-1, Drex Max v1, Drex Max 1.1, Drex 2.0 (and its local setting), REAX 1.3, Fastino GLiDE, Fastino GLiDE v1.2, Jev 1.13.0, Jev 1.14.0, Open-Jev 27B v1.1, Decider v1.2 27B, Decider v1.1 27B, Decider Flash v1.2, Celeris-1 Decision, Clef, SubQ Snap 1.1, SubQ Snap Preview, GPT-6 Luna, Winnow-12B, Mercury Decide.",
@@ -238,6 +278,71 @@
     "setting": "high",
     "setup": "GPT-6 Astra (high)",
     "status": "blocked until 2026-11-13 11:38 UTC; the Astra (high) re-ask is cancelled, so this experiment uses the allowance"
+   },
+   {
+    "billed": false,
+    "key": "gemma-4-e4b-on",
+    "label": "",
+    "late_entry": false,
+    "maker": "Google",
+    "n": 16,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "on",
+    "setup": "Gemma 4 E4B (on)",
+    "status": "added 2026-11-12 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "minicpm5-2b-on",
+    "label": "",
+    "late_entry": false,
+    "maker": "OpenBMB",
+    "n": 17,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "on",
+    "setup": "MiniCPM5-2B (on)",
+    "status": "added 2026-11-12 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "lfm2.5-2.6b-on",
+    "label": "",
+    "late_entry": false,
+    "maker": "Liquid AI",
+    "n": 18,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "on",
+    "setup": "LFM2.5-2.6B (on)",
+    "status": "added 2026-11-12 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "lfm2.5-8b-a1b-on",
+    "label": "",
+    "late_entry": false,
+    "maker": "Liquid AI",
+    "n": 19,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "on",
+    "setup": "LFM2.5-8B-A1B (on)",
+    "status": "added 2026-11-12 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "lfm3-1.7b-on",
+    "label": "",
+    "late_entry": false,
+    "maker": "Liquid AI",
+    "n": 20,
+    "route": "local llama.cpp",
+    "route_detail": "",
+    "setting": "on",
+    "setup": "LFM3-1.7B (on)",
+    "status": "added 2026-11-12 (amendment)"
    }
   ],
   "notes": [
@@ -6141,11 +6246,11 @@
   },
   "updated_at": "2026-11-13T15:43:44+00:00"
  },
- "source_sha256": "ceabbc4e2741a313d59c50db3841ea3ba636f0674f91802b04ee187e4ce58179",
+ "source_sha256": "c6cf4d069731c0cf73623e6cf158cfc85f798b58f4897d555bbefffc9fcccc8d",
  "status": {
   "last_update": "2026-11-13T15:43:44+00:00",
-  "line": "11 of 15 models with a verdict · 1 running · 3 paused · 0 incomplete or stopped",
-  "models": 15,
+  "line": "11 of 20 models with a verdict · 1 running · 3 paused · 0 incomplete or stopped",
+  "models": 20,
   "paused": 3,
   "phase": "running",
   "running": 1,

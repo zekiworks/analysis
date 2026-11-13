@@ -457,6 +457,21 @@ i.swatch-refline { width: 0; height: .8rem; border-left: 2px dashed var(--text-2
 .hbar-fill.ts-found, i.swatch-ts-found { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, rgba(0, 0, 0, .12) 3px 6px); }
 .hbar-fill.ts-grey, i.swatch-ts-grey { background-color: var(--data-grey); }
 i.swatch-ts-safety, i.swatch-ts-found { background-color: var(--text-2); }
+/* "Did they improve?" results (improve_page.result_cells; /improve/ and the home page's Learning tab, Ümit via Zeki
+   #6257): the result as a chip in the site's palette, its word always written (Yes, No, the state); a right safety
+   change past the limit marked in words and colour. */
+.zw-table .status[class*="learn-"] { margin: 0; white-space: normal; border-radius: .6rem; font-size: .78rem; }
+.status.learn-yes { color: var(--accepted); border-color: var(--accepted); font-weight: 700; }
+.status.learn-no { color: var(--wrong); border-color: var(--wrong); font-weight: 700; }
+.status.learn-state { color: var(--grammar-text); border-color: var(--grammar-text); }
+.status.learn-none { color: var(--text-2); border-style: dashed; }
+.zw-val.learn-beyond, .zw-val.learn-beyond .zw-int, .learn-why { color: var(--wrong); font-weight: 700; }
+.zw-measure .learn-why { display: block; margin: .15rem 0 0; }
+/* From 600 px the column kept on a phone (zw-ui.css lets it wrap anywhere, for 320 px) keeps its words and numbers
+   whole, so the table's auto layout does not squeeze it to one letter per line. */
+@media (min-width: 600px) {
+  .zw-block .zw-table .zw-keep-phone, .zw-block .zw-table .zw-keep-phone .zw-val { white-space: nowrap; overflow-wrap: normal; }
+}
 .finding h2 { font-size: 1.25rem; }
 .finding-text { max-width: 80ch; margin: 0 0 .75rem; }
 .finding-chart { margin: 0; }
