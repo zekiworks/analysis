@@ -198,8 +198,13 @@ html:not(.zw-js) .zw-view + .zw-view, html:not(.zw-js) .zw-list + .zw-list { mar
   box-shadow: var(--zw-shadow); font-size: .78rem; font-weight: 400; line-height: 1.4; text-align: left; white-space: normal; }
 .zw-tip:not([data-zw-quiet]):hover .zw-tip-body, .zw-tip:not([data-zw-quiet]) .zw-tip-key:focus-visible + .zw-tip-body,
 .zw-tip-key[aria-expanded="true"] + .zw-tip-body, html:not(.zw-js) .zw-tip:focus-within .zw-tip-body { display: block; }
-/* A right-aligned head's tip (a measure or helper column, v2.6) opens leftwards, so it stays inside the page. */
-.zw-table th.zw-num .zw-tip-body, .zw-table th.zw-help .zw-tip-body { left: auto; right: 0; }
+/* A head's tip right of the rank (a measure or helper column, v2.6) opens leftwards, so it stays inside the page; on a
+   phone every tip opens in a box fixed at the bottom of the screen, whatever its head's place, never past its edge. */
+.zw-table th.zw-num .zw-tip-body, .zw-table th.zw-help .zw-tip-body, .zw-table th.zw-measure .zw-tip-body { left: auto; right: 0; }
+@media (max-width: 600px) {
+  .zw-tip-body, .zw-table th .zw-tip-body { position: fixed; left: .5rem; right: .5rem; top: auto; bottom: .5rem; width: auto;
+    max-width: none; font-size: .85rem; }
+}
 /* A model's other settings: sub-rows under its row, closed until its expander opens them (Reading's Leaderboard). */
 .zw-js .zw-table tbody tr.zw-sub-closed { display: none; }
 .zw-table tbody tr.zw-sub > td { background: var(--zw-sunk); }
