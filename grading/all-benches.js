@@ -117,7 +117,10 @@
 
   /* The table under the chart: rows in view, sorted, ranked by the score in view. */
   const table = document.querySelector('table.ab-main');
-  const columns = table ? $$('thead th[data-ab-col]', table).map(head => head.dataset.abCol) : [];
+  const heads = table ? $$('thead th[data-ab-col]', table) : [];
+  const columns = heads.map(head => head.dataset.abCol);
+  // A column whose head says lower is better (data-ab-low: calibration error, latency, cost) sorts lowest first.
+  const low = new Set(heads.filter(head => head.dataset.abLow !== undefined).map(head => head.dataset.abCol));
   const cellOf = (row, column) => row.children[1 + columns.indexOf(column)];
   const valueOf = (row, column) => {
     if (column === 'model') return row.dataset.name;
@@ -128,7 +131,7 @@
   function drawTable() {
     if (!table) return;
     const column = state.sort || state.view;
-    const natural = column === 'model' ? 1 : -1; // names A to Z; numbers highest first
+    const natural = column === 'model' || low.has(column) ? 1 : -1; // names A to Z; numbers highest first, or lowest
     const direction = state.reversed ? -natural : natural;
     const body = table.tBodies[0];
     const rows = Array.from(body.rows);

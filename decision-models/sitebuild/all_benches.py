@@ -146,16 +146,68 @@ def grading_rows(data: "Data") -> list[dict[str, Any]] | None:
     return rows
 
 
+def grading_metrics(data: "Data") -> dict[str, dict[str, Any]] | None:
+    """Grading's metrics.json (compactor #6632, #6640; grading #6616) by run id once it is live, else None; stops the
+    build when it names another bench-scores.json than the one read (its feed's sha256), when its cohort is not
+    GRADING_PAIRS, or when its rows and the feed's are not one to one by runs id and model_key (a missing, extra or
+    repeated id), so no row is shown with another run's measures."""
+    rows = grading_rows(data)
+    metrics = data.by_key[GRADING]["metrics"] if rows is not None else None
+    if metrics is None:
+        return None
+    tied, read = (metrics.get("feed") or {}).get("sha256"), data.by_key[GRADING]["feed_sha256"]
+    if tied != read:
+        raise SystemExit(f"grading metrics: made for bench-scores.json {tied}, the build read {read}")
+    if metrics.get("cohort_pairs") != GRADING_PAIRS:
+        raise SystemExit(f"grading metrics: cohort_pairs {metrics.get('cohort_pairs')}, not the feed's {GRADING_PAIRS:,}")
+    by_run: dict[str, dict[str, Any]] = {}
+    for row in metrics["models"]:
+        if row["run"] in by_run:
+            raise SystemExit(f"grading metrics: run {row['run']} twice")
+        by_run[row["run"]] = row
+    feed = {run: row.get("model_key") for row in rows for run in row.get("runs") or []}
+    if len(feed) != len(rows) or sorted(feed) != sorted(by_run):
+        raise SystemExit(f"grading metrics: rows not one to one with the feed's runs ({sorted(set(feed) ^ set(by_run))})")
+    wrong = sorted(run for run, key in feed.items() if by_run[run].get("model_key") != key)
+    if wrong:
+        raise SystemExit(f"grading metrics: model_key differs from the feed's for {wrong}")
+    return by_run
+
+
 def grading_section(data: "Data") -> str:
     """The Methodology page's Grading section (GRADING_COPY), empty until Grading's file is live; its counts of models
-    from the feed: on our own GPUs where a row names a checkpoint or its notes say so (ran_here), else a maker's API."""
+    from the feed: on our own GPUs where a row names a checkpoint or its notes say so (ran_here), else a maker's API. Once
+    metrics.json is live, what the Grading page's further columns mean, in the grading agent's words from that file
+    (definitions), with their denominators; GPU time per 1,000 said to be a rate over the whole run, as Grading asked
+    (grading #6636, compactor #6635), not a measurement of the 2,069 pairs alone."""
     rows = grading_rows(data)
     if rows is None:
         return ""
     local = sum(bool(row.get("repo") or ran_here(row.get("notes") or "")) for row in rows)
     facts = {"models": bp.count(len(rows)), "api": bp.count(len(rows) - local), "local": bp.count(local)}
-    return (f'<h2 id="grading">Grading: does the text give this answer?</h2>'
-            + "".join(f"<p>{esc(text.format_map(facts))}</p>" for text in GRADING_COPY))
+    out = (f'<h2 id="grading">Grading: does the text give this answer?</h2>'
+           + "".join(f"<p>{esc(text.format_map(facts))}</p>" for text in GRADING_COPY))
+    if grading_metrics(data) is None:
+        return out
+    file = data.by_key[GRADING]["metrics"]
+    words, pairs = file["definitions"], file["label_pairs"]
+    items = [
+        ("Latency", f"{words['latency']}."),
+        ("List price per 1,000", f"{words['api_cost_per_1000_usd_list_price']}."),
+        ("GPU time per 1,000", f"{words['gpu_seconds_per_1000']}: a rate over the whole run, its wall time divided by all "
+                               "the pairs it answered, at the run's requests in flight; not a measurement of these "
+                               "pairs alone."),
+        ("Wrong answers caught", f"{words['wrong_answer_recall']}, of the {bp.count(pairs['other'])} such pairs; false "
+                                 f"alarms: {words['false_alarm_rate']} ({bp.count(file['false_alarm_pairs'])})."),
+        ("Recall by label", f"{words['recall']} (the reference answer {bp.count(pairs['reference'])} pairs, a "
+                            f"conflicting one {bp.count(pairs['other'])}, none {bp.count(pairs['none'])}); in each row's "
+                            "notes on its wrong answers caught."),
+        ("Invalid", f"{words['invalid']}."),
+        ("Probabilities", f"{words['probabilities']}."),
+    ]
+    return (out + '<p>The Grading page\'s further columns come from the grading agent\'s '
+            f'<a href="{esc(data.by_key[GRADING]["metrics_url"])}">metrics.json</a>:</p><ul>'
+            + "".join(f"<li><strong>{esc(name)}</strong>: {esc(text)}</li>" for name, text in items) + "</ul>")
 
 
 GROUPS = "3 benchmark groups"
@@ -195,17 +247,18 @@ def kind_of(row: dict[str, Any]) -> str:
 # ---------------------------------------------------------------------------------------------------------------- data
 
 
-def fetch(url: str) -> tuple[str, Any]:
-    """A published file: ("published", its JSON), ("missing", None) when the address serves no file (404), or
-    ("unreachable", reason) when it could not be read."""
+def fetch(url: str) -> tuple[str, Any, str | None]:
+    """A published file: ("published", its JSON, the sha256 of its bytes), ("missing", None, None) when the address
+    serves no file (404), or ("unreachable", reason, None) when it could not be read."""
     request = urllib.request.Request(url, headers={"User-Agent": "zekiworks-reading-build", "Cache-Control": "no-cache"})
     try:
         with urllib.request.urlopen(request, timeout=20) as response:
-            return "published", json.loads(response.read().decode("utf-8"))
+            raw = response.read()
+            return "published", json.loads(raw.decode("utf-8")), hashlib.sha256(raw).hexdigest()
     except urllib.error.HTTPError as error:
-        return ("missing", None) if error.code == 404 else ("unreachable", f"HTTP {error.code}")
+        return ("missing", None, None) if error.code == 404 else ("unreachable", f"HTTP {error.code}", None)
     except (urllib.error.URLError, TimeoutError, OSError, ValueError) as error:
-        return "unreachable", str(error)
+        return "unreachable", str(error), None
 
 
 def file_benches(data: Any) -> list[dict[str, Any]]:
@@ -219,48 +272,72 @@ def file_benches(data: Any) -> list[dict[str, Any]]:
     return items
 
 
+def metrics_file(data: Any) -> None:
+    """A bench's metrics file (page_config.json benches' metrics: Grading's metrics.json): an object whose models are rows
+    with a run id each."""
+    if not isinstance(data, dict) or not isinstance(data.get("models"), list) or not all(
+            isinstance(row, dict) and isinstance(row.get("run"), str) for row in data["models"]):
+        raise ValueError("not in the metrics schema")
+
+
 def external(site: Site) -> tuple[list[dict[str, Any]], str]:
     """The other sites' benches as page_config.json lists them, one file each, each with its file's bench (or None until
-    published), read now; and the snapshot JSON the build keeps (all-benches/benches.json, by bench key). An address
-    that cannot be read keeps its earlier snapshot (found by its address). A file published in the same commit as the
-    pages (ALL_BENCHES_LOCAL="key=path", push_pages.sh GRADING_FEED: page and file go live together) is read from disk
-    and kept under its address."""
+    published) and, for a bench with a metrics address, its metrics file (or None), read now; and the snapshot JSON the
+    build keeps (all-benches/benches.json, by bench key, a metrics file as "<key>-metrics"). An address that cannot be
+    read keeps its earlier snapshot (found by its address). A file published in the same commit as the pages
+    (ALL_BENCHES_LOCAL="key=path,key-metrics=path", push_pages.sh GRADING_FEED and GRADING_METRICS: page and files go
+    live together) is read from disk and kept under its address."""
     path = ROOT / SNAPSHOT
     before = {entry["url"]: entry for entry in (json.loads(path.read_text()).get("benches", {}) if path.exists() else {}).values()}
     today = datetime.now(timezone.utc).date().isoformat()
     local = dict(item.split("=", 1) for item in os.environ.get("ALL_BENCHES_LOCAL", "").split(",") if "=" in item)
-    kept, out = {}, []
-    for spec in site.config["all_benches"]["benches"]:
-        if spec["key"] in local:
-            print(f"all-benches: {spec['label']}: read from {local[spec['key']]}, published with these pages at {spec['url']}")
-            status, data = "published", json.loads(Path(local[spec["key"]]).read_text(encoding="utf-8"))
+    kept: dict[str, Any] = {}
+    out = []
+
+    def read(key: str, label: str, url: str, check: Callable[[Any], Any]) -> dict[str, Any]:
+        if key in local:
+            print(f"all-benches: {label}: read from {local[key]}, published with these pages at {url}")
+            raw = Path(local[key]).read_bytes()
+            status, data, sha = "published", json.loads(raw.decode("utf-8")), hashlib.sha256(raw).hexdigest()
         else:
-            status, data = fetch(spec["url"])
-        previous = before.get(spec["url"])
+            status, data, sha = fetch(url)
+        previous = before.get(url)
         if status == "published":
             try:
-                file_benches(data)
+                check(data)
             except ValueError as error:
                 status, data = "unreachable", str(error)
         if status == "unreachable":
-            print(f"all-benches: {spec['url']} could not be read ({data}); "
+            print(f"all-benches: {url} could not be read ({data}); "
                   + ("kept the earlier copy" if previous else "shown as not published yet"))
-            entry = previous or {"url": spec["url"], "published": False, "seen": today, "file": None}
+            entry = previous or {"url": url, "published": False, "seen": today, "file": None}
         else:
-            entry = {"url": spec["url"], "published": status == "published", "seen": today,
-                     "file": data if status == "published" else None}
+            entry = {"url": url, "published": status == "published", "seen": today,
+                     "file": data if status == "published" else None, "sha256": sha}
             if previous and previous.get("published") == entry["published"] and previous.get("file") == entry["file"]:
                 entry["seen"] = previous["seen"]
-        kept[spec["key"]] = entry
+        kept[key] = entry
+        return entry
+
+    for spec in site.config["all_benches"]["benches"]:
+        entry = read(spec["key"], spec["label"], spec["url"], file_benches)
         bench = None
         if entry["published"]:
             bench = next((item for item in file_benches(entry["file"]) if item.get("bench") == spec["bench"]), None)
+        metrics = None
+        if spec.get("metrics"):
+            found = read(spec["key"] + "-metrics", spec["label"] + " metrics", spec["metrics"], metrics_file)
+            metrics = found["file"] if found["published"] else None
         out.append({"key": spec["key"], "label": spec["label"], "short": spec["label"], "parts": spec.get("parts"),
-                    "bench": bench, "feed": spec["url"], "seen": entry["seen"]})
-        print(f"all-benches: {spec['label']}: " + (f"published, {len(bench['models'])} rows" if bench else NOT_PUBLISHED))
-    snapshot = {"about": "The other benches' bench-scores.json as this site's build last read them from their published "
-                         "addresses (sitebuild/all_benches.py), by bench: file null while an address serves none; seen: "
-                         "the first build that read this state.", "benches": kept}
+                    "bench": bench, "feed": spec["url"], "feed_sha256": entry.get("sha256"), "seen": entry["seen"],
+                    "metrics": metrics, "metrics_url": spec.get("metrics")})
+        print(f"all-benches: {spec['label']}: " + (f"published, {len(bench['models'])} rows" if bench else NOT_PUBLISHED)
+              + ("" if not spec.get("metrics") else f"; metrics {'published' if metrics else NOT_PUBLISHED}"))
+    snapshot = {"about": "The other benches' bench-scores.json (and a bench's metrics file, as <key>-metrics) as this "
+                         "site's build last read them from their published addresses (sitebuild/all_benches.py), by "
+                         "bench: file null while an address serves none; sha256: of its bytes as read; seen: the first "
+                         "build that read this state.",
+                "benches": kept}
     return out, json.dumps(snapshot, ensure_ascii=False, indent=1) + "\n"
 
 
@@ -829,58 +906,95 @@ def main_table(data: Data) -> str:
                       for model in models if model["setups"]))
 
 
-def model_cell(model: dict[str, Any], setups: bool = True, tag: str | None = None, line: str = "") -> str:
+def model_cell(model: dict[str, Any], setups: bool = True, tag: str | None = None,
+               lines: tuple[tuple[str, str], ...] = ()) -> str:
     """A table row's model cell: the maker's dot, the family icon, the name opening the model's page, its tag (tag where a
     bench's own row gives one, as Grading's table does: its thinking setting) and training tag, and (setups) the mark when
-    its benches ran different setups; line, a small line of its own under them (Grading: replies without an answer)."""
+    its benches ran different setups; lines, small lines of their own under them, (class, HTML) each, empty ones left
+    out (Grading: replies without an answer, and its size for a phone's narrow table)."""
     return (f'<td class="model"><i class="lb-dot" style="background:{model["colour"]}" title="{esc(model["maker"] or "no maker")}"></i>'
             f'{icon(model)}<a class="model-name" href="{model_href(model)}">{esc(model["name"])}</a>'
             f'{names.tag_html(model["tag"] if tag is None else tag)}{training_tag(model)}'
             + (f'<a class="ab-setup-mark" href="#setup-{esc(model["slug"])}" title="{esc(model["setups"])}">setups differ</a>'
                if setups and model["setups"] else "")
-            + (f'<span class="small ab-line">{line}</span>' if line else "") + "</td>")
-
-
-# A Grading chat row's notes say how many of its replies had no final answer line; they count wrong (GRADING_COPY), and
-# the table says how many under the row's name, in the model column a phone keeps in view (grading #6569, Zeki #6570:
-# LFM3-1.7B's 838 of 2,069).
-NO_ANSWER = re.compile(r"\b(\d[\d,]*) of [\d,]+ replies \(\d+%\) had no final 'ANSWER: X' line")
+            + "".join(f'<span class="small {css}">{html}</span>' for css, html in lines if html) + "</td>")
 
 
 def grading_table(data: Data, models: list[dict[str, Any]]) -> str:
     """Grading's page's table (grading_page): its models as the main table's rows (the type and class keys filter them,
     all-benches.js sorts and ranks them): rank, model with its Grading row's tag and replies without an answer, size,
-    score, accuracy (the row's notes on hover, focus and tap, v3.css .hint) and calibration error (ECE, points)."""
+    score, accuracy (the row's notes on hover, focus and tap, v3.css .hint) and calibration error (ECE, points), as one
+    block beside the name (Ümit #6619, #6620); then, once metrics.json is live (grading_metrics), wrong answers caught
+    (the recalls by label on hover, focus and tap), latency, and the cost per 1,000 pairs as the list price of an API
+    row and the GPU time of a row on our GPUs, two columns never sorted together (grading #6616). Every column after the
+    rank sorts (all-benches.js finds a column's cells by its place among them). On a phone the size moves under the
+    name (all-benches.css), so accuracy comes into view beside the score."""
+    metrics = grading_metrics(data)
+    file = data.by_key[GRADING]["metrics"]
     ordered = sorted(models, key=lambda model: (-data.score(model, GRADING), plain_name(model).casefold()))
     decision = [model for model in ordered if model["kind"] == DEFAULT_TYPE]
     numbers = dict(zip((id(model) for model in decision), ranks([data.score(model, GRADING) for model in decision])))
-    sort = lambda key, label, css="num": (  # noqa: E731
-        f'<th scope="col" class="{css}" data-ab-col="{key}"{" aria-sort=\"descending\"" if key == GRADING else ""}>'
+    # Every head sorts, so the arrow beside a head is the sort's; which way is better is said once, in the caption, and
+    # a lower-is-better column (data-ab-low) sorts lowest first (all-benches.js).
+    sort = lambda key, label, css="num", low=False: (  # noqa: E731
+        f'<th scope="col" class="{css}" data-ab-col="{key}"{" data-ab-low" if low else ""}'
+        f'{" aria-sort=\"descending\"" if key == GRADING else ""}>'
         f'<button type="button" class="ab-sort" data-ab-sort="{key}">{esc(label)}</button></th>')
-    head = ('<th scope="col" class="num ab-rank">Rank</th>' + sort("model", "Model", "model") + sort("size", "Size")
-            + sort(GRADING, "Score") + '<th scope="col" class="num">Accuracy</th>'
-            + f'<th scope="col" class="num">Calibration error {DOWN}</th>')
+    pct = lambda share: f"{100 * share:.1f}%"  # noqa: E731
+    head = ('<th scope="col" class="num ab-rank">Rank</th>' + sort("model", "Model", "model") + sort("size", "Size", "num ab-size")
+            + sort(GRADING, "Score") + sort("accuracy", "Accuracy") + sort("calibration", "Calibration error", low=True))
+    if metrics:
+        head += (sort("caught", "Wrong answers caught") + sort("latency", "Latency", low=True)
+                 + sort("price", "List price per 1,000", low=True) + sort("gpu", "GPU time per 1,000", low=True))
+    cell = lambda value, shown: (  # noqa: E731
+        '<td class="num">–</td>' if value is None else f'<td class="num" data-v="{value:.6f}">{shown}</td>')
+    hint = lambda tip, shown: f'<span class="hint" tabindex="0" data-tip="{esc(tip)}">{shown}</span>'  # noqa: E731
     body = []
     for model in ordered:
         row = model["scores"][GRADING]
         error = row.get("calibration_error")
         notes = row.get("notes") or ""
-        found = NO_ANSWER.search(notes)
-        unanswered = int(found.group(1).replace(",", "")) if found else 0
-        accuracy = f"{100 * row['raw']['value']:.1f}%"
-        if notes:
-            accuracy = f'<span class="hint" tabindex="0" data-tip="{esc(notes)}">{accuracy}</span>'
+        accuracy = pct(row["raw"]["value"])
+        measured = metrics[row["runs"][0]] if metrics else None
+        unanswered = measured["invalid"] if measured else 0
         line = f"{bp.count(unanswered)} of {bp.count(GRADING_PAIRS)} replies without an answer" if unanswered else ""
+        size = size_label(data, model)
+        cells = (f'{cell(row["score_0_100"], number(row["score_0_100"]))}'
+                 f'{cell(row["raw"]["value"], hint(notes, accuracy) if notes else accuracy)}'
+                 f'{cell(error, "" if error is None else number(100 * error))}')
+        if measured:
+            pairs = file["label_pairs"]
+            recalls = (f"Recall by label: the reference answer {pct(measured['recall_reference'])} of "
+                       f"{bp.count(pairs['reference'])}, a conflicting one {pct(measured['recall_other'])} of "
+                       f"{bp.count(pairs['other'])}, none {pct(measured['recall_none'])} of {bp.count(pairs['none'])}; "
+                       f"false alarms {pct(measured['false_alarm_rate'])} of {bp.count(file['false_alarm_pairs'])}")
+            median, p90 = measured["latency_s_median"], measured["latency_s_p90"]
+            seconds = lambda value: f"{value:.2f} s" if value < 10 else f"{value:.1f} s"  # noqa: E731
+            price = measured["api_cost_per_1000_usd_list_price"]
+            gpu = measured["gpu_seconds_per_1000"]
+            cells += (cell(measured["wrong_answer_recall"],
+                           f'{hint(recalls, pct(measured["wrong_answer_recall"]))}'
+                           f'<span class="small">{pct(measured["false_alarm_rate"])} false alarms</span>')
+                      + cell(median, f'{seconds(median)}<span class="small">p90 {seconds(p90)} · '
+                                     f'{measured["requests_in_flight"]} at a time</span>')
+                      # An API row (no GPU time) whose list price for that model and date could not be checked has
+                      # none in the file: it reads Not verified, never a dash or a zero (grading #6645, Zeki #6644).
+                      + (f'<td class="num">{status("Not verified", "No list price of this model at the time it ran could be checked against its maker's pages; left out rather than guessed")}</td>'
+                         if price is None and gpu is None else
+                         cell(price, "" if price is None else hint(
+                             f"${measured['price_usd_per_million_input']} per 1M input tokens, {measured['price_source']} "
+                             f"({measured['price_date']}); a list price, not an invoice",
+                             f"${price:.3f}" if price < 1 else f"${price:.2f}")))
+                      + cell(gpu, "" if gpu is None else (f"{gpu:,.0f} s" if gpu >= 10 else f"{gpu:.1f} s")))
         body.append(f'<tr{filters(model)} data-name="{esc(plain_name(model).casefold())}" '
                     f'data-size="{"" if model["size"] is None else model["size"]}">'
                     f'<td class="num ab-rank">{numbers.get(id(model), "")}</td>'
-                    f'{model_cell(model, setups=False, tag=row.get("tag") or None, line=line)}'
-                    f'<td class="num">{size_label(data, model)}</td>'
-                    f'<td class="num" data-v="{row["score_0_100"]:.4f}">{number(row["score_0_100"])}</td>'
-                    f'<td class="num">{accuracy}</td>'
-                    f'<td class="num">{"–" if error is None else number(100 * error)}</td></tr>')
+                    f'{model_cell(model, setups=False, tag=row.get("tag") or None, lines=(("ab-line", line), ("ab-size-line", size)))}'
+                    f'<td class="num ab-size">{size}</td>{cells}</tr>')
     return (f'<div class="table-wrap ab-main-wrap ab-grading-wrap"><table class="board ab-main"><caption class="ab-caption">'
-            f'{bp.count(GRADING_PAIRS)} pairs · {UNIT} · higher is better {UP} · a row\'s notes on its accuracy</caption>'
+            f'{bp.count(GRADING_PAIRS)} pairs · {UNIT} · higher is better {UP}, '
+            f'{"lower for calibration error, latency and cost" if metrics else "lower for calibration error"} {DOWN} · '
+            f'notes on a row\'s accuracy{" and wrong answers caught" if metrics else ""}</caption>'
             f'<thead><tr>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>')
 
 
