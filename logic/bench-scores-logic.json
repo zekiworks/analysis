@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-13T17:25:36Z",
+ "updated": "2026-11-13T17:28:04Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -585,36 +585,35 @@
    "gpu_cost_usd": 8.506808333333334
   },
   {
-   "repo": "LiquidAI/LFM3-1.7B-GGUF",
-   "commit": "cd0c74c575b5c416f3011b5b4c298077f26ca8c2",
+   "repo": "LiquidAI/LFM3-1.7B",
+   "commit": "0dc4268b561499c648c7ba7c9466bf3d8d01517a",
    "model_key": "lfm3-1.7b",
    "name": "LFM3-1.7B",
    "display_name": "LFM3-1.7B",
-   "tag": "on · chat",
+   "tag": "off · chat",
    "class_label": "Open · 1.7B",
    "base_model": null,
-   "setup_label": "LFM3-1.7B (chat, thinking, on our GPU)",
-   "maker": "Liquid AI",
+   "setup_label": "LFM3-1.7B (chat, thinking off, on our GPU)",
+   "maker": null,
    "kind": "chat",
    "params_total": 1.73,
    "params_active": 1.73,
    "quantization": "BF16",
-   "score_0_100": 81.22222222222221,
+   "score_0_100": 81.8888888888889,
    "raw": {
     "metric": "accuracy",
-    "value": 0.8497777777777777,
+    "value": 0.8551111111111112,
     "questions": 1125,
     "options": 5
    },
    "calibration_error": null,
    "improvement_points": null,
    "runs": [
-    "logic:lfm3-1.7b_en",
-    "logic:lfm3-1.7b_en_dontknow"
+    "logic:lfm3-1.7b-vllm-nothink_en"
    ],
-   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: LFM3-1.7B (off · chat)",
-   "gpu_hours": 11.265833333333333,
-   "gpu_cost_usd": 28.051925
+   "notes": "on our NVIDIA DGX Spark (GB10); other setups of this model under its row, not in this entry: LFM3-1.7B (on · chat); no complete 'I don't know' run",
+   "gpu_hours": 2.5730555555555554,
+   "gpu_cost_usd": 0.5475920897283448
   },
   {
    "repo": "google/gemma-4-E4B-it",
