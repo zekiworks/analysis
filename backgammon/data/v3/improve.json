@@ -629,18 +629,18 @@
     "reason": null,
     "series_done": 0,
     "setup": "GPT-6.1 Sol (high)",
-    "status": "running",
-    "updated_at": "2026-11-13T19:40:38+00:00"
+    "status": "stopped",
+    "updated_at": "2026-11-13T20:00:25+00:00"
    },
    {
-    "reason": "waiting for its turn",
+    "reason": null,
     "series_done": 0,
     "setup": "GPT-6 Astra (high)",
-    "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
+    "status": "running",
+    "updated_at": "2026-11-13T20:00:25+00:00"
    }
   ],
-  "updated_at": "2026-11-13T19:55:26+00:00"
+  "updated_at": "2026-11-13T20:04:31+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -6629,11 +6629,21 @@
      "risks_found": null
     },
     "answers_after": null,
-    "answers_before": null,
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 24.09339115023613,
+     "right_safety": 95.0,
+     "risks_found": 58.0
     },
     "change": {
      "error_rate": null,
@@ -6641,29 +6651,47 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 1.9663,
+     "api_equivalent_usd": 2.7523,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
     },
-    "empty": [],
-    "empty_done": 0,
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 24.09339115023613,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 95.0,
+      "risk_pays": 100,
+      "risks_found": 58.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 1186.7
+     }
+    ],
+    "empty_done": 1,
     "improved": null,
     "key": "gpt-6.1-sol-high",
     "progress": {
      "reason": null,
      "series_done": 0,
-     "status": "running",
-     "updated_at": "2026-11-13T19:40:38+00:00"
+     "status": "stopped",
+     "updated_at": "2026-11-13T20:00:25+00:00"
     },
     "range": null,
-    "reason": null,
+    "reason": "E1: route check failed",
     "series": [],
     "series_finished": 0,
     "setup": "GPT-6.1 Sol (high)",
-    "state": "running",
-    "status": "running, 0 of 5 series",
-    "steps_done": [],
+    "state": "stopped",
+    "status": "stopped: E1: route check failed",
+    "steps_done": [
+     "E1"
+    ],
     "threshold": null,
     "verdict": false
    },
@@ -6686,7 +6714,7 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 0.0,
+     "api_equivalent_usd": 3.2199,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -6696,18 +6724,18 @@
     "improved": null,
     "key": "gpt-6-astra-high",
     "progress": {
-     "reason": "waiting for its turn",
+     "reason": null,
      "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
+     "status": "running",
+     "updated_at": "2026-11-13T20:00:25+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": null,
     "series": [],
     "series_finished": 0,
     "setup": "GPT-6 Astra (high)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "state": "running",
+    "status": "running, 0 of 5 series",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -6717,17 +6745,17 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-13T19:55:26+00:00"
+  "updated_at": "2026-11-13T20:04:31+00:00"
  },
- "source_sha256": "5ba8ae3f685a60a9b7f51ceee0ce587dcd5366faf24b594be4b67b27f7cd24b5",
+ "source_sha256": "d0a7d0a4b1fa42f41b965c8316c35fdf937bfbf1bba65958415c256fba609c48",
  "status": {
-  "last_update": "2026-11-13T19:55:26+00:00",
-  "line": "12 of 20 models with a verdict · 2 running · 2 paused · 0 incomplete or stopped",
+  "last_update": "2026-11-13T20:04:31+00:00",
+  "line": "12 of 20 models with a verdict · 2 running · 1 paused · 1 incomplete or stopped",
   "models": 20,
-  "paused": 2,
+  "paused": 1,
   "phase": "running",
   "running": 2,
-  "stopped": 0,
+  "stopped": 1,
   "verdicts": 12
  },
  "validation": {
