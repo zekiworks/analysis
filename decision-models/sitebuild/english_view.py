@@ -318,7 +318,9 @@ def build(site: Site) -> dict[str, str]:
                      + "Not run: a decision model not run with it yet" + (", or an English-only setup" if alone else "") + ".")
         return (f'<section class="card" id="{anchor("table", group)}" {shown(group)} data-top-rows>'
                 f"<h2>Every {noun(group, 1)} in English</h2>"
-                f'<div class="table-wrap"><table class="board list stack"><thead><tr><th scope="col">Model</th>{head}</tr>'
+                # en-full (v3.css): heads and the lines under each value wrap, so the seven columns fit a desktop's
+                # card, and the model column stays in place wherever the table still scrolls (Zeki #6782).
+                f'<div class="table-wrap"><table class="board list stack en-full"><thead><tr><th scope="col">Model</th>{head}</tr>'
                 f'</thead><tbody>{"".join(rows)}</tbody></table></div>'
                 f'<p class="note">Ranked by English accuracy, highest first: right answers of the {total:,} kept reading '
                 "questions in each setup's first English run (an invalid answer counts as not right). Turkish accuracy: the "

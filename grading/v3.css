@@ -534,6 +534,12 @@ thead th { background: var(--panel); font-weight: 600; vertical-align: bottom; w
 /* The Hallucination table: seven columns, each number with its counts under it, so its cells wrap too. */
 @media (min-width: 641px) { table.board.idk thead th:not(:first-child), table.board.idk td.num { white-space: normal; min-width: 6.5rem; }
   table.board.idk td.num:last-child { min-width: 8.5rem; } }
+/* The English page's full table, first on the page (english_view.py, Zeki #6782): its heads and the lines under each value
+   wrap, so its seven columns fit a desktop's card, and its model column stays in place wherever the table still scrolls. */
+@media (min-width: 641px) { table.board.en-full thead th:not(:first-child), table.board.en-full td.num { white-space: normal; min-width: 6.5rem; } }
+table.board.en-full td.num .small { white-space: normal; }
+table.board.en-full th:first-child, table.board.en-full td:first-child { position: sticky; left: 0; z-index: 2; box-shadow: 1px 0 0 var(--edge); }
+table.board.en-full thead th:first-child { z-index: 3; }
 table.board td.num { font-family: var(--mono); font-size: .84rem; }
 .small { display: block; color: var(--text-2); font-size: .78rem; }
 /* The settings line: the long form, and on a phone the short form ("1 per request · low reasoning"). */

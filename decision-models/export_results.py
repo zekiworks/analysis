@@ -713,6 +713,9 @@ MODELS: dict[str, dict[str, Any]] = {
            ("lfm2-350m-math", "LFM2-350M-Math", "vLLM v0.30.0", "LiquidAI/LFM2-350M-Math@8eb8b70"),
            ("lfm2.5-2.6b", "LFM2.5-2.6B", "vLLM v0.30.0", "LiquidAI/LFM2.5-2.6B@7141b56"),
            ("minicpm5-2b", "MiniCPM5-2B", "vLLM v0.30.0", "openbmb/MiniCPM5-2B@42433e9"),
+           # MiniCPM5-2B with thinking off (Ümit #6516, #6527; logic #6770): the same checkpoint and server, its requests'
+           # chat_template_kwargs enable_thinking false (an empty <think></think>, logic checked via /tokenize).
+           ("minicpm5-2b-nothink", "MiniCPM5-2B", "vLLM v0.30.0", "openbmb/MiniCPM5-2B@42433e9"),
            ("spark-x2.6-4b", "Spark-X2.6-4B", "llama.cpp (its BF16 GGUF; vLLM v0.30.0 has no Spark2_5ForCausalLM)",
             "XHToken/Spark-X2.6-4B-GGUF@9d71677"),
            ("granite-4.2-3b", "Granite-4.2-3B", "vLLM v0.30.0", "ibm-granite/granite-4.2-3b@4e9c275"),
@@ -1196,6 +1199,8 @@ SIZES: dict[str, dict[str, Any]] = {
        for key, total, scope, repo, commit in (
            ("lfm2.5-2.6b", 2_697_198_592, "language model (tied embeddings, text only)", "LiquidAI/LFM2.5-2.6B", "7141b56"),
            ("minicpm5-2b", 2_516_756_480, "language model with its LM head, text only", "openbmb/MiniCPM5-2B", "42433e9"),
+           ("minicpm5-2b-nothink", 2_516_756_480, "language model with its LM head, text only", "openbmb/MiniCPM5-2B",
+            "42433e9"),
            ("spark-x2.6-4b", 4_112_079_360, "language model (tied embeddings, text only)", "XHToken/Spark-X2.6-4B",
             "64ca8f2"),
            ("granite-4.2-3b", 3_659_737_600, "language model with its LM head, text only", "ibm-granite/granite-4.2-3b",

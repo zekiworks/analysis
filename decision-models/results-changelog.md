@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 32e5eafe (13 November 2026)
+
+- MiniCPM5-2B with thinking off joins as a setup of its own (`openbmb/MiniCPM5-2B` at `42433e9`, served as `minicpm5-2b-nothink`; Ümit #6516, #6527; logic #6770): logic's server on one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, the chat template with thinking off, temperature 1.0, top-p 0.95, seed 0, up to 32,768 output tokens, one question per request, 32 in flight. English reading run 1094: 370 of the 547 kept questions right (67.6%), its 8 replies without a letter counted wrong; 101st of the 114 English setups, between StartLux-Decision v1.1 2B (381) and Liquid d1-2B (359); with thinking on, MiniCPM5-2B has 419 (76.6%). English "I don't know" run 1095: 324 right, 33 "I don't know", 164 wrong (non-hallucination 16.8%, answered 89.2%) and 26 replies without a usable answer (23 unreadable, 3 cut off), invalid. Cost: $0.43 per 1,000 questions, an estimate from its GPU time; median request 7.29 s.
+- Its Turkish runs were not asked: the Turkish smoke (run 1096) failed the gate, 15 of its 20 replies without a final answer line, so the In progress table lists its Turkish side as blocked, the next step Ümit's.
+- No other number changed.
+
 ## Results a4b0e1b6 (13 November 2026)
 
 - LFM3-1.7B's Turkish side (Ümit #6224; logic #6625), on the server and request settings of its English runs: `LiquidAI/LFM3-1.7B` at `0dc4268b` on one RTX PRO 6000 Blackwell, BF16, vLLM nightly 0.34.0rc1.dev302, thinking on, 32 requests in flight, up to 32,768 output tokens. Text run 1089: 712 of the 2,198 scored questions right (32.4%; reading 290 of 656, 44.2%; grammar 422 of 1,542, 27.4%), its 3 replies without a letter counted wrong; 91st of the 104 Text tab setups; on the Leaderboard with every model in view 69th of 82 models, in tier 14 with StartLux-Decision-v1.1-2B-Instant (753) and LFM2.5-2.6B (745), above d1-2B (646). Its card lists 16 languages, not Turkish, so its Turkish rows read "Turkish not officially supported"; asked for a plain answer line, it gives no confidence. Cost: $2.81 for the run at Liquid AI's list price for the same model (FP8 at its endpoint), $1.28 per 1,000 questions; median request 24.2 s with 32 in flight.

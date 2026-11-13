@@ -598,12 +598,16 @@
     })();
 
     /* --- tips: a head's explanation (Tier: what a tier is) opens by hover and keyboard focus (zw-ui.css) and by a tap or
-       Enter on its key; a second tap, a tap outside or Escape closes it (Escape also while it shows by hover or focus). */
+       Enter on its key; a second tap, a tap outside or Escape closes it (Escape also while it shows by hover or focus).
+       A second tap or click closes it for good while the pointer stays, quiet as after Escape, so a touch screen's
+       lingering hover and the key's focus do not keep it showing (toolbench #6777, Zeki #6785); opening lifts the quiet,
+       and the pointer or the focus leaving lifts it too, so hover and keyboard focus work as before. */
     host.addEventListener('click', event => {
       const key = event.target.closest('.zw-tip-key');
       if (!key) return;
-      key.closest('.zw-tip').removeAttribute('data-zw-quiet');
-      key.setAttribute('aria-expanded', String(key.getAttribute('aria-expanded') !== 'true'));
+      const opening = key.getAttribute('aria-expanded') !== 'true';
+      key.setAttribute('aria-expanded', String(opening));
+      key.closest('.zw-tip').toggleAttribute('data-zw-quiet', !opening);
     });
     host.addEventListener('pointerout', event => {
       const tip = event.target.closest?.('.zw-tip');
