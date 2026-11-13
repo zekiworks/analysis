@@ -380,3 +380,27 @@
   // The page moving under an open box (a table loaded or a font arriving above it) moves the box with its row.
   if ('ResizeObserver' in window) new ResizeObserver(() => { if (open || tip) place(); }).observe(document.body);
 })();
+
+/* The bench kit's details box on a touch screen: a tap beside the open box (its 8 px margin on a narrow phone) is moved
+   onto the box by the browser's tap adjustment, so the kit (zw-ui.js, never edited here) takes it for a tap inside and
+   keeps the box. Where the finger really came down outside the box and its row, the tap counts as a tap outside: the
+   kit's own outside click closes the box (Ümit: a second tap, a tap outside or Escape closes it). */
+(function zwTapBeside() {
+  let down = null;
+  window.addEventListener('pointerdown', event => {
+    down = event.pointerType === 'mouse' ? null : { x: event.clientX, y: event.clientY };
+  }, true);
+  const away = el => {
+    const r = el.getBoundingClientRect();
+    return down.x < r.left || down.x > r.right || down.y < r.top || down.y > r.bottom;
+  };
+  window.addEventListener('click', event => {
+    if (!down || event.detail === 0) return;
+    const box = event.target.closest?.('.zw-box.zw-open');
+    const row = box?.closest('[data-zw-box]');
+    if (!box || !row || !away(box) || !away(row)) return;
+    event.stopImmediatePropagation();
+    event.preventDefault();
+    document.body.click();
+  }, true);
+})();

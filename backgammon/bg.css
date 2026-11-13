@@ -490,6 +490,28 @@ i.swatch-ts-safety, i.swatch-ts-found { background-color: var(--text-2); }
   .zw-table th .zw-tip { position: static; }
   .zw-table th .zw-tip-body { position: fixed; left: .75rem; right: .75rem; top: auto; width: auto; max-width: none; }
 }
+/* The home leaderboard on a phone (Zeki #6752): every measure in the table too, not only in the details box. The list
+   scrolls sideways inside its block (the page does not); rank and model stay at the left while it scrolls, the
+   measures (the chosen one, the others, latency) to their right with their short heads, units and tips. */
+@media (max-width: 599.98px) {
+  #leaderboard .zw-panel:not([data-measure="learning"]) .zw-list { overflow-x: auto; overscroll-behavior-x: contain; }
+  #leaderboard .zw-panel:not([data-measure="learning"]) .zw-table { width: max-content; min-width: 100%; }
+  html.zw-js #leaderboard .zw-panel:not([data-measure="learning"]) .zw-table .zw-help { display: table-cell; }
+  #leaderboard .zw-panel:not([data-measure="learning"]) .zw-table :is(th, td).zw-measure { width: auto; min-width: 7.5rem; }
+  #leaderboard .zw-panel:not([data-measure="learning"]) .zw-table :is(th, td).zw-help {
+    font-size: inherit; white-space: nowrap; overflow-wrap: normal; }
+  #leaderboard .zw-panel:not([data-measure="learning"]) .zw-table .zw-help :is(.zw-val, .zw-cost, .zw-cost-num, .zw-int) {
+    white-space: nowrap; overflow-wrap: normal; }
+  #leaderboard .zw-panel:not([data-measure="learning"]) .zw-table :is(th.zw-rank, td.zw-rank, th:nth-child(2), td.zw-model) {
+    position: sticky; z-index: 2; background: var(--panel, var(--zw-panel)); }
+  #leaderboard .zw-panel:not([data-measure="learning"]) .zw-table :is(th.zw-rank, td.zw-rank) {
+    left: 0; box-sizing: border-box; width: 2.4rem; min-width: 2.4rem; max-width: 2.4rem; }
+  #leaderboard .zw-panel:not([data-measure="learning"]) .zw-table :is(th:nth-child(2), td.zw-model) {
+    left: 2.4rem; box-sizing: border-box; width: 9.5rem; min-width: 9.5rem; max-width: 9.5rem;
+    box-shadow: 1px 0 0 var(--zw-edge); }
+  /* The open row's model cell holds its details box (fixed, over the rows below): above their sticky cells. */
+  #leaderboard .zw-panel:not([data-measure="learning"]) .zw-table .zw-open > td.zw-model { z-index: 41; }
+}
 /* From 600 px the results table keeps to its content (Ümit via Zeki #6371, #6374): the result chip at the right of
    its column and its change at the left of the next, so they read as one group ('✓ Yes +9.4'), risks found
    before → after right after them, right safety change and threshold next; a long head wraps in two lines. */
