@@ -511,7 +511,7 @@
     "series_done": 0,
     "setup": "LFM2.5-24B-A2B (on)",
     "status": "running",
-    "updated_at": "2026-11-13T10:26:45+00:00"
+    "updated_at": "2026-11-13T13:43:43+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-13T11:38:11+00:00"
+  "updated_at": "2026-11-13T13:43:43+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -5978,11 +5978,21 @@
      "risks_found": null
     },
     "answers_after": null,
-    "answers_before": null,
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 69.10051204264164,
+     "right_safety": 76.0,
+     "risks_found": 35.0
     },
     "change": {
      "error_rate": null,
@@ -5995,15 +6005,31 @@
      "estimate_usd": null,
      "reported_usd": null
     },
-    "empty": [],
-    "empty_done": 0,
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 69.10051204264164,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 76.0,
+      "risk_pays": 100,
+      "risks_found": 35.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 11816.9
+     }
+    ],
+    "empty_done": 1,
     "improved": null,
     "key": "lfm2.5-24b-a2b-on",
     "progress": {
      "reason": null,
      "series_done": 0,
      "status": "running",
-     "updated_at": "2026-11-13T10:26:45+00:00"
+     "updated_at": "2026-11-13T13:43:43+00:00"
     },
     "range": null,
     "reason": null,
@@ -6012,7 +6038,9 @@
     "setup": "LFM2.5-24B-A2B (on)",
     "state": "running",
     "status": "running on our GPU, 0 of 5 series",
-    "steps_done": [],
+    "steps_done": [
+     "E1"
+    ],
     "threshold": null,
     "verdict": false
    },
@@ -6111,11 +6139,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-13T11:38:11+00:00"
+  "updated_at": "2026-11-13T13:43:43+00:00"
  },
- "source_sha256": "89f237156e5f5dcf28005d5c133f04e3a33755c21f691f659e3f9c53f0fcbe38",
+ "source_sha256": "50a387fb30dcfab2ccdfae5cb21835e54a872959f855b4688b3ef79824370af4",
  "status": {
-  "last_update": "2026-11-13T11:38:11+00:00",
+  "last_update": "2026-11-13T13:43:43+00:00",
   "line": "11 of 15 models with a verdict · 1 running · 3 paused · 0 incomplete or stopped",
   "models": 15,
   "paused": 3,
