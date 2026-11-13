@@ -322,6 +322,9 @@ main > .more-note, main > div > .more-note { margin-bottom: 1rem; }
 .lb-table tbody tr:hover > td, .lb-table tbody tr.lb-open > td { background: var(--sunk); }
 .lb-dot { display: inline-block; width: .7rem; height: .7rem; margin-right: .35rem; border-radius: 50%; vertical-align: -.05em; }
 .lb-table td.lb-score, .lb-table th.lb-score { width: 42%; }
+/* The Leaderboard's parts, with every measure beside the score (Ümit #6706): the bar's column takes less, so the measures'
+   columns hold their value and its second line in one or two lines. */
+@media (min-width: 900px) { .lb-table[data-part] td.lb-score, .lb-table[data-part] th.lb-score { width: 24%; } }
 .lb-score { white-space: nowrap; }
 .lb-bar { position: relative; display: inline-block; width: calc(100% - 4.4rem); height: .8rem; vertical-align: middle;
   background: var(--sunk); border-radius: 3px; }
@@ -375,24 +378,36 @@ tr.lb-off { display: none !important; }
 .chart-tip p { margin: 0; }
 .chart-tip a { display: inline-block; margin-top: .3rem; }
 /* As Logic & Math's table (the project lead's reference, Zeki #4606): the main score's cell holds its bar, its value and
-   the 95% interval under the value. Narrower than 900 px the table keeps three columns, #, Model and that score; the
-   other columns are in each row's details box, which a tap, hover or the focus opens. From 900 px every column shows. */
-.lb-table .lb-wide { display: none; }
-@media (min-width: 900px) {
-  .lb-table .lb-wide { display: table-cell; white-space: nowrap; }
-  /* A value stays on one line; its head's description and its second line (a cost's basis, "answered 87%") wrap, so
-     every column fits the card from 900 px and none is cut at its edge. */
-  .lb-table .lb-wide .small { white-space: normal; }
-}
+   the 95% interval under the value, and every other measure has a column beside it (Ümit #6696, #6706 via Zeki #6718).
+   Narrower than 900 px the columns stay: the table scrolls inside its frame with the model column in place, a shade at
+   the right edge while more lies there, and each row's latency and cost read under its name at a glance (.lb-glance),
+   so the row's details box is not the only way to them (Zeki #6751, #6754). */
+.lb-table[data-part] .lb-wide { display: table-cell; white-space: nowrap; }
+/* Other tables in the Leaderboard's look (the Experiments page's Repeat checks) keep their wide columns from 900 px. */
+.lb-table:not([data-part]) .lb-wide { display: none; }
+@media (min-width: 900px) { .lb-table .lb-wide { display: table-cell; white-space: nowrap; } }
+/* A value stays on one line; its head's description and its second line (a cost's basis, "answered 87%") wrap. */
+.lb-table .lb-wide .small { white-space: normal; }
+/* Short lines that read as one phrase each (a latency's "16 per request", "1 in flight") never break. */
+.lb-table .lb-wide .small.lb-keep { white-space: nowrap; }
+.lb-glance { display: none; }
+/* The shade, at any width where the table is wider than its frame: a gradient fixed at the frame's right edge, hidden by
+   a cover at the table's own right end, which reaches the edge once the table is scrolled there or fits (the cells are
+   transparent; below 900 px the model column is not). */
+.lb-part .table-wrap { background: linear-gradient(to left, var(--panel) 40%, transparent) right center / 2.5rem 100% no-repeat local,
+  linear-gradient(to left, color-mix(in srgb, var(--text) 24%, transparent), transparent) right center / 1.1rem 100% no-repeat scroll; }
 @media (max-width: 899px) {
   .lb-table { table-layout: auto; }
-  .lb-table td.model { min-width: 0; white-space: normal; }
-  .lb-table td.lb-score, .lb-table th.lb-score { width: 38%; min-width: 6.5rem; text-align: left; }
+  .lb-table td.model, .lb-table thead th:nth-child(2) { position: sticky; left: 0; z-index: 2; min-width: 9rem; max-width: 11rem;
+    white-space: normal; background: var(--panel); box-shadow: 1px 0 0 var(--edge); }
+  .lb-table th.lb-wide { min-width: 6.5rem; white-space: normal; }
+  .lb-table td.lb-score, .lb-table th.lb-score { width: auto; min-width: 6.5rem; text-align: left; }
   .lb-table th.lb-score { white-space: normal; }
   .lb-table td.lb-score .lb-bar { display: block; width: 100%; margin: .1rem 0 .25rem; }
   .lb-table td.lb-score .lb-value { display: block; width: auto; padding-left: 0; text-align: left; }
   .lb-table td.lb-score .lb-ci { margin-top: .1rem; }
   .lb-table[data-part="both"] td.lb-score { display: table-cell; }
+  .lb-glance { display: block; margin-top: .1rem; color: var(--text-2); font-size: .74rem; }
 }
 /* All setups: the full ranking in place of the one-row-per-model table (site.js); both show without the script. */
 .js .lb-all-setups:not(.is-open) { display: none; }

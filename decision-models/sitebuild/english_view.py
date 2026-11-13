@@ -1,13 +1,13 @@
 """English reading (english/): the Text tab's setups on its kept reading questions in English, from results.json's
 english_reading only. Its face, under the view bar: nothing above the results but a group's empty-view line (no links
-row: the view bar's row 3 links to the parts; the scope is in the first chart's heading, "Accuracy in English · 547
-machine-translated questions"; the translation check's limit, limit_line(), and More about this page sit under the
-charts), then the four parts row 3 links to: Accuracy (#accuracy, the language
-difference first, as on turkish-vs-english/, then English accuracy), Non-hallucination (#non-hallucination), Cost (#cost)
-and Latency (#latency), each chart in the
-site's static style (Site hbars, each bar in its model family's colour, as the home page's charts), and one table ranked
-by English accuracy with the four measures and the Decision Score (AA formula) column (english_reading.models[]
-.decision_score, decision models only; a full-width table of it also sits under the two holding-back sides);
+row: the view bar's row 3 links to the parts), then one table ranked by English accuracy with every measure side by
+side, first so that the page's first table holds them all (Ümit #6696, #6706 via Zeki #6718): the four measures and the
+Decision Score (AA formula) column (english_reading.models[].decision_score, decision models only; a full-width table
+of it also sits under the two holding-back sides), then the four parts row 3 links to: Accuracy (#accuracy, the
+language difference first, as on turkish-vs-english/, then English accuracy; its heading gives the scope, "Accuracy in
+English · 547 machine-translated questions"), Non-hallucination (#non-hallucination), Cost (#cost) and Latency
+(#latency), each chart in the site's static style (Site hbars, each bar in its model family's colour, as the home
+page's charts), the translation check's limit, limit_line(), and More about this page under the charts;
 the charts and the table come once per type group of the view bar (data-models all/chat/decision,
 toggled by site.js, its Class keys hiding rows and bars by data-class; the all group is the one shown without
 JavaScript, every setup ranked together), counts and
@@ -332,7 +332,7 @@ def build(site: Site) -> dict[str, str]:
                       if any(paused.get(model["model"], ("",))[0] == "Queued" for model in alone) else "") + ")" if alone else "")
                 + f'; the paired comparison is on <a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ '
                 f"{cost_per()}, with its basis under it; English latency: the median time per request, with the request "
-                "size and the requests in flight under it, each from the first English run (Cost and Latency above)."
+                "size and the requests in flight under it, each from the first English run (Cost and Latency below)."
                 + (" " + missing_note(site, members, ("english",))).rstrip()
                 + " Each name opens its model page's English section"
                 + (" (an English-only setup has no model page: its name opens its row here)" if alone else "")
@@ -367,11 +367,11 @@ def build(site: Site) -> dict[str, str]:
       <h1>The reading questions in English</h1>
       {"".join(empty(group) for group in GROUPS)}
     </section>
+    {"".join(table(group) for group in GROUPS if counts[group])}
     <div class="charts" data-top-rows>{charts}</div>
     {limit_line(method)}
     {more_link(PATH)}
-    <p class="note">Calibration of holding back by confidence at the {pct(site.config["threshold"], 0)} threshold is not measured in English.</p>
-    {"".join(table(group) for group in GROUPS if counts[group])}"""
+    <p class="note">Calibration of holding back by confidence at the {pct(site.config["threshold"], 0)} threshold is not measured in English.</p>"""
     return {PATH: site.page(PATH, TITLE, f"The Text tab's {total:,} kept reading questions in English: accuracy of "
                             f"{counts['all']} setups ({counts['decision']} decision models, {counts['chat']} chat model "
                             "setups) and their non-hallucination rate with “I don't know”.", body,

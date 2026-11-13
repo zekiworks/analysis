@@ -124,6 +124,9 @@ class Model:
     flag: str = ""
     tag: str = ""  # setting · route · snapshot, never part of the name
     icon: str = ""  # HTML after the dot: the family's icon (an inline <svg> or <img>), the site's own markup
+    # Short labelled lines under the name on a phone only, so what a wide table holds past the screen's edge reads at a
+    # glance (v2.6: Grading's latency and cost, Zeki #6754); never on a wider screen, where the columns show.
+    glance: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -708,6 +711,7 @@ def model_cell(model: Model, box_id: str, box_label: str, lines: Sequence[str], 
             # stays whole beside its icon.
             + (f' <span class="zw-flag">{esc(model.flag)}</span>' if model.flag else "")
             + (f' <span class="zw-class">{esc(model.class_label)}</span>' if model.class_label else "")
+            + "".join(f'<span class="zw-glance">{esc(line)}</span>' for line in model.glance)
             + tail + "</td>")
 
 

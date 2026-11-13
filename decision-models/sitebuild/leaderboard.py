@@ -26,8 +26,9 @@ import build_page as bp
 from sitebuild import holding_back as hold
 from sitebuild.english_reading import (BASIS_WORDS, english_only, entry_href, idk_key, setup_families, setup_run, under_way)
 from sitebuild.names import base_model, tag_html
-from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, Site, cost_missing, cost_per, cost_value, esc, family_icon,
-                            measure_keys, parameters_text, pct, plain_line, rel, size_sentence, stated_total)
+from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, NOT_MEASURED_CONFIDENCE, Site, cost_missing, cost_per, cost_value, esc,
+                            family_icon, latency_text, measure_keys, parameters_text, pct, plain_line, rel, request_size,
+                            size_sentence, stated_total)
 
 # The reasoning settings in order, as the requests sent them: none and off (and a setup without a setting, or a chat
 # template's default, vllm-plain's "default") lowest; "on" is the setting of a model with thinking on or off only, above
@@ -275,6 +276,72 @@ def kept_line(sure: str, kept: dict[str, Any] | None, questions: int) -> str | N
             "of them wrong")
 
 
+# With Accuracy pressed, a part's table shows every measure beside the accuracy, as Logic & Math's first table does
+# (Ümit #6696, #6706 via Zeki #6718): Non-hallucination, Confidence, Cost and Latency, each from the row's one setup; their
+# Measure keys still open their views. Below 900 px the columns stay too, the table scrolling inside its frame with the
+# model column in place, and each row's latency and cost read under its name (glance_lines; v3.css, Zeki #6751, #6754).
+CONFIDENCE_HEAD = 'Confidence<span class="small">calibration gap, points \u00b7 lower is better</span>'
+BRIER_HEAD = 'Confidence<span class="small">chosen-answer Brier \u00b7 lower is better</span>'
+LATENCY_HEAD = 'Latency<span class="small">median seconds per request \u00b7 lower is better</span>'
+
+
+def confidence_cell(run: dict[str, Any]) -> str:
+    """A Text tab run's Confidence cell: its calibration gap (runs[].confidence.ece, the gap the Confidence view's chart
+    shows) in points, one decimal, with its confidence's source under it; Not measured without one (a setup asked for a
+    plain answer line gives none)."""
+    found = run.get("confidence")
+    if not found:
+        return NOT_MEASURED_CONFIDENCE if plain_line(run) else NOT_MEASURED
+    return f'{100 * found["ece"]:.1f}<span class="small">{esc(found["label"].lower())}</span>'
+
+
+def confidence_line(run: dict[str, Any]) -> str | None:
+    """The details box's line on a Text tab run's confidence: its calibration gap and source, or not measured."""
+    found = run.get("confidence")
+    if found:
+        return f"Confidence: calibration gap {100 * found['ece']:.1f} points ({esc(found['label'].lower())})"
+    return "Confidence: not measured" if plain_line(run) else None
+
+
+def brier_cell(model: dict[str, Any]) -> str:
+    """An English setup's Confidence cell: the chosen-answer Brier of its first English run with its Decision Score (AA
+    formula) under it (english_reading.models[].decision_score, decision models only); Unavailable with the reason in
+    its title; Not measured for a chat model, whose confidence is not measured in English (a plain answer line has none)."""
+    if "decision_score" in model:
+        found = model["decision_score"]
+        return f'{found["brier"]:.4f}<span class="small">Decision Score {found["score"]:.2f}</span>'
+    if "decision_score_unavailable" in model:
+        return f'<span class="nm" title="{esc(model["decision_score_unavailable"])}">Unavailable</span>'
+    return NOT_MEASURED_CONFIDENCE if plain_line(model) else NOT_MEASURED
+
+
+def latency_cell(entry: dict[str, Any] | None, size: int | None) -> str:
+    """A Latency cell: the median seconds per request, under it the questions per request and the requests in flight,
+    each a short line of its own that never breaks (lb-keep), so the column stays narrow (a run's latency, or an English
+    setup's first English run's; the details box says it in words), said where it was measured on a sample or on the
+    run's repeats; Not measured without a timing."""
+    if not entry:
+        return NOT_MEASURED
+    where = {"sample": "on a sample", "repeats": "on its repeats"}.get(entry.get("source") or "")
+    lines = [f"{bp.count(size)} per request" if size else None, f'{bp.count(entry["concurrency"])} in flight', where]
+    return bp.seconds(entry["median_request_seconds"]) + "".join(
+        f'<span class="small lb-keep">{esc(line)}</span>' for line in lines if line)
+
+
+def latency_line(entry: dict[str, Any] | None) -> str | None:
+    """The details box's line on a latency: the median per request and the requests in flight."""
+    if not entry:
+        return None
+    return (f"Latency: {latency_text(entry['median_request_seconds'])} median per request, "
+            f"{bp.count(entry['concurrency'])} in flight")
+
+
+def glance_lines(glance: list[str | None]) -> str:
+    """A row's glance lines under its name (HTML, its latency and its cost), shown below 900 px only (v3.css .lb-glance),
+    where the table's farther columns lie past the screen's edge until it scrolls (Zeki #6754)."""
+    return "".join(f'<span class="lb-glance">{line}</span>' for line in glance if line)
+
+
 def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[str], list[str], int]:
     """The Turkish part (group None: all questions, ranked in tiers) or the Turkish reading or Turkish grammar part
     (group "reading" or "grammar": the same rows, ranked on that group's questions, with its accuracy and 95% interval;
@@ -287,7 +354,7 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
     def counts(run: dict[str, Any]) -> tuple[int, int]:
         return accuracy(run) if group is None else (run["groups"][group]["correct"], run["groups"][group]["questions"])
 
-    def facts(run: dict[str, Any]) -> tuple[list[str | None], list[str]]:
+    def facts(run: dict[str, Any]) -> tuple[list[str | None], list[str], list[str | None]]:
         correct, questions = accuracy(run)
         model = board.rated.get(run["run"])
         pending = board.pending(run["model"], "turkish")
@@ -300,17 +367,24 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
             turkish_line(site, run),
             held_line(board.option, model, digits, pending),
             kept_line(sure, kept, questions),
-            "Confidence: not measured" if plain_line(run) else None,
+            confidence_line(run),
             " · ".join(filter(None, (cost_text(site, run, value, run.get("cost_basis"), bool(run.get("cost_upper_bound"))),
                                      bp.count(run["questions_per_request"]) + " question"
                                      + ("" if run["questions_per_request"] == 1 else "s") + " per request"))),
+            latency_line(run.get("latency")),
         ]
         mark = f'{site.config["first_cost_marks"]["upper"]["mark"]} ' if run.get("cost_upper_bound") else ""
         cost = (cost_missing(run) if value is None else
                 f'{cost_value(value, mark)}<span class="small">{esc(BASIS_WORDS[run["cost_basis"]])}</span>')
         cells = ([pct(share(run, "reading")), pct(share(run, "grammar"))] if group is None else
-                 [pct(correct / questions), pct(share(run, other))]) + [held_cell(model, digits, pending), cost]
-        return lines, cells
+                 [pct(correct / questions), pct(share(run, other))]) + [
+            held_cell(model, digits, pending), confidence_cell(run), cost,
+            latency_cell(run.get("latency"), run["questions_per_request"])]
+        # Below 900 px, under the name: its latency and its cost at a glance (Zeki #6754); the columns hold them too.
+        latency = run.get("latency")
+        spent = cost_missing(run) if value is None else f"{cost_value(value, mark)} {cost_per('per 1,000', 'per 1M')}"
+        glance = [f"Latency {latency_text(latency['median_request_seconds'])}" if latency else None, f"Cost {spent}"]
+        return lines, cells, glance
 
     def score(run: dict[str, Any]) -> tuple[str, int]:
         correct, questions = counts(run)
@@ -319,8 +393,7 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
 
     rows = board.turkish_rows()
     heads = (["Reading", "Grammar"] if group is None else ["Turkish<span class=\"small\">all questions</span>", other.capitalize()])
-    heads += [held_head(board.option),
-              f"Cost<span class=\"small\">{cost_per()}</span>"]
+    heads += [held_head(board.option), CONFIDENCE_HEAD, f"Cost<span class=\"small\">{cost_per()}</span>", LATENCY_HEAD]
     questions = total if group is None else counts(rows[0][0])[1]
     title = "Accuracy" if group is None else f"Accuracy on {group}"
     body = table_rows(site, board, "tr" if group is None else f"tr{group[0]}", rows, lambda run: run, facts, score,
@@ -333,7 +406,7 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
     kept, digits = board.kept, site.config["percent_digits"]
     run_of = lambda model: setup_run(site, model)  # noqa: E731
 
-    def facts(model: dict[str, Any]) -> tuple[list[str | None], list[str]]:
+    def facts(model: dict[str, Any]) -> tuple[list[str | None], list[str], list[str | None]]:
         en, tr = model["english"], model.get("turkish")
         held = board.english_rated.get(model.get("turkish_run", model["run"]))
         pending = board.pending(model["model"], "english")
@@ -352,16 +425,24 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
                   *(["English only: no Text tab run, so not in the Turkish and Both parts",
                      f"How we called it: {esc(model['access'])}"]
                     if tr is None else []),
-                  "Confidence: not measured" if plain_line(model) else None])
+                  "Confidence: not measured" if plain_line(model) else None,
+                  (f"Confidence: chosen-answer Brier {model['decision_score']['brier']:.4f}, Decision Score (AA formula) "
+                   f"{model['decision_score']['score']:.2f}" if "decision_score" in model else None),
+                  latency_line(model["latency"].get("english"))])
         if both:
             cells = [pct(tr["accuracy"]), pct(en["accuracy"]), f"{100 * model['difference']:+.1f}"]
+            glance: list[str | None] = []
         else:
             hall = held_cell(held, digits, pending)
             mark = f'{site.config["first_cost_marks"]["upper"]["mark"]} ' if cost and cost.get("upper_bound") else ""
             money = (cost_missing(run_of(model)) if value is None else
                      f'{cost_value(value, mark)}<span class="small">{esc(BASIS_WORDS[cost["basis"]])}</span>')
-            cells = [hall, money]
-        return lines, cells
+            cells = [hall, brier_cell(model), money, latency_cell(model["latency"].get("english"), size)]
+            timing = model["latency"].get("english")
+            spent = (cost_missing(run_of(model)) if value is None else
+                     f"{cost_value(value, mark)} {cost_per('per 1,000', 'per 1M')}")
+            glance = [f"Latency {latency_text(timing['median_request_seconds'])}" if timing else None, f"Cost {spent}"]
+        return lines, cells, glance
 
     def score(model: dict[str, Any]) -> tuple[str, int]:
         colour = setup_families(site)[run_of(model)["run"]]["colour"]
@@ -378,8 +459,7 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
                  "English", "Difference<span class=\"small\">points, English minus Turkish</span>"]
     else:
         heads = [f"Accuracy in English<span class=\"small\">{bp.count(kept)} questions, 95% interval</span>",
-                 held_head(board.english_option),
-                 f"Cost<span class=\"small\">{cost_per()}</span>"]
+                 held_head(board.english_option), BRIER_HEAD, f"Cost<span class=\"small\">{cost_per()}</span>", LATENCY_HEAD]
     body = table_rows(site, board, "bo" if both else "en", rows, run_of, facts, score,
                       lambda model: entry_href(site, "", model), False)
     return heads, body
@@ -444,7 +524,7 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
         kind = "decision" if site.decision(run) else "chat"
         row_id = f"lb-{prefix}-{index + 1}"
         box = f"{row_id}-box"
-        lines, cells = facts(item)
+        lines, cells, glance = facts(item)
         checkpoints = sorted({run_of(other)["model"] for other in others if run_of(other)["model"] != run["model"]})
         if checkpoints:
             lines.append("With its dated checkpoint " + ", ".join(esc(model) for model in checkpoints)
@@ -463,18 +543,18 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
             f'<tr data-kind="{kind}"{site.class_attribute(run)} data-score="{points}"{tested_attributes} data-box="{box}">'
             f'<td class="num rank">{"–" if unranked[index] else numbers[index]}</td><td class="model">'
             f'<i class="lb-dot" style="background:{family["colour"]}" title="{esc(family["maker"])}"></i>{family_icon(family["name"])}'
-            f'{name_cell(site, answers(item), box, run, turkish)}{more}'
+            f'{name_cell(site, answers(item), box, run, turkish)}{glance_lines(glance)}{more}'
             f'{details(site, run, box, lines, answers(item))}</td><td class="lb-score">{cell}</td>'
             + "".join(wide(value) for value in cells) + "</tr>")
         for sub_id, other in zip(sub_ids, others):
             other_run = run_of(other)
-            other_lines, other_cells = facts(other)
+            other_lines, other_cells, other_glance = facts(other)
             other_box = f"{sub_id}-box"
             out.append(
                 f'<tr class="lb-sub" id="{sub_id}" hidden data-kind="{kind}"{site.class_attribute(other_run)} '
                 f'data-box="{other_box}"><td class="num"></td>'
                 f'<td class="model">{name_cell(site, answers(other), other_box, other_run, turkish)}<span class="small">'
-                f'other setting of {esc(site.title(run))}</span>'
+                f'other setting of {esc(site.title(run))}</span>{glance_lines(other_glance)}'
                 f'{details(site, other_run, other_box, other_lines, answers(other))}</td>'
                 f'<td class="lb-score">{score(other)[0]}</td>' + "".join(wide(value) for value in other_cells) + "</tr>")
     return out

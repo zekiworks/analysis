@@ -1112,10 +1112,16 @@ class GradingBench(ui.Bench):
             # A chat row's replies without an answer, as a flag beside its name (the box says they count wrong).
             flag = f"{bp.count(invalid)} invalid" if invalid else ""
             written = self.written(model, key)
+            # On a phone, under the name: its latency and its cost, each labelled, the API list price or our GPU time,
+            # never one figure for both (Zeki #6754); the table's columns still hold every measure.
+            text = lambda measure: (self.written(model, measure) or ("",))[0]  # noqa: E731
+            cost = (f"List price {text('price')}/1,000" if self.value(model, "price") is not None else
+                    f"GPU time {text('gpu')}/1,000" if self.value(model, "gpu") is not None else "List price not verified")
+            glance = ((f"Latency {text('latency')}",) if self.value(model, "latency") is not None else ()) + (cost,)
             out.append(ui.Row(
                 model=ui.Model(name=model["name"], colour=model["colour"], dot_title=model["maker"] or "",
                                class_label=self.class_text(model), href=self.up + model_href(model),
-                               tag=row.get("tag") or model["tag"], icon=icon(model), flag=flag),
+                               tag=row.get("tag") or model["tag"], icon=icon(model), flag=flag, glance=glance),
                 # The bar's second line (Latency's p90 and requests at a time) reads under its value, as in the helpers'
                 # columns, so the bar's column stays as narrow as the others (zw-stack).
                 measure=(f'<span class="zw-stack">{ui.bar(self.share(model, key), colour=model["colour"], text=written[0], interval=" · ".join(written[1]))}</span>'
