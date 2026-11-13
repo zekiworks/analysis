@@ -8106,8 +8106,81 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-13T15:35Z",
+    "updated": "2026-11-13T15:50Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
+   }
+  },
+  "grading": {
+   "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
+   "published": true,
+   "seen": "2026-11-13",
+   "file": {
+    "bench": "grading",
+    "title": "Grading · does the text give this answer?",
+    "url": "https://zekiworks.github.io/analysis/all-benches/?view=grading",
+    "updated": "2026-11-13T15:27:47Z",
+    "score": {
+     "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
+     "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
+    },
+    "models": [
+     {
+      "name": "d1-ultra",
+      "display_name": "d1-ultra",
+      "tag": "",
+      "model_key": "liquid-d1-ultra",
+      "maker": "Liquid AI",
+      "kind": "decision",
+      "repo": null,
+      "commit": null,
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 84.70275495408409,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8980183663605606,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.11420895215834384,
+      "improvement_points": null,
+      "runs": [
+       "grading:d1-ultra-v1"
+      ],
+      "notes": "Liquid AI decisions API (api.liquid.ai), one question per request",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "Gemini Decision 1",
+      "display_name": "Gemini Decision 1",
+      "tag": "",
+      "model_key": "gemini-decision-1",
+      "maker": "Google",
+      "kind": "decision",
+      "repo": null,
+      "commit": null,
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 77.01788303528274,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8467858869018849,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.03889325895040145,
+      "improvement_points": null,
+      "runs": [
+       "grading:gemini-v1"
+      ],
+      "notes": "Google Decisions API (generativelanguage.googleapis.com, model gemini-decision-1), one question per request",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     }
+    ]
    }
   }
  }
