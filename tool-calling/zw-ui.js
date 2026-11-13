@@ -182,16 +182,19 @@
       state[name] = state[name] === v ? (params[name].any ?? params[name].def) : v;
       apply(true);
     })));
-    // The Show all button: every long list's rows, and back to the Top N; on closing the page scrolls only as far as
-    // keeps the button in view. A row's 'N other settings' key (Reading's Leaderboard expander): its sub-rows open under
-    // it and close again. Both by delegation, so the rows of a panel loaded later work the same.
+    // The Show all button: every long list's rows, and back to the Top N. On closing the button stays where it was on
+    // screen while the rows above it fold away, so the page does not jump under the finger (v2.5; Ümit #6070, jevgammon
+    // #6168); opening leaves the page where it is, the new rows below the top N. A row's 'N other settings' key
+    // (Reading's Leaderboard expander): its sub-rows open under it and close again. Both by delegation, so the rows of a
+    // panel loaded later work the same.
     host.addEventListener('click', event => {
       const button = event.target.closest('.zw-showall');
       if (button) {
         const closing = state.top === 'all';
+        const before = button.getBoundingClientRect().top;
         state.top = closing ? firstTop : 'all';
         apply(true);
-        if (closing) button.scrollIntoView({ block: 'nearest' });
+        if (closing) window.scrollBy({ top: button.getBoundingClientRect().top - before, behavior: 'instant' });
         return;
       }
       const more = event.target.closest('.zw-more[aria-controls]');
@@ -498,7 +501,19 @@
         open = null;
         pinned = false;
       };
-      const show = (row, pin) => {
+      // How the open box was opened: 'mouse' (hover or click), 'touch' or 'key'. A touch-opened box closed by a tap on
+      // blank space outside, and any box Escape closes (but one a mouse opened with the focus elsewhere), give the focus
+      // back to its name, without scrolling (v2.5, logic #6159); a tap on another control keeps that control's focus.
+      let how = null;
+      const CONTROL = 'a, button, input, select, textarea, summary, label, [tabindex]';
+      const focusName = row => {
+        const name = row?.querySelector('.zw-name');
+        if (!name) return;
+        quiet = true;
+        name.focus({ preventScroll: true });
+        quiet = false;
+      };
+      const show = (row, pin, by) => {
         if (open !== row) hide();
         const box = boxOf(row);
         if (!box) return;
@@ -511,11 +526,12 @@
         }
         open = row;
         pinned = pin;
+        how = by;
         row.classList.add('zw-open');
         box.classList.add('zw-open');
         place();
       };
-      const toggle = row => { if (open === row && pinned) hide(); else show(row, true); };
+      const toggle = (row, by) => { if (open === row && pinned) hide(); else show(row, true, by); };
       document.addEventListener('pointerdown', event => { pointer = event.pointerType || 'mouse'; pointing = true; }, true);
       const released = () => setTimeout(() => { pointing = false; });
       document.addEventListener('pointerup', released, true);
@@ -525,14 +541,14 @@
         if (row.dataset.zwAdopted) return;
         row.dataset.zwAdopted = '';
         row.addEventListener('pointerenter', event => {
-          if (event.pointerType === 'mouse' && !pinned && !held() && !calcs.isOpen()) show(row, false);
+          if (event.pointerType === 'mouse' && !pinned && !held() && !calcs.isOpen()) show(row, false, 'mouse');
         });
         row.addEventListener('pointerleave', event => {
           if (event.pointerType === 'mouse' && !pinned && open === row && !held()) hide();
         });
         row.addEventListener('focusin', () => {
           keyed = !pointing;
-          if (keyed && open !== row && !quiet) show(row, false);
+          if (keyed && open !== row && !quiet) show(row, false, 'key');
         });
         row.addEventListener('focusout', event => {
           if (open === row && !pinned && !row.contains(event.relatedTarget)) hide();
@@ -546,7 +562,7 @@
             if (control.tagName !== 'A' || pointer === 'mouse' || event.detail === 0) return;  // mouse or keyboard: the link
             event.preventDefault();  // a tap on the name opens the box in place of its link
           }
-          toggle(row);
+          toggle(row, pointer === 'mouse' ? 'mouse' : 'touch');
         });
       });
       adopt(host);
@@ -555,19 +571,17 @@
       host.closest('main')?.addEventListener('click', () => {});
       document.addEventListener('click', event => {
         // A click on a cost label's open calculation, which floats outside the row, keeps the box.
-        if (open && !open.contains(event.target) && !event.target.closest('.zw-calc-body')) hide();
+        if (!open || open.contains(event.target) || event.target.closest('.zw-calc-body')) return;
+        const row = open, back = how === 'touch' && !event.target.closest(CONTROL);
+        hide();
+        if (back) focusName(row);
       });
       document.addEventListener('focusin', event => { if (open && pinned && !open.contains(event.target)) hide(); });
       document.addEventListener('keydown', event => {  // site.js leaderboardDetails
         if (event.key !== 'Escape' || !open) return;
-        const name = open.querySelector('.zw-name');
-        const inside = open.contains(document.activeElement);
+        const row = open, back = how !== 'mouse' || open.contains(document.activeElement);
         hide();
-        if (inside && name) {
-          quiet = true;
-          name.focus();
-          quiet = false;
-        }
+        if (back) focusName(row);
       });
       addEventListener('scroll', place, { passive: true });
       addEventListener('resize', place);
@@ -584,12 +598,16 @@
     })();
 
     /* --- tips: a head's explanation (Tier: what a tier is) opens by hover and keyboard focus (zw-ui.css) and by a tap or
-       Enter on its key; a second tap, a tap outside or Escape closes it (Escape also while it shows by hover or focus). */
+       Enter on its key; a second tap, a tap outside or Escape closes it (Escape also while it shows by hover or focus).
+       A second tap or click closes it for good while the pointer stays, quiet as after Escape, so a touch screen's
+       lingering hover and the key's focus do not keep it showing (toolbench #6777, Zeki #6785); opening lifts the quiet,
+       and the pointer or the focus leaving lifts it too, so hover and keyboard focus work as before. */
     host.addEventListener('click', event => {
       const key = event.target.closest('.zw-tip-key');
       if (!key) return;
-      key.closest('.zw-tip').removeAttribute('data-zw-quiet');
-      key.setAttribute('aria-expanded', String(key.getAttribute('aria-expanded') !== 'true'));
+      const opening = key.getAttribute('aria-expanded') !== 'true';
+      key.setAttribute('aria-expanded', String(opening));
+      key.closest('.zw-tip').toggleAttribute('data-zw-quiet', !opening);
     });
     host.addEventListener('pointerout', event => {
       const tip = event.target.closest?.('.zw-tip');
@@ -609,6 +627,31 @@
         }
       });
     });
+
+    /* --- wide tables (v2.6): a table with more than two helpers (zw_ui compact_table: .zw-wide around it) wider than
+       its box, as Grading's every measure on a tablet, scrolls inside its box, never the page (zw-scrolls), with a shade
+       at the right edge while more of it lies to the right (zw-wide-more); it fits again, nothing scrolls, once the box is
+       wide enough. A hidden view or panel measures on its first show (ResizeObserver). --------------------------- */
+    const wides = (() => {
+      const fit = wide => {
+        const box = wide.firstElementChild;
+        const scrolls = box.scrollWidth > box.clientWidth + 1;
+        wide.classList.toggle('zw-scrolls', scrolls);
+        wide.classList.toggle('zw-wide-more', scrolls && box.scrollLeft + box.clientWidth < box.scrollWidth - 1);
+      };
+      // The box's size changes with the window and the table's with its rows and the fonts: either refits.
+      const watch = 'ResizeObserver' in window ? new ResizeObserver(entries => entries.forEach(entry => fit(entry.target.closest('.zw-wide')))) : null;
+      const adopt = scope => scope.querySelectorAll('.zw-wide').forEach(wide => {
+        if (wide.dataset.zwAdopted !== undefined) return;
+        wide.dataset.zwAdopted = '';
+        wide.firstElementChild.addEventListener('scroll', () => fit(wide), { passive: true });
+        if (watch) [wide, wide.querySelector('table')].forEach(node => watch.observe(node));
+        else fit(wide);
+      });
+      if (!watch) addEventListener('resize', () => host.querySelectorAll('.zw-wide').forEach(fit));
+      adopt(host);
+      return { adopt };
+    })();
 
     /* --- panels: a panel outside the default view (section.zw-panel[data-zw-src]: zw_ui.Fragments wrote it as a stub
        with its head and keys) is fetched from its fragment file the first time it shows (a key, the address on load, a
@@ -648,6 +691,7 @@
           panel.removeAttribute('aria-busy');
           details.adopt(panel);
           calcs.prep(panel);
+          wides.adopt(panel);
           apply(false);
           const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
           if (target && panel.contains(target)) target.scrollIntoView();
