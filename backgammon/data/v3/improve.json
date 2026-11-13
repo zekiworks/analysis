@@ -616,7 +616,14 @@
     "series_done": 0,
     "setup": "LFM2.5-24B-A2B (on)",
     "status": "running",
-    "updated_at": "2026-11-13T16:42:03+00:00"
+    "updated_at": "2026-11-13T17:29:56+00:00"
+   },
+   {
+    "reason": null,
+    "series_done": 5,
+    "setup": "Gemma 4 E4B (on)",
+    "status": "done",
+    "updated_at": "2026-11-13T09:10:16+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -633,7 +640,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-13T16:42:15+00:00"
+  "updated_at": "2026-11-13T17:32:09+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -6134,7 +6141,7 @@
      "reason": null,
      "series_done": 0,
      "status": "running",
-     "updated_at": "2026-11-13T16:42:03+00:00"
+     "updated_at": "2026-11-13T17:29:56+00:00"
     },
     "range": null,
     "reason": null,
@@ -6148,6 +6155,472 @@
     ],
     "threshold": null,
     "verdict": false
+   },
+   {
+    "after": {
+     "error_rate": 64.42583580315113,
+     "right_safety": 83.8,
+     "risks_found": 26.6
+    },
+    "answers_after": {
+     "answer_rate": 100.0,
+     "answered": 1000,
+     "expected": 1000,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 500,
+     "safety_pays": 500,
+     "tests": 5,
+     "valid": 1000
+    },
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 600,
+     "expected": 600,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
+    },
+    "before": {
+     "error_rate": 67.95542689661185,
+     "right_safety": 84.33333333333333,
+     "risks_found": 27.666666666666668
+    },
+    "change": {
+     "error_rate": -3.5295910934607235,
+     "right_safety": -0.5333333333333314,
+     "risks_found": -1.0666666666666664
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 67.54916124045849,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 85.0,
+      "risk_pays": 100,
+      "risks_found": 27.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 1529.3
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 75.87138637900352,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 79.0,
+      "risk_pays": 100,
+      "risks_found": 25.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 1558.5
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 60.445733070373535,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 89.0,
+      "risk_pays": 100,
+      "risks_found": 31.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 1535.2
+     }
+    ],
+    "empty_done": 3,
+    "improved": false,
+    "key": "gemma-4-e4b-on",
+    "progress": {
+     "reason": null,
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-13T09:10:16+00:00"
+    },
+    "range": 6.0,
+    "reason": null,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 203,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Be highly critical of any move flagged as \"needless risk\"; prioritize safety and stability over unnecessary aggression.\n- When a risk is missed, thoroughly analyze the engine's proposed aggressive moves to understand the potential payoff.\n- Always confirm if a less risky move offers comparable long-term benefits before choosing a high-variance action.\n- High equity losses often stem from structural errors rather than just tactical ones; focus on securing prime points.\n- When operating close to optimal play, maintain consistency and avoid subtle positional drifts that lead to minor, cumulative errors."
+       },
+       {
+        "game": 2,
+        "text": "- Avoid unnecessary risks, especially when a safer, high-equity path to solidify your structure is available.\n- When choices are ambiguous, prioritize positions that develop flexibility and reduce overall vulnerability.\n- Do not rush tactical moves; evaluate how each play contributes to long-term board control.\n- Be mindful of checker placement in the mid-board and how it supports your overall blockade strategy.\n- Small equity losses accumulate quickly; focus on making the best decision, even if it seems passive."
+       },
+       {
+        "game": 3,
+        "text": "- Do not shy away from aggressive risk when the potential upside significantly outweighs the downside; missed risk is a major destroyer of equity.\n- Always evaluate the full sequence of moves, paying close attention to optimizing the second die roll, even after making a strong initial move.\n- When entering the closing stages, ensure your bearing-off strategy utilizes all dice for maximum speed and efficiency.\n- Focus on positional development and constructing strong builders rather than simply shuffling checkers in the middle game.\n- Never settle for a \"good enough\" move if a higher equity play (even if riskier) is available, as shown in several positions."
+       },
+       {
+        "game": 4,
+        "text": "- Prioritize optimal long-term board structure and strategic placement over maximizing immediate pip count.\n- When faced with a significant equity gap, adhere strictly to the engine’s suggested play rather than forcing a favored move.\n- Be extremely cautious regarding risky moves; if the risk-reward trade-off is unclear, default to the safest, evaluated option.\n- In complex phases (running or bearing off), verify even small positional adjustments, as they can drastically shift equity.\n- Recognize when a move is a \"needless risk\"; avoid gambits unless the resulting gain is overwhelming and certain."
+       },
+       {
+        "game": 5,
+        "text": "- When evaluating crucial rolls, prioritize moves that maximize structural advantage or safety over those that offer immediate, marginal gain.\n- Avoid unnecessary risks; often, the lower-risk move leading to stable position yields better long-term equity than an aggressive play.\n- Examine why the engine favors specific checker movements (e.g., 13/7 vs 8/2), focusing on how different placements affect the overall board geometry.\n- Be highly deliberate when managing blots and running checkers, particularly during complex bearing-in or escape scenarios.\n- Even when multiple moves appear good, critically assess the cumulative impact of checker placement across the whole board."
+       },
+       {
+        "game": 6,
+        "text": "- Be extremely cautious about unnecessary risks; often, conservative development offers a higher long-term equity.\n- When bearing off or entering from the bar, thoroughly evaluate the threat profile of the opponent's anchors and builders.\n- Don't default to the most aggressive move simply because it looks powerful; sometimes the positional consolidation is superior.\n- Review all missed risks carefully, as optimizing tactical exchanges can significantly swing the game.\n- Prioritize structural integrity and safe movement over quick gains, especially during mid-game traffic."
+       },
+       {
+        "game": 7,
+        "text": "- When faced with a choice, prioritize the statistically sound move indicated by the engine, even if it seems less aggressive.\n- Avoid high-variance plays or \"needless risks\" unless the positional gain is overwhelming.\n- Treat equity loss warnings seriously; major deviations often lead to severe structural disadvantages.\n- Be methodical in development: ensure your moves build secure points rather than merely moving checkers randomly.\n- Evaluate risk-taking carefully; a move should only be considered high-risk if the potential payoff justifies the immediate downside."
+       },
+       {
+        "game": 8,
+        "text": "- Be highly cautious when making aggressive moves, especially when the equity loss is substantial, as unnecessary risk often leads to disaster.\n- When choosing between multiple moves, prioritize solid positional development over maximizing immediate checker movement.\n- Never dismiss a subtle risk trade-off; even small errors in evaluation can accumulate into a significant disadvantage late in the game.\n- Pay close attention to how your dice rolls enable your opponent to strengthen their position, even if your move seems locally strong.\n- Confirm that the chosen move doesn't leave yourself vulnerable to a counter-attack that you haven't accounted for."
+       },
+       {
+        "game": 9,
+        "text": "- When presented with a high-risk move, carefully evaluate the potential payoff instead of immediately defaulting to safety.\n- Avoid unnecessary gambles; sometimes the most stable or conservative move maximizes long-term advantage.\n- Pay close attention to the engine's deviation from my instincts, as missed risk opportunities cost significant equity.\n- Before moving, prioritize overall board structure and checker safety over just achieving an immediate point or hit.\n- In complex or late-game situations, trust the positional evaluation and aim for optimized long-term play."
+       },
+       {
+        "game": 10,
+        "text": "- When large equity swings are involved, prioritize executing the precise, complex sequences recommended by the engine rather than substituting similar-looking but strategically inferior moves.\n- Be extremely cautious when \"missing a risk call\"; these deviations proved to be the costliest mistakes in this game.\n- Review board structure and strategic goals before making a move; avoid making short-sighted tactical plays that compromise long-term positioning.\n- In mid-to-late game positions, trust the engine's subtle advice, even if it suggests a small error tolerance, as precision is key when the board tightens.\n- If multiple moves are available, treat the suggested \"best play\" as the benchmark for maximum expected value, minimizing arbitrary deviation."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 1,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 68.14666286110878,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 84.0,
+       "risk_pays": 100,
+       "risks_found": 22.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1480.4
+      },
+      "wins": 4
+     },
+     {
+      "finished": true,
+      "game_decisions": 240,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Avoid decisions labeled \"needless risk\"; every move must serve a clear strategic purpose.\n- Do not let the pursuit of \"safety\" override a position that promises significantly higher equity.\n- When facing an opportunity, be decisive and do not miss high-leverage moves simply because they involve calculated risk.\n- Always evaluate the underlying positional advantage of a move, not just the immediate tactical outcome.\n- Prudent risk-taking is crucial; ensure any risk taken is worth the potential gain against the opponent's structure."
+       },
+       {
+        "game": 2,
+        "text": "- Always prioritize solid structure and safety over simple checker movement; don't underestimate the value of securing anchors or building primes.\n- Exercise extreme caution when deciding on risks; avoid needless or ill-judged risks that lead to catastrophic losses.\n- When making multiple moves, ensure every die roll contributes maximally to either defensive security or offensive advantage, not just simple progression.\n- Carefully review high-loss positions, focusing on *why* the optimal play was better than the alternative, particularly regarding checker placement.\n- When running or entering from the bar, precise placement is crucial—do not just seek movement, seek optimal future positioning."
+       },
+       {
+        "game": 3,
+        "text": "- Always prioritize the strategically superior aggressive play over a simple defensive move, especially when facing positional disadvantages.\n- Pay close attention to 'missed risk' evaluations; sacrificing potential gain for undue safety is a common path to large equity losses.\n- In ambiguous situations, closely review the engine's justification for trade-offs, resisting the urge to play a move that feels safer but is calculated as suboptimal.\n- Recognize when a move, though seemingly safe, constitutes a \"wrong risk\" and avoids the aggressive line that maintains better initiative.\n- Do not be afraid to commit checkers to riskier, higher-leverage plays when the board position demands aggressive improvement."
+       },
+       {
+        "game": 4,
+        "text": "- Always prioritize structural improvement and maximizing options over making the most immediate, aggressive move.\n- Do not default to the first available play; rigorously compare potential moves to understand their long-term impact on board position.\n- Be cautious when selecting a \"risk\" play; ensure the potential reward justifies the calculated risk based on overall game state.\n- Focus on converting outer board checkers into effective inner board structures efficiently, especially when bearing down.\n- Evaluate how multiple rolls can be combined to improve multiple regions simultaneously, rather than using them sequentially for basic movement."
+       },
+       {
+        "game": 5,
+        "text": "- Be highly selective with risks; avoid gambling when the potential loss outweighs the speculative gain.\n- When escaping the bar or making large shifts, confirm the resulting position is strategically sound, not just immediately productive.\n- Do not neglect aggressive opportunities; sometimes calculated risks are necessary to break positional stalemates.\n- Pay close attention to how opponent checker movements influence your best strategy, rather than focusing solely on maximizing your own roll usage.\n- Prioritize sound defensive structure and efficient use of points before attempting highly complex forward runs."
+       },
+       {
+        "game": 6,
+        "text": "- When a move involves risk, thoroughly assess the potential reward; avoid taking needless risks simply for minor positional improvements.\n- Do not be overly passive; frequently, the largest gains come from aggressively seizing positional opportunities that deviate from perceived \"safety.\"\n- Prioritize moves that create the greatest overall structural impact, rather than settling for marginal safety gains.\n- Review major positional deviations to ensure the chosen play was not based on a flawed risk-tradeoff evaluation.\n- If the engine warns of a major equity loss, confirm the intended play addresses the fundamental threat or seizing the opportunity."
+       },
+       {
+        "game": 7,
+        "text": "- Avoid taking needless risks; if the evaluation calls a risk unnecessary, stick to the safer, high-equity line.\n- When given a choice between several moves, carefully analyze why the engine prefers its choice over mine, even for small equity differences.\n- Focus on maximizing positional strength and prime building, as tactical gambles often overlook broader strategic gains.\n- Be highly disciplined when bringing checkers off the bar, as these moves carry a high weight in the game's future.\n- Even when the error is small, strive for absolute precision, as accumulated small errors can lead to significant losses over time."
+       },
+       {
+        "game": 8,
+        "text": "- Scrutinize risk calls carefully; the engine data shows multiple instances where misjudging risk led to major losses.\n- Do not pursue aggressive moves unless the expected positional gain significantly outweighs the potential downside.\n- Pay close attention to structural soundness; poor positioning, even if not immediately attacked, weakens your overall game.\n- When considering multiple options, ensure your move selection reflects the deepest positional advantage, not just immediate safety.\n- Avoid taking \"needless risks\" in mid-to-late game, as these often lead to unexpected and severe losses."
+       },
+       {
+        "game": 9,
+        "text": "- Evaluate risks carefully; a \"missed risk\" call often indicates a profound positional error that costs high equity.\n- Be cautious about taking risks deemed \"needless\"; prefer sound, stable play over unnecessary gambles.\n- Recognize the subtle difference between a \"small error\" and a \"very bad\" decision—don't dismiss bad moves simply because the loss was large.\n- When assessing alternatives, look beyond immediate safety and consider the long-term positional benefits of the move.\n- If multiple moves have similar risk profiles, prioritize those that maximize long-term structural advantages."
+       },
+       {
+        "game": 10,
+        "text": "- When faced with a risk call, prioritize positional advantage and prime creation over immediate pips gained, as small misses can incur high equity losses.\n- Evaluate deep strategic moves, especially when bringing pieces in from the bar, rather than simply completing the highest value points.\n- Recognize that the optimal play often involves building infrastructure (primes or anchors) rather than making the most obvious roll.\n- Be extremely cautious with risky shots; if the evaluation shows a large equity loss, retreat or seek a safer, consolidating move.\n- Focus on long-term development: don't take short-term gains if it compromises the connectivity or security of your back checkers."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 62.01752685010433,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 84.0,
+       "risk_pays": 100,
+       "risks_found": 25.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1413.3
+      },
+      "wins": 3
+     },
+     {
+      "finished": true,
+      "game_decisions": 277,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Do not be overly conservative; when equity losses are moderate, evaluate riskier moves that maximize board potential over simple safety.\n- Prioritize strategic building and flexibility over immediate, small positional gains, especially when the opponent is exposed.\n- When multiple rolls are available, always look for the move that improves the overall geometry or restricts the opponent most severely, not just the most aggressive point.\n- Review all instances of \"missed risk,\" understanding that large gains often require accepting a temporary, calculated vulnerability.\n- Avoid settling for \"good enough\" moves; always verify that the chosen play represents the highest expected value in complex situations."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize strategic board development (priming, building structure) over immediate or obvious running moves.\n- Be extremely cautious with high-risk plays; ensure the payoff justifies the potential loss of position.\n- When dice allow for multiple options, analyze if advancing a critical anchor or blot is better than advancing other checkers.\n- Don't settle for the first safe move; always evaluate the deepest, most advantageous positional play suggested by the engine.\n- During the bar phase, look beyond simple exit to see how the move improves overall board geometry."
+       },
+       {
+        "game": 3,
+        "text": "- Exercise extreme caution when entering risky trades or shots; needless risks significantly diminish expected equity.\n- Prioritize calculated positional gains over aggressive blots if the immediate risk outweighs the potential reward.\n- When bearing off or running, look for tactical hits or prime development rather than just moving checkers to safety.\n- Be highly attuned to opponent structure; avoid moves that allow them easy access to crucial points or primes.\n- Re-evaluate aggressive risks, particularly when multiple checkers are involved, to ensure the calculated gain is worth the potential loss."
+       },
+       {
+        "game": 4,
+        "text": "- When equity is lost significantly, trust the engine's drastic changes in strategy, especially when considering builders and prime construction.\n- Prioritize the most aggressive and impactful moves, even if they appear risky, rather than defaulting to simple safety moves.\n- Be extremely careful when in the bar; simple re-entry is not always the best play; look for attacking or optimal placement.\n- Always evaluate whether maximizing bearing-in potential or strengthening the mid-board (using runners/blockers) offers better long-term equity.\n- When faced with a choice between two moves, rigorously assess the long-term positional value, not just the immediate safety gain."
+       },
+       {
+        "game": 5,
+        "text": "- Avoid unnecessary risks; frequently, overly aggressive plays yield the highest negative equity loss.\n- Carefully distinguish between a warranted risk and a merely hopeful maneuver, as the difference often determines the outcome.\n- When faced with complex positions, actively seek to understand *why* the engine suggests a different move rather than sticking to a pre-planned sequence.\n- Do not automatically favor safety when a calculated aggressive play (missed risk) is required to improve positional flow or escape danger.\n- Small positional errors, even when the overall strategy seems sound, accumulate significantly over the course of a long game."
+       },
+       {
+        "game": 6,
+        "text": "- Prioritize structural improvements and maximum internal movement over simple point-to-point advancements.\n- When facing high-impact dice rolls, always evaluate the position's long-term benefit, not just the immediate safety of a checker.\n- Be highly selective about risky plays; a high equity loss indicates the risk was not justified by the positional gain.\n- Pay close attention to mid-game development; failing to advance critical builders can cost significant equity.\n- Utilize double dice to build efficient internal structures or maximize overall dice usage, rather than repeating basic moves."
+       },
+       {
+        "game": 7,
+        "text": "- Be extremely cautious about taking needless risks; often a safer, less committal move maintains superior equity.\n- Always actively search for and capitalize on critical opportunities (missed risk), especially when developing new prime structures.\n- Validate aggressive moves thoroughly; when a risk is taken, it must be clearly warranted by a significant positional advantage.\n- Treat every dice roll as a moment requiring deep calculation, not just standard development, to avoid small errors escalating.\n- Don't let fear of making the wrong move lead to inaction; recognize when calculated aggression is necessary to seize control."
+       },
+       {
+        "game": 8,
+        "text": "- Be exceptionally cautious regarding risk decisions, particularly avoiding moves labeled as 'needless risk.'\n- Always thoroughly compare your proposed moves against the engine's alternatives before committing to a play.\n- Prioritize safe positional moves when the difference between options is marginal, rather than pursuing unwarranted aggression.\n- When facing complex or critical board states, double-check that your move selection is fundamentally sound and not based on intuition alone.\n- Recognize that very high equity losses indicate a significant tactical misjudgment that needs immediate review."
+       },
+       {
+        "game": 9,
+        "text": "- When faced with a high equity loss, trust the engine's suggested move over a risky, instinctive play.\n- Prioritize safety and positional strength over immediate aggressive moves, especially during complex mid-game phases.\n- Minimize minor errors; accumulating small equity losses over many turns is a reliable path to defeat.\n- Carefully evaluate risk calls; do not engage in \"needless risk\" if a safer, slightly lower-ranked move is available.\n- Be decisive in your play; hesitation or deviation from the best recommended line often leads to suboptimal outcomes."
+       },
+       {
+        "game": 10,
+        "text": "- Always rigorously calculate the trade-off of risk; avoid moves labeled \"needless risk\" or \"wrong risk,\" as these often lead to significant equity loss.\n- Prioritize positional improvements and strategic maneuvering over simple defensive moves when the game state permits complex play.\n- When faced with choices, understand that the mathematically superior play may involve controlled risk, not just outright safety.\n- Pay closer attention to the engine's evaluations when complex strategic moves are suggested, even if they deviate from immediate hitting opportunities.\n- Do not default to a \"safe call\" if a slightly riskier move offers a superior long-term advantage (equity gain)."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 70.83984196186066,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 82.0,
+       "risk_pays": 100,
+       "risks_found": 29.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1456.3
+      },
+      "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 218,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When equity is lost significantly, review the engine's alternative move path to understand the underlying strategic difference (not just the dice roll).\n- Be highly critical of \"risk calls\"; ensure that any aggressive play genuinely outweighs the potential downside, avoiding needless gambles.\n- Prioritize moves that optimize the overall board structure (creating anchors or improving running chances) over simply maximizing immediate movement.\n- Recognize the difference between a strategic risk and a tactical error, especially when deciding where to hit or secure checkers.\n- Pay close attention to the subtle tactical adjustments suggested by the engine, as these small changes can drastically alter equity."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize moves that improve overall board structure and strategic positioning over simple, localized movements.\n- Do not fear calculated risks; significant equity gains often come from aggressive, unexpected plays.\n- When faced with a choice, deeply understand the positional rationale behind the engine's recommended play before deviating.\n- Be cautious when avoiding risk; highly positive expected value plays should be taken even if they seem precarious.\n- Focus on bringing back high checkers (like those on 24) when dice allow for productive movement and prime building."
+       },
+       {
+        "game": 3,
+        "text": "- Prioritize risk assessment heavily; consistently choosing the optimal risk profile is crucial for maximizing equity.\n- When facing choices, rigorously evaluate all potential lines, even those that look strategically unusual, as the best move may not be the most intuitive.\n- Avoid settling for \"good enough\" moves; aim for absolute precision, as small errors accumulate into significant losses over the course of a game.\n- Before making a move, confirm if the chosen action addresses the highest leverage point on the board, whether that is safety, priming, or attacking.\n- Be wary of dismissing risk calls; missed or wrong risk assessments were the primary cause of the largest equity losses."
+       },
+       {
+        "game": 4,
+        "text": "- Avoid taking unnecessary risks if a safer move preserves positional advantage or maintains equity.\n- Always evaluate 'missed risk' opportunities; strategic development often outweighs immediate aggressive hits.\n- When utilizing dice, ensure the move maximizes the overall board geometry, not just the furthest jump.\n- When escaping the bar, consider comprehensive positional benefit instead of only focusing on quick clearance.\n- Prioritize moves that consolidate your home board or solidify prime structures over simple contact."
+       },
+       {
+        "game": 5,
+        "text": "- Avoid unnecessary risk-taking when the GNU evaluation suggests a safer, more precise move.\n- Before making a bold tactical shot, thoroughly evaluate the true equity impact versus the recommended conservative play.\n- Do not confuse aggressive play with superior play; positional stability often trumps high-variance gambles.\n- When a move is flagged as \"needless risk\" or \"wrong risk,\" assume the deviation was detrimental to overall board structure.\n- Even small deviations from the engine's best line, if labeled as high loss, warrant cautious reevaluation."
+       },
+       {
+        "game": 6,
+        "text": "- Be highly critical of any \"needless risks,\" as these often lead to significant equity losses without corresponding gains.\n- When facing a risk trade-off, prioritize executing the engine's preferred move, especially if the equity loss is substantial.\n- Actively seek out and capitalize on advantageous risks, rather than ignoring moves that the engine identifies as beneficial.\n- Scrutinize fundamental move choices early in a turn; a poor initial move choice has a disproportionately high cost.\n- Focus on consistent positional gains rather than chasing high-variance, unnecessary tactical blows."
+       },
+       {
+        "game": 7,
+        "text": "- Scrutinize all aggressive plays; significant equity was lost by taking needless or poorly evaluated risks.\n- Do not assume your instinct is correct when faced with a high-equity alternative; always check the subtle positional advantages.\n- When entering or moving from the bar, prioritize structural safety and strategic placement over immediate gains.\n- Understand that \"missed risk\" means failing to recognize the sharpest, highest-leverage opportunities available.\n- Carefully assess the overall board geometry; focus on building secure primes and strong corner positions, not just immediate moves."
+       },
+       {
+        "game": 8,
+        "text": "- Err on the side of prudence; unnecessary risks and mistimed aggression cost massive equity.\n- Carefully evaluate missed risks to ensure I am capitalizing on all available strategic opportunities.\n- Focus on building and maintaining structural integrity; significant losses stem from weak point formations.\n- When my play deviates from GNUbg's optimal move, I must deeply understand the reason for that difference in strategy.\n- Discipline is key in the running and bearing-off phases; prioritize safety and smooth movement over speed when under pressure."
+       },
+       {
+        "game": 9,
+        "text": "- Carefully review the trade-off between safety and aggressive risk, especially when missed risks lead to \"very bad\" equity losses.\n- When multiple moves are available, do not default to the most passive option; look for the strategically most impactful play, even if it involves risk.\n- Avoid unnecessary risks; ensure that any calculated gambit promises a superior positional payoff or a guaranteed advantage.\n- Focus on recognizing high-leverage tactical shots; these are often where the largest gains (or losses) occur.\n- Better calibration of risk management is needed, distinguishing between a necessary risk and a purely speculative one."
+       },
+       {
+        "game": 10,
+        "text": "- When the board is disorganized, prioritize consolidation and structural improvement over scattered movement.\n- Always evaluate if a move serves the long-term strategic goal (e.g., building primes or securing points), not just immediate movement.\n- Scrutinize all potential moves thoroughly; the difference between \"bad\" and \"best\" play often lies in subtle strategic efficiency.\n- When hitting the bar, ensure the second die roll maximizes the positioning benefit rather than just completing a roll.\n- Avoid reckless risk calls unless the projected advantage significantly outweighs the potential loss of equity."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 4,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 61.03027053177357,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 84.0,
+       "risk_pays": 100,
+       "risks_found": 28.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1508.4
+      },
+      "wins": 2
+     },
+     {
+      "finished": true,
+      "game_decisions": 191,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Maintain a rigorous approach to risk assessment; avoid unnecessary complexity, but do not shy away from calculated aggression when required by the position.\n- Before executing a complex move sequence, verify that it maximizes overall positional equity, rather than simply pursuing the most aggressive immediate tactical shot.\n- In the endgame, prioritize solidifying board structure and ensuring safe bearing off, as unnecessary risks in closing positions are often devastating.\n- When the engine flags a \"missed risk,\" immediately review the alternatives to understand the specific strategic advantage the optimal play was exploiting.\n- Trust the evaluations in critical turning points; if your move deviates significantly from the best play, the underlying reasoning must be critically examined."
+       },
+       {
+        "game": 2,
+        "text": "- Never take unnecessary risks; when the engine labels a move 'needless risk,' it is likely severely misplaying positional safety.\n- When facing decisions marked 'missed risk,' prioritize developing sound structure and building points rather than forcing aggressive shots.\n- Watch for highly catastrophic errors (equity loss > 0.25); these usually stem from severe tactical misjudgment in the middle game.\n- Always check if your play maximizes defensive safety or builder utility before choosing a riskier, more aggressive move.\n- Treat the GNUBG's suggested best play as the standard. If the equity lost is high, there was a significant deviation from optimal strategy."
+       },
+       {
+        "game": 3,
+        "text": "- Prioritize structural safety and solid development over aggressive, high-variance moves.\n- When the engine recommends a risk-averse play, adhere to it unless a clear, high-value trade-off is present.\n- Avoid taking unnecessary risks simply because a move \"feels\" better or faster.\n- Always seek to maximize positional advantage before focusing purely on dice usage.\n- Treat missed risk calls as immediate indicators that the structural play was superior."
+       },
+       {
+        "game": 4,
+        "text": "- Be proactive with risk. High equity gains often require calculated risks, not simply choosing the safest available move.\n- Scrutinize 'missed risk' situations; sometimes forcing a confrontation or deep penetration yields greater long-term advantage.\n- When multiple moves are available, prioritize moves that improve your overall board structure or connectivity over short-term comfort.\n- Ensure every available die roll contributes to the highest expected value, even if it seems unorthodox or aggressive.\n- Avoid 'needless risk' while seeking opportunities; major deviations from the optimal play usually stem from unnecessary gambles."
+       },
+       {
+        "game": 5,
+        "text": "- Prioritize building strong, flexible internal structure over premature aggressive moves.\n- When escaping or bearing off, always verify the optimal sequence of dice usage, not just the individual move.\n- Treat small positional advantages as opportunities to secure strength, rather than sacrificing structure for immediate contact.\n- Avoid moves that drastically alter the board state without clear, maximizing long-term equity.\n- When facing significant equity loss alerts, re-evaluate the strategic purpose of the move before committing."
+       },
+       {
+        "game": 6,
+        "text": "- Prioritize precise risk assessment; many major equity losses stemmed from missing or miscalculating risk calls.\n- When the engine suggests a sharp or aggressive move (e.g., a direct hit or structural builder), pay close attention, as safety does not always outweigh tactical gain.\n- Be wary of making multiple, incremental moves when a single, coordinated tactical move offers higher strategic value.\n- Avoid large tactical blunders; significant drops in equity occur when the optimal play is ignored for a seemingly safer positional move.\n- Treat \"small errors\" with vigilance; even small deviations from the best play can accumulate against a strong engine."
+       },
+       {
+        "game": 7,
+        "text": "- Carefully evaluate all risk calls. A significant percentage of losses occurred when optimal, riskier paths were missed.\n- Prioritize structural improvement. Focus on securing board positions and building primes rather than optimizing for short-term movement efficiency.\n- When faced with similar safety levels, meticulously calculate the long-term trade-off between two moves to maximize positional advantage.\n- Trust the engine's evaluation during critical junctures; moves labeled \"best play\" are validated by deep analysis.\n- Be aware of the true nature of defensive moves. Sometimes the best play is one that successfully neutralizes a deep threat rather than aggressively attacking."
+       },
+       {
+        "game": 8,
+        "text": "- Be more disciplined about accepting 'risk calls' when the engine suggests them, as missing these opportunities costs significant equity.\n- Avoid taking 'needless risks'; large equity losses often stem from moves that introduce danger without clear strategic payoff.\n- When the decision is complex, prioritize positional safety and tactical threats over simply moving checkers out of the way.\n- Pay close attention to why the optimal moves involve multi-part sequences; simple intuition often fails in critical endgame scenarios.\n- Use the lost equity figures to understand the magnitude of poor choices, especially when small tactical errors compound into large positional weaknesses."
+       },
+       {
+        "game": 9,
+        "text": "- When faced with a risk assessment, seriously evaluate tactical sacrifices rather than defaulting to the safest move.\n- Do not overlook aggressive counter-play; positional advantage often requires calculated gambles.\n- Ensure you are prioritizing the strategic impact of moves (e.g., hitting, breaking points) over simple, smooth development.\n- Before executing a complicated sequence, understand the engine's rationale for the recommended, seemingly complex alternatives.\n- In the closing stages of the game, precision is critical; small errors compound into major losses."
+       },
+       {
+        "game": 10,
+        "text": "- Do not hesitate when a statistically aggressive move presents a significant equity advantage; missed risks often lead to major losses.\n- Prioritize structural improvements and creating strong points over purely conservative checker movement, especially when the board allows.\n- When rolling high numbers, evaluate moves that aid escape from the back checkers or build a prime, even if they feel dangerous.\n- Be critical of small, incremental gains if a powerful positional play (like moving from the outer board) is available.\n- Ensure that any chosen risk is calculated and justified by strategic potential, rather than merely avoiding immediate danger."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 60.09487681090832,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 85.0,
+       "risk_pays": 100,
+       "risks_found": 29.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1499.4
+      },
+      "wins": 3
+     }
+    ],
+    "series_finished": 5,
+    "setup": "Gemma 4 E4B (on)",
+    "state": "complete",
+    "status": "No",
+    "steps_done": [
+     "E1",
+     "S1",
+     "S2",
+     "E2",
+     "S3",
+     "S4",
+     "E3",
+     "S5"
+    ],
+    "threshold": 6.0,
+    "verdict": true
    },
    {
     "after": {
@@ -6244,18 +6717,18 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-13T16:42:15+00:00"
+  "updated_at": "2026-11-13T17:32:09+00:00"
  },
- "source_sha256": "6442102182ce9ccebf3f77a11bb750092eb8ecb3643a517faf5e41f0c53f5672",
+ "source_sha256": "8f665d13eb4e9732a197c7f4939e8066bba2fed41a1b3ff9ecf1b1e159635c41",
  "status": {
-  "last_update": "2026-11-13T16:42:15+00:00",
-  "line": "11 of 20 models with a verdict · 1 running · 3 paused · 0 incomplete or stopped",
+  "last_update": "2026-11-13T17:32:09+00:00",
+  "line": "12 of 20 models with a verdict · 1 running · 3 paused · 0 incomplete or stopped",
   "models": 20,
   "paused": 3,
   "phase": "running",
   "running": 1,
   "stopped": 0,
-  "verdicts": 11
+  "verdicts": 12
  },
  "validation": {
   "accepted": true,
