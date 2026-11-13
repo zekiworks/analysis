@@ -2,6 +2,14 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results d1a4e66f (13 November 2026)
+
+- Added Qwen3.5-4B (`Qwen/Qwen3.5-4B`, `851bf6e`, 4B parameters as its card states), a small chat model of the models joining Reading (the project lead via Zeki #5064, #5071), on its English side first (Zeki #5213). Same server and settings as its Logic & Math runs (logic #5967): logic's server, one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, thinking on; temperature 1.0, top-p 0.95, top-k 20, presence penalty 1.5, seed 0, up to 32,768 output tokens. One question per request with a plain answer line, so no stated confidence. The runs began once logic's own runs on the server had ended, so neither side's request times hold the other's.
+- English reading: run 1072 answered 476 of the 547 kept questions right (87.0%), 55th of the 110 English setups, level with DeepSeek-V4.1-Flash 1017 and Qwen3.8 Flash (476) and one above Liquid d1 and Gemma 4 12B (475); every answer has a letter. As an English-only setup for now it has no paired test against a Turkish run.
+- English "I don't know" (its row on the Turkish vs English page): run 1073, 462 right, 2 "I don't know" and 83 wrong (non-hallucination 2.4%, answered 99.6%); no invalid answer.
+- Its card names no language; its Turkish runs and its Page images (it reads images) come in the Turkish phase, until then the In progress table shows them Queued.
+- No other number changed and no significance verdict moved.
+
 ## Results 249321d1 (13 November 2026)
 
 - Added LFM2.5-24B-A2B (`LiquidAI/LFM2.5-24B-A2B`, `1769516`, 24.0B parameters with 2.45B active, as its card states), a small chat model of the models joining Reading (the project lead via Zeki #5064, #5071), on its English side first (Zeki #5213). Same server and settings as its Logic & Math runs (logic #5835): logic's server, one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, thinking on; temperature 0.1, top-k 50, repetition penalty 1.05, seed 0, up to 32,768 output tokens, from its generation_config. One question per request with a plain answer line, so no stated confidence.

@@ -381,7 +381,7 @@
   },
   "in_progress": {
     "about": "The In progress table under the Leaderboard (sitebuild/leaderboard.py in_progress; the project lead via Zeki #5064, #5065, #5071; Ümit #5067): models joining Reading, each side (english, turkish, page_images) queued, running, blocked, done or none (does not apply), as a word or {state, note}. provider and model are the runner's keys once the model is set up (null before). A side is done exactly when that setup has a published run of it; the build stops otherwise. Take a model off once all its sides are in. as_of: when the states were last set.",
-    "as_of": "13 November 2026, 01:25 UTC",
+    "as_of": "13 November 2026, 09:27 UTC",
     "lead": "Models joining Reading (the project lead via Zeki #5064, #5071; Ümit #5067). Each side shows its state until its run is published; nothing here is a score.",
     "notes": [
       "Chat models run on logic's server on bariton GPU 1 after its Logic & Math runs, one model at a time (logic #5080, #5091, #5214). English comes first for every model: the Turkish runs and the Page images (the Turkish questions) come in a later phase of their own (the project lead via Zeki #5213).",
@@ -393,7 +393,7 @@
       {"name": "LFM2.5-8B-A1B", "maker": "Liquid AI", "kind": "chat", "provider": "vllm-plain", "model": "lfm2.5-8b-a1b", "english": "done", "turkish": {"state": "queued", "note": "in the Turkish phase (Zeki #5213)"}, "page_images": "none"},
       {"name": "MiniCPM5-2B", "maker": "OpenBMB", "kind": "chat", "provider": "vllm-plain", "model": "minicpm5-2b", "english": "done", "turkish": {"state": "queued", "note": "in the Turkish phase (Zeki #5213)"}, "page_images": "none"},
       {"name": "Spark-X2.6-4B", "maker": "XHToken", "kind": "chat", "provider": "vllm-plain", "model": "spark-x2.6-4b", "english": "queued", "turkish": "queued", "page_images": "none"},
-      {"name": "Qwen3.5-4B", "maker": "Alibaba", "kind": "chat", "provider": "vllm-plain", "model": "qwen3.5-4b", "english": "queued", "turkish": "queued", "page_images": "queued"},
+      {"name": "Qwen3.5-4B", "maker": "Alibaba", "kind": "chat", "provider": "vllm-plain", "model": "qwen3.5-4b", "english": "done", "turkish": {"state": "queued", "note": "in the Turkish phase (Zeki #5213)"}, "page_images": {"state": "queued", "note": "in the Turkish phase (Zeki #5213)"}},
       {"name": "Granite-4.2-3B", "maker": "IBM", "kind": "chat", "provider": "vllm-plain", "model": "granite-4.2-3b", "english": "queued", "turkish": "queued", "page_images": "none"},
       {"name": "Qwen3.5-9B", "maker": "Alibaba", "kind": "chat", "provider": "vllm-plain", "model": "qwen3.5-9b", "english": "queued", "turkish": "queued", "page_images": "queued"},
       {"name": "Granite-4.2-8B", "maker": "IBM", "kind": "chat", "provider": "vllm-plain", "model": "granite-4.2-8b", "english": "queued", "turkish": "queued", "page_images": "none"},
