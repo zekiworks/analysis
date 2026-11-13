@@ -2,6 +2,123 @@
  "note": "Reproducibility repeats: each repeat's state from the snapshot of v3.db (queued: no match yet; running; stopped; complete: every pair playable today finished), the matches finished of the pairs playable today, and each original's own decisions and billed cost on the pairs its repeat plays (once complete: exactly the pairs it finished) beside the repeat's on the same pairs (same seeds and dice); the repeats are held setups, in no standings, table or other setup's numbers.",
  "repeats": [
   {
+   "blocked_today": [],
+   "cost": {
+    "cap_usd": 3.8181,
+    "entrant_usd": 0.65,
+    "estimate_usd": 0.75
+   },
+   "dates": {
+    "finished": "2026-11-13T21:02:36.615Z",
+    "prepared": "2026-11-12",
+    "started": "2026-11-13T20:29:20.367Z"
+   },
+   "differences": [
+    "Name: '<original> [repeat 1]', a new players row; settings otherwise as the original's (the changed fields are listed under Settings); one match at a time, as the original (start.sh, max_matches 1).",
+    "Runner: the original ran dab6da5 (clean) for its first stage (#993-#1013) and 38024d6 (clean; map-check v2 and the raw_entries decoder) for its local stage (#1053-#1063), both on origin/main's runner line (ca112dc); the repeat runs 959a8a2 (branch pinned-late-gemini): the repeats' runner 0e66836 (late-reax line with the pinned-pairs change 4ca4f08 and admit) with those four runner commits cherry-picked (cb669a0) and the run guard (c13992f, 959a8a2: reply identity and the shared pre-send cap, used with --guard only). late-reax adds decision clients (reax, baselabs, drex, nace) and a budget ledger, which the run guard uses; requests, sampling (provider defaults, nothing set), the prompt version, option-order seed and rules are the same.",
+    "Map check: map-check v2 (a probability map that is not exactly the shown ids, finite in [0, 1], summing to 1 within 1e-6, stores no probabilities; the returned choice is still played) applies to every repeat pair; the original's first-stage pairs (#993-#1013, dab6da5) ran without it. Plays are not affected; a first-stage pair can store probabilities in the original where the repeat stores none.",
+    "Hosted model: Gemini Decision 1 is served by Google AI Studio through OpenRouter. The repeat accepts a reply only when it names the original's served model google/gemini-decision-1-20261111 and provider Google AI Studio (as all 1,704 original decisions did); a model served under that same name but changed behind it cannot be detected from here.",
+    "Route check: the original's guard re-checked OpenRouter's listing every minute (3 failures stopped it); the repeat checks it once before the first match (smoke) and, in the runner (run guard), the served identity of every entrant reply: model google/gemini-decision-1-20261111 and provider Google AI Studio exactly, or the guard latches and the league stops for good. Fallbacks stay off.",
+    "Cap: the original's $5 entry cap with $1.1819 recorded (a minute poll of stored turns); the repeat's run guard holds the entrant and paid opponents to the remaining $3.8181 before every request attempt (see cost_basis)."
+   ],
+   "field": 19,
+   "id": "gemini-decision-1-r1",
+   "league": 50,
+   "model": "Gemini Decision 1",
+   "not_played": [
+    {
+     "opponent": "GPT-6 Luna (Decisions API)",
+     "out_of_scope": true,
+     "reason": "not required (Ümit #5220); never scheduled: OpenAI Decisions out of credit (start.sh: deferred)"
+    },
+    {
+     "opponent": "Inception Mercury Decide",
+     "out_of_scope": true,
+     "reason": "not required (Ümit #5220); #1016 aborted at its start, no game: no OpenRouter endpoint for inception/mercury-decide"
+    }
+   ],
+   "original": {
+    "billed_usd": 0.7538,
+    "decisions": 1704,
+    "error_hi": 31.123831378194055,
+    "error_lo": 25.063992095624272,
+    "error_rate": 27.968576685153824,
+    "invalid": 0,
+    "judgement": 64.72958480159339,
+    "judgement_hi": 67.14946449236274,
+    "judgement_lo": 62.43501702147987,
+    "judgement_na": null,
+    "too_few": false
+   },
+   "original_dates": [
+    "2026-11-11",
+    "2026-11-11"
+   ],
+   "original_field": 19,
+   "original_in": "late entry",
+   "original_matches": [
+    993,
+    994,
+    995,
+    996,
+    997,
+    998,
+    999,
+    1005,
+    1013,
+    1053,
+    1055,
+    1056,
+    1057,
+    1060,
+    1061,
+    1062,
+    1063
+   ],
+   "original_played": 17,
+   "playable": 17,
+   "played": 17,
+   "rank": 1,
+   "repeat": {
+    "billed_usd": 0.7479,
+    "decisions": 1697,
+    "error_hi": 31.401128260088235,
+    "error_lo": 25.013440423470062,
+    "error_rate": 28.095718615885406,
+    "invalid": 0,
+    "judgement": 64.30066936889548,
+    "judgement_hi": 66.68815586786637,
+    "judgement_lo": 61.971561857504184,
+    "judgement_na": null,
+    "too_few": false
+   },
+   "repeat_matches": [
+    1285,
+    1284,
+    1282,
+    1281,
+    1283,
+    1288,
+    1287,
+    1286,
+    1289,
+    1292,
+    1291,
+    1290,
+    1294,
+    1295,
+    1297,
+    1296,
+    1293
+   ],
+   "run_id": "repeat-2026-11-12-gemini-decision-1-r1",
+   "running_matches": 0,
+   "scoring_pending": false,
+   "settings": "as the original's, changed: name, note; League 1 rules (prompt bg-v2, 3 rounds, 300 turns, the original's option-order seed, mirror games on); each pair with its original match's seed and seats; one match at a time",
+   "setup": "its own players row: openrouter-decisions/google/gemini-decision-1 · openrouter (google ai studio) · hosted",
+   "status": "complete"
+  },
+  {
    "blocked_today": [
     {
      "opponent": "Inception Mercury Decide",
@@ -75,7 +192,7 @@
    "original_played": 18,
    "playable": 17,
    "played": 17,
-   "rank": 1,
+   "rank": 2,
    "repeat": {
     "billed_usd": 0.1226,
     "decisions": 2002,
@@ -190,7 +307,7 @@
    "original_played": 18,
    "playable": 16,
    "played": 16,
-   "rank": 2,
+   "rank": 3,
    "repeat": {
     "billed_usd": 0.3731,
     "decisions": 1954,
@@ -302,7 +419,7 @@
    "original_played": 19,
    "playable": 17,
    "played": 17,
-   "rank": 3,
+   "rank": 4,
    "repeat": {
     "billed_usd": 0.1337,
     "decisions": 1881,
@@ -418,7 +535,7 @@
    "original_played": 18,
    "playable": 17,
    "played": 17,
-   "rank": 4,
+   "rank": 5,
    "repeat": {
     "billed_usd": 0.1144,
     "decisions": 1838,
@@ -535,7 +652,7 @@
    "original_played": 18,
    "playable": 17,
    "played": 17,
-   "rank": 5,
+   "rank": 6,
    "repeat": {
     "billed_usd": 0.4117,
     "decisions": 2087,
@@ -650,7 +767,7 @@
    "original_played": 18,
    "playable": 16,
    "played": 16,
-   "rank": 6,
+   "rank": 7,
    "repeat": {
     "billed_usd": 0.1234,
     "decisions": 1792,
