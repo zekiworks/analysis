@@ -285,6 +285,8 @@ tr.hl-sub td.model { padding-left: 1.6rem; }
 table.lb-table .lb-wide { display: none; }
 @media (min-width: 900px) {
   table.lb-table .lb-wide { display: table-cell; white-space: nowrap; }
+  /* Heads wrap so the added Latency column (Ümit #6706) fits without the table scrolling sideways. */
+  table.lb-table thead th.lb-wide { white-space: normal; min-width: 4.5rem; }
   td.lb-score { width: 32%; }
 }
 .more-views-box { margin-top: .6rem; }
