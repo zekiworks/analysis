@@ -3023,6 +3023,8 @@ ENGLISH_OPTION_FOUR_SOURCE = ("Ümit's follow-up of 2 November 2026, step 2: the
 ENGLISH_DONT_KNOW_ENGLISH_ONLY = {
     ("celeris", "celeris-1-decision"): ("no Turkish run with “Bilmiyorum” on these questions; new Turkish runs were "
                                         "outside the request of 3 November 2026"),
+    ("knowline", "PelaAI/KnowLine-2B-Gen1"): ("no Turkish run with “Bilmiyorum”: its Turkish Text run alone was asked "
+                                             "(Ümit #6224, 13 November 2026)"),
 }
 # The reason shown for an English "I don't know" setup whose English reading entry is English-only (no Text tab run).
 ENGLISH_ONLY_SETUP = "no Turkish run: an English-only setup"

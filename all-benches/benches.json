@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-13T16:14:54Z",
+    "updated": "2026-11-13T17:25:36Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -619,7 +619,7 @@
        "logic:lfm3-1.7b_en",
        "logic:lfm3-1.7b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: LFM3-1.7B (off · chat)",
       "gpu_hours": 11.265833333333333,
       "gpu_cost_usd": 28.051925
      },
@@ -1680,6 +1680,38 @@
       "gpu_cost_usd": null
      },
      {
+      "repo": "apertixai/cerno-9b-v1.2",
+      "commit": "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda",
+      "model_key": "cerno-9b-v1.2",
+      "name": "Cerno 9B v1.2",
+      "display_name": "Cerno 9B v1.2",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": null,
+      "setup_label": "Cerno 9B v1.2",
+      "maker": "Apertix AI",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 29.111111111111104,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.4328888888888889,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.16968382222222225,
+      "improvement_points": null,
+      "runs": [
+       "logic:cerno-9b_en",
+       "logic:cerno-9b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.07055555555555555,
+      "gpu_cost_usd": 0.015015479951527539
+     },
+     {
       "repo": "perplexity-ai/pplx-decider-flash-v1.2",
       "commit": "6d771ad7b5ecff5e93b8fc7b90d4c5ccc341954d",
       "model_key": "perplexity-decider-flash-v1.2",
@@ -2394,7 +2426,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-13T16:14:54Z",
+    "updated": "2026-11-13T17:25:36Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2589,6 +2621,38 @@
        "math:grok-4.7-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "qwen3.8-flash",
+      "name": "Qwen3.8 Flash",
+      "display_name": "Qwen3.8 Flash",
+      "tag": "off · chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Qwen3.8 Flash",
+      "maker": "Alibaba",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 99.36430883032823,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.994914470642626,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:qwen3.8-flash_en",
+       "math:qwen3.8-flash_en_dontknow"
+      ],
+      "notes": "hosted API via OpenRouter",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -3999,6 +4063,38 @@
       "gpu_cost_usd": 0.022700568115695176
      },
      {
+      "repo": "apertixai/cerno-9b-v1.2",
+      "commit": "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda",
+      "model_key": "cerno-9b-v1.2",
+      "name": "Cerno 9B v1.2",
+      "display_name": "Cerno 9B v1.2",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": null,
+      "setup_label": "Cerno 9B v1.2",
+      "maker": "Apertix AI",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 45.041608876560325,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5603328710124826,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.15733795654184,
+      "improvement_points": null,
+      "runs": [
+       "math:cerno-9b_en",
+       "math:cerno-9b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.09666666666666666,
+      "gpu_cost_usd": 0.020572389854848754
+     },
+     {
       "repo": "PelaAI/KnowLine-4B-Gen5.5",
       "commit": "779944d2cc8ffa19cef386aee83c83bcb967ade2",
       "model_key": "knowline-4b-gen5.5",
@@ -4745,7 +4841,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-13T16:14:54Z",
+    "updated": "2026-11-13T17:25:36Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -4952,6 +5048,38 @@
        "math:mimo-v2.6-flash-64k_en_dontknow"
       ],
       "notes": "hosted API via OpenRouter",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "qwen3.8-flash",
+      "name": "Qwen3.8 Flash",
+      "display_name": "Qwen3.8 Flash",
+      "tag": "off · chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Qwen3.8 Flash",
+      "maker": "Alibaba",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 96.99665450121655,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9759732360097324,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:qwen3.8-flash_en",
+       "math:qwen3.8-flash_en"
+      ],
+      "notes": "hosted API via OpenRouter; no complete 'I don't know' run",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -6414,6 +6542,40 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.0661111111111111,
       "gpu_cost_usd": 0.014069622946706906
+     },
+     {
+      "repo": "apertixai/cerno-9b-v1.2",
+      "commit": "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda",
+      "model_key": "cerno-9b-v1.2",
+      "name": "Cerno 9B v1.2",
+      "display_name": "Cerno 9B v1.2",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": null,
+      "setup_label": "Cerno 9B v1.2",
+      "maker": "Apertix AI",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 39.59093673965936,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5167274939172749,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.16156213503649636,
+      "improvement_points": null,
+      "runs": [
+       "logic:cerno-9b_en",
+       "math:cerno-9b_en",
+       "logic:cerno-9b_en_dontknow",
+       "math:cerno-9b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.16722222222222222,
+      "gpu_cost_usd": 0.03558786980637629
      },
      {
       "repo": "PelaAI/KnowLine-4B-Gen5.5",
@@ -8204,7 +8366,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-13T16:05Z",
+    "updated": "2026-11-13T17:05Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   },
