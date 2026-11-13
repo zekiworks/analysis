@@ -4,7 +4,7 @@
    "bench": "reading-text",
    "title": "Reading · Turkish",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-13T09:42:42Z",
+   "updated": "2026-11-13T12:41:35Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
@@ -2087,7 +2087,7 @@
    "bench": "turkish-reading",
    "title": "Turkish Reading",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-13T09:42:42Z",
+   "updated": "2026-11-13T12:41:35Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 656 Turkish reading questions (units 1 to 6) right (accuracy 100%)"
@@ -4170,7 +4170,7 @@
    "bench": "turkish-grammar",
    "title": "Turkish Grammar",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-13T09:42:42Z",
+   "updated": "2026-11-13T12:41:35Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 1,542 Turkish grammar questions (units 7 to 20) right (accuracy 100%)"
@@ -6253,7 +6253,7 @@
    "bench": "reading-english",
    "title": "Reading · English",
    "url": "https://zekiworks.github.io/analysis/decision-models/english/",
-   "updated": "2026-11-13T09:42:42Z",
+   "updated": "2026-11-13T12:41:35Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 547 kept reading questions, translated into English, right (accuracy 100%)"
@@ -6762,6 +6762,31 @@
       "english:1064"
      ],
      "notes": "Sieve server (sieve-serve, the maker's release code), self-hosted, BF16; the kept reading questions in English"
+    },
+    {
+     "repo": "turion-ai/turion-jev-31b",
+     "commit": "866c0fc6e040cba23fcc72113a80e5c99d5ebab1",
+     "name": "Turion Jev 31B",
+     "tag": "",
+     "model_key": "turion-jev-31b",
+     "maker": "Turion.AI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "FP8 at load",
+     "score_0_100": 88.345521023766,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.906764168190128,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.11628131444241334,
+     "improvement_points": null,
+     "runs": [
+      "english:1075"
+     ],
+     "notes": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load; the kept reading questions in English"
     },
     {
      "repo": "google/gemma-4-31B-it",
@@ -8555,7 +8580,7 @@
    "bench": "reading-vision",
    "title": "Reading · Vision",
    "url": "https://zekiworks.github.io/analysis/decision-models/vision/",
-   "updated": "2026-11-13T09:27:15Z",
+   "updated": "2026-11-13T12:28:59Z",
    "score": {
     "zero": "chance: 1 of each question's options right on every question (accuracy 20% with 5 options)",
     "hundred": "every one of the 763 questions that depend on the printed page right, read from the page image alone (accuracy 100%)"

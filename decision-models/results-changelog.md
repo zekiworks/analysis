@@ -2,6 +2,14 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 96f6cc48 (13 November 2026)
+
+- Added Turion Jev 31B (`turion-ai/turion-jev-31b`, `866c0fc`), a merged LoRA fine-tune of Gemma-4-31B-it and one of the project lead's Decision Index models (Ümit #4057, #4577; logic #6164), on its English side first (Zeki #5213). It ran on one NVIDIA DGX Spark (GB10) through the server its package ships (`turion_jev.serve` on vLLM 0.32.0), with its BF16 weights quantised to FP8 at load and no second reading of unsure questions, both as in its card's own benchmark run; text only, one question per request with option probabilities, which its own code rounds to 6 decimals.
+- English reading: run 1075 answered 496 of the 547 kept questions right (90.7%), level with Liquid d1-ultra and Sieve 31B v3 (496) and one below GLiDE 27B (497), the three sharing 31st to 33rd of the 111 English setups; every answer has a letter and probabilities that pass the runner's check. As an English-only setup for now it has no paired test against a Turkish run.
+- English "I don't know" (its row on the Turkish vs English page): run 1077, 500 right, 4 "I don't know" and 43 wrong (non-hallucination 8.5%, answered 99.3%); no invalid answer.
+- Its card names no language; its Turkish runs and the four OCR routes of its Page images (its server reads text) come in the Turkish phase, until then the In progress table shows them Queued.
+- No other number changed and no significance verdict moved.
+
 ## Results d1a4e66f (13 November 2026)
 
 - Added Qwen3.5-4B (`Qwen/Qwen3.5-4B`, `851bf6e`, 4B parameters as its card states), a small chat model of the models joining Reading (the project lead via Zeki #5064, #5071), on its English side first (Zeki #5213). Same server and settings as its Logic & Math runs (logic #5967): logic's server, one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, thinking on; temperature 1.0, top-p 0.95, top-k 20, presence penalty 1.5, seed 0, up to 32,768 output tokens. One question per request with a plain answer line, so no stated confidence. The runs began once logic's own runs on the server had ended, so neither side's request times hold the other's.

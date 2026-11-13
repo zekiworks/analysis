@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "d1a4e66f",
-  "updated": "2026-11-13T09:42:42Z",
+  "results_version": "96f6cc48",
+  "updated": "2026-11-13T12:41:35Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -366785,6 +366785,60 @@
         }
       },
       {
+        "name": "Turion Jev 31B",
+        "model": "turion-ai/turion-jev-31b",
+        "provider": "turion-jev",
+        "reasoning": null,
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1075,
+        "runs": [
+          1075
+        ],
+        "dates": [
+          "2026-11-13"
+        ],
+        "parameters": 31273086512,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model (tied embeddings) + 0.58B vision encoder (not read by its server)",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, turion-ai/turion-jev-31b@866c0fc",
+          "https://huggingface.co/turion-ai/turion-jev-31b"
+        ],
+        "parameters_read": "2026-11-10",
+        "group": "decision",
+        "access": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load",
+        "billing": "local",
+        "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); FP8 at load",
+        "note": "Turion AI's released Turion Jev 31B (turion-ai/turion-jev-31b at 866c0fc), a merged LoRA fine-tune of Gemma-4-31B-it. It ran on our hardware (one DGX Spark), one request at a time, through the server its package ships (python -m turion_jev.serve on vLLM), with the BF16 weights quantised to FP8 at load and --no-recheck (no second reading of unsure questions), both as in the card's own benchmark run, text only. Probabilities rounded to 6 decimals by its own code; they sum to 1 only within that rounding.",
+        "cost": {
+          "english": null
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 0.44507010403322056,
+            "p90_request_seconds": 0.5973840519669465,
+            "concurrency": 1,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 496,
+          "wrong": 51,
+          "invalid": 0,
+          "accuracy": 0.906764168190128
+        },
+        "decision_score": {
+          "score": 91.69185519723794,
+          "accuracy": 0.906764168190128,
+          "brier": 0.0729270642453693,
+          "n": 547,
+          "run": 1075
+        }
+      },
+      {
         "name": "Qwen3.5-4B",
         "model": "qwen3.5-4b",
         "provider": "vllm-plain",
@@ -372452,6 +372506,31 @@
             "attempt_rate": 0.9652650822669104,
             "non_hallucination": 0.11486486486486487,
             "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "Turion Jev 31B",
+          "model": "turion-ai/turion-jev-31b",
+          "provider": "turion-jev",
+          "group": "decision",
+          "text_run": null,
+          "reading_run": 1075,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1077,
+            "runs": [
+              1077
+            ],
+            "invalid_replies": null,
+            "right": 500,
+            "wrong": 43,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.9140767824497258,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.0851063829787234,
+            "mean_dont_know_probability": 0.02297445886654479
           }
         },
         {

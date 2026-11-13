@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-13T09:20:33Z",
+    "updated": "2026-11-13T12:26:57Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1200,6 +1200,38 @@
       "gpu_cost_usd": null
      },
      {
+      "repo": "turion-ai/turion-jev-31b",
+      "commit": "866c0fc6e040cba23fcc72113a80e5c99d5ebab1",
+      "model_key": "turion-jev-31b",
+      "name": "Turion Jev 31B",
+      "display_name": "Turion Jev 31B",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": null,
+      "setup_label": "Turion Jev 31B",
+      "maker": "Turion.AI",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "FP8",
+      "score_0_100": 40.33333333333332,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5226666666666666,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.029210571555555558,
+      "improvement_points": null,
+      "runs": [
+       "logic:turion-jev-31b_en",
+       "logic:turion-jev-31b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.13166666666666665,
+      "gpu_cost_usd": 0.028021013767811232
+     },
+     {
       "repo": null,
       "commit": null,
       "model_key": "gemini-decision-1",
@@ -2234,7 +2266,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-13T09:20:33Z",
+    "updated": "2026-11-13T12:26:57Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -3520,6 +3552,38 @@
       "gpu_cost_usd": null
      },
      {
+      "repo": "turion-ai/turion-jev-31b",
+      "commit": "866c0fc6e040cba23fcc72113a80e5c99d5ebab1",
+      "model_key": "turion-jev-31b",
+      "name": "Turion Jev 31B",
+      "display_name": "Turion Jev 31B",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": null,
+      "setup_label": "Turion Jev 31B",
+      "maker": "Turion.AI",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "FP8",
+      "score_0_100": 61.280628756356904,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6902450300508552,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.046954380490060094,
+      "improvement_points": null,
+      "runs": [
+       "math:turion-jev-31b_en",
+       "math:turion-jev-31b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.1775,
+      "gpu_cost_usd": 0.037775164130024005
+     },
+     {
       "repo": null,
       "commit": null,
       "model_key": "subq-snap-1.1",
@@ -4490,7 +4554,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-13T09:20:33Z",
+    "updated": "2026-11-13T12:26:57Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -5719,6 +5783,40 @@
       "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
       "gpu_cost_usd": null
+     },
+     {
+      "repo": "turion-ai/turion-jev-31b",
+      "commit": "866c0fc6e040cba23fcc72113a80e5c99d5ebab1",
+      "model_key": "turion-jev-31b",
+      "name": "Turion Jev 31B",
+      "display_name": "Turion Jev 31B",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": null,
+      "setup_label": "Turion Jev 31B",
+      "maker": "Turion.AI",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "FP8",
+      "score_0_100": 54.11344282238443,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6329075425790754,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.035488999391727505,
+      "improvement_points": null,
+      "runs": [
+       "logic:turion-jev-31b_en",
+       "math:turion-jev-31b_en",
+       "logic:turion-jev-31b_en_dontknow",
+       "math:turion-jev-31b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA DGX Spark (GB10)",
+      "gpu_hours": 0.30916666666666665,
+      "gpu_cost_usd": 0.06579617789783523
      },
      {
       "repo": null,
@@ -7221,12 +7319,12 @@
      {
       "calibration_error": null,
       "commit": null,
-      "improvement_points": null,
+      "improvement_points": 19.0,
       "kind": "chat",
       "maker": "Alibaba",
       "model_key": "qwen3.8-27b",
       "name": "Qwen3.8-27B",
-      "notes": "League 2; calibration definition pending Ümit; run on our GPUs; setting: low",
+      "notes": "League 2; calibration definition pending Ümit; run on our GPUs; setting: low; improvement_points: change in risks found, percentage points of risk-pays decisions (with lessons minus no memory)",
       "params_active": 27.78,
       "params_total": 27.78,
       "quantization": null,
@@ -7849,7 +7947,7 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-13T09:35Z",
+    "updated": "2026-11-13T12:35Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    }
   }
