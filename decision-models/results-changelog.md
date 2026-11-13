@@ -2,6 +2,14 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 249321d1 (13 November 2026)
+
+- Added LFM2.5-24B-A2B (`LiquidAI/LFM2.5-24B-A2B`, `1769516`, 24.0B parameters with 2.45B active, as its card states), a small chat model of the models joining Reading (the project lead via Zeki #5064, #5071), on its English side first (Zeki #5213). Same server and settings as its Logic & Math runs (logic #5835): logic's server, one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, thinking on; temperature 0.1, top-k 50, repetition penalty 1.05, seed 0, up to 32,768 output tokens, from its generation_config. One question per request with a plain answer line, so no stated confidence.
+- English reading: run 1069 answered 452 of the 547 kept questions right (82.6%), 81st of the 109 English setups, between Celeris-1.1 Decision (83.7%) and Gemma 4 E4B (82.4%); every answer has a letter. As an English-only setup for now it has no paired test against a Turkish run.
+- English "I don't know" (its row on the Turkish vs English page): run 1070, 441 right, 14 "I don't know" and 92 wrong (non-hallucination 13.2%, answered 97.4%); no invalid answer.
+- Its card does not list Turkish; its Turkish runs come in the Turkish phase, until then the In progress table shows them Queued.
+- No other number changed and no significance verdict moved.
+
 ## Results 703b813f (12 November 2026)
 
 - Added Gemini 4 Carbon (Google's closed chat model, `gemini-4-carbon`), on its English side first (Ümit via Zeki #5133, #5452; English first, Zeki #5213): through Can's Google Antigravity subscription by its agbench bridge, $0 billed, thinking high, 16 questions per request, one request at a time, tools denied; every reply names `gemini-4-carbon`. The bridge applies no response format (its first smoke, run 1053, answered all 20 questions in a list the frozen reader cannot read), so the prompt adds the paragraph stating the answer layout, as for the other endpoints without structured outputs (smoke 1054: 20 of 20). Its cost is the same tokens at Google's Gemini API list price for the model (regular price from 1 December 2026, $4.00 input and $20.00 output per 1M tokens; introductory $2.00 and $10.00 until then): $20.82 for the English run.
@@ -9,6 +17,7 @@ What changed in each results version that went live (`results_version` in `resul
 - English "I don't know" (its row on the Turkish vs English page): run 1067, 531 right, 4 "I don't know" and 12 wrong (non-hallucination 25.0%, answered 99.3%); no invalid answer. A session interruption stopped the run at 32 of 547 on 12 November at 19:30 UTC; it resumed at 19:32 from question 33 with the same settings, and the one request in flight at the stop was asked again.
 - Its card names no language; its Turkish runs come in the Turkish phase, until then the In progress table shows them Queued.
 - Gemini 4 Hydrogen (Ümit via Zeki #5663) is queued for the same route; its name, access line, size record (undisclosed) and Gemini API list price ($1.50 input, $7.50 output, $0.075 cached input per 1M tokens, read 12 November 2026) are in place for its runs.
+- Its class: Flagship, from its Gemini API list price ($4.00 input per 1M tokens from 1 December 2026, page_config.json model_classes.prices). The first build of this version showed Undisclosed for 7 minutes, as results.json lists no price for an English-only setup.
 - No other number changed and no significance verdict moved.
 
 ## Results 5a89d9dd (12 November 2026)

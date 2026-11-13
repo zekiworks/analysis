@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "703b813f",
-  "updated": "2026-11-12T21:59:51Z",
+  "results_version": "249321d1",
+  "updated": "2026-11-13T01:42:48Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -366949,6 +366949,86 @@
         }
       },
       {
+        "name": "LFM2.5-24B-A2B",
+        "model": "lfm2.5-24b-a2b",
+        "provider": "vllm-plain",
+        "reasoning": "default",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1069,
+        "runs": [
+          1069
+        ],
+        "dates": [
+          "2026-11-13"
+        ],
+        "parameters": 23971587712,
+        "active_parameters": [
+          2454808192
+        ],
+        "effective_parameters": null,
+        "parameters_scope": "mixture of experts, 4 of 64 experts per token: language model (tied embeddings, text only), counted; the card says 24.0B total, 2.45B active",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, LiquidAI/LFM2.5-24B-A2B@1769516",
+          "https://huggingface.co/LiquidAI/LFM2.5-24B-A2B"
+        ],
+        "parameters_read": "2026-11-12",
+        "group": "chat",
+        "access": "our GPU (logic's server, vLLM v0.30.0 BF16, revision LiquidAI/LFM2.5-24B-A2B@1769516), one question per request, plain answer line ANSWER: X (no answer schema); sampling repetition_penalty 1.05, seed 0, temperature 0.1, top_k 50; output cap 32,768",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 0.9651437999999999,
+            "per_1000": 1.764431078610603,
+            "basis": "maker",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 148384,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 1368178
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Liquid AI's list price for the same model (FP8 at its endpoint)",
+              "source": "https://openrouter.ai/liquid/lfm-2.5-24b-a2b",
+              "date": "2026-11-12",
+              "change": null,
+              "applies_to": "maker",
+              "extra_input_per_request": 0,
+              "per_request": 0.0,
+              "rates": {
+                "input_tokens": 0.05,
+                "cached_input_tokens": 0.05,
+                "cache_write_input_tokens": 0.05,
+                "cache_write_1h_input_tokens": 0.05,
+                "output_tokens": 0.7
+              },
+              "text": "$0.05 input, $0.70 output per 1M tokens"
+            },
+            "upper_bound": false
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 74.16364248399623,
+            "p90_request_seconds": 150.93566313479096,
+            "concurrency": 32,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 452,
+          "wrong": 95,
+          "invalid": 0,
+          "accuracy": 0.8263254113345521
+        }
+      },
+      {
         "name": "MiniCPM5-2B",
         "model": "minicpm5-2b",
         "provider": "vllm-plain",
@@ -372228,6 +372308,40 @@
             "accuracy": 0.6946983546617916,
             "attempt_rate": 0.9524680073126143,
             "non_hallucination": 0.15568862275449102,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "LFM2.5-24B-A2B",
+          "model": "lfm2.5-24b-a2b",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 1069,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1070,
+            "runs": [
+              1070
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 0,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {}
+            },
+            "right": 441,
+            "wrong": 92,
+            "dont_know": 14,
+            "invalid": 0,
+            "accuracy": 0.8062157221206582,
+            "attempt_rate": 0.9744058500914077,
+            "non_hallucination": 0.1320754716981132,
             "mean_dont_know_probability": null
           }
         },
