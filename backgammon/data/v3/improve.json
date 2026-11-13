@@ -501,17 +501,17 @@
    },
    {
     "reason": null,
-    "series_done": 4,
+    "series_done": 5,
     "setup": "Qwen3.8-27B (low)",
-    "status": "running",
-    "updated_at": "2026-11-13T06:33:59+00:00"
+    "status": "done",
+    "updated_at": "2026-11-13T10:21:50+00:00"
    },
    {
-    "reason": "waiting for its turn",
+    "reason": null,
     "series_done": 0,
     "setup": "LFM2.5-24B-A2B (on)",
-    "status": "paused",
-    "updated_at": "2026-11-09T07:41:07+00:00"
+    "status": "running",
+    "updated_at": "2026-11-13T10:26:45+00:00"
    },
    {
     "reason": "waiting for the ChatGPT reset 13 Nov",
@@ -528,7 +528,7 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    }
   ],
-  "updated_at": "2026-11-13T06:34:46+00:00"
+  "updated_at": "2026-11-13T10:27:24+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -5507,20 +5507,20 @@
    },
    {
     "after": {
-     "error_rate": 39.85643908381462,
-     "right_safety": 82.75,
+     "error_rate": 39.619741812348366,
+     "right_safety": 82.6,
      "risks_found": 51.0
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 800,
-     "expected": 800,
+     "answered": 1000,
+     "expected": 1000,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 400,
-     "safety_pays": 400,
-     "tests": 4,
-     "valid": 800
+     "risk_pays": 500,
+     "safety_pays": 500,
+     "tests": 5,
+     "valid": 1000
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -5539,8 +5539,8 @@
      "risks_found": 32.0
     },
     "change": {
-     "error_rate": -7.6008271922667845,
-     "right_safety": -6.916666666666671,
+     "error_rate": -7.83752446373304,
+     "right_safety": -7.066666666666677,
      "risks_found": 19.0
     },
     "cost": {
@@ -5597,13 +5597,13 @@
      }
     ],
     "empty_done": 3,
-    "improved": null,
+    "improved": false,
     "key": "qwen3.8-27b-on",
     "progress": {
      "reason": null,
-     "series_done": 4,
-     "status": "running",
-     "updated_at": "2026-11-13T06:33:59+00:00"
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-13T10:21:50+00:00"
     },
     "range": 5.0,
     "reason": null,
@@ -5883,12 +5883,81 @@
        "wall_seconds": 13154.0
       },
       "wins": 4
+     },
+     {
+      "finished": true,
+      "game_decisions": 240,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Don't rush checkers home; prioritize using your outer checkers to advance further before bringing others in.\n- Scan for hits before committing to safe advances—several missed hits cost you significant equity.\n- In the bearing-off, prefer the most aggressive legal play (e.g., move the innermost checker as far as possible)."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize advancing your farthest checkers over small moves with inner ones; this was your most frequent error across the entire game.\n- Don't hit just because a hit is available; compare it against safe building moves that improve your position without added risk.\n- After making a hit, use your second move to advance outer checkers rather than making a small follow-up move.\n- When advancing in the mid-game, avoid over-extending and creating unnecessary blots on inner points."
+       },
+       {
+        "game": 3,
+        "text": "- When a hit is available, don't default to safe play—evaluate whether the hit is worth taking. I missed three hits in this game.\n- Prefer making strong points over multiple hits; structure and flexibility usually outweigh the temporary advantage of extra hits.\n- When bearing off, check if you can safely advance a higher checker first instead of bearing off exposed checkers that could be hit.\n- When you have back checkers, prioritize bringing them down rather than moving front checkers, to reduce the number of checkers behind your main force."
+       },
+       {
+        "game": 4,
+        "text": "- When choosing between inner and outer points, always prefer making inner board points (5, 6, 7); they're harder to break and more valuable for bearing off.\n- After hitting a blot, advance the blotted checker next turn rather than moving an unrelated one; this consolidates the hit.\n- Avoid taking unnecessary hits when you can safely advance your inner board; needless hits give your opponent tempo.\n- Don't rush to break your prime or anchor in the opening when you can advance inner board checkers instead.\n- When bearing off, focus on advancing your furthest checkers rather than making points or moving closer ones."
+       },
+       {
+        "game": 5,
+        "text": "- When a hit is available, always evaluate it carefully; I missed three hits in this game and paid heavily each time.\n- Prioritize making points (especially in the prime) over advancing individual middle checkers.\n- When you have a pair on a high point (20, 24), use them to build points rather than leaving them idle while working elsewhere.\n- Don't break your prime to bring down a single checker when a stronger point-making move exists."
+       },
+       {
+        "game": 6,
+        "text": "- When you have a back checker, prioritize bringing it forward instead of making small moves with your advanced checkers.\n- Stop missing hits: when your board is strong and a hit is available, take it.\n- In the endgame, don't shuffle front checkers while ignoring your most backward man.\n- Be more selective with risk: you were both too passive (missing hits) and occasionally took needless risks."
+       },
+       {
+        "game": 7,
+        "text": "- In the mid-game, don't default to safe plays; when a prime-building or blott is available and the board supports it, take the risk rather than retreating behind your own checkers.\n- When you must move a checker from a crowded point, prefer moving it to a safe point rather than pulling in a new checker from behind, which needlessly exposes a blot.\n- Avoid stacking checkers on a single point when building a contiguous prime is the more useful use of the dice."
+       },
+       {
+        "game": 8,
+        "text": "- When a hit is available, ask yourself before defaulting to safe moves: can the opponent really recover? Your biggest losses this game all came from being too safe.\n- Your risk calibration is inconsistent: you miss hits you should take while also taking some you shouldn't. When in doubt, count the opponent's actual numbers to hit back rather than relying on gut feeling.\n- After re-entering from the bar, don't settle for the most obvious follow-up—look for the move that creates the strongest secondary threats or blotters for the opponent.\n- In the midgame with checkers spread across the board, prioritize building your prime and hitting over tidy slot-making; efficiency matters more than cleanliness."
+       },
+       {
+        "game": 9,
+        "text": "- Your dominant error pattern was ignoring the 24-point checker: 7 \"missed risk\" errors where you made small inner moves or mid-point hits instead of bringing your outermost checker home. When a checker sits on the 24, prioritize advancing it.\n- Don't get seduced by tempting hits in the midgame while your back checker is still on the 24; pushing it forward is almost always correct.\n- When bearing off, prefer safe moves that don't leave blots, even if it means a slightly longer route.\n- On doubles, recheck all legal moves carefully; a small slip (7/1 vs 12/6) costs real equity."
+       },
+       {
+        "game": 10,
+        "text": "- You are too passive: you missed hits in four separate positions this game. When you have a prime or a blocked opponent, look for the strike before defaulting to safe moves.\n- Don't overcorrect into blind hitting. A premature hit can be worse than staying safe behind a strong prime.\n- In the middle game, bring home-board checkers to the front (e.g., 11/8 8/6) rather than advancing distant checkers one step.\n- With doubles in the bear-off, keep checkers on the highest available points to preserve flexibility."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 38.672952726483345,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 82.0,
+       "risk_pays": 100,
+       "risks_found": 51.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 13671.5
+      },
+      "wins": 5
      }
     ],
-    "series_finished": 4,
+    "series_finished": 5,
     "setup": "Qwen3.8-27B (low)",
-    "state": "running",
-    "status": "running on our GPU, 4 of 5 series",
+    "state": "complete",
+    "status": "No",
     "steps_done": [
      "E1",
      "S1",
@@ -5896,10 +5965,11 @@
      "E2",
      "S3",
      "S4",
-     "E3"
+     "E3",
+     "S5"
     ],
     "threshold": 5.0,
-    "verdict": false
+    "verdict": true
    },
    {
     "after": {
@@ -5930,18 +6000,18 @@
     "improved": null,
     "key": "lfm2.5-24b-a2b-on",
     "progress": {
-     "reason": "waiting for its turn",
+     "reason": null,
      "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-09T07:41:07+00:00"
+     "status": "running",
+     "updated_at": "2026-11-13T10:26:45+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": null,
     "series": [],
     "series_finished": 0,
     "setup": "LFM2.5-24B-A2B (on)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "state": "running",
+    "status": "running on our GPU, 0 of 5 series",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -6041,18 +6111,18 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-13T06:34:46+00:00"
+  "updated_at": "2026-11-13T10:27:24+00:00"
  },
- "source_sha256": "1adf2321fef30d4134cd6bcb44c728d05210fb5efadc718a7f42179f0edf4134",
+ "source_sha256": "a0b04e23702c4f6dfb2486a7d472af9f52c4273d3ed84c25cc9b1ab863fc32ce",
  "status": {
-  "last_update": "2026-11-13T06:34:46+00:00",
-  "line": "10 of 15 models with a verdict · 1 running · 4 paused · 0 incomplete or stopped",
+  "last_update": "2026-11-13T10:27:24+00:00",
+  "line": "11 of 15 models with a verdict · 1 running · 3 paused · 0 incomplete or stopped",
   "models": 15,
-  "paused": 4,
+  "paused": 3,
   "phase": "running",
   "running": 1,
   "stopped": 0,
-  "verdicts": 10
+  "verdicts": 11
  },
  "validation": {
   "accepted": true,
