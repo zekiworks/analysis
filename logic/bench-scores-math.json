@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-13T04:01:01Z",
+ "updated": "2026-11-13T05:04:46Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -231,6 +231,37 @@
    "notes": "hosted API via OpenRouter",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "Qwen/Qwen3.5-4B",
+   "commit": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+   "model_key": "qwen3.5-4b",
+   "name": "Qwen3.5-4B",
+   "display_name": "Qwen3.5-4B",
+   "tag": "on · chat",
+   "class_label": "Open · 4.7B",
+   "base_model": null,
+   "setup_label": "Qwen3.5-4B (chat, thinking, on our GPU)",
+   "maker": "Alibaba",
+   "kind": "chat",
+   "params_total": 4.66,
+   "params_active": 4.66,
+   "quantization": "BF16",
+   "score_0_100": 99.30651872399446,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9944521497919556,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "math:qwen3.5-4b_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 1.1041666666666667,
+   "gpu_cost_usd": 2.749375
   },
   {
    "repo": "google/gemma-4-31B-it",
