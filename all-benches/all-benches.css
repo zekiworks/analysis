@@ -82,21 +82,6 @@ th[aria-sort="ascending"] .ab-sort::after { content: " \2191"; }
     max-width: 2.8rem; box-shadow: none; }
   table.ab-main th.model, table.ab-main td.model { min-width: 9.5rem; max-width: 9.5rem; white-space: normal; }
 }
-/* Grading's table (its own page) fits a desktop's width: no scroll box there, so a row's notes (hover, focus) are never
-   cut at the box's edge. On a phone the notes open in the fixed box at the bottom (v3.css .hint). */
-@media (min-width: 761px) { .table-wrap.ab-grading-wrap { overflow: visible; } }
-/* Under a Grading row's name, its replies without an answer, on a line of its own in the model column; on a phone its
-   size too, in place of the size column, so the score and accuracy sit beside the name (Ümit #6619, #6620). */
-table.ab-main td.model .ab-line { display: block; margin-top: .15rem; color: var(--text-2); }
-table.ab-main td.model .ab-size-line { display: none; margin-top: .15rem; color: var(--text-2); }
-@media (max-width: 640px) {
-  table.ab-main td.model .ab-size-line { display: block; }
-  .ab-grading-wrap th.ab-size, .ab-grading-wrap td.ab-size { display: none; }
-}
-/* Grading's table is as wide as its columns, not the page: the name, size, score, accuracy and calibration error read
-   as one block, with no empty stretch between the name and the numbers (Ümit #6619, #6620); later columns come after
-   them. */
-.ab-grading-wrap table.ab-main { width: auto; min-width: 0; }
 
 /* Head to head, the tables. */
 .ab-h2h th[scope="row"] { font-weight: 600; white-space: nowrap; }

@@ -56,6 +56,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 import build_page as bp
+import zw_ui as ui
 from sitebuild import bench_scores, leaderboard, names
 from sitebuild.english_reading import english_only, setup_families, setup_run
 from sitebuild.site import (ROOT, SUITE_CSS, THEME_SWITCH, Site, asset, billions, esc, family_icon, family_sprite,
@@ -70,6 +71,8 @@ PATH = ""
 METHOD = "method/"
 # The files the two pages use, copied into OUT beside them, so the folder needs nothing from the Reading site.
 ASSETS = (SUITE_CSS, "v3.css", "site.js", "all-benches.css", "all-benches.js")
+# Grading's own page's files (grading_page): the shared kit's in place of All benches' (zw_ui v2.6, Ümit #6674).
+GRADING_ASSETS = (SUITE_CSS, "v3.css", "site.js", "zw-ui.css", "zw-ui.js")
 # The pages' earlier addresses in the Reading site, now redirects to the new ones.
 OLD_PATH = "all-benches/"
 OLD_METHOD = "all-benches/method/"
@@ -906,96 +909,227 @@ def main_table(data: Data) -> str:
                       for model in models if model["setups"]))
 
 
-def model_cell(model: dict[str, Any], setups: bool = True, tag: str | None = None,
-               lines: tuple[tuple[str, str], ...] = ()) -> str:
-    """A table row's model cell: the maker's dot, the family icon, the name opening the model's page, its tag (tag where a
-    bench's own row gives one, as Grading's table does: its thinking setting) and training tag, and (setups) the mark when
-    its benches ran different setups; lines, small lines of their own under them, (class, HTML) each, empty ones left
-    out (Grading: replies without an answer, and its size for a phone's narrow table)."""
+def model_cell(model: dict[str, Any], setups: bool = True) -> str:
+    """A table row's model cell: the maker's dot, the family icon, the name opening the model's page, its tag and
+    training tag, and (setups) the mark when its benches ran different setups."""
     return (f'<td class="model"><i class="lb-dot" style="background:{model["colour"]}" title="{esc(model["maker"] or "no maker")}"></i>'
             f'{icon(model)}<a class="model-name" href="{model_href(model)}">{esc(model["name"])}</a>'
-            f'{names.tag_html(model["tag"] if tag is None else tag)}{training_tag(model)}'
+            f'{names.tag_html(model["tag"])}{training_tag(model)}'
             + (f'<a class="ab-setup-mark" href="#setup-{esc(model["slug"])}" title="{esc(model["setups"])}">setups differ</a>'
-               if setups and model["setups"] else "")
-            + "".join(f'<span class="small {css}">{html}</span>' for css, html in lines if html) + "</td>")
+               if setups and model["setups"] else "") + "</td>")
 
 
-def grading_table(data: Data, models: list[dict[str, Any]]) -> str:
-    """Grading's page's table (grading_page): its models as the main table's rows (the type and class keys filter them,
-    all-benches.js sorts and ranks them): rank, model with its Grading row's tag and replies without an answer, size,
-    score, accuracy (the row's notes on hover, focus and tap, v3.css .hint) and calibration error (ECE, points), as one
-    block beside the name (Ümit #6619, #6620); then, once metrics.json is live (grading_metrics), wrong answers caught
-    (the recalls by label on hover, focus and tap), latency, and the cost per 1,000 pairs as the list price of an API
-    row and the GPU time of a row on our GPUs, two columns never sorted together (grading #6616). Every column after the
-    rank sorts (all-benches.js finds a column's cells by its place among them). On a phone the size moves under the
-    name (all-benches.css), so accuracy comes into view beside the score."""
-    metrics = grading_metrics(data)
-    file = data.by_key[GRADING]["metrics"]
-    ordered = sorted(models, key=lambda model: (-data.score(model, GRADING), plain_name(model).casefold()))
-    decision = [model for model in ordered if model["kind"] == DEFAULT_TYPE]
-    numbers = dict(zip((id(model) for model in decision), ranks([data.score(model, GRADING) for model in decision])))
-    # Every head sorts, so the arrow beside a head is the sort's; which way is better is said once, in the caption, and
-    # a lower-is-better column (data-ab-low) sorts lowest first (all-benches.js).
-    sort = lambda key, label, css="num", low=False: (  # noqa: E731
-        f'<th scope="col" class="{css}" data-ab-col="{key}"{" data-ab-low" if low else ""}'
-        f'{" aria-sort=\"descending\"" if key == GRADING else ""}>'
-        f'<button type="button" class="ab-sort" data-ab-sort="{key}">{esc(label)}</button></th>')
-    pct = lambda share: f"{100 * share:.1f}%"  # noqa: E731
-    head = ('<th scope="col" class="num ab-rank">Rank</th>' + sort("model", "Model", "model") + sort("size", "Size", "num ab-size")
-            + sort(GRADING, "Score") + sort("accuracy", "Accuracy") + sort("calibration", "Calibration error", low=True))
-    if metrics:
-        head += (sort("caught", "Wrong answers caught") + sort("latency", "Latency", low=True)
-                 + sort("price", "List price per 1,000", low=True) + sort("gpu", "GPU time per 1,000", low=True))
-    cell = lambda value, shown: (  # noqa: E731
-        '<td class="num">–</td>' if value is None else f'<td class="num" data-v="{value:.6f}">{shown}</td>')
-    hint = lambda tip, shown: f'<span class="hint" tabindex="0" data-tip="{esc(tip)}">{shown}</span>'  # noqa: E731
-    body = []
-    for model in ordered:
-        row = model["scores"][GRADING]
+# Grading's measures on its own page (GradingBench), in their column order: key, head, its unit line (every head two
+# lines, so they align, Ümit #6712), higher is better, and what the head explains on hover, keyboard focus and tap (the
+# grading agent's words, grading #6690; {other}, {false_alarms}: metrics.json's denominators). Every measure is a column
+# of the one table whichever ranks it (Ümit #6696).
+GRADING_MEASURES = (
+    ("score", "Score", "0–100", True, "(accuracy − 1/3) / (2/3) × 100: 0 = one of the three labels at random on every "
+     "pair, 100 = every pair right; below chance reads below 0."),
+    ("accuracy", "Accuracy", "of 2,069 pairs", True, "Right first answers out of all 2,069 pairs; a reply without a "
+     "usable label counts wrong."),
+    ("calibration", "Calibration", "error, points", False, "Expected calibration error over 10 equal-width bins of the "
+     "chosen label's probability, in points. Only where the run gives option probabilities: it is not a confidence, and "
+     "none is derived for chat models."),
+    ("caught", "Wrong answers", "caught · false alarms", True, "Of the {other} pairs whose summary states a "
+     "conflicting answer, the share labelled so (recall); under it, false alarms: 'conflicting' given on the "
+     "{false_alarms} pairs that state the answer or give none. An invalid reply counts as missed, never as a correct "
+     "rejection."),
+    ("latency", "Latency", "median, p90 under it", False, "Client wall time per request: the median, the 90th "
+     "percentile under it, and how many requests ran at once. Runs at different concurrency are not speeds under the "
+     "same load."),
+    ("price", "List price", "$ per 1,000 pairs", False, "Input tokens billed × the maker's list price, per 1,000 pairs "
+     "(the price, its source and date in the model's box); a list price, not an invoice. Not verified: no list price "
+     "of that model at that date could be checked; never a zero."),
+    ("gpu", "GPU time", "s per 1,000 pairs", False, "Measured wall time of the whole run on one of our GPUs, model load "
+     "excluded, over all the pairs it answered, per 1,000 pairs: a rate, not API dollars."),
+)
+
+
+class GradingBench(ui.Bench):
+    """Grading's page on the shared kit (zw_ui v2.6): the key rows and the ranked table with coloured bars of the
+    Reading, Logic & Math and Backgammon pages (Ümit #6674 via grading #6676); every measure side by side in the one
+    table, the Measure keys choosing only the ranking and the bar (Ümit #6696 via grading #6699), Score by default and
+    the chart in the same order; each head explains itself and never sorts (#6687, #6690: a tap on a sorting head was
+    what reordered the table by calibration error, #6684); a model's name opens its box. Rows: Grading's feed joined to
+    the models (data), each with its metrics.json row (grading_metrics)."""
+    top = None
+    default_view = "table"
+
+    def __init__(self, data: Data, models: list[dict[str, Any]], metrics: dict[str, dict[str, Any]], up: str) -> None:
+        self.data, self.models, self.metrics, self.up = data, models, metrics, up
+        self.file = data.by_key[GRADING]["metrics"]
+        self.classes = dict(data.site.model_classes())
+
+    def title(self) -> str:
+        return "Grading"
+
+    def scope(self, part: str | None) -> str:
+        return (f"{bp.count(GRADING_PAIRS)} pairs of a machine-written English summary, a question and its reference "
+                f"answer · 3 labels · {UNIT}")
+
+    def filter_rows(self) -> list[ui.KeyRow]:
+        used = {model["class"] for model in self.models}
+        return [ui.KeyRow("models", "Models", [ui.Key("all", "All"), ui.Key("chat", "Chat"), ui.Key("decision", "Decision")],
+                          default=DEFAULT_TYPE, any="all"),
+                ui.KeyRow("class", "Class", [ui.Key("all", "All", ""), *(ui.Key(value, label) for value, label in self.classes.items()
+                                                                      if value in used)], default="all", any="all", hide_empty=True)]
+
+    def measure_keys(self) -> ui.KeyRow:
+        return ui.KeyRow(ui.MEASURE, "Measure", [ui.Key(key, label) for key, label, *_ in GRADING_MEASURES], default="score")
+
+    def views(self, part: str | None, measure: str | None) -> tuple[str, ...]:
+        return ("chart", "table")
+
+    def panel_title(self, part: str | None, measure: str | None) -> tuple[str, str]:
+        _, label, _, higher, _ = self.measure(measure)
+        return label, ("higher is better" if higher else "lower is better")
+
+    def measure(self, key: str | None) -> tuple[str, str, str, bool, str]:
+        return next(item for item in GRADING_MEASURES if item[0] == key)
+
+    def column(self, key: str, num: bool = True) -> ui.Column:
+        _, label, sub, higher, tip = self.measure(key)
+        words = tip.format(other=bp.count(self.file["label_pairs"]["other"]),
+                           false_alarms=bp.count(self.file["false_alarm_pairs"]))
+        return ui.Column(label, sub, num=num, tip=esc(words + (" Higher is better." if higher else " Lower is better.")))
+
+    def columns(self, part: str | None, measure: str | None) -> ui.Columns:
+        return ui.Columns("Rank", "Model", self.column(measure, num=False),
+                          tuple(self.column(key) for key, *_ in GRADING_MEASURES if key != measure),  # type: ignore[arg-type]
+                          rank_note="The place by the chosen measure among the models in view, 1, 2, 3; a model "
+                                    "without that measure is listed after them with –.")
+
+    def axis(self, part: str | None, measure: str | None) -> ui.Axis | None:
+        found = [value for value in (self.value(model, measure) for model in self.models) if value]
+        if measure in ("latency", "gpu") and found:
+            unit = "seconds per request" if measure == "latency" else "GPU seconds per 1,000 pairs"
+            return ui.log_axis(min(found) / 2, max(found) * 2, lambda value: f"{value:g}", f"{unit}, log scale")
+        return None
+
+    def value(self, model: dict[str, Any], key: str | None) -> float | None:
+        row, metrics = model["scores"][GRADING], self.metrics[model["scores"][GRADING]["runs"][0]]
         error = row.get("calibration_error")
-        notes = row.get("notes") or ""
-        accuracy = pct(row["raw"]["value"])
-        measured = metrics[row["runs"][0]] if metrics else None
-        unanswered = measured["invalid"] if measured else 0
-        line = f"{bp.count(unanswered)} of {bp.count(GRADING_PAIRS)} replies without an answer" if unanswered else ""
-        size = size_label(data, model)
-        cells = (f'{cell(row["score_0_100"], number(row["score_0_100"]))}'
-                 f'{cell(row["raw"]["value"], hint(notes, accuracy) if notes else accuracy)}'
-                 f'{cell(error, "" if error is None else number(100 * error))}')
-        if measured:
-            pairs = file["label_pairs"]
-            recalls = (f"Recall by label: the reference answer {pct(measured['recall_reference'])} of "
-                       f"{bp.count(pairs['reference'])}, a conflicting one {pct(measured['recall_other'])} of "
-                       f"{bp.count(pairs['other'])}, none {pct(measured['recall_none'])} of {bp.count(pairs['none'])}; "
-                       f"false alarms {pct(measured['false_alarm_rate'])} of {bp.count(file['false_alarm_pairs'])}")
-            median, p90 = measured["latency_s_median"], measured["latency_s_p90"]
-            seconds = lambda value: f"{value:.2f} s" if value < 10 else f"{value:.1f} s"  # noqa: E731
-            price = measured["api_cost_per_1000_usd_list_price"]
-            gpu = measured["gpu_seconds_per_1000"]
-            cells += (cell(measured["wrong_answer_recall"],
-                           f'{hint(recalls, pct(measured["wrong_answer_recall"]))}'
-                           f'<span class="small">{pct(measured["false_alarm_rate"])} false alarms</span>')
-                      + cell(median, f'{seconds(median)}<span class="small">p90 {seconds(p90)} · '
-                                     f'{measured["requests_in_flight"]} at a time</span>')
-                      # An API row (no GPU time) whose list price for that model and date could not be checked has
-                      # none in the file: it reads Not verified, never a dash or a zero (grading #6645, Zeki #6644).
-                      + (f'<td class="num">{status("Not verified", "No list price of this model at the time it ran could be checked against its maker's pages; left out rather than guessed")}</td>'
-                         if price is None and gpu is None else
-                         cell(price, "" if price is None else hint(
-                             f"${measured['price_usd_per_million_input']} per 1M input tokens, {measured['price_source']} "
-                             f"({measured['price_date']}); a list price, not an invoice",
-                             f"${price:.3f}" if price < 1 else f"${price:.2f}")))
-                      + cell(gpu, "" if gpu is None else (f"{gpu:,.0f} s" if gpu >= 10 else f"{gpu:.1f} s")))
-        body.append(f'<tr{filters(model)} data-name="{esc(plain_name(model).casefold())}" '
-                    f'data-size="{"" if model["size"] is None else model["size"]}">'
-                    f'<td class="num ab-rank">{numbers.get(id(model), "")}</td>'
-                    f'{model_cell(model, setups=False, tag=row.get("tag") or None, lines=(("ab-line", line), ("ab-size-line", size)))}'
-                    f'<td class="num ab-size">{size}</td>{cells}</tr>')
-    return (f'<div class="table-wrap ab-main-wrap ab-grading-wrap"><table class="board ab-main"><caption class="ab-caption">'
-            f'{bp.count(GRADING_PAIRS)} pairs · {UNIT} · higher is better {UP}, '
-            f'{"lower for calibration error, latency and cost" if metrics else "lower for calibration error"} {DOWN} · '
-            f'notes on a row\'s accuracy{" and wrong answers caught" if metrics else ""}</caption>'
-            f'<thead><tr>{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>')
+        return {"score": row["score_0_100"], "accuracy": row["raw"]["value"],
+                "calibration": None if error is None else 100 * error, "caught": metrics["wrong_answer_recall"],
+                "latency": metrics["latency_s_median"], "price": metrics["api_cost_per_1000_usd_list_price"],
+                "gpu": metrics["gpu_seconds_per_1000"]}[key or "score"]
+
+    def missing(self, model: dict[str, Any], key: str | None) -> str:
+        """Why a model has no value for a measure, in a word or two (grading #6645: an unverified price is never a zero)."""
+        metrics = self.metrics[model["scores"][GRADING]["runs"][0]]
+        ours = metrics["gpu_seconds_per_1000"] is not None
+        return {"calibration": "No probabilities", "price": "Our GPU" if ours else "Not verified",
+                "gpu": "API"}.get(key or "", "–")
+
+    def written(self, model: dict[str, Any], key: str) -> tuple[str, tuple[str, ...]] | None:
+        """A measure's value as text and the lines under it (none, or one each: latency's p90, then its requests in
+        flight); None where the model has no value."""
+        value = self.value(model, key)
+        if value is None:
+            return None
+        metrics = self.metrics[model["scores"][GRADING]["runs"][0]]
+        seconds = lambda value: f"{value:.2f} s" if value < 10 else f"{value:.1f} s"  # noqa: E731
+        return {
+            "score": (number(value), ()), "accuracy": (f"{100 * value:.1f}%", ()), "calibration": (number(value), ()),
+            "caught": (f"{100 * value:.1f}%", (f"{100 * metrics['false_alarm_rate']:.1f}%\u00a0false\u00a0alarms",)),
+            "latency": (seconds(value), (f"p90 {seconds(metrics['latency_s_p90'])}", f"{metrics['requests_in_flight']} at a time")),
+            "price": (f"${value:.3f}" if value < 1 else f"${value:.2f}", ()),
+            "gpu": (f"{value:,.0f} s" if value >= 10 else f"{value:.1f} s", ()),
+        }[key]
+
+    def shown(self, model: dict[str, Any], key: str) -> str:
+        """A measure's cell: its value with each of its lines under it, never beside it (zw-stack: a narrow column, Ümit
+        #6712), or why it has none (missing; an unverified price says so on hover)."""
+        written = self.written(model, key)
+        if written is not None:
+            text, lines = written
+            return (f'<span class="zw-stack"><span class="zw-val">{esc(text)}'
+                    + "".join(f'<span class="zw-int">{esc(line)}</span>' for line in lines) + "</span></span>")
+        word = self.missing(model, key)
+        tip = ("No list price of this model at the time it ran could be checked against its maker's pages; left out "
+               "rather than guessed." if word == "Not verified" else "")
+        title = f' title="{esc(tip)}"' if tip else ""
+        # The words wrap in a narrow column (no zw-val: not the numbers' unbroken mono face).
+        return f'<span class="zw-none"{title}>{esc(word)}</span>'
+
+    def share(self, model: dict[str, Any], key: str) -> float:
+        """A value's bar from 0 to 1: scores and shares as they are, the rest against the largest in the table (latency
+        and GPU time on a log scale, ui.log_share)."""
+        value = self.value(model, key)
+        if key == "score":
+            return max(0.0, min(1.0, value / 100))
+        if key in ("accuracy", "caught"):
+            return value
+        found = [found for found in (self.value(other, key) for other in self.models) if found]
+        if key in ("latency", "gpu"):
+            return ui.log_share(value, min(found) / 2, max(found) * 2)
+        return value / max(found)
+
+    def details(self, model: dict[str, Any]) -> list[str]:
+        """The model's box: only public facts from the feed and metrics.json (grading #6690): its name and maker, its
+        size or class, how it ran (the feed's notes: route, runtime, revision, concurrency, thinking), its invalid
+        replies, its option probabilities, its recall by label and the list price behind its cost."""
+        row = model["scores"][GRADING]
+        metrics = self.metrics[row["runs"][0]]
+        pairs = self.file["label_pairs"]
+        pct = lambda share: f"{100 * share:.1f}%"  # noqa: E731
+        price = metrics["api_cost_per_1000_usd_list_price"]
+        lines = [f"<strong>{esc(row.get('display_name') or row['name'])}</strong> · {esc(row.get('maker') or 'maker not given')}",
+                 esc(self.class_text(model) or "Size not disclosed"),
+                 esc(row.get("notes") or ""),
+                 f"Invalid replies: {bp.count(metrics['invalid'])} of {bp.count(GRADING_PAIRS)}, counted wrong",
+                 "Option probabilities: " + ("yes, so its calibration error is measured" if metrics["probabilities"] else
+                                             "none (a chat model's label), so no calibration error and no confidence"),
+                 f"Recall by label: the reference answer {pct(metrics['recall_reference'])} of {bp.count(pairs['reference'])}, "
+                 f"a conflicting one {pct(metrics['recall_other'])} of {bp.count(pairs['other'])}, none "
+                 f"{pct(metrics['recall_none'])} of {bp.count(pairs['none'])}"]
+        if price is not None:
+            lines.append(f"List price ${metrics['price_usd_per_million_input']} per 1M input tokens, "
+                         f'<a href="{esc(metrics["price_source"])}">its source</a> ({esc(metrics["price_date"])})')
+        return lines
+
+    def class_text(self, model: dict[str, Any]) -> str:
+        """The Leaderboard's label: an open model's size ("Open · 2.5B"), else "Closed ·" and its class."""
+        size = re.sub(r"<[^>]+>", "", size_label(self.data, model)).strip()
+        if size:
+            return size
+        label = self.classes.get(model["class"] or "")
+        return f"Closed · {label}" if label else ""
+
+    def rows(self, part: str | None, measure: str | None, setups: str | None) -> list[ui.Row]:
+        key, _, _, higher, _ = self.measure(measure)
+        valued = [model for model in self.models if self.value(model, key) is not None]
+        valued.sort(key=lambda model: ((-1 if higher else 1) * self.value(model, key), plain_name(model).casefold()))
+        rest = sorted((model for model in self.models if self.value(model, key) is None),
+                      key=lambda model: (-self.value(model, "score"), plain_name(model).casefold()))
+        out = []
+        for model in valued + rest:
+            row = model["scores"][GRADING]
+            has = self.value(model, key) is not None
+            invalid = self.metrics[row["runs"][0]]["invalid"]
+            # A chat row's replies without an answer, as a flag beside its name (the box says they count wrong).
+            flag = f"{bp.count(invalid)} invalid" if invalid else ""
+            written = self.written(model, key)
+            out.append(ui.Row(
+                model=ui.Model(name=model["name"], colour=model["colour"], dot_title=model["maker"] or "",
+                               class_label=self.class_text(model), href=self.up + model_href(model),
+                               tag=row.get("tag") or model["tag"], icon=icon(model), flag=flag),
+                measure=(ui.bar(self.share(model, key), colour=model["colour"], text=written[0], interval=" · ".join(written[1]))
+                         if written else self.shown(model, key)),
+                helpers=tuple(self.shown(model, other) for other, *_ in GRADING_MEASURES if other != key),  # type: ignore[arg-type]
+                details=self.details(model),
+                filters={"models": model["kind"], "class": model["class"] or ""},
+                untiered=not has,
+                chart=ui.Bar(self.share(model, key), written[0]) if written else None,
+                missing=self.missing(model, key)))
+        return out
+
+    def notes(self, part: str | None, measure: str | None) -> list[str]:
+        bench = self.data.by_key[GRADING]
+        return [f'{bp.count(GRADING_PAIRS)} pairs per model · updated {esc(bp.long_date(bench["bench"]["updated"]))} · '
+                f'<a href="{esc(bench["feed"])}">bench-scores.json</a> · <a href="{esc(bench["metrics_url"])}">metrics.json</a>'
+                f' · <a href="{self.up}{METHOD}#grading">Methodology</a>']
 
 
 def filter_keys(data: Data, models: Any) -> str:
@@ -1465,15 +1599,17 @@ def script_data(data: Data, models: Any = None, view: str | None = None) -> str:
 
 
 def frame(data: Data, path: str, title: str, description: str, body: str, image: str, scripts: tuple[str, ...] = (), *,
-          home: str | None = None, here: str | None = None, name: str = TITLE, footer: str | None = None) -> str:
+          home: str | None = None, here: str | None = None, name: str = TITLE, footer: str | None = None,
+          styles: tuple[str, ...] = ("all-benches.css",), kit: bool = False) -> str:
     """A whole page of OUT at path ("" or "method/"), for its address under /analysis/all-benches/: the head with its
     title and the brand (BRAND, as the Reading site's pages), its canonical address, its link preview (image: the
     preview's path in OUT, share_images; the same tags as the Reading site's pages, Site.page), the theme line of the
     Reading site's pages and the folder's own copies of the files (ASSETS, versioned as site.asset does), then the one
     sticky header: the suite strip with All benches marked (suite_bar), and the page's own title row, its name linking
     the page and the Dark / Light switch (site.js), without the Reading site's tabs; the family icons; the body; a
-    footer. Another folder's page (Grading's) gives its own address (home), its suite strip mark (here), its name and its
-    footer's contents."""
+    footer. Another folder's page (Grading's) gives its own address (home), its suite strip mark (here), its name, its
+    footer's contents, its stylesheets after v3.css (styles) and, for a page of the shared kit (kit), the kit's class
+    set before the first paint (zw_ui.page's), so nothing moves on load."""
     root = rel(path, "")
     config = data.site.config["all_benches"]
     home = home or config["url"]
@@ -1495,10 +1631,10 @@ def frame(data: Data, path: str, title: str, description: str, body: str, image:
   <title>{esc(named)}</title>
   <link rel="canonical" href="{esc(home + path)}">
   <meta name="description" content="{esc(description)}">{preview}
-  <script>document.documentElement.classList.add("js"); document.documentElement.dataset.theme = "dark"; try {{ if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; }} catch (e) {{}}</script>
+  <script>document.documentElement.classList.add("js"{', "zw-js"' if kit else ""}); document.documentElement.dataset.theme = "dark"; try {{ if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; }} catch (e) {{}}</script>
   <link rel="stylesheet" href="{root}{asset(SUITE_CSS)}">
-  <link rel="stylesheet" href="{root}{asset("v3.css")}">
-  <link rel="stylesheet" href="{root}{asset("all-benches.css")}">
+  <link rel="stylesheet" href="{root}{asset("v3.css")}">{"".join(f'''
+  <link rel="stylesheet" href="{root}{asset(style)}">''' for style in styles)}
   <script src="{root}{asset("site.js")}" defer></script>{extra}
 </head>
 <body class="v3">
@@ -1521,27 +1657,23 @@ def frame(data: Data, path: str, title: str, description: str, body: str, image:
 
 
 def grading_page(data: Data, image: str) -> str | None:
-    """Grading's own page (Ümit #6420, Zeki #6424), at /analysis/grading/ beside its file, its tab in the suite strip, in
-    All benches' format: the type and class keys over its ranking and its table (all-benches.js), no paragraphs (Ümit
-    #6402, #6440), one line with its count, its date and its file; a model's name opens its All benches page, the
-    footer's Methodology All benches' Grading section. None until Grading's file is live."""
-    if grading_rows(data) is None:
+    """Grading's own page (Ümit #6420, Zeki #6424), at /analysis/grading/ beside its files, its tab in the suite strip,
+    on the shared kit (GradingBench, zw_ui v2.6) in the look of the Reading, Logic & Math and Backgammon pages (Ümit
+    #6674): its key rows, its ranked table with every measure and a line under it with its count, date and files, no
+    paragraphs; a model's name opens its box, its page on All benches from the box; the footer's Methodology All benches'
+    Grading section. None until Grading's files are live (bench-scores.json and metrics.json)."""
+    metrics = grading_metrics(data)
+    if metrics is None:
         return None
     home = urllib.parse.urljoin(data.site.config["all_benches"]["url"], GRADING_HOME)
     up = posixpath.relpath(suite_path(data.site), GRADING_HOME) + "/"
-    bench = data.by_key[GRADING]
     models = [model for model in data.models.values() if GRADING in model["scores"]]
-    line = (f'<p class="note">{bp.count(GRADING_PAIRS)} pairs per model · updated {esc(bp.long_date(bench["bench"]["updated"]))} '
-            f'· <a href="{esc(bench["feed"])}">bench-scores.json</a></p>')
-    body = (script_data(data, models, GRADING) + '<h1 class="visually-hidden" id="top">Grading</h1>'
-            f'<section class="card" id="ranking" data-ab-main>{filter_keys(data, models)}'
-            f'<div class="ab-view" data-view="{GRADING}">{bars(data, GRADING)}</div>{grading_table(data, models)}{line}</section>')
+    body = '<h1 class="visually-hidden" id="top">Grading</h1>' + ui.results(GradingBench(data, models, metrics, up))
     footer = (f'<nav class="footer-links" aria-label="Site"><a href="./">Grading</a> · <a href="{up}{METHOD}#grading">'
               f'Methodology</a> · <a href="{up}">{TITLE}</a></nav>')
-    html = frame(data, "", "Grading", f"Grading: does the text give this answer? Each model's score from 0 (chance) to 100 "
+    return frame(data, "", "Grading", f"Grading: does the text give this answer? Each model's score from 0 (chance) to 100 "
                  f"(perfect) on {GRADING_PAIRS:,} pairs.", body, image, home=home, here=GRADING_HOME, name="Grading",
-                 footer=footer, scripts=("all-benches.js",))
-    return html.replace('href="?model=', f'href="{up}?model=')
+                 footer=footer, scripts=("zw-ui.js",), styles=("zw-ui.css",), kit=True)
 
 
 def suite_path(site: Site) -> str:
@@ -1721,5 +1853,5 @@ def build(site: Site) -> dict[str, str]:
     return {OUT + PATH: page(data, image), OUT + METHOD: method_page(data, image), OUT + SNAPSHOT_COPY: data.snapshot,
             SNAPSHOT: data.snapshot, **{OUT + name: (ROOT / name).read_text(encoding="utf-8") for name in ASSETS},
             OLD_PATH: redirect(site, OLD_PATH, PATH), OLD_METHOD: redirect(site, OLD_METHOD, METHOD),
-            **({GRADING_OUT: grading, **{GRADING_OUT + name: (ROOT / name).read_text(encoding="utf-8") for name in ASSETS}}
+            **({GRADING_OUT: grading, **{GRADING_OUT + name: (ROOT / name).read_text(encoding="utf-8") for name in GRADING_ASSETS}}
                if grading else {})}

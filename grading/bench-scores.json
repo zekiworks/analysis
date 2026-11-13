@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Grading · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-13T17:53:40Z",
+ "updated": "2026-11-13T18:46:33Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -33,34 +33,6 @@
     "grading:site-fastino-glide-v1"
    ],
    "notes": "Fastino decisions API (api.fastino.ai, model fastino/GLiDE); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
-   "gpu_hours": null,
-   "gpu_cost_usd": null
-  },
-  {
-   "name": "SubQ Snap Preview",
-   "display_name": "SubQ Snap Preview",
-   "tag": "",
-   "model_key": "subq-snap-preview",
-   "maker": "Subquadratic",
-   "kind": "decision",
-   "repo": null,
-   "commit": null,
-   "params_total": null,
-   "params_active": null,
-   "quantization": null,
-   "score_0_100": 84.92025132914449,
-   "raw": {
-    "metric": "accuracy",
-    "value": 0.8994683421942967,
-    "questions": 2069,
-    "options": 3
-   },
-   "calibration_error": 0.02284575354194461,
-   "improvement_points": null,
-   "runs": [
-    "grading:site-subq-snap-preview-v1"
-   ],
-   "notes": "SubQ decisions API (api.subq.ai, model subq-snap-preview); its probabilities were byte-identical to SubQ Snap 1.1's on all 2,069 pairs; one question per request, 8 requests at a time (latency not comparable across different concurrency)",
    "gpu_hours": null,
    "gpu_cost_usd": null
   },

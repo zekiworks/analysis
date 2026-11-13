@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-13T18:33:41Z",
+    "updated": "2026-11-13T19:01:31Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -523,7 +523,7 @@
        "logic:minicpm5-2b_en",
        "logic:minicpm5-2b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: MiniCPM5-2B (off · chat)",
       "gpu_hours": 1.5375,
       "gpu_cost_usd": 3.8283750000000003
      },
@@ -2417,7 +2417,7 @@
      }
     ]
    },
-   "sha256": "de377c4739c4da9fc5b2bbbc50e353e326359ba1268cb8e23ef393cd8681da25"
+   "sha256": "9edfb049a2e2816311930b408095e8b8838c8762687db6dce6d3c6328b275e85"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -2427,7 +2427,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-13T18:33:41Z",
+    "updated": "2026-11-13T19:01:31Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -4833,7 +4833,7 @@
      }
     ]
    },
-   "sha256": "c0b41df1b2e228c3c18e827debc3bc8b051c2caecc25d87475acd19ef9038d8e"
+   "sha256": "22fd08eb6c8ef218180b1d97b8d0cf857134cda64bb9451471c79d0d7a55c064"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -4843,7 +4843,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-13T18:33:41Z",
+    "updated": "2026-11-13T19:01:31Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -7329,7 +7329,7 @@
      }
     ]
    },
-   "sha256": "204f0914a7825576d3fab8100b87acdef344ec61d6120e69fce9bd532d2b520f"
+   "sha256": "865aeceecbafe4df6815e505c0115ede4507f6427efe8af63f28d2aa63d1c65c"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -8382,7 +8382,7 @@
     "bench": "grading",
     "title": "Grading · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-13T17:53:40Z",
+    "updated": "2026-11-13T18:46:33Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -8413,34 +8413,6 @@
        "grading:site-fastino-glide-v1"
       ],
       "notes": "Fastino decisions API (api.fastino.ai, model fastino/GLiDE); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
-      "gpu_hours": null,
-      "gpu_cost_usd": null
-     },
-     {
-      "name": "SubQ Snap Preview",
-      "display_name": "SubQ Snap Preview",
-      "tag": "",
-      "model_key": "subq-snap-preview",
-      "maker": "Subquadratic",
-      "kind": "decision",
-      "repo": null,
-      "commit": null,
-      "params_total": null,
-      "params_active": null,
-      "quantization": null,
-      "score_0_100": 84.92025132914449,
-      "raw": {
-       "metric": "accuracy",
-       "value": 0.8994683421942967,
-       "questions": 2069,
-       "options": 3
-      },
-      "calibration_error": 0.02284575354194461,
-      "improvement_points": null,
-      "runs": [
-       "grading:site-subq-snap-preview-v1"
-      ],
-      "notes": "SubQ decisions API (api.subq.ai, model subq-snap-preview); its probabilities were byte-identical to SubQ Snap 1.1's on all 2,069 pairs; one question per request, 8 requests at a time (latency not comparable across different concurrency)",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -8866,7 +8838,7 @@
      }
     ]
    },
-   "sha256": "404eee61b494680f3e297d0f49b42332c55d2390531205c62db79bcac09c3403"
+   "sha256": "961181dfe19ec76a3e92392b7fcea9d00f8ed492c37f51aa3de935f5ea2bf076"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -8874,10 +8846,10 @@
    "seen": "2026-11-13",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-13T18:33:35Z",
+    "updated": "2026-11-13T18:46:39Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "404eee61b494680f3e297d0f49b42332c55d2390531205c62db79bcac09c3403"
+     "sha256": "961181dfe19ec76a3e92392b7fcea9d00f8ed492c37f51aa3de935f5ea2bf076"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -8994,26 +8966,6 @@
       "recall_none": 0.9135,
       "wrong_answer_recall": 0.6869,
       "false_alarm_rate": 0.0172,
-      "invalid": 0,
-      "probabilities": true
-     },
-     {
-      "run": "grading:site-subq-snap-preview-v1",
-      "model_key": "subq-snap-preview",
-      "latency_s_median": 0.393,
-      "latency_s_p90": 0.416,
-      "requests_in_flight": 8,
-      "requests_measured": 2069,
-      "api_cost_per_1000_usd_list_price": null,
-      "price_usd_per_million_input": null,
-      "price_source": null,
-      "price_date": null,
-      "gpu_seconds_per_1000": null,
-      "recall_reference": 0.9193,
-      "recall_other": 0.7812,
-      "recall_none": 0.9248,
-      "wrong_answer_recall": 0.7812,
-      "false_alarm_rate": 0.0414,
       "invalid": 0,
       "probabilities": true
      },
@@ -9239,7 +9191,7 @@
      }
     ]
    },
-   "sha256": "9a52ca5c681d85992dc8c0f0982a753c27057e8b145f71e6ac3526094e211d87"
+   "sha256": "c8084e2aea1c692a7a4a2a094ae26249fbd6d812ed35d2e8ff70a43e4ed022da"
   }
  }
 }

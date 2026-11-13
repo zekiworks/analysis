@@ -136,10 +136,12 @@ const keepModels = (type, classes) => {
   });
 };
 /* Shows each element whose data-models lists the type and hides the others, and marks the type in <html
-   data-models-view>: on load for ?models=, and on the home page for the Leaderboard's type keys as they change. */
+   data-models-view>: on load for ?models=, and on the home page for the Leaderboard's type keys as they change. A block
+   of the shared kit (.zw-block: Grading's page) filters its own rows by the same attribute (zw-ui.js) and is left to it. */
 const showGroup = group => {
   document.documentElement.dataset.modelsView = group;
   document.querySelectorAll('[data-models]').forEach(element => {
+    if (element.closest('.zw-block')) return;
     element.hidden = !element.dataset.models.split(/\s+/).includes(group);
   });
 };

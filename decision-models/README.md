@@ -187,11 +187,18 @@ python3 -m http.server 8000                                # preview at http://1
     files, and on All benches and Grading. Its stylesheet is self-contained (its own `--suite-*` colours, light and dark
     by `data-theme` on `<html>`, else the system setting); our pages always set `data-theme` ("light" or "dark") so it
     matches the page.
-  - **Grading** (`grading_page` in `sitebuild/all_benches.py`): the grading agent's bench on a page of its own at
-    `/analysis/grading/`, Grading marked in the suite strip, in All benches' frame and look: its ranking and its table,
-    no paragraphs (Ümit #6402, #6420), each name opening the model's All benches page, Methodology in the footer (All
-    benches' Grading section). Built into `_suite/grading/` with copies of the stylesheets and `site.js`; publishing
-    copies it beside the bench's `bench-scores.json`, which only the grading agent's file changes (never the build).
+  - **Grading** (`grading_page` and `GradingBench` in `sitebuild/all_benches.py`): the grading agent's bench on a page
+    of its own at `/analysis/grading/`, Grading marked in the suite strip, inside All benches' frame and built on the
+    shared kit (`zw_ui.py`, `zw-ui.css`, `zw-ui.js`, v2.6; Ümit #6674): the Models, Class and Measure key rows and a
+    ranked table with coloured bars as on the Reading, Logic & Math and Backgammon pages, every measure in its columns
+    (Score, Accuracy, Calibration error, Wrong answers caught with false alarms, Latency with p90 and requests in flight,
+    List price and GPU time per 1,000 pairs, never one ranking for both), the Measure keys choosing only the ranking and
+    the bar (Ümit #6696); each head explains itself on hover, focus or tap and never sorts; a name opens the model's box
+    (its public facts from the feed and `metrics.json`, and its All benches page); no paragraphs. Its numbers come from
+    the bench's `bench-scores.json` and the `metrics.json` beside it (one row per run, tied to the feed by its sha256;
+    the build stops otherwise). Built into `_suite/grading/` with copies of the stylesheets, `site.js` and the kit's
+    files; publishing copies it beside the grading agent's two files, which only Zeki-passed versions change
+    (`push_pages.sh` GRADING_FEED and GRADING_METRICS), never the build.
   - **All benches** (`sitebuild/all_benches.py`, `all-benches.css`, `all-benches.js`): every bench of the three sites on one
     page at `/analysis/all-benches/` (and its Methodology, `method/`), outside this site. The build writes it into
     the git-ignored folder `_suite/all-benches/`, self-contained (its pages, `benches.json` and copies of
