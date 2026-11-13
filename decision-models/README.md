@@ -178,14 +178,20 @@ python3 -m http.server 8000                                # preview at http://1
 - **The pages**: built from `results.json`, `answers.json` and `page_config.json`. Each page's head names
   its canonical address on the site.
   - **Suite strip** (`suite-bar.css`, `suite-bar.html`, published with the site as they are; `suite_bar` in
-    `sitebuild/site.py` inlines the snippet with this site's link marked `aria-current="page"`): four links, All
-    benches first (`/analysis/all-benches/`), then the three benchmark sites, English & Turkish Reading
-    (`/analysis/decision-models/`), Logic & Math (`/analysis/logic/`) and Backgammon (`/analysis/backgammon/`), the
-    current one filled; one centred line on a desktop, two centred lines where one no longer fits (a phone), every
-    label whole, never scrolling sideways; the first row of the sticky header on every page, identical on the three
-    sites, which copy both files, and on All benches. Its stylesheet is self-contained (its own `--suite-*` colours,
-    light and dark by `data-theme` on `<html>`, else the system setting); our pages always set `data-theme` ("light" or
-    "dark") so it matches the page.
+    `sitebuild/site.py` inlines the snippet with this site's link marked `aria-current="page"`): six links, All
+    benches first (`/analysis/all-benches/`), then English & Turkish Reading (`/analysis/decision-models/`), Logic &
+    Math (`/analysis/logic/`), Backgammon (`/analysis/backgammon/`), Grading (`/analysis/grading/`) and Toolbench
+    (`/analysis/tool-calling/`; the last two since 13 November, Ümit #6420, Zeki #6424), the current one filled; one
+    centred line on a desktop, further centred lines where one no longer fits (a phone), every label whole, never
+    scrolling sideways; the first row of the sticky header on every page, identical on every site, which copy both
+    files, and on All benches and Grading. Its stylesheet is self-contained (its own `--suite-*` colours, light and dark
+    by `data-theme` on `<html>`, else the system setting); our pages always set `data-theme` ("light" or "dark") so it
+    matches the page.
+  - **Grading** (`grading_page` in `sitebuild/all_benches.py`): the grading agent's bench on a page of its own at
+    `/analysis/grading/`, Grading marked in the suite strip, in All benches' frame and look: its ranking and its table,
+    no paragraphs (Ümit #6402, #6420), each name opening the model's All benches page, Methodology in the footer (All
+    benches' Grading section). Built into `_suite/grading/` with copies of the stylesheets and `site.js`; publishing
+    copies it beside the bench's `bench-scores.json`, which only the grading agent's file changes (never the build).
   - **All benches** (`sitebuild/all_benches.py`, `all-benches.css`, `all-benches.js`): every bench of the three sites on one
     page at `/analysis/all-benches/` (and its Methodology, `method/`), outside this site. The build writes it into
     the git-ignored folder `_suite/all-benches/`, self-contained (its pages, `benches.json` and copies of

@@ -1,13 +1,97 @@
 {
  "bench": "grading",
  "title": "Grading · does the text give this answer?",
- "url": "https://zekiworks.github.io/analysis/all-benches/?view=grading",
- "updated": "2026-11-13T15:27:47Z",
+ "url": "https://zekiworks.github.io/analysis/grading/",
+ "updated": "2026-11-13T17:53:40Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
  },
  "models": [
+  {
+   "name": "GLiDE",
+   "display_name": "GLiDE",
+   "tag": "",
+   "model_key": "fastino-glide",
+   "maker": "Fastino",
+   "kind": "decision",
+   "repo": null,
+   "commit": null,
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 85.06524891251811,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9004349927501208,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.02970154943215885,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-fastino-glide-v1"
+   ],
+   "notes": "Fastino decisions API (api.fastino.ai, model fastino/GLiDE); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "SubQ Snap Preview",
+   "display_name": "SubQ Snap Preview",
+   "tag": "",
+   "model_key": "subq-snap-preview",
+   "maker": "Subquadratic",
+   "kind": "decision",
+   "repo": null,
+   "commit": null,
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 84.92025132914449,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8994683421942967,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.02284575354194461,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-subq-snap-preview-v1"
+   ],
+   "notes": "SubQ decisions API (api.subq.ai, model subq-snap-preview); its probabilities were byte-identical to SubQ Snap 1.1's on all 2,069 pairs; one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "SubQ Snap 1.1",
+   "display_name": "SubQ Snap 1.1",
+   "tag": "",
+   "model_key": "subq-snap-1.1",
+   "maker": "Subquadratic",
+   "kind": "decision",
+   "repo": null,
+   "commit": null,
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 84.92025132914449,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8994683421942967,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.02284575354194461,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-subq-snap-1.1-v1"
+   ],
+   "notes": "SubQ decisions API (api.subq.ai, model subq-snap-1.1); its probabilities were byte-identical to SubQ Snap Preview's on all 2,069 pairs; one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
   {
    "name": "d1-ultra",
    "display_name": "d1-ultra",
@@ -32,8 +116,204 @@
    "runs": [
     "grading:d1-ultra-v1"
    ],
-   "notes": "Liquid AI decisions API (api.liquid.ai), one question per request",
+   "notes": "Liquid AI decisions API (api.liquid.ai); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
    "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Microsoft-Decision-1",
+   "display_name": "Microsoft-Decision-1",
+   "tag": "",
+   "model_key": "microsoft-decision-1",
+   "maker": "Microsoft",
+   "kind": "decision",
+   "repo": null,
+   "commit": null,
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 83.90526824552923,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8927017883035283,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.023815195630622524,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-microsoft-decision-1-v1"
+   ],
+   "notes": "OpenRouter decisions API (openrouter.ai/api, model microsoft/microsoft-decision-1); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Jev 1.14",
+   "display_name": "Jev 1.14",
+   "tag": "",
+   "model_key": "jev-1.14.0",
+   "maker": "TypeSafe",
+   "kind": "decision",
+   "repo": null,
+   "commit": null,
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 83.61527307878202,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8907684871918802,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.027994200096665072,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-jev-1.14.0-v1"
+   ],
+   "notes": "TypeSafe decisions API (api.typesafe.ai, model jev-1.14.0); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Jev 1.13",
+   "display_name": "Jev 1.13",
+   "tag": "",
+   "model_key": "jev-1.13.0",
+   "maker": "TypeSafe",
+   "kind": "decision",
+   "repo": null,
+   "commit": null,
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 82.96278395360076,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8864185596906718,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.018777187046882544,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-jev-1.13.0-v1"
+   ],
+   "notes": "TypeSafe decisions API (api.typesafe.ai, model jev-1.13.0); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "d1.1",
+   "display_name": "d1.1",
+   "tag": "",
+   "model_key": "liquid-d1.1",
+   "maker": "Liquid AI",
+   "kind": "decision",
+   "repo": null,
+   "commit": null,
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 82.52779120347994,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8835186080231996,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.08687460160915417,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-liquid-d1.1-v1"
+   ],
+   "notes": "Liquid AI decisions API (api.liquid.ai/decisions, model d1.1); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "d1",
+   "display_name": "d1",
+   "tag": "",
+   "model_key": "liquid-d1",
+   "maker": "Liquid AI",
+   "kind": "decision",
+   "repo": null,
+   "commit": null,
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 79.19284678588689,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.861285645239246,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.03076448878623012,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-liquid-d1-v1"
+   ],
+   "notes": "Liquid AI decisions API (api.liquid.ai/decisions, model d1); billed 'd1' route, the site's 'd1:free' was withdrawn (HTTP 404, 13 Nov); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "MiniCPM5-2B",
+   "display_name": "MiniCPM5-2B",
+   "tag": "thinking on · chat",
+   "model_key": "minicpm5-2b",
+   "maker": "OpenBMB",
+   "kind": "chat",
+   "repo": "openbmb/MiniCPM5-2B",
+   "commit": "42433e90dad95123ab87729fd7011e7110629556",
+   "params_total": 2.52,
+   "params_active": 2.52,
+   "quantization": "BF16",
+   "score_0_100": 78.25036249395842,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8550024166263895,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-minicpm5-2b-v1"
+   ],
+   "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 3 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
+   "gpu_hours": 0.05490692201258399,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Gemma 4 12B Unified",
+   "display_name": "Gemma 4 12B Unified",
+   "tag": "thinking off · chat",
+   "model_key": "gemma-4-12b",
+   "maker": "Google",
+   "kind": "chat",
+   "repo": "google/gemma-4-12B-it",
+   "commit": "43c9d014b231474fa7212dbb48a762566c2b255d",
+   "params_total": 11.95,
+   "params_active": 11.95,
+   "quantization": "BF16",
+   "score_0_100": 77.38037699371677,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8492025132914451,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-gemma-4-12b-v1"
+   ],
+   "notes": "google/gemma-4-12B-it@43c9d014, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; 0 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run)",
+   "gpu_hours": 0.0853734442797598,
    "gpu_cost_usd": null
   },
   {
@@ -60,8 +340,148 @@
    "runs": [
     "grading:gemini-v1"
    ],
-   "notes": "Google Decisions API (generativelanguage.googleapis.com, model gemini-decision-1), one question per request",
+   "notes": "Google Decisions API (generativelanguage.googleapis.com, model gemini-decision-1); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
    "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "GLiDE 2B",
+   "display_name": "GLiDE 2B",
+   "tag": "",
+   "model_key": "glide-2b",
+   "maker": "Fastino",
+   "kind": "decision",
+   "repo": "fastino/GLiDE-2B",
+   "commit": "00f122c120cdeed82284106cb77d9bab5a50ad16",
+   "params_total": 1.88,
+   "params_active": 1.88,
+   "quantization": "BF16",
+   "score_0_100": 65.63557274045432,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7709038182696955,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.03954780247703763,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-glide-2b-v1"
+   ],
+   "notes": "fastino/GLiDE-2B@00f122c1, GLiDE server (python -m glide.server) in vLLM v0.30.0 image with flash-linear-attention 0.5.2 on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.024994372462938563,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Qwen3.5-4B",
+   "display_name": "Qwen3.5-4B",
+   "tag": "thinking on · chat",
+   "model_key": "qwen3.5-4b",
+   "maker": "Alibaba",
+   "kind": "chat",
+   "repo": "Qwen/Qwen3.5-4B",
+   "commit": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+   "params_total": 4.66,
+   "params_active": 4.66,
+   "quantization": "BF16",
+   "score_0_100": 65.56307394876752,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7704204929917835,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-qwen3.5-4b-v1"
+   ],
+   "notes": "Qwen/Qwen3.5-4B@851bf6e8, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 164 of 2069 replies (8%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
+   "gpu_hours": 0.4371316994510293,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "d1-2B",
+   "display_name": "d1-2B",
+   "tag": "",
+   "model_key": "liquid-d1-2b",
+   "maker": "Liquid AI",
+   "kind": "decision",
+   "repo": "LiquidAI/d1-2B",
+   "commit": "10e7671d44e4b37700020b1eed3f594c5f2af0b4",
+   "params_total": 1.92,
+   "params_active": 1.92,
+   "quantization": "BF16",
+   "score_0_100": 49.613339777670376,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6640889318511358,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.07187269491787361,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-liquid-d1-2b-v1"
+   ],
+   "notes": "LiquidAI/d1-2B@10e7671d, d1_server (Liquid's model code) on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.014600491343951257,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Decider 1",
+   "display_name": "Decider 1",
+   "tag": "",
+   "model_key": "meragpt-decider-1",
+   "maker": "meraGPT",
+   "kind": "decision",
+   "repo": null,
+   "commit": null,
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 43.30594490091833,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6220396326727888,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.059314403093281794,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-meragpt-decider-1-v1"
+   ],
+   "notes": "meraGPT decisions API (meragpt.com, model decider-1); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "LFM3-1.7B",
+   "display_name": "LFM3-1.7B",
+   "tag": "thinking on · chat",
+   "model_key": "lfm3-1.7b",
+   "maker": "Liquid AI",
+   "kind": "chat",
+   "repo": "LiquidAI/LFM3-1.7B",
+   "commit": "0dc4268b561499c648c7ba7c9466bf3d8d01517a",
+   "params_total": 1.73,
+   "params_active": 1.73,
+   "quantization": "BF16",
+   "score_0_100": 26.341227646205894,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5089415176413726,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-lfm3-1.7b-v1"
+   ],
+   "notes": "LiquidAI/LFM3-1.7B@0dc4268b, BF16, cu135-nightly-be47189f37f6162991366ff6b91539f6e9d1f432 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 838 of 2069 replies (41%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
+   "gpu_hours": 0.10640053966956638,
    "gpu_cost_usd": null
   }
  ]

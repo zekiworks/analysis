@@ -1,0 +1,136 @@
+/* All benches (/analysis/all-benches/ and its method/, sitebuild/all_benches.py), on top of v3.css and in its variables,
+   so both themes hold: the ranking's rows, the type, class and score keys, the table under the chart,
+   the pair bars of "Their score against ours", the scatter charts and the model pages. */
+
+:is(.ab-view, .ab-model, .ab-tab-panel, .ab-bar, .card)[hidden] { display: none !important; }
+/* Out of view by the type and class keys (all-benches.js): bars, rows, dots, names, legend entries, tables. */
+.ab-off, .ab-tied[hidden] { display: none !important; }
+
+.ab-keys { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; margin: .4rem 0 .6rem; }
+.ab-keys .group-label { margin-right: .2rem; color: var(--text-2); font-size: .85rem; }
+
+.ab-tag { display: inline-block; margin-left: .3rem; padding: 0 .3rem; color: var(--text-2); border: 1px solid var(--edge);
+  border-radius: 4px; font-size: .7rem; font-weight: 600; line-height: 1.4; white-space: nowrap; vertical-align: .1em; }
+.ab-noicon { display: inline-block; flex: none; width: 12px; height: 12px; margin-right: .3rem; border: 1px solid var(--mark-edge);
+  border-radius: 3px; vertical-align: -1px; }
+
+
+/* The ranking (Ümit #4665): under its title, a row per model, its maker's mark and its name, then its bar in its
+   maker's colour with its score after it, so a long name reads in line with its bar at any width. */
+.ab-chart-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .5rem; margin: .5rem 0 .25rem;
+  font-size: .98rem; }
+.ab-chart-title > .small { font-weight: 400; }
+.ab-groups { color: var(--text); font-size: .78rem; font-weight: 600; }
+.ab-bars { margin: .3rem 0 0; padding: 0; list-style: none; }
+.ab-bar > a { display: grid; grid-template-columns: 16px minmax(0, 17rem) minmax(0, 1fr); align-items: center; gap: .45rem;
+  padding: .1rem .2rem; color: var(--text); text-decoration: none; border-radius: 3px; }
+.ab-bar > a:hover, .ab-bar > a:focus-visible { background: var(--row-hover); }
+.ab-bar-logo { display: flex; justify-content: center; }
+.ab-bar-logo .fam-icon, .ab-bar-logo .ab-noicon { margin: 0; }
+.ab-bar-name { font-size: .8rem; line-height: 1.25; overflow-wrap: anywhere; }
+.ab-bar-name .ab-tag { font-size: .64rem; }
+.ab-ref-word { color: var(--text-2); }
+.ab-bar-track { display: flex; flex-wrap: wrap; align-items: center; min-height: 1rem; }
+.ab-bar-fill { display: block; flex: none; width: calc(var(--h) * .8); height: .8rem; background: var(--c);
+  border: 1px solid var(--mark-edge); border-left: 0; border-radius: 0 3px 3px 0; }
+.ab-ref .ab-bar-fill, .ab-pair-bar.ab-ref { background-image: repeating-linear-gradient(135deg, rgba(255, 255, 255, .55) 0 3px, transparent 3px 6px); }
+.ab-bar-value { display: flex; gap: .3rem; align-items: baseline; margin-left: .35rem; font-family: var(--mono); font-size: .76rem;
+  line-height: 1.2; }
+.ab-tied { color: var(--text-2); font-family: var(--sans); font-size: .68rem; }
+.ab-bar > a:hover .ab-bar-fill, .ab-bar > a:focus-visible .ab-bar-fill { border-color: var(--text); border-width: 2px; border-left: 0; }
+.ab-bar > a:hover .ab-bar-name { text-decoration: underline; }
+.ab-legend { display: flex; flex-wrap: wrap; gap: 0 .7rem; margin: .6rem 0 0; font-size: .74rem; }
+.ab-empty { padding: .75rem 0; }
+@media (max-width: 760px) {
+  .ab-bar > a { grid-template-columns: 16px minmax(0, 9rem) minmax(0, 1fr); gap: .35rem; }
+}
+
+/* The table under the chart (Ümit #4239): every model in view side by side, each head a sort key; the model column
+   stays in view while the table scrolls sideways inside its box. */
+.ab-main-wrap { margin-top: 1rem; }
+table.ab-main { min-width: 100%; }
+table.ab-main thead th { min-width: 0; white-space: normal; vertical-align: bottom; }
+table.ab-main th, table.ab-main td { padding-left: .45rem; padding-right: .45rem; }
+table.ab-main thead th.num { width: 4.6rem; }
+/* Combined: its groups' label in its head, each row's three group scores under its value (Ümit #4665). */
+table.ab-main thead th.ab-combined { width: 6.4rem; }
+.ab-parts { display: block; margin-top: .1rem; color: var(--text-2); font-size: .68rem; line-height: 1.3; white-space: normal; }
+table.ab-results td.num .ab-parts { white-space: normal; }
+.ab-parts > span { display: inline-block; margin-left: .3rem; white-space: nowrap; }
+.ab-parts abbr { text-decoration: none; cursor: help; }
+/* A cell without a score: its status in one piece (Not run, Not applicable), the reason on hover and focus. */
+td > .nm.hint { white-space: nowrap; }
+/* Wide enough for its head "Rank" in one piece (it was clipped at 2.4rem, Zeki #6436). */
+table.ab-main th.ab-rank, table.ab-main td.ab-rank { width: 3.1rem; min-width: 3.1rem; max-width: 3.1rem; white-space: nowrap;
+  color: var(--text-2); }
+table.ab-main th.model, table.ab-main td.model { position: sticky; left: 0; z-index: 2; min-width: 11rem; background: var(--panel);
+  box-shadow: 1px 0 0 var(--edge); }
+table.ab-main thead th.model { z-index: 3; }
+table.ab-main tbody tr:hover > td.model { background: var(--row-hover); }
+table.ab-main td.model .fam-icon, table.ab-main td.model .ab-noicon { margin-right: .3rem; }
+.ab-setup-mark { margin-left: .35rem; color: var(--text-2); font-size: .72rem; white-space: nowrap; }
+.ab-setup-note { margin: .3rem 0 0; }
+.ab-sort { padding: 0; color: inherit; background: none; border: 0; font: inherit; font-weight: 600; cursor: pointer;
+  text-decoration: underline dotted; text-underline-offset: 3px; }
+th[aria-sort] .ab-sort::after { content: " \2193"; }
+th[aria-sort="ascending"] .ab-sort::after { content: " \2191"; }
+.ab-sort:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; border-radius: 2px; }
+@media (max-width: 640px) {
+  /* v3.css makes a board's first column sticky on a phone; here the rank stays narrow, wide enough for its head "Rank"
+     (Zeki #6436), and the model column sticks. */
+  table.board.ab-main th:first-child, table.board.ab-main td:first-child { position: static; width: 2.8rem; min-width: 2.8rem;
+    max-width: 2.8rem; box-shadow: none; }
+  table.ab-main th.model, table.ab-main td.model { min-width: 9.5rem; max-width: 9.5rem; white-space: normal; }
+}
+/* Grading's table (its own page) fits a desktop's width: no scroll box there, so a row's notes (hover, focus) are never
+   cut at the box's edge. On a phone the notes open in the fixed box at the bottom (v3.css .hint). */
+@media (min-width: 761px) { .table-wrap.ab-grading-wrap { overflow: visible; } }
+/* Under a Grading row's name, its replies without an answer, on a line of its own in the model column. */
+table.ab-main td.model .ab-line { display: block; margin-top: .15rem; color: var(--text-2); }
+
+/* Head to head, the tables. */
+.ab-h2h th[scope="row"] { font-weight: 600; white-space: nowrap; }
+table.ab-results td.num .small, table.ab-bench-table td.num .small { white-space: nowrap; }
+table.ab-results thead th { white-space: normal; min-width: 5.5rem; }
+table.ab-results thead th:first-child { min-width: 12rem; }
+.ab-more { margin: 1rem 0 0; }
+.ab-more summary { cursor: pointer; font-weight: 600; }
+
+/* Their score against ours: two bars per model, theirs hatched grey, ours in the maker's colour. */
+td.ab-pair { min-width: 9rem; white-space: nowrap; }
+.ab-pair-bar { display: inline-block; width: calc(var(--h) * .72); height: .75rem; margin-right: .35rem; vertical-align: -1px;
+  border: 1px solid var(--mark-edge); border-radius: 0 3px 3px 0; }
+.ab-theirs { background: repeating-linear-gradient(135deg, var(--data-grey) 0 2px, var(--panel) 2px 4px); }
+.ab-ours { background-color: var(--c); }
+.ab-pair-value { font-family: var(--mono); font-size: .82rem; }
+.ab-ref-row td { color: var(--text-2); }
+
+/* The charts: two to a row where they fit, one on a phone. */
+.ab-charts:not([hidden]) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr)); gap: 1rem; }
+.ab-chart h3 { margin: 0; font-size: .98rem; }
+.ab-scatter { display: block; width: 100%; height: auto; }
+.ab-scatter text { font-family: var(--sans); font-size: 12px; }
+.ab-scatter .grid { stroke: var(--edge); stroke-width: 1; }
+.ab-scatter .axis { stroke: var(--control-edge); stroke-width: 1; }
+.ab-scatter .tick, .ab-scatter .axis-title { fill: var(--text-2); }
+.ab-scatter .ab-dot { stroke: var(--mark-edge); stroke-width: 1; }
+.ab-scatter a:hover .ab-dot, .ab-scatter a:focus-visible .ab-dot { stroke: var(--text); stroke-width: 2.5; }
+.ab-scatter .ab-dot-label { fill: var(--text); font-size: 11px; }
+
+/* One tab per bench. */
+.ab-tabs { margin-bottom: .9rem; }
+.ab-tabs .key[aria-selected="true"] { background: var(--sunk); border-color: var(--text); box-shadow: var(--key-inset); }
+.ab-tab-panel > h3 { margin: .25rem 0 .35rem; font-size: 1.02rem; }
+html:not(.js) .ab-tab-panel + .ab-tab-panel { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--edge); }
+
+/* The Methodology page: its source addresses wrap on a phone. */
+#method a { overflow-wrap: anywhere; }
+
+/* A model's page (?model=). */
+.ab-back { margin: 0 0 .5rem; font-size: .9rem; }
+.ab-model h1 { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; }
+.ab-facts { margin: 0 0 1rem; padding-left: 1.1rem; }
+.ab-facts li { margin: .1rem 0; }
+/* A bench row's own notes from its file (how and where it ran, a provisional status), under its runs in a model's
+   section. */
+.ab-model .ab-row-notes { display: block; margin-top: .15rem; color: var(--text-2); }

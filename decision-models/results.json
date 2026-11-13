@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "59ff9046",
-  "updated": "2026-11-13T16:50:35Z",
+  "results_version": "dd1b65b1",
+  "updated": "2026-11-13T17:47:37Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -367633,6 +367633,60 @@
         }
       },
       {
+        "name": "Cerno 9B v1.2",
+        "model": "apertixai/cerno-9b-v1.2",
+        "provider": "cerno",
+        "reasoning": null,
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1085,
+        "runs": [
+          1085
+        ],
+        "dates": [
+          "2026-11-13"
+        ],
+        "parameters": 8953803264,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model with its LM head (text only)",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, apertixai/cerno-9b-v1.2@f02a632",
+          "https://huggingface.co/apertixai/cerno-9b-v1.2"
+        ],
+        "parameters_read": "2026-11-10",
+        "group": "decision",
+        "access": "Cerno server (logic's thin server around the card's CernoEngine, transformers), self-hosted, BF16",
+        "billing": "local",
+        "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+        "note": "Apertix AI's released Cerno 9B v1.2 (apertixai/cerno-9b-v1.2 at f02a632), a full fine-tune of Qwen3.5-9B with block-bidirectional attention. Its card ships no server, only an in-process engine (CernoEngine, transformers, BF16); it ran on our hardware (one DGX Spark), one request at a time, through our thin System One wrapper around that engine, text only. Input tokens are counted only where the engine reports them. Probabilities rounded to 4 decimals by its own code; they sum to 1 only within that rounding.",
+        "cost": {
+          "english": null
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 0.21059803996467963,
+            "p90_request_seconds": 0.2691910933936015,
+            "concurrency": 1,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 470,
+          "wrong": 77,
+          "invalid": 0,
+          "accuracy": 0.8592321755027422
+        },
+        "decision_score": {
+          "score": 88.42486398720293,
+          "accuracy": 0.8592321755027422,
+          "brier": 0.09073489575868372,
+          "n": 547,
+          "run": 1085
+        }
+      },
+      {
         "name": "Celeris-1.1 Decision",
         "model": "celeris-1.1-decision",
         "provider": "celeris",
@@ -373210,6 +373264,31 @@
             "attempt_rate": 0.9890310786106032,
             "non_hallucination": 0.0547945205479452,
             "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "Cerno 9B v1.2",
+          "model": "apertixai/cerno-9b-v1.2",
+          "provider": "cerno",
+          "group": "decision",
+          "text_run": null,
+          "reading_run": 1085,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1087,
+            "runs": [
+              1087
+            ],
+            "invalid_replies": null,
+            "right": 468,
+            "wrong": 77,
+            "dont_know": 2,
+            "invalid": 0,
+            "accuracy": 0.8555758683729433,
+            "attempt_rate": 0.9963436928702011,
+            "non_hallucination": 0.02531645569620253,
+            "mean_dont_know_probability": 0.021555941499085924
           }
         },
         {

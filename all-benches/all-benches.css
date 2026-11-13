@@ -60,7 +60,9 @@ table.ab-results td.num .ab-parts { white-space: normal; }
 .ab-parts abbr { text-decoration: none; cursor: help; }
 /* A cell without a score: its status in one piece (Not run, Not applicable), the reason on hover and focus. */
 td > .nm.hint { white-space: nowrap; }
-table.ab-main th.ab-rank, table.ab-main td.ab-rank { width: 2.4rem; min-width: 2.4rem; max-width: 2.4rem; color: var(--text-2); }
+/* Wide enough for its head "Rank" in one piece (it was clipped at 2.4rem, Zeki #6436). */
+table.ab-main th.ab-rank, table.ab-main td.ab-rank { width: 3.1rem; min-width: 3.1rem; max-width: 3.1rem; white-space: nowrap;
+  color: var(--text-2); }
 table.ab-main th.model, table.ab-main td.model { position: sticky; left: 0; z-index: 2; min-width: 11rem; background: var(--panel);
   box-shadow: 1px 0 0 var(--edge); }
 table.ab-main thead th.model { z-index: 3; }
@@ -74,11 +76,17 @@ th[aria-sort] .ab-sort::after { content: " \2193"; }
 th[aria-sort="ascending"] .ab-sort::after { content: " \2191"; }
 .ab-sort:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; border-radius: 2px; }
 @media (max-width: 640px) {
-  /* v3.css makes a board's first column sticky on a phone; here the # stays narrow and the model column sticks. */
-  table.board.ab-main th:first-child, table.board.ab-main td:first-child { position: static; width: 2rem; min-width: 2rem;
-    max-width: 2rem; box-shadow: none; }
+  /* v3.css makes a board's first column sticky on a phone; here the rank stays narrow, wide enough for its head "Rank"
+     (Zeki #6436), and the model column sticks. */
+  table.board.ab-main th:first-child, table.board.ab-main td:first-child { position: static; width: 2.8rem; min-width: 2.8rem;
+    max-width: 2.8rem; box-shadow: none; }
   table.ab-main th.model, table.ab-main td.model { min-width: 9.5rem; max-width: 9.5rem; white-space: normal; }
 }
+/* Grading's table (its own page) fits a desktop's width: no scroll box there, so a row's notes (hover, focus) are never
+   cut at the box's edge. On a phone the notes open in the fixed box at the bottom (v3.css .hint). */
+@media (min-width: 761px) { .table-wrap.ab-grading-wrap { overflow: visible; } }
+/* Under a Grading row's name, its replies without an answer, on a line of its own in the model column. */
+table.ab-main td.model .ab-line { display: block; margin-top: .15rem; color: var(--text-2); }
 
 /* Head to head, the tables. */
 .ab-h2h th[scope="row"] { font-weight: 600; white-space: nowrap; }
