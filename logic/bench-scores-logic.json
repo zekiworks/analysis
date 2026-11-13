@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-13T16:27:50Z",
+ "updated": "2026-11-13T16:36:14Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1671,6 +1671,37 @@
    "notes": "hosted API via OpenRouter",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "apertixai/cerno-9b-v1.2",
+   "commit": "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda",
+   "model_key": "cerno-9b-v1.2",
+   "name": "Cerno 9B v1.2",
+   "display_name": "Cerno 9B v1.2",
+   "tag": "",
+   "class_label": "Open · 9.0B",
+   "base_model": null,
+   "setup_label": "Cerno 9B v1.2",
+   "maker": "Apertix AI",
+   "kind": "decision",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 29.111111111111104,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.4328888888888889,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": 0.16968382222222225,
+   "improvement_points": null,
+   "runs": [
+    "logic:cerno-9b_en"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10); no complete 'I don't know' run",
+   "gpu_hours": 0.07055555555555555,
+   "gpu_cost_usd": 0.015015479951527539
   },
   {
    "repo": "perplexity-ai/pplx-decider-flash-v1.2",
