@@ -613,10 +613,10 @@
    },
    {
     "reason": null,
-    "series_done": 0,
+    "series_done": 1,
     "setup": "LFM2.5-24B-A2B (on)",
     "status": "running",
-    "updated_at": "2026-11-13T19:38:44+00:00"
+    "updated_at": "2026-11-13T22:37:56+00:00"
    },
    {
     "reason": null,
@@ -640,7 +640,7 @@
     "updated_at": "2026-11-13T20:11:56+00:00"
    }
   ],
-  "updated_at": "2026-11-13T20:11:56+00:00"
+  "updated_at": "2026-11-13T22:37:56+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -6085,11 +6085,21 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 75.94562098383904,
+     "right_safety": 77.0,
+     "risks_found": 18.0
     },
-    "answers_after": null,
+    "answers_after": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "answers_before": {
      "answer_rate": 100.0,
      "answered": 200,
@@ -6107,9 +6117,9 @@
      "risks_found": 35.0
     },
     "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 6.845108941197395,
+     "right_safety": 1.0,
+     "risks_found": -17.0
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -6139,19 +6149,90 @@
     "key": "lfm2.5-24b-a2b-on",
     "progress": {
      "reason": null,
-     "series_done": 0,
+     "series_done": 1,
      "status": "running",
-     "updated_at": "2026-11-13T19:38:44+00:00"
+     "updated_at": "2026-11-13T22:37:56+00:00"
     },
     "range": null,
     "reason": null,
-    "series": [],
-    "series_finished": 0,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 222,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Trust GNUbg's risk-call flags: they mark real mistakes where you overtook or undertook cheap shots; play the safer line.\n- Stop using aggressive shortcuts like 6/1* or 13/8 splits when the equity loss exceeds ~0.1; read the race carefully instead.\n- In your own home board, re-check safety: if the opponent has developed runners near 11/13, avoid leaving weak points.\n- On close contacts, prefer keeping two checkers together rather than splitting - it preserves the double-odd advantage of the safe player.\n- Review double-crossing chances before dropping a checker; confirm the potential gain beats the risk."
+       },
+       {
+        "game": 2,
+        "text": "- In the home board where the clock is against you, bear off immediately instead of shuffling inner pegs.\n- Treat risk calls on gammon points as real decisions, not free insurance; verify the trade-off before playing.\n- Watch for the opponent's late hits; several of the large losses came from leaving blots against a threatening board.\n- Favor the shortest point‑to‑point route in the home board; the wider options saved a small raw amount of equity.\n- Do not force a risky extra move when the safe alternative is equal in value — a missed risk is often costly."
+       },
+       {
+        "game": 3,
+        "text": "- On risk-calling and safety plays, separate genuine money decisions from overaggressive runs; take risks only when the equity gain outweighs the danger.\n- When trailing, avoid forcing high-variance moves; a steady, low-risk approach usually preserves more equity later.\n- Before every double/take choice, re-evaluate whether the move genuinely increases gammon chances or merely speeds up play.\n- Confirm that double/safety points still exist before playing off; misreading positioning is the root of the missed-risk blunders.\n- Compare your choices against the engine in close positions; if the engine consistently disagreed, recalibrate your intuition toward its longer-term equity view."
+       },
+       {
+        "game": 4,
+        "text": "- Verify that a risky shot does not overpay in danger; repeated misjudgments cost 0.4–0.6 equity.\n- Compare your reads to engine evaluations before making a risk-call deviation; several instinctive plays were wrong.\n- Stay safe in the middle race: never leave a blot to blitz when the opponent already has checkers within one point; unsafe exits recurred.\n- When equity changes are negligible (\"no risk trade-off\"), don't second-guess the line — trust the call.\n- The final bearoff decides the match; in tight endgames small inaccuracies erode points."
+       },
+       {
+        "game": 5,
+        "text": "- Before taking a tricky hit on the opponent's crowded board, calculate whether the expected equity really improves; when the trade-off is unfavorable, decline it (no risk trade-off).\n- At a wide scoring advantage, stay defensive and avoid wrong-risk hit sequences that later become expensive mistakes.\n- Your early-game equity losses came from missed risk calls; practice distinguishing genuinely justified risks from traps that feel dangerous.\n- In endgame bearoff shapes, prioritize safety over aggressive checking moves if no concrete bearing-race or double-out opportunity exists.\n- Trust the engine's risk/safety calls on your turn; second-guessing those judgments contributed heavily to your largest equity drops."
+       },
+       {
+        "game": 6,
+        "text": "- In risk-calling moments (e.g., turns 6, 8, 10, 12, 14, 20, 36) I underweighted the payoffs; always compare the net equity of accepting vs. declining before committing, and trust the engine's size call.\n- Many of my worst losses (≥0.8 equities) came from ignoring the engine's best play outright or taking the wrong risk; verify doubles by counting hits and exposed points against your own home board.\n- Do not adopt a blanket \"always double\" habit; small equity deficits (0.05–0.3) indicate doubtful reads, so re-check with the 2-ply evaluator.\n- Endgame safety calls improved results (turns 16, 18, 22, 28) — prioritize them when the opponent's checkers cluster on low-order points.\n- Keep the doubling stakes disciplined: when your own risk trades swing against you, favor conservative positioning until the position is clearly determined."
+       },
+       {
+        "game": 7,
+        "text": "- Only take a wide close-out when the runner's hit chance justifies it; a loose shot often hands the opponent a counter-hit.\n- Verify runner safety ahead of an opponent blocker; a single-runner move saves more equity than it gains.\n- When the engine flags missed or wrong risks, always follow the safer 2-ply line and stop bluffing on edge spots.\n- Play conservatively when the position is behind; simple pip-saving moves beat neat-looking combinations that lose the lead.\n- On each turn, check whether you're offering the opponent a winning trap — if their best reply wins a point, block it."
+       },
+       {
+        "game": 8,
+        "text": "- At the back, prefer safe holding over bold cuts when the opponent can hit deeply — the former preserves equity; bold cuts often cost 0.2+.\n- In close finishes, favor simple wraps and defensive lay-over entries over aggressive double-cutting.\n- If the recovery roll pins your checkers down, opt for the safety move (take the risk call) rather than continuing.\n- Rolls that open the mid-point (3-6, 6-2) warrant keeping checkers inside rather than advancing deep.\n- Every risk call: accept a ball to save the position — the safer play typically recovers half the equity loss."
+       },
+       {
+        "game": 9,
+        "text": "- Relying only on passive bearing off is costly; when a contact or prime opportunity opens, push forward or bring a checker into contact rather than simply retreating.\n- Risk calls in the middle game are decisive: missed or needless risks in contact positions account for most losses, so calculate the subsequent hit options before deciding whether to make or take a contact.\n- Confirm which checkers should move when you make contact — misidentifying the intended mover (swap errors) can reverse a small edge into a large error.\n- In endgame multiple-of-two-dice sequences, a single inaccurate move swings equity; adopt a consistent follow-up pattern guided by the engine's evaluations.\n- Commit to a closed-out target early and verify the contact's safety before dropping contact — late-stage gammons often trace to untested finishing assumptions."
+       },
+       {
+        "game": 10,
+        "text": "- Distinguish right risk from missed or wrong risk: most losses came from misjudged risk value; watch equity swings per move.\n- In late-game and bear-off situations, the 0.400 drop at turn 65 shows a no-trade gamble can be fatal; stay conservatively close.\n- Avoid speculative races or double-backs when a simple hold or safe contact keeps your structure intact.\n- When the engine calls a safety play, trust it; those calls in this game kept equity near zero.\n- Monitor the opponent's blots; many mistakes occurred when we ran into unchecked winner points."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 1,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 75.94562098383904,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 77.0,
+       "risk_pays": 100,
+       "risks_found": 18.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 10751.5
+      },
+      "wins": 1
+     }
+    ],
+    "series_finished": 1,
     "setup": "LFM2.5-24B-A2B (on)",
     "state": "running",
-    "status": "running on our GPU, 0 of 5 series",
+    "status": "running on our GPU, 1 of 5 series",
     "steps_done": [
-     "E1"
+     "E1",
+     "S1"
     ],
     "threshold": null,
     "verdict": false
@@ -6773,11 +6854,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-13T20:11:56+00:00"
+  "updated_at": "2026-11-13T22:37:56+00:00"
  },
- "source_sha256": "94e07484286553f87f34e88ed074739e09a7210d86d06c4848431497ee151500",
+ "source_sha256": "41f63d42300e29e452c2c143c074f8e8857df718510d8d2ef83957d640ed1c1f",
  "status": {
-  "last_update": "2026-11-13T20:11:56+00:00",
+  "last_update": "2026-11-13T22:37:56+00:00",
   "line": "12 of 20 models with a verdict · 1 running · 1 paused · 2 incomplete or stopped",
   "models": 20,
   "paused": 1,
