@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-13T15:37:25Z",
+ "updated": "2026-11-13T16:07:31Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -1637,6 +1637,38 @@
    "notes": "hosted API (the maker's service)",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "startlux-models/StartLux-Decision-v1.1-4B-Instant",
+   "commit": "416088f77cfce09633906a3675c7cd2e5dabcf10",
+   "model_key": "startlux-decision-v1.1-4b",
+   "name": "StartLux-Decision-v1.1-4B-Instant",
+   "display_name": "StartLux-Decision-v1.1-4B-Instant",
+   "tag": "",
+   "class_label": "Open · 4.0B",
+   "base_model": null,
+   "setup_label": "StartLux-Decision v1.1 4B",
+   "maker": "StartLux",
+   "kind": "decision",
+   "params_total": 4.0,
+   "params_active": 4.0,
+   "quantization": "BF16",
+   "score_0_100": 40.541362530413615,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.524330900243309,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.05373157575576887,
+   "improvement_points": null,
+   "runs": [
+    "logic:startlux-4b_en",
+    "math:startlux-4b_en"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10); no complete 'I don't know' run",
+   "gpu_hours": 0.0661111111111111,
+   "gpu_cost_usd": 0.014069622946706906
   },
   {
    "repo": "PelaAI/KnowLine-4B-Gen5.5",
