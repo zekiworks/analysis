@@ -282,12 +282,16 @@ tr.hl-sub[hidden] { display: table-row; }
 .js tr.hl-sub[hidden] { display: none; }
 tr.hl-sub td { background: var(--sunk); }
 tr.hl-sub td.model { padding-left: 1.6rem; }
-table.lb-table .lb-wide { display: none; }
+/* The side columns show at every width (zeki #6751 on Ümit #6706: on a phone too, not only in the model box); below
+   900 px the table scrolls sideways inside its .table-wrap, the page itself does not. */
+table.lb-table .lb-wide { display: table-cell; white-space: nowrap; }
+/* Heads wrap so the added Latency column (Ümit #6706) fits without the table scrolling sideways at 1280 px. */
+table.lb-table thead th.lb-wide { white-space: normal; min-width: 4.5rem; }
 @media (min-width: 900px) {
-  table.lb-table .lb-wide { display: table-cell; white-space: nowrap; }
-  /* Heads wrap so the added Latency column (Ümit #6706) fits without the table scrolling sideways. */
-  table.lb-table thead th.lb-wide { white-space: normal; min-width: 4.5rem; }
   td.lb-score { width: 32%; }
+}
+@media (max-width: 899.98px) {
+  table.lb-table .lb-wide { font-size: .8rem; }
 }
 .more-views-box { margin-top: .6rem; }
 .more-views-box > summary { cursor: pointer; font-weight: 650; }
@@ -306,7 +310,7 @@ table.lb-table .lb-wide { display: none; }
   .lb-keys .key { min-height: 1.7rem; padding: .1rem .45rem; font-size: .76rem; white-space: nowrap; }
   .lb-keys.lb-measures { margin: 0 0 .45rem; }
   table.board.lb-table { table-layout: auto; width: 100%; }
-  table.board.lb-table td.model { min-width: 0; white-space: normal; }
+  table.board.lb-table td.model { min-width: 8.5rem; white-space: normal; }
   table.board.lb-table td.lb-score { width: 38%; min-width: 6.5rem; }
   table.board.lb-table th:first-child, table.board.lb-table td:first-child { width: 1.6rem; min-width: 0; padding-left: .15rem; padding-right: .25rem; }
   .hl-val .small { display: block; margin-left: 0; }
