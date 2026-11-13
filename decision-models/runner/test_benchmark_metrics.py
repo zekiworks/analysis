@@ -140,6 +140,13 @@ class IntervalTests(unittest.TestCase):
                     shared = bool(set(letters[first]) & set(letters[second]))
                     self.assertEqual(shared, (first, second) not in apart, (count, apart, letters))
 
+    def test_tied_groups_name_more_groups_than_the_latin_letters(self) -> None:
+        # Every run told apart from every other: 60 letters, one per run, each a single character, the Latin ones first.
+        letters = bm.tied_groups(60, lambda i, j: True)
+        self.assertEqual(len(set(letters)), 60)
+        self.assertTrue(all(len(letter) == 1 for letter in letters))
+        self.assertEqual((letters[0], letters[51], letters[52]), ("a", "Z", "α"))
+
     def test_bootstrap_counts_ties_as_half(self) -> None:
         scored = [(0.5, index % 2) for index in range(40)]
         result = bm.bootstrap_ranking(scored, range(40), resamples=50)
