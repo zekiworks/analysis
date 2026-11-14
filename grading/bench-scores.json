@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-14T16:08:08Z",
+ "updated": "2026-11-14T17:07:23Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -118,6 +118,34 @@
    ],
    "notes": "turion-ai/turion-jev-31b@866c0fc6, the card's turion_jev.serve on vLLM 0.32.0 (BF16 weights, FP8 at load, text only), on one DGX Spark (ours) as for its published runs, self-hosted; vLLM memory share 0.80 instead of the card's 0.92 (KV cache only); one question per request, 1 request at a time (latency not comparable across different concurrency)",
    "gpu_hours": 0.7637274554815272,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Perplexity Decider 27B v1.3",
+   "display_name": "Perplexity Decider 27B v1.3",
+   "tag": "",
+   "model_key": "perplexity-decider-27b-v1.3",
+   "maker": "Perplexity",
+   "kind": "decision",
+   "repo": "perplexity-ai/pplx-decider-v1.3",
+   "commit": "9c2ebb27470d3dec2ad7ab727727e40d142c7213",
+   "params_total": 27.0,
+   "params_active": 27.0,
+   "quantization": "BF16",
+   "score_0_100": 86.22522957950699,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9081681971967134,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.02761915331616796,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-perplexity-decider-27b-v1.3-v1"
+   ],
+   "notes": "perplexity-ai/pplx-decider-v1.3@9c2ebb27, the runner's pplx_decider_server.py with the checkpoint's own pplx_decider package (as for its published v1.2 runs), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.14082144462229776,
    "gpu_cost_usd": null
   },
   {

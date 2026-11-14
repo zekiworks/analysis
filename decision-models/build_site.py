@@ -123,7 +123,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: KnowLine-31B-Gen1.5 clearly ahead at 81.8%; REAX 1.3, Gemini Decision 1 and Liquid's d1-ultra, tied at 77.9%, 77.5% and 77.1%; GLiDE 27B at 71.1%; then Decider v1.2 with web search, GLiDE v1.2, hosted GLiDE, d3 and d3-ultra, Drex Max and Drex Max v1.1, Mammoth-1, Decider v1.1 and Decider v1.2 on our DGX Spark, at 66.9% to 68.7%."
+SUMMARY_ACCURACY = "Accuracy: KnowLine-31B-Gen1.5 clearly ahead at 81.8%; REAX 1.3, Gemini Decision 1 and Liquid's d1-ultra, tied at 77.9%, 77.5% and 77.1%; GLiDE 27B at 71.1%; then Decider v1.2 with web search, GLiDE v1.2, Decider v1.3, hosted GLiDE, d3 and d3-ultra, Drex Max and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark, at 66.9% to 68.7%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
@@ -928,9 +928,11 @@ def copy_checks(data: Data) -> list[str]:
     check("and accuracy falls 0.16 points (replay)", round(-100 * one["difference"], 2) == 0.16)
     order = sorted((run for run in decision if (run["run"], sonnet16["run"]) in cascades),
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
-    check("SubQ Snap Preview fifteenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 14)
+    check("SubQ Snap Preview sixteenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 15)
+    # Its routing places in front of Opus and Astra, the same at both request sizes (Decider 27B v1.3 joined above it on
+    # 14 November 2026).
     for size in (16, 1):
-        for key, place, word in (("opus", 22, "twenty-second"), ("astra", 20, "twentieth")):
+        for key, place, word in (("opus", 23, "twenty-third"), ("astra", 21, "twenty-first")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
@@ -955,12 +957,12 @@ def copy_checks(data: Data) -> list[str]:
     # The summary under the intro, with the Routing tab's default choices (the cutoff chosen on half the questions,
     # replayed): KnowLine-31B-Gen1.5 leads on accuracy, sharing a letter with no other decision model; then REAX 1.3,
     # Gemini Decision 1 and d1-ultra, sharing a letter with each other and with no other decision model; then GLiDE 27B;
-    # then Decider v1.2 with web search (through its API), GLiDE v1.2, hosted GLiDE, d3 and d3-ultra (tied on right
-    # answers), Drex Max and Drex Max v1.1, Mammoth-1, and Decider v1.1 and Decider v1.2 on our DGX Spark, in that order, at
-    # 66.9% to 68.7%; d1.1 has the smallest calibration gap as shipped; hosted Perplexity Decider 27B v1.2 scores highest
-    # on Better than a flat guess, then Open-Jev-27B-v1.1, then SubQ Snap 1.1 and Decider v1.1 (equal to one decimal);
-    # d1-ultra gives the biggest estimated saving in 7 of the 16 LLM setups, Gemini Decision 1 in 5, REAX 1.3 and GLiDE
-    # 27B in 2 each (every routing LLM at each request size we ran it at).
+    # then Decider v1.2 with web search (through its API), GLiDE v1.2, Decider 27B v1.3 (our GPU), hosted GLiDE, d3 and
+    # d3-ultra (tied on right answers), Drex Max v1 and v1.1, Mammoth-1, and Decider v1.1 and Decider v1.2 on our DGX
+    # Spark, in that order, at 66.9% to 68.7%; d1.1 has the smallest calibration gap as shipped; hosted Perplexity Decider
+    # 27B v1.2 scores highest on Better than a flat guess, then Open-Jev-27B-v1.1, then SubQ Snap 1.1 and Decider v1.1
+    # (equal to one decimal); d1-ultra gives the biggest estimated saving in 7 of the 16 LLM setups, Gemini Decision 1 in
+    # 5, REAX 1.3 and GLiDE 27B in 2 each (every routing LLM at each request size we ran it at).
     ranked = sorted(decision, key=lambda run: -accuracy(run)[0])
 
     def shares(first: dict[str, Any], second: dict[str, Any]) -> bool:
@@ -983,17 +985,18 @@ def copy_checks(data: Data) -> list[str]:
     with_web = data.by_name("pplx-decider-v1.2", "perplexity", "web_grounding")
     hosted = data.by_name("pplx-decider-v1.2", "perplexity", None)
     glide27 = data.by_name("glide-27b")
+    decider13 = data.by_name("pplx-decider-v1.3")
     check("Summary: GLiDE 27B at 71.1%", ranked[4] is glide27 and percent(glide27) == "71.1")
-    check("Summary: then Decider v1.2 with web search (through its API), GLiDE v1.2, hosted GLiDE, d3 and d3-ultra "
-          "(tied on right answers), Drex Max and Drex Max v1.1, Mammoth-1, Decider v1.1 and Decider v1.2 on our DGX Spark, "
-          "in that order",
+    check("Summary: then Decider v1.2 with web search (through its API), GLiDE v1.2, Decider v1.3, hosted GLiDE, d3 and "
+          "d3-ultra (tied on right answers), Drex Max v1 and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark, in "
+          "that order",
           "DGX Spark" in (decider12.get("hardware") or "") and with_web["billing"] == "api" and decider["billing"] == "api"
           and glide["billing"] == "api"
-          and ranked[5] is with_web and ranked[6] is glide12 and ranked[7] is glide
-          and {run["run"] for run in ranked[8:10]} == {d3["run"], d3_ultra["run"]}
-          and accuracy(d3) == accuracy(d3_ultra) and ranked[10] is drex_v1 and ranked[11] is drex_11 and ranked[12] is mammoth
-          and {run["run"] for run in ranked[13:15]} == {decider["run"], decider12["run"]})
-    near = (with_web, glide12, glide, d3, d3_ultra, drex_v1, drex_11, mammoth, decider, decider12)
+          and ranked[5] is with_web and ranked[6] is glide12 and ranked[7] is decider13 and ranked[8] is glide
+          and {run["run"] for run in ranked[9:11]} == {d3["run"], d3_ultra["run"]}
+          and accuracy(d3) == accuracy(d3_ultra) and ranked[11] is drex_v1 and ranked[12] is drex_11 and ranked[13] is mammoth
+          and {run["run"] for run in ranked[14:16]} == {decider["run"], decider12["run"]})
+    near = (with_web, glide12, decider13, glide, d3, d3_ultra, drex_v1, drex_11, mammoth, decider, decider12)
     check("Summary: at 66.9% to 68.7%",
           min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.7")
     calibrated = sorted(decision, key=lambda run: run["confidence"]["ece"])

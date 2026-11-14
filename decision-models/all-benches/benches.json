@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-14T16:48:16Z",
+    "updated": "2026-11-14T17:31:46Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -2609,7 +2609,7 @@
      }
     ]
    },
-   "sha256": "12d7cbb88563436ea4f4daaea60acba3d11b0ff186cbacb63b9a96dd291cbcf2"
+   "sha256": "65399e019715177445e78d4f892a5b672e6b0c0389e856ff89dbaf0d9f9d92cf"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -2619,7 +2619,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-14T16:48:16Z",
+    "updated": "2026-11-14T17:31:46Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -5218,7 +5218,7 @@
      }
     ]
    },
-   "sha256": "db17ee18aef1b971c0c0d5ac2c31fe29bc22f078778516a673da20f67bbb1479"
+   "sha256": "59a5bb350ef911e673a3fd66687ec66a28b5fe7781386cbf252a0695a513d5d6"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -5228,7 +5228,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-14T16:48:16Z",
+    "updated": "2026-11-14T17:31:46Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -5260,9 +5260,11 @@
       "improvement_points": null,
       "runs": [
        "logic:gpt-6-astra-sub_en",
-       "math:gpt-6-astra-sub_en"
+       "math:gpt-6-astra-sub_en",
+       "logic:gpt-6-astra-sub_en_dontknow",
+       "math:gpt-6-astra-sub_en_dontknow"
       ],
-      "notes": "hosted API (the maker's service); no complete 'I don't know' run",
+      "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -7918,7 +7920,7 @@
      }
     ]
    },
-   "sha256": "85991f68d524f94a19f8a9524d099b89e21473e894579788f93790c2c0ee6192"
+   "sha256": "5bccfe64bcc417eb59480642a9d718e04c713fa57ca89db9a08f390429463eaa"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -9308,10 +9310,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-14T16:50Z",
+    "updated": "2026-11-14T17:35Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "7d183f4583c3070cac1cb19073faaa85d32dcb67e383507ee5bba3ea9fbbd996"
+   "sha256": "616a366524c503ef0482ce93bdb4837f53d35bd7e7bf65a1b71f69e89e8b5a5f"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
@@ -9321,7 +9323,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-14T16:08:08Z",
+    "updated": "2026-11-14T17:07:23Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -9437,6 +9439,34 @@
       ],
       "notes": "turion-ai/turion-jev-31b@866c0fc6, the card's turion_jev.serve on vLLM 0.32.0 (BF16 weights, FP8 at load, text only), on one DGX Spark (ours) as for its published runs, self-hosted; vLLM memory share 0.80 instead of the card's 0.92 (KV cache only); one question per request, 1 request at a time (latency not comparable across different concurrency)",
       "gpu_hours": 0.7637274554815272,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "Perplexity Decider 27B v1.3",
+      "display_name": "Perplexity Decider 27B v1.3",
+      "tag": "",
+      "model_key": "perplexity-decider-27b-v1.3",
+      "maker": "Perplexity",
+      "kind": "decision",
+      "repo": "perplexity-ai/pplx-decider-v1.3",
+      "commit": "9c2ebb27470d3dec2ad7ab727727e40d142c7213",
+      "params_total": 27.0,
+      "params_active": 27.0,
+      "quantization": "BF16",
+      "score_0_100": 86.22522957950699,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9081681971967134,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.02761915331616796,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-perplexity-decider-27b-v1.3-v1"
+      ],
+      "notes": "perplexity-ai/pplx-decider-v1.3@9c2ebb27, the runner's pplx_decider_server.py with the checkpoint's own pplx_decider package (as for its published v1.2 runs), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.14082144462229776,
       "gpu_cost_usd": null
      },
      {
@@ -10205,7 +10235,7 @@
      }
     ]
    },
-   "sha256": "10ea334af8926ba695b2f7e3bbc36f5f4b3afc3a3070359066e07e28ff009130"
+   "sha256": "91b966a4365a3055a452c3b10dab481c7048a362b2f7668f8e3b1d6497182a00"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -10213,10 +10243,10 @@
    "seen": "2026-11-14",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-14T16:08:14Z",
+    "updated": "2026-11-14T17:07:30Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "10ea334af8926ba695b2f7e3bbc36f5f4b3afc3a3070359066e07e28ff009130"
+     "sha256": "91b966a4365a3055a452c3b10dab481c7048a362b2f7668f8e3b1d6497182a00"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -10599,6 +10629,26 @@
       "probabilities": true
      },
      {
+      "run": "grading:site-perplexity-decider-27b-v1.3-v1",
+      "model_key": "perplexity-decider-27b-v1.3",
+      "latency_s_median": 0.223,
+      "latency_s_p90": 0.34,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 245.0,
+      "recall_reference": 0.9512,
+      "recall_other": 0.8267,
+      "recall_none": 0.891,
+      "wrong_answer_recall": 0.8267,
+      "false_alarm_rate": 0.0351,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
       "run": "grading:site-perplexity-decider-flash-v1.3-v1",
       "model_key": "perplexity-decider-flash-v1.3",
       "latency_s_median": 0.055,
@@ -10843,7 +10893,7 @@
      }
     ]
    },
-   "sha256": "a34ef052f17182d87ce935818ae027803d5b8ac2d92ddc2312a0a6c7527d7bf2"
+   "sha256": "5858d95758bfcbf9158de8f4723c6f8e9b82023630c8c7951dbb5130f8f5e334"
   }
  }
 }

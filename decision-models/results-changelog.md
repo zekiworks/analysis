@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results a73ce0a2 (14 November 2026)
+
+- Added Perplexity Decider 27B v1.3 (Ümit #7470, #7472, #7482): its released weights, `perplexity-ai/pplx-decider-v1.3` at `9c2ebb2`, on logic's server on one RTX PRO 6000 Blackwell, BF16, through the server and package Decider 27B v1.2 used; local weights only, nothing billed, its cost from GPU time (no list price for v1.3). One question per request; every run passed the probability check. Text run 1134: 1,504 of 2,198 right (68.4%; reading 584 of 656, grammar 920 of 1,542), 42nd of 108 Text tab setups; v1.2 on our hardware had 1,474 (run 217). A repeat (run 1135) changed none of its 2,198 answers, so it keeps one run. English run 1137: 490 of 547 (89.6%; v1.2 on our hardware 485). "I don't know" runs: English 1139, 490 right and 5 "I don't know"; Turkish 1141, 1,482 right and 5 "Bilmiyorum". On the 547 kept questions it got 496 right in Turkish against 490 in English (no significant difference).
+- Its size counts the checkpoint's decision path, 26,086,635,760 parameters as for v1.2; the new locate-span adapter and head (0.47B), used only by its locate task, are not counted. Its card names no language.
+- Experiments, Repeat checks: d1-2B's English Run 2 (Ümit #6410), with its first runs' settings on bariton GPU 2: run 1131 and its "I don't know" run 1132, every one of the 547 answers as in runs 708 and 710.
+
 ## Results 2dbbec2a (14 November 2026)
 
 - Added Perplexity Decider Flash v1.3 (Ümit #7470, #7472, #7482): its released weights, `perplexity-ai/pplx-decider-flash-v1.3` at `d06fb3f`, on logic's server on one RTX PRO 6000 Blackwell, BF16, through the server and package Decider Flash v1.2 used; local weights only, nothing billed, its cost from GPU time (no list price for v1.3). One question per request; every run passed the probability check. Text run 1123: 1,093 of 2,198 right (49.7%; reading 488 of 656, grammar 605 of 1,542), 82nd of 107 Text tab setups; Decider Flash v1.2 had 1,050. A repeat (run 1124) changed none of its 2,198 answers, so it keeps one run. English run 1126: 458 of 547 (83.7%; v1.2 448). "I don't know" runs: English 1128, 450 right and 7 "I don't know"; Turkish 1130, 1,052 right and 75 "Bilmiyorum". On the 547 kept questions it got 431 right in Turkish against 458 in English (not significant after the Holm correction).
