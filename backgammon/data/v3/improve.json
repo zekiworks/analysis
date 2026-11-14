@@ -627,10 +627,10 @@
    },
    {
     "reason": null,
-    "series_done": 2,
+    "series_done": 3,
     "setup": "GPT-6.1 Sol (high)",
     "status": "running",
-    "updated_at": "2026-11-14T19:59:38+00:00"
+    "updated_at": "2026-11-14T20:18:34+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -640,7 +640,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-14T20:04:55+00:00"
+  "updated_at": "2026-11-14T20:20:03+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -6791,20 +6791,20 @@
    },
    {
     "after": {
-     "error_rate": 20.17966978251934,
-     "right_safety": 97.0,
-     "risks_found": 67.0
+     "error_rate": 20.27869515120983,
+     "right_safety": 96.33333333333333,
+     "risks_found": 65.66666666666667
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 400,
-     "expected": 400,
+     "answered": 600,
+     "expected": 600,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 200,
-     "safety_pays": 200,
-     "tests": 2,
-     "valid": 400
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -6823,12 +6823,12 @@
      "risks_found": 59.0
     },
     "change": {
-     "error_rate": -4.094790145754814,
-     "right_safety": 3.0,
-     "risks_found": 8.0
+     "error_rate": -3.9957647770643234,
+     "right_safety": 2.3333333333333286,
+     "risks_found": 6.666666666666671
     },
     "cost": {
-     "api_equivalent_usd": 27.4101,
+     "api_equivalent_usd": 30.1367,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -6870,9 +6870,9 @@
     "key": "gpt-6.1-sol-high",
     "progress": {
      "reason": null,
-     "series_done": 2,
+     "series_done": 3,
      "status": "running",
-     "updated_at": "2026-11-14T19:59:38+00:00"
+     "updated_at": "2026-11-14T20:18:34+00:00"
     },
     "range": null,
     "reason": null,
@@ -7014,17 +7014,87 @@
        "wall_seconds": 1184.5
       },
       "wins": 7
+     },
+     {
+      "finished": true,
+      "game_decisions": 231,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Use the opponent’s time on the bar to advance rear checkers. Don’t waste escape opportunities by stacking anchors or burying checkers in my home board.\n- Treat hitting as a tool, not a goal. Compare its tempo gain with the cost of leaving blots, diverting builders, or delaying escape.\n- Keep rear positions flexible. Redistribute spare checkers and preserve useful escape routes rather than automatically making another anchor.\n- Judge tactical plays concretely: a double hit can outweigh making a strong point, while an unnecessary deep hit can weaken my overall position.\n- When my board has collapsed and gammons threaten, prioritize getting stragglers home. Avoid extra contact unless it meaningfully improves my survival chances."
+       },
+       {
+        "game": 2,
+        "text": "- Look for prime-building plays before automatically securing an advanced anchor. Making a key blocking point can outweigh the safety of keeping both back checkers together.\n- Improve spare-checker distribution rather than simply gathering blots onto stacks. Keep builders available to strengthen the board and preserve flexibility.\n- Avoid burying checkers on the ace-point merely for safety. Keep them active on higher points unless playing deep serves a concrete tactical or timing purpose.\n- When bearing in against a deep anchor, look to clear outside points efficiently while preserving useful home-board structure. Don’t spend rolls rearranging inside checkers unnecessarily.\n- Judge risk by what it buys, not just by how many blots remain. Accept exposure for a stronger prime, better timing, or a valuable hit rather than defaulting to the safest-looking move."
+       },
+       {
+        "game": 3,
+        "text": "- Keep my rear anchor while it supports a strong prime; escaping too early can sacrifice useful contact and timing.\n- Preserve blocking points while bringing builders forward. Avoid breaking the prime merely to make a low home-board point.\n- Spread spares across useful points instead of piling them on the six-point. Better distribution reduces forced gaps and awkward rolls later.\n- During a contact bearoff, compare immediate removals with clearing high points and improving the next roll. Taking the most checkers off is not always best.\n- Accept calculated blot exposure when it preserves structure or improves timing. Compare actual hitting numbers and follow-up positions rather than automatically choosing the safest-looking move."
+       },
+       {
+        "game": 4,
+        "text": "- When the opponent is on the bar, look for additional hits before making quiet developing moves. Keeping several checkers out can outweigh improving my own position.\n- Do not dismiss the ace point as too deep: hitting and covering it can be stronger than building outside when it restricts re-entry.\n- Be willing to hit loose on useful home-board points when the opponent is under pressure. Compare return-shot danger with the cost of surrendering the initiative.\n- Preserve valuable blocking points rather than automatically clearing them or piling checkers onto low points. Judge the resulting structure, not just immediate safety.\n- Before choosing a comfortable play, scan the entire roll for double hits, hit-and-cover combinations, and attacking continuations. A gammon win does not excuse missed opportunities."
+       },
+       {
+        "game": 5,
+        "text": "- Don’t hit automatically. Compare the hit with making a key point, improving builders, or escaping a rear checker; deep hits can sacrifice too much development.\n- When the opponent is on the bar, use the tempo to improve safely. Avoid unnecessary blot exposure or weakening a useful rear anchor.\n- When escaping under contact, consider moving one checker the whole roll rather than splitting two. Preserve anchors and get exposed runners beyond immediate return shots.\n- With doubles, scan the entire roll for hit-and-cover combinations and double hits. Don’t preserve every made point automatically if shifting the board creates a stronger attack.\n- During containment, keep spare checkers mobile and useful. Favor flexible builders and orderly clearance over piling checkers deep or leaving awkward stragglers."
+       },
+       {
+        "game": 6,
+        "text": "- Don’t make a home-board point automatically if it strips useful blocking points. Compare its value with keeping active builders and developing a connected prime.\n- Let a strong home board support aggressive hits. Look for chances to escape a back checker with tempo or attack an exposed checker rather than merely consolidate.\n- With doubles, consider splitting the roll between objectives. Hitting, escaping one runner, and strengthening the board can outperform moving both back checkers together.\n- When the opponent is on the bar against a strong board, don’t overpay for blot-free play. Preserve useful spares and flexible distribution instead of piling checkers onto safe points.\n- During bearoff, compare immediate checker removal with shifting checkers downward. Take checkers off when tactically sound rather than creating unnecessary low-point stacks."
+       },
+       {
+        "game": 7,
+        "text": "- When attacking, compare loose hits with covering automatically. Preserving a high home-board point and useful builders can outweigh making a low point.\n- Develop back checkers early when the tactical cost is small; avoid spending every spare die moving midpoint checkers while both runners remain buried.\n- With a strong board and several opponents on the bar, don’t rush the last runner into hitting range. Improve spare-checker placement while waiting for a safer escape.\n- Take calculated attacking risks when the opponent’s weak board makes retaliation less costly; don’t confuse covering every blot with playing safely.\n- Once the attack has secured a winning position, shift toward controlled conversion: bring checkers home safely, preserve the blockade, and avoid unnecessary bearoff shots."
+       },
+       {
+        "game": 8,
+        "text": "- Avoid speculative home-board slots when safer builder development is available. A valuable point is not worth every immediate hitting risk.\n- Compare a tempting hit with making a strong home-board point. Improving containment can be worth more than putting another checker on the bar.\n- Don’t automatically rescue an exposed runner. Accepting temporary exposure can be justified when the alternative makes a useful blocking point, especially the bar point.\n- Redistribute checkers from crowded points before stripping useful outer-board points. Preserve coverage and flexible builders rather than simply bringing everything closer to home."
+       },
+       {
+        "game": 9,
+        "text": "- Prioritize making the 5-point early; a useful anchor is not automatically worth more than a strong offensive point.\n- Don’t hit just because I can. Compare the hit with developing builders, improving connectivity, and preserving flexible checkers; deep hits can leave my position worse.\n- Improve rear-checker structure when opportunities arise. Reinforce a useful anchor rather than burying checkers, but don’t abandon that anchor without a sound escape plan.\n- Preserve useful outside points when trapped behind a strong board. An unnecessary blot can invite another hit and leave even more checkers stranded.\n- Keep my home board flexible: fill gaps, avoid piling checkers onto the ace-point prematurely, and preserve a workable distribution for containment or eventual bearoff."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize valuable home-board points over adding spares to already-made outer points. A stronger board can justify leaving an outside blot.\n- Bring rear checkers forward when practical instead of stripping nearer points and creating tall stacks. Accept manageable exposure to improve coordination.\n- With small doubles, compare ways to redistribute spares and strengthen key points; moving every rear checker is not automatically best.\n- After hitting, consider continuing the hitter to safety rather than leaving multiple blots. Keep the tempo gain without unnecessary exposure.\n- When hitting during bearoff, preserve closed home-board points where possible. Keeping the opponent on the bar can matter more than concentrating checkers on low points."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 20.476745888590813,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 95.0,
+       "risk_pays": 100,
+       "risks_found": 63.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1135.8
+      },
+      "wins": 8
      }
     ],
-    "series_finished": 2,
+    "series_finished": 3,
     "setup": "GPT-6.1 Sol (high)",
     "state": "running",
-    "status": "running, 2 of 5 series",
+    "status": "running, 3 of 5 series",
     "steps_done": [
      "E1",
      "S1",
      "S2",
-     "E2"
+     "E2",
+     "S3"
     ],
     "threshold": null,
     "verdict": false
@@ -7079,11 +7149,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-14T20:04:55+00:00"
+  "updated_at": "2026-11-14T20:20:03+00:00"
  },
- "source_sha256": "7e36e4a1860522cf2a0702b51c81a12a127f38012b5d176006d07c25856c3804",
+ "source_sha256": "f16a03616131cebbf911ec9d595e31146f378551089ee24bf54ea9453ecb53ed",
  "status": {
-  "last_update": "2026-11-14T20:04:55+00:00",
+  "last_update": "2026-11-14T20:20:03+00:00",
   "line": "12 of 20 models with a verdict · 2 running · 2 paused · 0 incomplete or stopped",
   "models": 20,
   "paused": 2,
