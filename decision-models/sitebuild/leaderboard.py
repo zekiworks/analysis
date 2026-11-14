@@ -26,7 +26,7 @@ import build_page as bp
 from sitebuild import holding_back as hold
 from sitebuild.english_reading import (BASIS_WORDS, english_only, english_second, english_value, entry_href, from_run,
                                        idk_key, paired_line, seed_runs_text, seeds_complete, setup_families, setup_run,
-                                       under_way)
+                                       under_way, under_way_why)
 from sitebuild.names import base_model, tag_html
 from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, NOT_MEASURED_CONFIDENCE, Site, cost_missing, cost_per, cost_value, esc,
                             family_icon, latency_text, measure_keys, parameters_text, pct, plain_line, rel, request_size,
@@ -109,9 +109,9 @@ class Board:
 
     def check_under_way(self) -> None:
         """Stops the build on an entry of page_config.json's dont_know.under_way that does not fit: a model the site does
-        not show, a side other than english or turkish, a state other than queued or running, or a side whose run with
-        the option is in (its Text tab run on the Hallucination tab, its English reading entry in the English
-        comparison): that side then comes off the list."""
+        not show, a side other than english or turkish, a state other than queued, running or held (held only as
+        {"state": "held", "why": …}, with why), or a side whose run with the option is in (its Text tab run on the
+        Hallucination tab, its English reading entry in the English comparison): that side then comes off the list."""
         entries = [*self.english["models"], *english_only(self.english)]
         for model, sides in sorted(self.under_way.items()):
             label = f"page_config.json dont_know.under_way: {model}"
@@ -119,16 +119,24 @@ class Board:
             english = [entry for entry in entries if entry["model"] == model]
             if not texts and not english:
                 raise SystemExit(f"{label} is not on the site")
-            if not set(sides) <= {"english", "turkish"} or not set(sides.values()) <= {"queued", "running"}:
-                raise SystemExit(f"{label}: its sides are english or turkish, each queued or running (found {sides})")
+            held = [side for side, value in sides.items() if isinstance(value, dict)]
+            states = {side: (value.get("state") if isinstance(value, dict) else value) for side, value in sides.items()}
+            if (not set(sides) <= {"english", "turkish"} or not set(states.values()) <= {"queued", "running", "held"}
+                    or any(states[side] != "held" or not sides[side].get("why") for side in held)
+                    or any(state == "held" and side not in held for side, state in states.items())):
+                raise SystemExit(f"{label}: its sides are english or turkish, each queued, running or held with why (found {sides})")
             if "turkish" in sides and any(run["run"] in self.rated for run in texts):
                 raise SystemExit(f"{label}: its Turkish run with the option is in; take turkish off")
             if "english" in sides and any(entry.get("turkish_run", entry["run"]) in self.english_rated for entry in english):
                 raise SystemExit(f"{label}: its English run with the option is in; take english off")
 
     def pending(self, model: str, side: str) -> str | None:
-        """A side's state while its run with the option is not in (dont_know.under_way): queued, running or None."""
+        """A side's state while its run with the option is not in (dont_know.under_way): queued, running, held or None."""
         return under_way(self.site, model, side)
+
+    def pending_why(self, model: str, side: str) -> str | None:
+        """Why a held side's run with the option is not published (dont_know.under_way); None otherwise."""
+        return under_way_why(self.site, model, side)
 
     def key(self, run: dict[str, Any]) -> tuple[str, bool, bool]:
         return self.checkpoints.get(run["model"], run["model"]), self.site.decision(run), run["perplexity_mode"] is not None
@@ -258,10 +266,13 @@ def held_cell(counts: dict[str, Any] | None, digits: int, pending: str | None = 
     return f'{rate}<span class="small lb-ci">answered {pct(counts["attempt_rate"], 0)}</span>'
 
 
-def held_line(option: str, counts: dict[str, Any] | None, digits: int, pending: str | None = None) -> str | None:
+def held_line(option: str, counts: dict[str, Any] | None, digits: int, pending: str | None = None,
+              why: str | None = None) -> str | None:
     """The details box's line on the run with the option: the non-hallucination rate, the share answered and the error
-    rate among the answers together (Ümit #4665), in Logic & Math's words; Queued or Running while that run is not in;
-    none without a run or a rate."""
+    rate among the answers together (Ümit #4665), in Logic & Math's words; Queued, Running or Held (with why) while
+    that run is not in or not published; none without a run or a rate."""
+    if counts is None and pending == "held":
+        return f"Non-hallucination with \u201c{esc(option)}\u201d: Held (its run with the option is in, not published: {esc(why)})"
     if counts is None and pending:
         return (f"Non-hallucination with \u201c{esc(option)}\u201d: {pending.capitalize()} (its run with the option "
                 + ("is under way)" if pending == "running" else "has not started yet)"))
@@ -374,7 +385,7 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
             f"Accuracy {pct(correct / questions)} {interval(correct, questions)}",
             f"Reading {pct(share(run, 'reading'))} · grammar {pct(share(run, 'grammar'))}",
             turkish_line(site, run),
-            held_line(board.option, model, digits, pending),
+            held_line(board.option, model, digits, pending, board.pending_why(run["model"], "turkish")),
             kept_line(sure, kept, questions),
             confidence_line(run),
             " · ".join(filter(None, (cost_text(site, run, value, run.get("cost_basis"), bool(run.get("cost_upper_bound"))),
@@ -444,7 +455,8 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
                   f"English minus Turkish: {100 * model['difference']:+.1f} points"] if both else
                  [accuracy,
                   f"Seeds: {esc(seed_runs)}" if seed_runs else None,
-                  mine(held_line(board.english_option, held, digits, pending), held["run"] if held else None),
+                  mine(held_line(board.english_option, held, digits, pending, board.pending_why(model["model"], "english")),
+                       held["run"] if held else None),
                   mine(" · ".join(filter(None, (cost_text(site, run_of(model), value, cost["basis"] if cost else None,
                                                           bool(cost and cost.get("upper_bound"))),
                                                 f"{bp.count(size)} question{'' if size == 1 else 's'} per request" if size else None))),

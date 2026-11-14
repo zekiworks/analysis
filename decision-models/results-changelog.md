@@ -2,6 +2,13 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results c07004db (14 November 2026)
+
+- Added Gemini 4 Hydrogen's Turkish runs (Ümit via Zeki #5663; Ümit #6854), on the same subscription-bridge lane and settings as its English run (logic #6947): thinking high, 16 questions per request, one request at a time, with the answer-layout paragraph. Text run 1114: 2,156 of 2,198 right (98.1%; reading 638 of 656, grammar 1,518 of 1,542), no invalid answer. That ties Gemini 3.8 Flash for 2nd of 106 Text tab setups, one answer behind Claude Fable 5.2 (2,157), in letter group a with Claude Fable 5.2 and GPT-6 Astra. Its "Bilmiyorum" run (1117): 2,141 right, 8 "Bilmiyorum", 38 wrong and 11 invalid (one reply whose entries could not be read, counted wrong by the rule): non-hallucination 17.4%, answered 99.1%. On the 547 kept reading questions it got 531 right in Turkish and 529 in English (−0.4 points, not significant). Billed through the subscription; at the API's prices its Text run would have cost $10.56.
+- Its English "I don't know" run (1109) is in but not published: one 16-question request came back empty twice during the subscription bridge's outage (01:54 to about 02:45 UTC), and whether it is asked again is Ümit's decision (#7008). Where its English non-hallucination would be, the pages read Held, with that reason: a new state beside Queued and Running.
+- The Methodology's table of why each setup is included lists the subscription bridge's chat models with the other chat models.
+- The all-pairs test now covers 5,565 pairs (up from 5,460); no other setup's letter group changed.
+
 ## Results f1e85cf4 (14 November 2026)
 
 - LFM3-1.7B's English reading (thinking on) is now the mean of three sampling seeds (Ümit via Zeki #6969, #6976; shown as on Logic & Math, #6988, #6989, #6994). Seed 0 is its Run 2 (run 1091, 392 of 547 right). Seeds 1 and 2 are runs 1115 (390) and 1116 (385), asked on logic's server (one RTX PRO 6000 Blackwell, vLLM nightly be47189f, BF16, max-num-seqs 32; logic #7041) with the first run's request settings except the seed, 32 in flight. The mean is 71.1%, with the lowest and highest, 70.4%–71.7%, in place of the 95% interval: a range, not a confidence interval. The three seeds' 1,167 right answers are exactly three times the first run's 389, so its place does not change. The first run (1061) stays the historical paired baseline against its Turkish run (1089), and its English "I don't know" column stays on run 1062; each is named where it is shown.

@@ -1344,14 +1344,24 @@ NO_OPTION = {"vllm-yes-no": "yes/no scoring cannot offer it"}
 
 
 def under_way(site: Site, model: str, side: str) -> str | None:
-    """A side's state while a setup's run with the option is not in: queued or running, by model id and side (english,
-    turkish), as page_config.json's dont_know.under_way gives it (Zeki #4748, #4956); None for a setup not listed. The
+    """A side's state while a setup's run with the option is not in: queued, running, or held (its run is in but not
+    published, a decision pending; with why, under_way_why), by model id and side (english, turkish), as
+    page_config.json's dont_know.under_way gives it (Zeki #4748, #4956; held, #7008); None for a setup not listed. The
     Leaderboard's Board checks the list against the data on every build."""
-    return site.config["dont_know"]["under_way"]["models"].get(model, {}).get(side)
+    entry = site.config["dont_know"]["under_way"]["models"].get(model, {}).get(side)
+    return entry["state"] if isinstance(entry, dict) else entry
 
 
-def pending_label(state: str) -> str:
-    """A missing side's label while its run with the option is queued or running (under_way)."""
+def under_way_why(site: Site, model: str, side: str) -> str | None:
+    """Why a held side's run is not published (dont_know.under_way's why); None for any other side."""
+    entry = site.config["dont_know"]["under_way"]["models"].get(model, {}).get(side)
+    return entry.get("why") if isinstance(entry, dict) else None
+
+
+def pending_label(state: str, why: str | None = None) -> str:
+    """A missing side's label while its run with the option is queued, running or held (under_way)."""
+    if state == "held":
+        return f'<span class="nm">Held</span><span class="small">its run with the option is in, not published: {esc(why)}</span>'
     return (f'<span class="nm">{esc(state.capitalize())}</span><span class="small">its run with the option '
             + ("is under way" if state == "running" else "has not started yet") + "</span>")
 
@@ -1363,7 +1373,7 @@ def missing_side(site: Site, run: dict[str, Any], side: str) -> str:
     setup; else Running (a chat model's run still running)."""
     state = under_way(site, run["model"], side)
     if state:
-        return pending_label(state)
+        return pending_label(state, under_way_why(site, run["model"], side))
     if run["provider"] in NO_OPTION:
         return f'{NOT_RUN}<span class="small">{esc(NO_OPTION[run["provider"]])}</span>'
     return NOT_RUN if site.decision(run) or run["run"] not in site.by_id else RUNNING

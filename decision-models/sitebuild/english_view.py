@@ -36,7 +36,7 @@ from sitebuild.english_reading import (NO_OPTION, NO_RATE, NOT_RUN, PATH as COMP
                                        limit_line, limit_note, measure_card, measure_cell, measure_heads, missing_note,
                                        missing_side, name_html, noun, only_anchor, seed_note, seed_runs_text, seeds_complete,
                                        setup_families, setup_icon, setup_key, setup_run, turkish_paused, turkish_running,
-                                       under_way)
+                                       under_way, under_way_why)
 from sitebuild import holding_back as hold
 from sitebuild.site import (GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, measure_rows, more_link, pct,
                             rel, shown)
@@ -225,10 +225,13 @@ def build(site: Site) -> dict[str, str]:
             no_option = [(label(site, model), NO_OPTION[provider(model)]) for model in mine
                          if setup_key(model) not in held and provider(model) in NO_OPTION]
             waiting = [model for model in mine if setup_key(model) not in held and provider(model) not in NO_OPTION]
-            # A chat model's English run with the option: queued (not started yet) when dont_know.under_way says so,
-            # else still running (Zeki #4956).
+            # A chat model's English run with the option: queued (not started yet) or held (in, not published, with why;
+            # #7008) when dont_know.under_way says so, else still running (Zeki #4956).
             queued = [label(site, model) for model in waiting if under_way(site, model["model"], "english") == "queued"]
-            running_now = [label(site, model) for model in waiting if under_way(site, model["model"], "english") != "queued"]
+            withheld = [(label(site, model), under_way_why(site, model["model"], "english")) for model in waiting
+                        if under_way(site, model["model"], "english") == "held"]
+            running_now = [label(site, model) for model in waiting
+                           if under_way(site, model["model"], "english") not in ("queued", "held")]
             rows = [{"label": site.title(setup_run(site, model)), "tag": site.tag(setup_run(site, model)),
                      "family": family(model)["name"], "href": href(site, model),
                      "class_key": site.model_class(setup_run(site, model)),
@@ -254,7 +257,9 @@ def build(site: Site) -> dict[str, str]:
                          (f" <span>{esc(running_reason.removesuffix('.'))}; still running in English: "
                           f"{esc(', '.join(running_now))}.</span>" if running_now else "")
                          + (f" <span>Queued in English, its run with “{esc(option)}” not started yet: "
-                            f"{esc(', '.join(queued))}.</span>" if queued else ""))
+                            f"{esc(', '.join(queued))}.</span>" if queued else "")
+                         + "".join(f" <span>Held in English, its run with “{esc(option)}” in but not published: "
+                                   f"{esc(name)} ({esc(why)}).</span>" for name, why in withheld))
                       + "".join(f" <span>Not run, as {esc(reason)}: {esc(name)}.</span>" for name, reason in no_option))
             line = (f'<p class="hold-kind">Each of the {len(rated)} {noun(kind, len(rated))}\' first English run with it.</p>'
                     if rated else "")
