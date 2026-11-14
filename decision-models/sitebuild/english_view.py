@@ -307,7 +307,9 @@ def build(site: Site) -> dict[str, str]:
                 (f'{pct(english_value(model), digits)}<span class="small">{esc(second)}</span>'
                  f'<span class="small">{esc(seed_runs)}</span>') if seeds_complete(model) else
                 f'{pct(model["english"]["accuracy"], digits)}<span class="small">{model["english"]["right"]:,} of {total:,} right</span>'
-                + (f'<span class="small">{esc(second)}</span>' if second else ""),
+                + (f'<span class="small">{esc(second)}</span>' if second else "")
+                # Seeds still missing: the entry's note under it too (Zeki #7077); the run's count is already above.
+                + (f'<span class="small">{esc(model["seeds"]["note"])}</span>' if (model.get("seeds") or {}).get("note") else ""),
                 f'{pct(model["turkish"]["accuracy"], digits)}<span class="small">{model["turkish"]["right"]:,} of {total:,} right</span>'
                 if "turkish_run" in model else
                 f'<span class="nm">{paused[model["model"]][0]}</span><span class="small">its Text tab run {esc(paused[model["model"]][1])}</span>'

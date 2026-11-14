@@ -228,12 +228,17 @@ def from_run(model: dict[str, Any], run: int) -> str | None:
 
 
 def seed_runs_text(model: dict[str, Any], total: int) -> str | None:
-    """With all seeds in, each seed's run and right answers, then the entry's note verbatim (Zeki #6998): "seed 0: run
-    1091, 392 of 547 right; …". None otherwise."""
-    if not seeds_complete(model):
+    """Each seed's run and right answers so far, the seeds not in yet named, then the entry's note verbatim (Zeki #6998;
+    with seeds still missing too, #7077): "seed 0: run 1051, 419 of 547 right; seeds 1 and 2 not in yet. …". None for a
+    setup without seeds."""
+    seeds = model.get("seeds")
+    if not seeds:
         return None
-    seeds = model["seeds"]
-    runs = "; ".join(f"seed {item['seed']}: run {item['run']}, {item['right']:,} of {total:,} right" for item in seeds["runs"])
+    runs = "; ".join(f"seed {item['seed']}: run {item['run']}, {item['right']:,} of {total:,} right"
+                     for item in seeds["runs"] if item is not None)
+    missing = [str(seed) for seed, item in enumerate(seeds["runs"]) if item is None]
+    if missing:
+        runs += f"; seed{'s' if len(missing) > 1 else ''} {bp.and_list(missing)} not in yet"
     return runs + (f". {seeds['note']}" if seeds.get("note") else "")
 
 
