@@ -823,11 +823,25 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("d1-server", "LiquidAI/d1-Omni-2B"): 1,
     ("d1-server", "LiquidAI/d1-3B"): 1,
     ("vllm-plain", "minicpm5-2b"): 1,
-    ("vllm-plain", "minicpm5-2b-nothink"): 1,
     ("vllm-plain", "spark-x2.6-4b"): 1,
     ("vllm-plain", "granite-4.2-3b"): 1,
     ("vllm-plain", "granite-4.2-30b"): 1,
 }
+# Setups that differ from another setup of the same served model only in their requests (thinking off or on, the output
+# cap), on the same checkpoint, server image and flags (Ümit #6516, #6924; logic #6770, #6955), by (provider, model):
+# that setup. Each takes its list price or GPU time; its own tokens or request time make its cost. export_results.py
+# keeps the same pairs by model id (SETUP_OF there) for the models' records.
+SETUP_OF: dict[tuple[str, str], tuple[str, str]] = {
+    ("vllm-plain", "minicpm5-2b-nothink"): ("vllm-plain", "minicpm5-2b"),
+    ("vllm-plain", "lfm3-1.7b-vllm-nothink"): ("vllm-plain", "lfm3-1.7b"),
+    ("vllm-plain", "granite-4.2-3b-nothink"): ("vllm-plain", "granite-4.2-3b"),
+    ("vllm-plain", "qwen3.5-4b-nothink"): ("vllm-plain", "qwen3.5-4b"),
+    ("vllm-plain", "gemma-4-e2b-it-think-32k"): ("vllm-plain", "gemma-4-e2b-it"),
+    ("vllm-plain", "gemma-4-e4b-it-think-32k"): ("vllm-plain", "gemma-4-e4b-it"),
+    ("vllm-plain", "gemma-4-12b-it-think-32k"): ("vllm-plain", "gemma-4-12b-it"),
+}
+PRICES.update({setup: PRICES[base] for setup, base in SETUP_OF.items() if base in PRICES})
+GPU_TIME.update({setup: GPU_TIME[base] for setup, base in SETUP_OF.items() if base in GPU_TIME})
 
 
 def gpu_price(gpus: int) -> dict[str, Any]:
