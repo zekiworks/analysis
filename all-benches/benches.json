@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-14T11:09:34Z",
+    "updated": "2026-11-14T14:24:09Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -42,6 +42,38 @@
       "runs": [
        "logic:gpt-6-astra-sub_en",
        "logic:gpt-6-astra-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gemini-4-carbon",
+      "name": "Gemini 4 Carbon",
+      "display_name": "Gemini 4 Carbon",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Gemini 4 Carbon (Antigravity subscription)",
+      "maker": "Google",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 95.88888888888889,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9671111111111111,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:gemini-4-carbon-sub_en",
+       "logic:gemini-4-carbon-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
@@ -2513,7 +2545,7 @@
      }
     ]
    },
-   "sha256": "88ae617fa01ada1aa0d7fe71b621bc2ac7a02bc2e92503fea9f245957f978682"
+   "sha256": "ef0378868c2d7cdc0a91b6bb5ce83697fdac1755f9f53a273dcbf180af782895"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -2523,7 +2555,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-14T11:09:34Z",
+    "updated": "2026-11-14T14:24:09Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2660,6 +2692,38 @@
      {
       "repo": null,
       "commit": null,
+      "model_key": "gpt-6-astra",
+      "name": "GPT-6 Astra",
+      "display_name": "GPT-6 Astra",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "GPT-6 Astra",
+      "maker": "OpenAI",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 99.53767914932962,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.996301433194637,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:gpt-6-astra-sub_en",
+       "math:gpt-6-astra-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
       "model_key": "inkling-small",
       "name": "Inkling-Small",
       "display_name": "Inkling-Small",
@@ -2686,6 +2750,38 @@
        "math:inkling-small-64k_en_dontknow"
       ],
       "notes": "hosted API via OpenRouter",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gemini-4-hydrogen",
+      "name": "Gemini 4 Hydrogen",
+      "display_name": "Gemini 4 Hydrogen",
+      "tag": "chat",
+      "class_label": "",
+      "base_model": null,
+      "setup_label": "Gemini 4 Hydrogen (Antigravity subscription)",
+      "maker": "Google",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 99.47988904299584,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9958391123439667,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:gemini-4-hydrogen-sub_en",
+       "math:gemini-4-hydrogen-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -3001,9 +3097,10 @@
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "math:granite-4.2-3b-64k_en"
+       "math:granite-4.2-3b-64k_en",
+       "math:granite-4.2-3b-64k_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.6783333333333333,
       "gpu_cost_usd": 1.6890500000000002
      },
@@ -4993,7 +5090,7 @@
      }
     ]
    },
-   "sha256": "5d0ac449fd99a09313a09cca68352198ac22b8e178aaaa42df965feedc46c4b7"
+   "sha256": "e59c2a0d9607894c04f2cf12fa3d577c58cc9e9ec48484dba0790409def2d7eb"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -5003,12 +5100,44 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-14T11:09:34Z",
+    "updated": "2026-11-14T14:24:09Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
     },
     "models": [
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gpt-6-astra",
+      "name": "GPT-6 Astra",
+      "display_name": "GPT-6 Astra",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "GPT-6 Astra",
+      "maker": "OpenAI",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 98.28923357664232,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9863138686131386,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:gpt-6-astra-sub_en",
+       "math:gpt-6-astra-sub_en"
+      ],
+      "notes": "hosted API (the maker's service); no complete 'I don't know' run",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
      {
       "repo": null,
       "commit": null,
@@ -5074,6 +5203,38 @@
        "math:deepseek-v4.1-flash-1017_en_dontknow"
       ],
       "notes": "hosted API via OpenRouter",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gemini-4-hydrogen",
+      "name": "Gemini 4 Hydrogen",
+      "display_name": "Gemini 4 Hydrogen",
+      "tag": "chat",
+      "class_label": "",
+      "base_model": null,
+      "setup_label": "Gemini 4 Hydrogen (Antigravity subscription)",
+      "maker": "Google",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 97.98509732360097,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9838807785888077,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:gemini-4-hydrogen-sub_en",
+       "math:gemini-4-hydrogen-sub_en"
+      ],
+      "notes": "hosted API (the maker's service); no complete 'I don't know' run",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -7559,7 +7720,7 @@
      }
     ]
    },
-   "sha256": "79d0e0a6a8859e52030fc867a4c737c1b9c9decc826b79b7e622cdcbe50f2aa4"
+   "sha256": "53c4b570cdbe1e6e6ecbdf59648217e01b93874457ea1b634dd6c04c02817b33"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -8949,10 +9110,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-14T12:05Z",
+    "updated": "2026-11-14T14:35Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "1a705b552de616ff1ef40de7254320b3b4966f679eb9c9cf92fa6d72aa611aa8"
+   "sha256": "68c06acb20ba3530a2654bfe0c1935badae8f7827fb4105de79e970a0331a5f2"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
@@ -8962,7 +9123,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-14T11:02:59Z",
+    "updated": "2026-11-14T14:42:40Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -9386,7 +9547,7 @@
        "grading:chat-minicpm5-2b-seed1-v1",
        "grading:chat-minicpm5-2b-seed2-v1"
       ],
-      "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); replies without a final 'ANSWER: X' line, counted wrong: mean rate 0% (per seed in seed_runs); gpu_hours is the mean of the three runs",
+      "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); replies without a final 'ANSWER: X' line, counted wrong: mean rate 0.03% (per seed in seed_runs); gpu_hours is the mean of the three runs",
       "gpu_hours": 0.1157823629882952,
       "gpu_cost_usd": null,
       "accuracy_basis": "mean of 3 seeds",
@@ -9586,6 +9747,34 @@
       ],
       "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; 10 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
       "gpu_hours": 0.05406686166060087,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "Gemma 4 12B Unified",
+      "display_name": "Gemma 4 12B Unified",
+      "tag": "thinking on · chat",
+      "model_key": "gemma-4-12b-think",
+      "maker": "Google",
+      "kind": "chat",
+      "repo": "google/gemma-4-12B-it",
+      "commit": "43c9d014b231474fa7212dbb48a762566c2b255d",
+      "params_total": 11.95,
+      "params_active": 11.95,
+      "quantization": "BF16",
+      "score_0_100": 66.57805703238279,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7771870468825519,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-gemma-4-12b-think-v1"
+      ],
+      "notes": "google/gemma-4-12B-it@43c9d014, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 284 of 2069 replies (14%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established; the run was interrupted by a host restart after 2272 of 2412 recorded pairs and resumed for the remaining 140 on the same server settings: no recorded answer replaced; outputs possibly answered but lost before a durable write are unavailable and may have been requested again after the restart (replay count unknown), so these are the recorded outcomes, not guaranteed first outputs; its GPU time and latency are not published: the part before the restart has no measured time, and the resumed pairs ran with fewer requests in flight",
+      "gpu_hours": null,
       "gpu_cost_usd": null
      },
      {
@@ -9790,7 +9979,7 @@
      }
     ]
    },
-   "sha256": "9ac4ebcc919b68dc24b3a12fb0b923c9e04ba2dd8a8788c7c534ff61a118682d"
+   "sha256": "1a9c44fd56ab78ed3a82b102a777b1702763b0c9c018867a8b9cb8de7c5e1374"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -9798,10 +9987,10 @@
    "seen": "2026-11-14",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-14T11:03:03Z",
+    "updated": "2026-11-14T14:42:44Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "9ac4ebcc919b68dc24b3a12fb0b923c9e04ba2dd8a8788c7c534ff61a118682d"
+     "sha256": "1a9c44fd56ab78ed3a82b102a777b1702763b0c9c018867a8b9cb8de7c5e1374"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -9818,6 +10007,7 @@
      "wrong_answer_recall": "recall_other: texts stating a conflicting answer that were flagged 'other'",
      "false_alarm_rate": "gold 'reference' or 'none' pairs labelled 'other', over false_alarm_pairs; invalid replies are not counted as correct rejections, so 1 - false_alarm_rate is not an accuracy; read it beside invalid",
      "invalid": "replies without a usable label (chat: no final ANSWER line), counted wrong",
+     "measurement_gap": "present only where a run was interrupted and resumed: latency and gpu_seconds_per_1000 are then null, with the reason; scores are unaffected",
      "probabilities": "this run's records hold per-option probabilities for every pair; says nothing about other runs of the model; no confidence is derived for chat models; calibration_error stays in bench-scores.json",
      "seed_groups": "a row with 'runs' covers three full runs with seeds 0, 1, 2 under its first run's id: recalls and false_alarm_rate are the mean of the three, latency is over all their requests, gpu_seconds_per_1000 the mean rate; 'invalid' is null and each seed's count is in invalid_per_seed"
     },
@@ -10323,6 +10513,27 @@
       "probabilities": false
      },
      {
+      "run": "grading:chat-gemma-4-12b-think-v1",
+      "model_key": "gemma-4-12b-think",
+      "latency_s_median": null,
+      "latency_s_p90": null,
+      "measurement_gap": "interrupted by a host restart and resumed: GPU time before the restart not measured; latency mixes two concurrency conditions",
+      "requests_in_flight": 64,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": null,
+      "recall_reference": 0.9289,
+      "recall_other": 0.3739,
+      "recall_none": 0.7644,
+      "wrong_answer_recall": 0.3739,
+      "false_alarm_rate": 0.0103,
+      "invalid": 284,
+      "probabilities": false
+     },
+     {
       "run": "grading:chat-lfm3-1.7b-seed0-v1",
       "model_key": "lfm3-1.7b",
       "runs": [
@@ -10386,7 +10597,7 @@
      }
     ]
    },
-   "sha256": "8b4a7e7694e5ba7a457ae60ada09839f5206645f66c4e22735c92395a62996b3"
+   "sha256": "6575c928b24942985a6df58eff136392184dde6b28f8d640a4e335057ebe9469"
   }
  }
 }

@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-14T11:02:59Z",
+ "updated": "2026-11-14T14:42:40Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -426,7 +426,7 @@
     "grading:chat-minicpm5-2b-seed1-v1",
     "grading:chat-minicpm5-2b-seed2-v1"
    ],
-   "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); replies without a final 'ANSWER: X' line, counted wrong: mean rate 0% (per seed in seed_runs); gpu_hours is the mean of the three runs",
+   "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); replies without a final 'ANSWER: X' line, counted wrong: mean rate 0.03% (per seed in seed_runs); gpu_hours is the mean of the three runs",
    "gpu_hours": 0.1157823629882952,
    "gpu_cost_usd": null,
    "accuracy_basis": "mean of 3 seeds",
@@ -626,6 +626,34 @@
    ],
    "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; 10 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
    "gpu_hours": 0.05406686166060087,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Gemma 4 12B Unified",
+   "display_name": "Gemma 4 12B Unified",
+   "tag": "thinking on · chat",
+   "model_key": "gemma-4-12b-think",
+   "maker": "Google",
+   "kind": "chat",
+   "repo": "google/gemma-4-12B-it",
+   "commit": "43c9d014b231474fa7212dbb48a762566c2b255d",
+   "params_total": 11.95,
+   "params_active": 11.95,
+   "quantization": "BF16",
+   "score_0_100": 66.57805703238279,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7771870468825519,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-gemma-4-12b-think-v1"
+   ],
+   "notes": "google/gemma-4-12B-it@43c9d014, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 284 of 2069 replies (14%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established; the run was interrupted by a host restart after 2272 of 2412 recorded pairs and resumed for the remaining 140 on the same server settings: no recorded answer replaced; outputs possibly answered but lost before a durable write are unavailable and may have been requested again after the restart (replay count unknown), so these are the recorded outcomes, not guaranteed first outputs; its GPU time and latency are not published: the part before the restart has no measured time, and the resumed pairs ran with fewer requests in flight",
+   "gpu_hours": null,
    "gpu_cost_usd": null
   },
   {

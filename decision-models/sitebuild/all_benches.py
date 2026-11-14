@@ -230,11 +230,23 @@ def grading_section(data: "Data") -> str:
     # its key, addresses and anchors keep "grading" (/analysis/grading/, #grading, ?view=grading), so earlier links hold.
     name = data.by_key[GRADING]["label"]
     # A score is one run's, except a row the feed gives as the mean of three seeds (compactor #7058, grading #7060).
-    seeded = [row.get("display_name") or row["name"] for row in rows if len(row["runs"]) > 1]
+    # A row by its name and, where the feed tags one, its mode ("thinking on"): a model may have rows in both modes.
+    named = lambda row: (row.get("display_name") or row["name"]) + (  # noqa: E731
+        f" ({mode})" if (mode := (row.get("tag") or "").split(" · ")[0]).startswith("thinking") else "")
+    seeded = [named(row) for row in rows if len(row["runs"]) > 1]
     runs = ("The scores are first runs" if not seeded else
             "The scores are first runs, except " + bp.and_list([f"{name}'s" for name in seeded]) + ", the mean of "
             "three full runs with seeds 0, 1 and 2, with their lowest and highest beside it (a range, not a confidence "
             "interval)")
+    # A run a restart interrupted and resumed (metrics.json measurement_gap): its scores are its recorded outcomes, not
+    # guaranteed first outputs (grading #7325, #7327; compactor #7326).
+    by_run = grading_metrics(data) or {}
+    resumed = [named(row) for row in rows
+               if (by_run.get(row["runs"][0]) or {}).get("measurement_gap")]
+    if resumed:
+        runs += (f"; {bp.and_list(resumed)}'s run was interrupted by a restart and resumed for the pairs it had not "
+                 "recorded, so its scores are the recorded outcomes, not guaranteed first outputs: answers produced but "
+                 "lost before they were written are unavailable and may have been asked again (how many is not known)")
     facts = {"models": bp.count(len(rows)), "api": bp.count(len(rows) - local), "local": bp.count(local),
              "decision": bp.count(decision), "chat": bp.count(chat), "name": name, "runs": runs}
     out = (f'<h2 id="grading">{esc(name)}: does the text give this answer?</h2>'
@@ -259,6 +271,7 @@ def grading_section(data: "Data") -> str:
                             "notes on its wrong answers caught."),
         ("Invalid", f"{words['invalid']}."),
         *([("Three seeds", f"{words['seed_groups']}.")] if words.get("seed_groups") else []),
+        *([("Measurement gap", f"{words['measurement_gap']}.")] if words.get("measurement_gap") else []),
         ("Probabilities", f"{words['probabilities']}."),
     ]
     return (out + f'<p>The {esc(name)} page\'s further columns come from the grading agent\'s '
@@ -1119,11 +1132,12 @@ class GradingBench(ui.Bench):
                 "gpu": metrics["gpu_seconds_per_1000"]}[key or "score"]
 
     def missing(self, model: dict[str, Any], key: str | None) -> str:
-        """Why a model has no value for a measure, in a word or two (grading #6645: an unverified price is never a zero)."""
-        metrics = self.metrics[model["scores"][GRADING]["runs"][0]]
-        ours = metrics["gpu_seconds_per_1000"] is not None
+        """Why a model has no value for a measure, in a word or two (grading #6645: an unverified price is never a zero).
+        Whether a row ran on our GPU is its hardware (grading_hardware), not whether its GPU time is in: a self-hosted
+        row may publish none (grading #7319: Gemma 4 12B's run split by a restart, its time partly estimated)."""
+        ours = grading_hardware(model["scores"][GRADING]) is not None
         return {"calibration": "No probabilities", "price": "Our GPU" if ours else "Not verified",
-                "gpu": "API"}.get(key or "", "–")
+                "gpu": "Not measured" if ours else "API", "latency": "Not measured"}.get(key or "", "–")
 
     def written(self, model: dict[str, Any], key: str) -> tuple[str, tuple[str, ...]] | None:
         """A measure's value as text and the lines under it (none, or one each: latency's p90, then its requests in
@@ -1151,16 +1165,17 @@ class GradingBench(ui.Bench):
 
         mean = (f"mean\u00a0of\u00a0{len(seeds)}\u00a0seeds",) if seeds else ()
         pooled = (f"{len(seeds)}\u00a0seeds\u00a0pooled",) if seeds else ()
+        # Only the asked measure's text is built: another measure's field may be null (grading #7319).
         return {
-            "score": (number(value), span(lambda accuracy, digits: number(score_of(accuracy), digits))),
-            "accuracy": (f"{100 * value:.1f}%", span(lambda accuracy, digits: f"{100 * accuracy:.{digits}f}%")),
-            "calibration": (number(value), ()),
-            "caught": (f"{100 * value:.1f}%", (f"{100 * metrics['false_alarm_rate']:.1f}%\u00a0false\u00a0alarms",) + mean),
-            "latency": (seconds(value), (f"p90\u00a0{seconds(metrics['latency_s_p90'])}",
-                                         f"{metrics['requests_in_flight']}\u00a0at\u00a0a\u00a0time") + pooled),
-            "price": (f"${value:.3f}" if value < 1 else f"${value:.2f}", ()),
-            "gpu": (f"{value:,.0f} s" if value >= 10 else f"{value:.1f} s", self.on_hardware(model) + mean),
-        }[key]
+            "score": lambda: (number(value), span(lambda accuracy, digits: number(score_of(accuracy), digits))),
+            "accuracy": lambda: (f"{100 * value:.1f}%", span(lambda accuracy, digits: f"{100 * accuracy:.{digits}f}%")),
+            "calibration": lambda: (number(value), ()),
+            "caught": lambda: (f"{100 * value:.1f}%", (f"{100 * metrics['false_alarm_rate']:.1f}%\u00a0false\u00a0alarms",) + mean),
+            "latency": lambda: (seconds(value), ((f"p90\u00a0{seconds(metrics['latency_s_p90'])}",) if metrics["latency_s_p90"] is not None else ())
+                                + (f"{metrics['requests_in_flight']}\u00a0at\u00a0a\u00a0time",) + pooled),
+            "price": lambda: (f"${value:.3f}" if value < 1 else f"${value:.2f}", ()),
+            "gpu": lambda: (f"{value:,.0f} s" if value >= 10 else f"{value:.1f} s", self.on_hardware(model) + mean),
+        }[key]()
 
     def on_hardware(self, model: dict[str, Any]) -> tuple[str, ...]:
         """GPU time's line under its value: the hardware the run measured it on, its name alone and unbroken, so the
@@ -1216,6 +1231,8 @@ class GradingBench(ui.Bench):
                  esc(self.class_text(model) or "Size not disclosed"),
                  esc(row_notes(row)),
                  "Hardware: " + (found[1] if (found := grading_hardware(row)) else "the maker's API (its latency includes the network)"),
+                 *([f"Latency and GPU time: not published, {esc(metrics['measurement_gap'])}"]
+                   if metrics.get("measurement_gap") else []),
                  invalid,
                  "Option probabilities: " + ("yes, so its calibration error is measured" if metrics["probabilities"] else
                                              "none (a chat model's label), so no calibration error and no confidence"),
@@ -1270,7 +1287,7 @@ class GradingBench(ui.Bench):
             on = " ".join(f"on {short}" for short in self.on_hardware(model)).replace("\u00a0", " ")
             cost = (f"List price {text('price')}/1,000" if self.value(model, "price") is not None else
                     f"GPU time {text('gpu')}/1,000 {on}".rstrip() if self.value(model, "gpu") is not None else
-                    "List price not verified")
+                    f"GPU time not measured {on}".rstrip() if on else "List price not verified")
             glance = ((f"Latency {text('latency')}",) if self.value(model, "latency") is not None else ()) + (cost,)
             out.append(ui.Row(
                 model=ui.Model(name=model["name"], colour=model["colour"], dot_title=model["maker"] or "",

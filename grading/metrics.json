@@ -1,9 +1,9 @@
 {
  "bench": "grading",
- "updated": "2026-11-14T11:03:03Z",
+ "updated": "2026-11-14T14:42:44Z",
  "feed": {
   "file": "bench-scores.json",
-  "sha256": "9ac4ebcc919b68dc24b3a12fb0b923c9e04ba2dd8a8788c7c534ff61a118682d"
+  "sha256": "1a9c44fd56ab78ed3a82b102a777b1702763b0c9c018867a8b9cb8de7c5e1374"
  },
  "cohort_pairs": 2069,
  "label_pairs": {
@@ -20,6 +20,7 @@
   "wrong_answer_recall": "recall_other: texts stating a conflicting answer that were flagged 'other'",
   "false_alarm_rate": "gold 'reference' or 'none' pairs labelled 'other', over false_alarm_pairs; invalid replies are not counted as correct rejections, so 1 - false_alarm_rate is not an accuracy; read it beside invalid",
   "invalid": "replies without a usable label (chat: no final ANSWER line), counted wrong",
+  "measurement_gap": "present only where a run was interrupted and resumed: latency and gpu_seconds_per_1000 are then null, with the reason; scores are unaffected",
   "probabilities": "this run's records hold per-option probabilities for every pair; says nothing about other runs of the model; no confidence is derived for chat models; calibration_error stays in bench-scores.json",
   "seed_groups": "a row with 'runs' covers three full runs with seeds 0, 1, 2 under its first run's id: recalls and false_alarm_rate are the mean of the three, latency is over all their requests, gpu_seconds_per_1000 the mean rate; 'invalid' is null and each seed's count is in invalid_per_seed"
  },
@@ -522,6 +523,27 @@
    "wrong_answer_recall": 0.462,
    "false_alarm_rate": 0.0523,
    "invalid": 1,
+   "probabilities": false
+  },
+  {
+   "run": "grading:chat-gemma-4-12b-think-v1",
+   "model_key": "gemma-4-12b-think",
+   "latency_s_median": null,
+   "latency_s_p90": null,
+   "measurement_gap": "interrupted by a host restart and resumed: GPU time before the restart not measured; latency mixes two concurrency conditions",
+   "requests_in_flight": 64,
+   "requests_measured": 2069,
+   "api_cost_per_1000_usd_list_price": null,
+   "price_usd_per_million_input": null,
+   "price_source": null,
+   "price_date": null,
+   "gpu_seconds_per_1000": null,
+   "recall_reference": 0.9289,
+   "recall_other": 0.3739,
+   "recall_none": 0.7644,
+   "wrong_answer_recall": 0.3739,
+   "false_alarm_rate": 0.0103,
+   "invalid": 284,
    "probabilities": false
   },
   {
