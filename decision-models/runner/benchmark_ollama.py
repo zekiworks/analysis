@@ -826,6 +826,8 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("vllm-plain", "spark-x2.6-4b"): 1,
     ("vllm-plain", "granite-4.2-3b"): 1,
     ("vllm-plain", "granite-4.2-30b"): 1,
+    # No list price for v1.3 (Perplexity's announcement offers it only free on OpenRouter for a week), so GPU time.
+    ("pplx-decider", "pplx-decider-flash-v1.3"): 1,
 }
 # Setups that differ from another setup of the same served model only in their requests (thinking off or on, the output
 # cap), on the same checkpoint, server image and flags (Ümit #6516, #6924; logic #6770, #6955), by (provider, model):
