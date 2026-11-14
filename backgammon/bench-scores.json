@@ -978,6 +978,31 @@
   },
   {
    "calibration_error": null,
+   "commit": "10e7671d44e4b37700020b1eed3f594c5f2af0b4",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "Liquid AI",
+   "model_key": "liquid-d1-2b",
+   "name": "d1-2B",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #52. LiquidAI/d1-2B @ 10e7671 on one RTX PRO 6000 Blackwell of ours (GPU 2), BF16, through logic's d1_server.py: the command and environment of logic's decision/servers.sh d1-2b (torch 2.15.0+cu132, transformers 5.22.1), the card's call model.system_one(state, questions) unchanged, model field LiquidAI/d1-2B; one request at a time; never on a hosted API. First stage 14 Nov 2026, 16:12–16:16 UTC: its 9 hosted and program opponents (#1419–#1427, runner 8ebad40); local stage 14 Nov 2026, 18:44–19:03 UTC: the 8 setups we run ourselves, one at a time on the same card (#1429–#1436, runner 46c984e, which adds only d1-Omni-2B's entry beside 8ebad40's d1-2B client). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1428 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). Every option count gets distinct single-token codes (A..IU at 255). Context 128,000 positions; nothing in its code shortens a prompt, and a request it cannot answer is refused (400), never cut: League 1's longest stored request (251 options) is 20,759 tokens with its tokenizer and prompt; nothing refused. Its cost is an estimate from its time on the RTX PRO 6000 (GPU time, at most).; run on our GPUs",
+   "params_active": 1.92,
+   "params_total": 1.92,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1980,
+    "value": 47.10251993753693
+   },
+   "repo": "LiquidAI/d1-2B",
+   "runs": [
+    "backgammon:liquid-d1-2b"
+   ],
+   "score_0_100": 61.11,
+   "tag": "NVIDIA RTX PRO 6000 Blackwell"
+  },
+  {
+   "calibration_error": null,
    "commit": null,
    "improvement_points": null,
    "kind": "chat",
@@ -1382,6 +1407,6 @@
   "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
  },
  "title": "Backgammon",
- "updated": "2026-11-14T19:05Z",
+ "updated": "2026-11-14T19:13Z",
  "url": "https://zekiworks.github.io/analysis/backgammon/"
 }

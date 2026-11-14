@@ -3811,6 +3811,38 @@
    "weights": "open"
   },
   {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "14 Nov 2026",
+   "missing": [],
+   "model": "Liquid d1-2B",
+   "model_id": "LiquidAI/d1-2B @ 10e7671d44e4b37700020b1eed3f594c5f2af0b4 (Hugging Face, LFM Open License v1.0; LFM3-VL-2B base)",
+   "model_type": "decision model",
+   "name": "Liquid d1-2B",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #52. LiquidAI/d1-2B @ 10e7671 on one RTX PRO 6000 Blackwell of ours (GPU 2), BF16, through logic's d1_server.py: the command and environment of logic's decision/servers.sh d1-2b (torch 2.15.0+cu132, transformers 5.22.1), the card's call model.system_one(state, questions) unchanged, model field LiquidAI/d1-2B; one request at a time; never on a hosted API. First stage 14 Nov 2026, 16:12–16:16 UTC: its 9 hosted and program opponents (#1419–#1427, runner 8ebad40); local stage 14 Nov 2026, 18:44–19:03 UTC: the 8 setups we run ourselves, one at a time on the same card (#1429–#1436, runner 46c984e, which adds only d1-Omni-2B's entry beside 8ebad40's d1-2B client). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1428 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). Every option count gets distinct single-token codes (A..IU at 255). Context 128,000 positions; nothing in its code shortens a prompt, and a request it cannot answer is refused (400), never cut: League 1's longest stored request (251 options) is 20,759 tokens with its tokenizer and prompt; nothing refused. Its cost is an estimate from its time on the RTX PRO 6000 (GPU time, at most).",
+   "option_groups": "up to 255 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": null,
+    "input_per_mtok": null,
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
+   },
+   "provider": "our GPU (NVIDIA RTX PRO 6000 Blackwell), BF16, through logic's d1_server.py (the command of logic's decision/servers.sh d1-2b), one request at a time",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "our GPUs",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "liquid-d1-2b",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/quantization/probability_source/group_size (v3.db, read-only)",
+    "mailbox/Late entries tiny8 - d1-2b - status.md"
+   ],
+   "weights": "open"
+  },
+  {
    "confidence_source": "none",
    "dataset": "late-entry",
    "date_run": null,
