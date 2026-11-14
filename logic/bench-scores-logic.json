@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-14T16:15:05Z",
+ "updated": "2026-11-14T16:25:11Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1127,6 +1127,37 @@
    "notes": "hosted API (the maker's service)",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "perplexity-ai/pplx-decider-v1.3",
+   "commit": "9c2ebb27470d3dec2ad7ab727727e40d142c7213",
+   "model_key": "perplexity-decider-27b-v1.3",
+   "name": "Perplexity Decider 27B v1.3",
+   "display_name": "Perplexity Decider 27B v1.3",
+   "tag": "NVIDIA RTX PRO 6000 Blackwell",
+   "class_label": "",
+   "base_model": null,
+   "setup_label": "Perplexity Decider 27B v1.3 (local GPU)",
+   "maker": "Perplexity",
+   "kind": "decision",
+   "params_total": 27.0,
+   "params_active": 27.0,
+   "quantization": "BF16",
+   "score_0_100": 43.44444444444444,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5475555555555556,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": 0.09027336492716864,
+   "improvement_points": null,
+   "runs": [
+    "logic:decider-v1.3-local_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 0.03666666666666667,
+   "gpu_cost_usd": 0.0913
   },
   {
    "repo": "vllm-sr/d3-ultra",
