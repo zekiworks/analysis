@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-14T08:38:29Z",
+ "generated_at": "2026-11-14T08:58:49Z",
  "tests": {
   "logic": {
    "name": "Logic",
@@ -24,7 +24,7 @@
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
-     "non_hallucination": 0.5833333333333334,
+     "non_hallucination": 0.5641025641025641,
      "cost_per_1000": 0.0,
      "cost_usd": 0.0,
      "cost_unit": "USD",
@@ -108,7 +108,7 @@
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
-     "non_hallucination": 0.7708333333333334,
+     "non_hallucination": 0.78,
      "cost_per_1000": null,
      "cost_usd": null,
      "cost_unit": "USD",
@@ -2700,11 +2700,11 @@
      "setup_label": "MiniCPM5-2B (chat, thinking, on our GPU)",
      "group": "chat",
      "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
-     "accuracy": 0.9926028663892742,
-     "wilson_low": 0.988017372337875,
-     "wilson_high": 0.9954416862292118,
-     "right": 2147,
-     "n": 2163,
+     "accuracy": 0.9922946524888273,
+     "wilson_low": null,
+     "wilson_high": null,
+     "right": null,
+     "n": null,
      "decision_score": null,
      "chosen_answer_brier": null,
      "n_scored": null,
@@ -2730,9 +2730,18 @@
        "run_id": "minicpm5-2b-seed1_en",
        "right": 2145,
        "n": 2163
+      },
+      {
+       "seed": 2,
+       "run_id": "minicpm5-2b-seed2_en",
+       "right": 2147,
+       "n": 2163
       }
      ],
-     "seeds_complete": "2/3"
+     "seeds_complete": "3/3",
+     "accuracy_basis": "mean of 3 seeds",
+     "seed_min": 0.9916782246879334,
+     "seed_max": 0.9926028663892742
     },
     {
      "name": "GPT-6.1 Terra",
@@ -5097,11 +5106,11 @@
      "setup_label": "MiniCPM5-2B (chat, thinking, on our GPU)",
      "group": "chat",
      "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
-     "accuracy": 0.9565085158150851,
-     "wilson_low": 0.9489878310862324,
-     "wilson_high": 0.9629637038843445,
-     "right": 3145,
-     "n": 3288,
+     "accuracy": 0.9568126520681265,
+     "wilson_low": null,
+     "wilson_high": null,
+     "right": null,
+     "n": null,
      "decision_score": null,
      "chosen_answer_brier": null,
      "n_scored": null,
@@ -5127,9 +5136,18 @@
        "run_id": "minicpm5-2b-seed1_en+minicpm5-2b-seed1_en",
        "right": 3138,
        "n": 3288
+      },
+      {
+       "seed": 2,
+       "run_id": "minicpm5-2b-seed2_en+minicpm5-2b-seed2_en",
+       "right": 3155,
+       "n": 3288
       }
      ],
-     "seeds_complete": "2/3"
+     "seeds_complete": "3/3",
+     "accuracy_basis": "mean of 3 seeds",
+     "seed_min": 0.9543795620437956,
+     "seed_max": 0.9595498783454988
     },
     {
      "name": "Gemma 4 12B Unified",
