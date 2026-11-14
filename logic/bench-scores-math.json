@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-14T14:53:41Z",
+ "updated": "2026-11-14T15:52:25Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -1830,6 +1830,37 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.04638888888888889,
    "gpu_cost_usd": 0.00987238248781535
+  },
+  {
+   "repo": "perplexity-ai/pplx-decider-flash-v1.3",
+   "commit": "d06fb3f2d97e0a52325a0d463c450cf0338f44fe",
+   "model_key": "perplexity-decider-flash-v1.3",
+   "name": "Perplexity Decider Flash v1.3",
+   "display_name": "Perplexity Decider Flash v1.3",
+   "tag": "",
+   "class_label": "",
+   "base_model": null,
+   "setup_label": "Perplexity Decider Flash v1.3",
+   "maker": "Perplexity",
+   "kind": "decision",
+   "params_total": 4.0,
+   "params_active": 4.0,
+   "quantization": "BF16",
+   "score_0_100": 44.926028663892744,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.559408229311142,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": 0.1167804804730328,
+   "improvement_points": null,
+   "runs": [
+    "math:decider-flash-v1.3_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 0.019444444444444445,
+   "gpu_cost_usd": 0.04841666666666667
   },
   {
    "repo": "startlux-models/StartLux-Decision-v1.1-4B-Instant",

@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-14T14:53:41Z",
+ "updated": "2026-11-14T15:52:25Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -1839,6 +1839,38 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.0661111111111111,
    "gpu_cost_usd": 0.014069622946706906
+  },
+  {
+   "repo": "perplexity-ai/pplx-decider-flash-v1.3",
+   "commit": "d06fb3f2d97e0a52325a0d463c450cf0338f44fe",
+   "model_key": "perplexity-decider-flash-v1.3",
+   "name": "Perplexity Decider Flash v1.3",
+   "display_name": "Perplexity Decider Flash v1.3",
+   "tag": "",
+   "class_label": "",
+   "base_model": null,
+   "setup_label": "Perplexity Decider Flash v1.3",
+   "maker": "Perplexity",
+   "kind": "decision",
+   "params_total": 4.0,
+   "params_active": 4.0,
+   "quantization": "BF16",
+   "score_0_100": 40.12317518248175,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5209854014598541,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.11131961883276667,
+   "improvement_points": null,
+   "runs": [
+    "logic:decider-flash-v1.3_en",
+    "math:decider-flash-v1.3_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 0.03138888888888889,
+   "gpu_cost_usd": 0.07815833333333334
   },
   {
    "repo": "apertixai/cerno-9b-v1.2",
