@@ -180,15 +180,18 @@ python3 -m http.server 8000                                # preview at http://1
   - **Suite strip** (`suite-bar.css`, `suite-bar.html`, published with the site as they are; `suite_bar` in
     `sitebuild/site.py` inlines the snippet with this site's link marked `aria-current="page"`): six links, All
     benches first (`/analysis/all-benches/`), then English & Turkish Reading (`/analysis/decision-models/`), Logic &
-    Math (`/analysis/logic/`), Backgammon (`/analysis/backgammon/`), Grading (`/analysis/grading/`) and Toolbench
-    (`/analysis/tool-calling/`; the last two since 13 November, Ümit #6420, Zeki #6424), the current one filled; one
+    Math (`/analysis/logic/`), Backgammon (`/analysis/backgammon/`), Answer Check (`/analysis/grading/`) and Toolbench
+    (`/analysis/tool-calling/`; the last two since 13 November, Ümit #6420, Zeki #6424; Answer Check named so on 14
+    November, Ümit #6878), the current one filled; one
     centred line on a desktop, further centred lines where one no longer fits (a phone), every label whole, never
     scrolling sideways; the first row of the sticky header on every page, identical on every site, which copy both
-    files, and on All benches and Grading. Its stylesheet is self-contained (its own `--suite-*` colours, light and dark
+    files, and on All benches and Answer Check. Its stylesheet is self-contained (its own `--suite-*` colours, light and dark
     by `data-theme` on `<html>`, else the system setting); our pages always set `data-theme` ("light" or "dark") so it
     matches the page.
-  - **Grading** (`grading_page` and `GradingBench` in `sitebuild/all_benches.py`): the grading agent's bench on a page
-    of its own at `/analysis/grading/`, Grading marked in the suite strip, inside All benches' frame and built on the
+  - **Answer Check** (`grading_page` and `GradingBench` in `sitebuild/all_benches.py`): the grading agent's bench on a
+    page of its own at `/analysis/grading/`, named on every page by its label in `page_config.json` ("Answer Check",
+    Ümit #6878; its key, addresses and anchors keep "grading", so earlier links hold), marked in the suite strip, inside
+    All benches' frame and built on the
     shared kit (`zw_ui.py`, `zw-ui.css`, `zw-ui.js`, v2.6; Ümit #6674): the Models, Class and Measure key rows and a
     ranked table with coloured bars as on the Reading, Logic & Math and Backgammon pages, every measure in its columns
     (Score, Accuracy, Calibration error, Wrong answers caught with false alarms, Latency with p90 and requests in flight,

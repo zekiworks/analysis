@@ -125,14 +125,14 @@ GRADING_COPY = (
     "wrong. The displayed score is (accuracy − 1/3) / (2/3) × 100. Zero means uniform random choice among three labels, "
     "100 means every pair correct, and below-chance scores may be negative. ECE uses 10 equal-width probability bins and "
     "is null when usable option probabilities are absent.",
-    "{models} models have completed this cohort so far: {api} through their makers' decisions APIs and {local} on our own "
-    "GPUs (open decision models and chat models; a chat model's thinking setting is its row's tag). These numbers apply "
-    "only to this cohort and request setting. Additional models receive rows only after completion on the same frozen "
-    "cohort.",
+    "{models} models have completed this cohort so far, {decision} decision models and {chat} chat models: {api} through "
+    "their makers' APIs and {local} on our own GPUs (open decision models and chat models; a chat model's thinking "
+    "setting is its row's tag). These numbers apply only to this cohort and request setting. Additional models receive "
+    "rows only after completion on the same frozen cohort.",
     "Requests contain one question each. A chat model's reply without a final 'ANSWER: X' line counts wrong (the rule was "
     "fixed before the runs); each row's notes say how many replies that was, and whether it came from the reply format "
     "or from the reasoning parser is not established. The scores are first runs; no diagnostic run was made.",
-    "Grading is a separate benchmark tab. Combined scoring is unchanged.",
+    "{name} is a separate benchmark tab. Combined scoring is unchanged.",
 )
 # What a bench's table counts per model, where not questions.
 COUNTED = {"backgammon": "decisions", GRADING: "pairs"}
@@ -192,8 +192,15 @@ def grading_section(data: "Data") -> str:
     if rows is None:
         return ""
     local = sum(bool(row.get("repo") or ran_here(row.get("notes") or "")) for row in rows)
-    facts = {"models": bp.count(len(rows)), "api": bp.count(len(rows) - local), "local": bp.count(local)}
-    out = (f'<h2 id="grading">Grading: does the text give this answer?</h2>'
+    decision, chat = (sum(row.get("kind") == kind for row in rows) for kind in ("decision", "chat"))
+    if decision + chat != len(rows):
+        raise SystemExit("grading feed: a row whose kind is neither decision nor chat; the Methodology copy counts both")
+    # The bench's name on every page is its label in page_config.json ("Answer Check", Ümit #6878 via grading #6880);
+    # its key, addresses and anchors keep "grading" (/analysis/grading/, #grading, ?view=grading), so earlier links hold.
+    name = data.by_key[GRADING]["label"]
+    facts = {"models": bp.count(len(rows)), "api": bp.count(len(rows) - local), "local": bp.count(local),
+             "decision": bp.count(decision), "chat": bp.count(chat), "name": name}
+    out = (f'<h2 id="grading">{esc(name)}: does the text give this answer?</h2>'
            + "".join(f"<p>{esc(text.format_map(facts))}</p>" for text in GRADING_COPY))
     if grading_metrics(data) is None:
         return out
@@ -216,7 +223,7 @@ def grading_section(data: "Data") -> str:
         ("Invalid", f"{words['invalid']}."),
         ("Probabilities", f"{words['probabilities']}."),
     ]
-    return (out + '<p>The Grading page\'s further columns come from the grading agent\'s '
+    return (out + f'<p>The {esc(name)} page\'s further columns come from the grading agent\'s '
             f'<a href="{esc(data.by_key[GRADING]["metrics_url"])}">metrics.json</a>:</p><ul>'
             + "".join(f"<li><strong>{esc(name)}</strong>: {esc(text)}</li>" for name, text in items) + "</ul>")
 
@@ -986,7 +993,7 @@ class GradingBench(ui.Bench):
         self.classes = dict(data.site.model_classes())
 
     def title(self) -> str:
-        return "Grading"
+        return self.data.by_key[GRADING]["label"]
 
     def scope(self, part: str | None) -> str:
         return (f"{bp.count(GRADING_PAIRS)} pairs of a machine-written English summary, a question and its reference "
@@ -1202,7 +1209,7 @@ def scoring(data: Data) -> str:
     count = lambda key: bp.count(data.by_key[key]["bench"]["models"][0]["raw"]["questions"])  # noqa: E731
     logic = ("<strong>Logic</strong> and <strong>Math</strong>" if data.by_key["logic"]["shown"]
              else "<strong>Logic &amp; Math</strong>")
-    grading = (f'<li><strong>Grading</strong> ({count(GRADING)} pairs of a machine-written English summary, a question and '
+    grading = (f'<li><strong>{esc(data.by_key[GRADING]["label"])}</strong> ({count(GRADING)} pairs of a machine-written English summary, a question and '
                "its reference answer; 3 labels: the summary states that answer, a conflicting one or none): the same "
                "correction with k = 3; its reference labels come from two model judges, not people "
                '(<a href="method/#grading">how it was built</a>).</li>' if grading_rows(data) else "")
@@ -1711,11 +1718,12 @@ def grading_page(data: Data, image: str) -> str | None:
     home = urllib.parse.urljoin(data.site.config["all_benches"]["url"], GRADING_HOME)
     up = posixpath.relpath(suite_path(data.site), GRADING_HOME) + "/"
     models = [model for model in data.models.values() if GRADING in model["scores"]]
-    body = '<h1 class="visually-hidden" id="top">Grading</h1>' + ui.results(GradingBench(data, models, metrics, up))
-    footer = (f'<nav class="footer-links" aria-label="Site"><a href="./">Grading</a> · <a href="{up}{METHOD}#grading">'
+    name = data.by_key[GRADING]["label"]
+    body = f'<h1 class="visually-hidden" id="top">{esc(name)}</h1>' + ui.results(GradingBench(data, models, metrics, up))
+    footer = (f'<nav class="footer-links" aria-label="Site"><a href="./">{esc(name)}</a> · <a href="{up}{METHOD}#grading">'
               f'Methodology</a> · <a href="{up}">{TITLE}</a></nav>')
-    return frame(data, "", "Grading", f"Grading: does the text give this answer? Each model's score from 0 (chance) to 100 "
-                 f"(perfect) on {GRADING_PAIRS:,} pairs.", body, image, home=home, here=GRADING_HOME, name="Grading",
+    return frame(data, "", name, f"{name}: does the text give this answer? Each model's score from 0 (chance) to 100 "
+                 f"(perfect) on {GRADING_PAIRS:,} pairs.", body, image, home=home, here=GRADING_HOME, name=name,
                  footer=footer, scripts=("zw-ui.js",), styles=("zw-ui.css",), kit=True)
 
 
@@ -1737,8 +1745,9 @@ def page(data: Data, image: str) -> str:
     {their_score(data)}
     {bench_tabs(data)}
     {"".join(model_page(data, model) for model in data.models.values())}"""
-    return frame(data, PATH, TITLE, "The decision and chat models on every bench of the three sites and Grading on one page: "
-                 "Turkish reading and grammar, English reading, Vision, Logic, Math, Backgammon and Grading, each scored 0 to 100 (0 = "
+    name = data.by_key[GRADING]["label"]
+    return frame(data, PATH, TITLE, f"The decision and chat models on every bench of the three sites and {name} on one page: "
+                 f"Turkish reading and grammar, English reading, Vision, Logic, Math, Backgammon and {name}, each scored 0 to 100 (0 = "
                  "chance, 100 = perfect), their combined score, head to head, and each bench's full table.", body, image,
                  scripts=("all-benches.js",))
 
@@ -1756,10 +1765,12 @@ def method_page(data: Data, image: str) -> str:
         + "</li>" for bench in data.all_benches)
     missing = sorted(data.missing_colours)
     up = rel(METHOD, PATH)
+    label = data.by_key[GRADING]["label"]
+    name = esc(label)
     body = f"""    <section class="card prose" id="method">
       <p class="ab-back"><a href="{up}">← {TITLE}</a></p>
       <h1>{TITLE}: Methodology</h1>
-      <p>How the page <a href="{up}">{TITLE}</a> puts the benches of the three sites and Grading side by side. It uses only the files each bench publishes, bench-scores.json, in one schema for the three sites; a bench whose file is not live says "{NOT_PUBLISHED}".</p>
+      <p>How the page <a href="{up}">{TITLE}</a> puts the benches of the three sites and {name} side by side. It uses only the files each bench publishes, bench-scores.json, in one schema for the three sites; a bench whose file is not live says "{NOT_PUBLISHED}".</p>
       <h2 id="scale">One scale: 0 = random guessing, 100 = perfect</h2>
       <ul>
         <li><strong>Turkish Reading</strong> and <strong>Turkish Grammar</strong>: the Reading site's {bp.count(n_reading)} Turkish reading questions (units 1 to 6) and its {bp.count(n_grammar)} grammar questions (units 7 to 20), 5 options each, as its Text tab asks them, each part scored on its own questions: Score = (accuracy − 1/k) / (1 − 1/k) × 100 with k = 5: 20% right reads 0, every question right reads 100. Below 0 means worse than guessing. The row is the setup the Text tab's Leaderboard shows, the same run on both parts.</li>
@@ -1767,12 +1778,12 @@ def method_page(data: Data, image: str) -> str:
         <li><strong>Vision</strong>: the {bp.count(n_vision)} questions that depend on the printed page, asked with the page image alone (the Reading site's Vision tab, condition B), k = each question's number of options. Models that read only text are not on it.</li>
         <li>{"<strong>Logic</strong> and <strong>Math</strong>: the Logic &amp; Math site's two parts, each in a file of its own" if split else "<strong>Logic &amp; Math</strong>: the Logic &amp; Math site's pooled score; its two parts, Logic and Math, show in its place once their files are live"}: the same correction, on its own questions (k = 5), as its file states.</li>
         <li><strong>Backgammon</strong>: 0 = the error rate of a player that picks a random legal move, 100 = no error, as its file states.</li>
-        {f'<li><strong>Grading</strong>: {bp.count(GRADING_PAIRS)} pairs of a machine-written English summary, a question and its reference answer, 3 labels each, the same correction with k = 3: one label in three at random reads 0, every pair right reads 100 (<a href="#grading">Grading</a>).</li>' if grading_rows(data) else ""}
+        {f'<li><strong>{name}</strong>: {bp.count(GRADING_PAIRS)} pairs of a machine-written English summary, a question and its reference answer, 3 labels each, the same correction with k = 3: one label in three at random reads 0, every pair right reads 100 (<a href="#grading">{name}</a>).</li>' if grading_rows(data) else ""}
         <li>Higher is better {UP} on every score; lower is better {DOWN} for calibration error and latency. Size has no better direction.</li>
         <li>A score is not a share of right answers: the chart's head and the table's caption name its unit, "{UNIT}", and a score never takes a % sign. Raw accuracy, in each bench's table, keeps its %.</li>
       </ul>
       <h2 id="combined">Combined score</h2>
-      <p>The plain mean, equal weights, of Reading · Turkish (all {bp.count(n_text)} Turkish questions, reading and grammar together, the Reading site's own score), Logic &amp; Math (the Logic &amp; Math site's pooled score, logic-math in its bench-scores.json) and Backgammon, unchanged by the splits into Turkish Reading and Turkish Grammar and into Logic and Math (project lead, #4173, #4234, #4239): the parts are views of their own, never averaged in. Only a model with a score on all three gets one; the others appear in each bench's tab. English Reading, Vision and Grading are not part of it.</p>
+      <p>The plain mean, equal weights, of Reading · Turkish (all {bp.count(n_text)} Turkish questions, reading and grammar together, the Reading site's own score), Logic &amp; Math (the Logic &amp; Math site's pooled score, logic-math in its bench-scores.json) and Backgammon, unchanged by the splits into Turkish Reading and Turkish Grammar and into Logic and Math (project lead, #4173, #4234, #4239): the parts are views of their own, never averaged in. Only a model with a score on all three gets one; the others appear in each bench's tab. English Reading, Vision and {name} are not part of it.</p>
       <p>A row gets a combined score only if one model answered every bench: the same checkpoint (one repo, one set of weights) or the same served version of a hosted model. A hosted service that changed its model between the benches' runs keeps its score on each bench, but gets no combined score{":" if data.not_combined else "."}</p>
       {"<ul>" + "".join(f"<li>{esc(model['name'])}: {esc(model['not_combined'])}</li>" for model in data.not_combined) + "</ul>" if data.not_combined else ""}
       <p>The page labels Combined "{GROUPS}" and shows under each combined score its three parts: {"; ".join(f"{esc(short)}, {esc(full)}" for _, short, full in group_names(data))}.</p>
@@ -1784,7 +1795,7 @@ def method_page(data: Data, image: str) -> str:
       <h2 id="tied">When we write "tied"</h2>
       <p>No interval bars and no ranges: where two scores are too close to tell apart, the page says <strong>tied</strong>. The rule, the same everywhere on the page:</p>
       <ul>
-        <li>On one bench, two models are tied when their scores differ by less than <strong>100 ÷ √n points</strong>, n being the smaller of their two question counts on that bench (Backgammon: scored decisions; Grading: pairs). On Turkish Reading's {bp.count(n_reading)} questions that is {number(100 / math.sqrt(n_reading), 2)} points; on Turkish Grammar's {bp.count(n_grammar)} {number(100 / math.sqrt(n_grammar), 2)}; on English Reading's {bp.count(n_english)} {number(100 / math.sqrt(n_english), 2)}; on Vision's {bp.count(n_vision)} {number(100 / math.sqrt(n_vision), 2)}; on Reading · Turkish's {bp.count(n_text)}, in the Combined score, {number(100 / math.sqrt(n_text), 2)}{f"; on Grading's {bp.count(GRADING_PAIRS)} pairs {number(100 / math.sqrt(GRADING_PAIRS), 2)}" if grading_rows(data) else ""}. The margin is about the size of the noise a score on n questions carries, so a smaller bench needs a larger gap.</li>
+        <li>On one bench, two models are tied when their scores differ by less than <strong>100 ÷ √n points</strong>, n being the smaller of their two question counts on that bench (Backgammon: scored decisions; {name}: pairs). On Turkish Reading's {bp.count(n_reading)} questions that is {number(100 / math.sqrt(n_reading), 2)} points; on Turkish Grammar's {bp.count(n_grammar)} {number(100 / math.sqrt(n_grammar), 2)}; on English Reading's {bp.count(n_english)} {number(100 / math.sqrt(n_english), 2)}; on Vision's {bp.count(n_vision)} {number(100 / math.sqrt(n_vision), 2)}; on Reading · Turkish's {bp.count(n_text)}, in the Combined score, {number(100 / math.sqrt(n_text), 2)}{f"; on {name}'s {bp.count(GRADING_PAIRS)} pairs {number(100 / math.sqrt(GRADING_PAIRS), 2)}" if grading_rows(data) else ""}. The margin is about the size of the noise a score on n questions carries, so a smaller bench needs a larger gap.</li>
         <li>On the combined score, a mean of three, the three benches' margins add up as noise does: √(m₁² + m₂² + m₃²) ÷ 3.</li>
         <li>The ranking marks a bar "tied" when it is within the margin of the bar in view before it; Head to head says "tied" for a bench where the two are within it; each bench's table writes "tied with" the row above. Ties are not chained: A tied with B and B with C does not tie A with C.</li>
         <li>The table under the chart numbers its rows in a Rank column: the place by the score chosen among the models in view, 1, 2, 3 without repeats; models with the same score keep the table's order, which claims no difference. Each bench's table numbers its rows the same way, and "tied with" there marks the margin above. No bench's file carries the all-pairs test the Reading site's Leaderboard draws its tiers from, so there are no tiers here.</li>
@@ -1807,7 +1818,7 @@ def method_page(data: Data, image: str) -> str:
       <ul>{sources}</ul>
       <p class="note">The build reads the other sites' files from these addresses and keeps what it read in <a href="{rel(METHOD, SNAPSHOT_COPY)}">benches.json</a>.</p>
     </section>"""
-    return frame(data, METHOD, f"{TITLE}: Methodology", f"How {TITLE} scores, combines and compares the benches of the three sites and Grading.",
+    return frame(data, METHOD, f"{TITLE}: Methodology", f"How {TITLE} scores, combines and compares the benches of the three sites and {label}.",
                  body, image)
 
 
