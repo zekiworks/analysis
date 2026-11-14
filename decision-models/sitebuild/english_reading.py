@@ -853,7 +853,7 @@ def support_entry(site: Site, run_id: int) -> dict[str, str] | None:
     docs list Turkish, verified on the date read; Ümit #5067, confirmed by Zeki #5085), in model_languages' shape
     (languages, source) for the Languages column of a setup model_languages does not list (Zeki #5196)."""
     run = site.by_id[run_id]
-    item = site.turkish_support.get((run["provider"], run["model"]))
+    item = site.turkish_of(run)
     return None if item is None else {"languages": SUPPORT_WORDS[item["status"]], "source": item["source"]}
 
 
@@ -2118,8 +2118,7 @@ def languages(site: Site, data: dict[str, Any]) -> str:
     listed = {model["run"] for model in models}
     outside = [model for model in data["models"] if model["turkish_run"] not in listed]
     # The setups outside model_languages whose cards turkish-support.json checked for Turkish (Zeki #5196).
-    support = {model["turkish_run"]: site.turkish_support.get((site.by_id[model["turkish_run"]]["provider"],
-                                                               site.by_id[model["turkish_run"]]["model"])) for model in outside}
+    support = {model["turkish_run"]: site.turkish_of(site.by_id[model["turkish_run"]]) for model in outside}
     checked = [model for model in outside if support[model["turkish_run"]] is not None]
     unchecked = [model for model in outside if support[model["turkish_run"]] is None]
     decision = [esc(label(site, model)) for model in unchecked if site.decision(site.by_id[model["turkish_run"]])]

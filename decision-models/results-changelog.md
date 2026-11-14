@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 6d01f5b1 (14 November 2026)
+
+- Added Gemini 4 Hydrogen's English reading (Ümit via Zeki #5663; Ümit #6854): run 1107, through Can's Antigravity subscription bridge (agbench), thinking high, 16 questions per request, one request at a time, with the answer-layout paragraph Gemini 4 Carbon's English runs used (the bridge applies no response format). 529 of 547 kept questions right (96.7%), 18 wrong, no invalid answer: 2nd of 115 English setups, after Claude Fable 5.2 (536). An English-only setup for now: its English "I don't know" run was under way when the bridge stopped answering at 01:54 UTC (the row's Non-hallucination column says so), and its Turkish runs follow on the same lane; the In progress table lists both. $0: the subscription, not billed per token.
+- Setups that differ from another only in their requests (thinking off or on, the output cap; Ümit #6924, logic #6955) now take that setup's records through one table (SETUP_OF in the runner and in export_results.py; `setup_of` in results.json), by which the site finds their family, their maker's stated size and their Turkish-support entry. MiniCPM5-2B thinking off is the first; its records and numbers are unchanged.
+- The English page's Turkish side now reads Queued, Paused or Running, with why, for the English-only setups whose Turkish runs are pending (the small chat models in logic's GPU 1 queue, MiniCPM5-2B thinking off's failed smoke, Gemini 4 Carbon and Hydrogen on the bridge), instead of Not run.
+
 ## Results 60cf1eb4 (14 November 2026)
 
 - GLiDE 2B's Run 2 joins the Experiments page's repeat checks (Ümit #6410, #6416; logic #6825), on logic's server on spark2, reloaded as for its first runs (`fastino/GLiDE-2B` at `00f122c`, one request at a time): Text run 1098, 776 of 2,198 right, and English run 1100, 383 of 547, each with every answer as in its first run (915, 917); its English "I don't know" run was repeated too (run 1102: 368 right, 47 "I don't know", every answer as in run 919), given in the check's note. The published scores stay the first runs'.

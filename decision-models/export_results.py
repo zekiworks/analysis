@@ -713,9 +713,6 @@ MODELS: dict[str, dict[str, Any]] = {
            ("lfm2-350m-math", "LFM2-350M-Math", "vLLM v0.30.0", "LiquidAI/LFM2-350M-Math@8eb8b70"),
            ("lfm2.5-2.6b", "LFM2.5-2.6B", "vLLM v0.30.0", "LiquidAI/LFM2.5-2.6B@7141b56"),
            ("minicpm5-2b", "MiniCPM5-2B", "vLLM v0.30.0", "openbmb/MiniCPM5-2B@42433e9"),
-           # MiniCPM5-2B with thinking off (Ümit #6516, #6527; logic #6770): the same checkpoint and server, its requests'
-           # chat_template_kwargs enable_thinking false (an empty <think></think>, logic checked via /tokenize).
-           ("minicpm5-2b-nothink", "MiniCPM5-2B", "vLLM v0.30.0", "openbmb/MiniCPM5-2B@42433e9"),
            ("spark-x2.6-4b", "Spark-X2.6-4B", "llama.cpp (its BF16 GGUF; vLLM v0.30.0 has no Spark2_5ForCausalLM)",
             "XHToken/Spark-X2.6-4B-GGUF@9d71677"),
            ("granite-4.2-3b", "Granite-4.2-3B", "vLLM v0.30.0", "ibm-granite/granite-4.2-3b@4e9c275"),
@@ -1199,8 +1196,6 @@ SIZES: dict[str, dict[str, Any]] = {
        for key, total, scope, repo, commit in (
            ("lfm2.5-2.6b", 2_697_198_592, "language model (tied embeddings, text only)", "LiquidAI/LFM2.5-2.6B", "7141b56"),
            ("minicpm5-2b", 2_516_756_480, "language model with its LM head, text only", "openbmb/MiniCPM5-2B", "42433e9"),
-           ("minicpm5-2b-nothink", 2_516_756_480, "language model with its LM head, text only", "openbmb/MiniCPM5-2B",
-            "42433e9"),
            ("spark-x2.6-4b", 4_112_079_360, "language model (tied embeddings, text only)", "XHToken/Spark-X2.6-4B",
             "64ca8f2"),
            ("granite-4.2-3b", 3_659_737_600, "language model with its LM head, text only", "ibm-granite/granite-4.2-3b",
@@ -1217,6 +1212,21 @@ SIZES: dict[str, dict[str, Any]] = {
                        "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM2.5-24B-A2B@1769516",
                                    "https://huggingface.co/LiquidAI/LFM2.5-24B-A2B"], "read": "2026-11-12"},
 }
+# Setups that differ from another setup of the same served model only in their requests (thinking off or on, the output
+# cap), on the same checkpoint, server image and flags (Ümit #6516, #6924; logic #6770, #6955), by model id: that setup.
+# Each takes its records (name, backend, revision, hardware, size); the thinking setting comes from its runs' requests.
+# benchmark_ollama.py keeps the same pairs (SETUP_OF there) for their price or GPU time.
+SETUP_OF: dict[str, str] = {
+    "minicpm5-2b-nothink": "minicpm5-2b",
+    "lfm3-1.7b-vllm-nothink": "lfm3-1.7b",
+    "granite-4.2-3b-nothink": "granite-4.2-3b",
+    "qwen3.5-4b-nothink": "qwen3.5-4b",
+    "gemma-4-e2b-it-think-32k": "gemma-4-e2b-it",
+    "gemma-4-e4b-it-think-32k": "gemma-4-e4b-it",
+    "gemma-4-12b-it-think-32k": "gemma-4-12b-it",
+}
+MODELS.update({setup: dict(MODELS[base]) for setup, base in SETUP_OF.items()})
+SIZES.update({setup: SIZES[base] for setup, base in SETUP_OF.items()})
 # The variant a Perplexity mode adds to a setup's name in tables and charts.
 MODE_VARIANTS = {"web_grounding": "with web"}
 
@@ -1229,10 +1239,13 @@ def model_info(provider: str, model: str, mode: str | None = None) -> dict[str, 
 def size_record(model: str) -> dict[str, Any]:
     """A setup's size record as results.json gives it, from SIZES by model ID: total, active per token and effective
     parameters (None where the maker states none; a total of None means the maker discloses no size), the scope counted,
-    the sources and the date read."""
+    the sources and the date read; and for a setup that differs from another only in its requests (SETUP_OF) that
+    setup's model ID (setup_of), by which the site finds its family, its maker's stated size and its Turkish-support
+    entry."""
     size = SIZES[model]
     return {"parameters": size["total"], "active_parameters": size.get("active"), "effective_parameters": size.get("effective"),
-            "parameters_scope": size.get("scope"), "parameters_source": size["sources"], "parameters_read": size["read"]}
+            "parameters_scope": size.get("scope"), "parameters_source": size["sources"], "parameters_read": size["read"],
+            **({"setup_of": SETUP_OF[model]} if model in SETUP_OF else {})}
 
 
 def plain_access(info: dict[str, Any], request_params: str, english: bool) -> str:

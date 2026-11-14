@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "60cf1eb4",
-  "updated": "2026-11-14T00:07:39Z",
+  "results_version": "6d01f5b1",
+  "updated": "2026-11-14T02:16:37Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -367564,6 +367564,83 @@
     ],
     "english_only": [
       {
+        "name": "Gemini 4 Hydrogen",
+        "model": "gemini-4-hydrogen",
+        "provider": "agbench",
+        "reasoning": "high",
+        "variant": null,
+        "questions_per_request": 16,
+        "perplexity_mode": null,
+        "run": 1107,
+        "runs": [
+          1107
+        ],
+        "dates": [
+          "2026-11-14"
+        ],
+        "parameters": null,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": null,
+        "parameters_source": [
+          "https://deepmind.google/models/model-cards/gemini-4-hydrogen/"
+        ],
+        "parameters_read": "2026-11-12",
+        "group": "chat",
+        "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, tools denied, thinking high; the bridge applies no response format, so the prompt adds a paragraph stating the answer layout",
+        "billing": "subscription",
+        "hardware": null,
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 2.6951175,
+            "per_1000": 4.927088665447897,
+            "basis": "subscription",
+            "billing": "subscription",
+            "tokens": {
+              "input_tokens": 524910,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 254367
+            },
+            "requests": 35,
+            "price": {
+              "basis": "Google's Gemini API price",
+              "source": "https://ai.google.dev/gemini-api/docs/pricing",
+              "date": "2026-11-12",
+              "change": null,
+              "applies_to": "billed",
+              "extra_input_per_request": 0,
+              "per_request": 0.0,
+              "rates": {
+                "input_tokens": 1.5,
+                "cached_input_tokens": 0.075,
+                "cache_write_input_tokens": 1.5,
+                "cache_write_1h_input_tokens": 1.5,
+                "output_tokens": 7.5
+              },
+              "text": "$1.50 input, $0.075 cached input, $7.50 output per 1M tokens"
+            },
+            "upper_bound": false
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 28.43608077900717,
+            "p90_request_seconds": 53.500265761394985,
+            "concurrency": 1,
+            "questions_per_request": 16
+          }
+        },
+        "english": {
+          "right": 529,
+          "wrong": 18,
+          "invalid": 0,
+          "accuracy": 0.9670932358318098
+        }
+      },
+      {
         "name": "Gemini 4 Carbon",
         "model": "gemini-4-carbon",
         "provider": "agbench",
@@ -368418,6 +368495,7 @@
           "https://huggingface.co/openbmb/MiniCPM5-2B"
         ],
         "parameters_read": "2026-11-12",
+        "setup_of": "minicpm5-2b",
         "group": "chat",
         "access": "our GPU (logic's server, vLLM v0.30.0 BF16, revision openbmb/MiniCPM5-2B@42433e9), one question per request, plain answer line ANSWER: X (no answer schema); sampling seed 0, temperature 1.0, top_p 0.95, thinking off; output cap 32,768",
         "billing": "local",

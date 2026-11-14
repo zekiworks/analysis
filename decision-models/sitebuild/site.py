@@ -180,6 +180,13 @@ def stated_sizes() -> dict[str, dict[str, Any]]:
     return json.loads((ROOT / "page_config.json").read_text(encoding="utf-8"))["stated_sizes"]["models"]
 
 
+def model_id(run: dict[str, Any]) -> str:
+    """The model ID a setup's records go by: its own, or for a setup that differs from another only in its requests
+    (thinking off or on, the output cap: results.json setup_of, export_results.py SETUP_OF) that setup's, whose family,
+    maker's stated size and Turkish-support entry it shares."""
+    return run.get("setup_of") or run["model"]
+
+
 def counted(run: dict[str, Any]) -> bool:
     """Whether a setup's size record is our count of the released checkpoint (a source "counted from ..."), not a
     figure its maker states."""
@@ -191,7 +198,7 @@ def stated_total(run: dict[str, Any]) -> int | None:
     (stated_sizes: its card or page, or the size in its official name), else the size record's where it is the maker's
     own figure (a hosted model); None where the maker states no total, our count of the checkpoint notwithstanding
     (GLM-5.3): the size is undisclosed and the class goes by price."""
-    found = stated_sizes().get(run["model"])
+    found = stated_sizes().get(run["model"]) or stated_sizes().get(model_id(run))
     if found:
         return found["total"]
     return None if counted(run) else run.get("parameters")
@@ -199,7 +206,7 @@ def stated_total(run: dict[str, Any]) -> int | None:
 
 def stated_active(run: dict[str, Any]) -> list[int] | None:
     """The active count per token a label shows: the maker's stated one (stated_sizes), else the size record's."""
-    return stated_sizes().get(run["model"], {}).get("active", run.get("active_parameters"))
+    return (stated_sizes().get(run["model"]) or stated_sizes().get(model_id(run), {})).get("active", run.get("active_parameters"))
 
 
 def mixture(run: dict[str, Any]) -> bool:
@@ -363,7 +370,7 @@ def run_families(runs: list[dict[str, Any]]) -> dict[int, dict[str, str]]:
     found, problems = {}, []
     for run in runs:
         families = [family for family in model_families()
-                    if any(rule["provider"] == run["provider"] and rule.get("model", run["model"]) == run["model"]
+                    if any(rule["provider"] == run["provider"] and rule.get("model", run["model"]) in (run["model"], model_id(run))
                            for rule in family["runs"])]
         if len(families) == 1:
             found[run["run"]] = {"name": families[0]["name"], "maker": families[0]["maker"], "colour": families[0]["colour"]}
@@ -866,10 +873,16 @@ class Site:
         on the Turkish leaderboards. The build stops when a Text tab setup has no entry."""
         data = json.loads((ROOT / "turkish-support.json").read_text(encoding="utf-8"))
         found = {(key["provider"], key["model"]): item for item in data["models"] for key in item["keys"]}
-        missing = sorted({self.title(run) for run in self.runs if (run["provider"], run["model"]) not in found}, key=str.casefold)
+        missing = sorted({self.title(run) for run in self.runs if self.turkish_of(run, found) is None}, key=str.casefold)
         if missing:
             raise SystemExit(f"turkish-support.json: no entry for {', '.join(missing)}")
         return found
+
+    def turkish_of(self, run: dict[str, Any], found: dict[tuple[str, str], dict[str, Any]] | None = None) -> dict[str, Any] | None:
+        """A setup's turkish-support.json entry (turkish_support): its own key's, else that of the setup it differs from
+        only in its requests (model_id); None when neither has one."""
+        found = self.turkish_support if found is None else found
+        return found.get((run["provider"], run["model"])) or found.get((run["provider"], model_id(run)))
 
     @cached_property
     def tags(self) -> dict[int, str]:

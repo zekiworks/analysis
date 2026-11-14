@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-14T01:09:45Z",
+    "updated": "2026-11-14T02:11:19Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -2449,7 +2449,7 @@
      }
     ]
    },
-   "sha256": "4a60bb62a52a42c2a3f74328076225a234efd08089c2bbf807accc3c2321e471"
+   "sha256": "aea4147565dc2cf4c74241a13c07238038ba66f818b2db9963dadd291e03c4ae"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -2459,7 +2459,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-14T01:09:45Z",
+    "updated": "2026-11-14T02:11:19Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2847,6 +2847,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: MiniCPM5-2B (off · chat)",
       "gpu_hours": 0.3605555555555556,
       "gpu_cost_usd": 0.8977833333333335
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gpt-6.1-terra",
+      "name": "GPT-6.1 Terra",
+      "display_name": "GPT-6.1 Terra",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "GPT-6.1 Terra",
+      "maker": "OpenAI",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 99.01756819232546,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9921405455386038,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:gpt-6.1-terra-sub_en",
+       "math:gpt-6.1-terra-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
      },
      {
       "repo": "ibm-granite/granite-4.2-3b",
@@ -4865,7 +4897,7 @@
      }
     ]
    },
-   "sha256": "0694db00e290940c72049dd60baf9b88356a3d9e6883c8fc8daa95669b717e3a"
+   "sha256": "d8c8ab408f39dacab81540e713c95d28597d3f265dc37bc23d2ef41daccccf33"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -4875,7 +4907,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-14T01:09:45Z",
+    "updated": "2026-11-14T02:11:19Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -5152,6 +5184,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 2.6669444444444443,
       "gpu_cost_usd": 6.640691666666667
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gpt-6.1-terra",
+      "name": "GPT-6.1 Terra",
+      "display_name": "GPT-6.1 Terra",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "GPT-6.1 Terra",
+      "maker": "OpenAI",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 96.76855231143551,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9741484184914841,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:gpt-6.1-terra-sub_en",
+       "math:gpt-6.1-terra-sub_en"
+      ],
+      "notes": "hosted API (the maker's service); no complete 'I don't know' run",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
      },
      {
       "repo": "google/gemma-4-31B-it",
@@ -7363,7 +7427,7 @@
      }
     ]
    },
-   "sha256": "bc868d6ff970478ef91afe9910608cbdc0bba8e6b014244e82253386810caee6"
+   "sha256": "b4869cb2f10a345e201ac29770bb0c2788f08a5533bf8d2c61924ea90b262934"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -8403,10 +8467,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-14T01:50Z",
+    "updated": "2026-11-14T02:35Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "2988337f3643475015a23840bab500f8c5b2957c43674d32128b2afb6c62edd6"
+   "sha256": "6ebbeca23ff522d5fc1b0fbdc30485752de9dfb8028ce4dadf82633ee2d09a77"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",

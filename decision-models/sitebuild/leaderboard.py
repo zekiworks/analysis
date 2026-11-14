@@ -472,13 +472,13 @@ TR_NOT_SUPPORTED = "Turkish not officially supported"
 
 
 def turkish_listed(site: Site, run: dict[str, Any]) -> bool:
-    """Whether the setup's model's own card or maker docs list Turkish (Site.turkish_support)."""
-    return site.turkish_support[(run["provider"], run["model"])]["status"] == "listed"
+    """Whether the setup's model's own card or maker docs list Turkish (Site.turkish_of)."""
+    return site.turkish_of(run)["status"] == "listed"
 
 
 def turkish_line(site: Site, run: dict[str, Any]) -> str:
     """The details box line on Turkish support: listed, or the mark's words and why, with the source."""
-    item = site.turkish_support[(run["provider"], run["model"])]
+    item = site.turkish_of(run)
     source = f'<a href="{esc(item["source"])}">source</a>, read {esc(bp.long_date(item["read"]))}'
     if item["status"] == "listed":
         return f"Turkish: listed in its card ({source})"
