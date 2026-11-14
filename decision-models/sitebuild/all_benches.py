@@ -303,6 +303,19 @@ def small_share(share: float) -> str:
     return f"{100 * share:.{digits}f}%"
 
 
+# A three-seed Grading row's notes give its mean invalid rate rounded to a whole percent ("mean rate 0%" for 0.03%;
+# compactor #7223 fixes the export from its next file). The page writes the row's own invalid_rate_mean there, as its
+# flag and box do, so a nonzero rate never reads as none (Zeki #7222).
+MEAN_RATE = re.compile(r"\bmean rate \d+(?:\.\d+)?%")
+
+
+def row_notes(row: dict[str, Any]) -> str:
+    """A bench row's notes as the file words them, a three-seed row's mean invalid rate as small_share writes it."""
+    notes = row.get("notes") or ""
+    rate = row.get("invalid_rate_mean")
+    return notes if rate is None else MEAN_RATE.sub(f"mean rate {small_share(rate)}", notes)
+
+
 def kind_of(row: dict[str, Any]) -> str:
     """decision, chat or program, whichever way a file words it ("decision model", "chat")."""
     kind = (row.get("kind") or "").lower()
@@ -1201,7 +1214,7 @@ class GradingBench(ui.Bench):
                    f"Invalid replies: {bp.count(metrics['invalid'])} of {bp.count(GRADING_PAIRS)}, counted wrong")
         lines = [f"<strong>{esc(row.get('display_name') or row['name'])}</strong> · {esc(row.get('maker') or 'maker not given')}",
                  esc(self.class_text(model) or "Size not disclosed"),
-                 esc(row.get("notes") or ""),
+                 esc(row_notes(row)),
                  "Hardware: " + (found[1] if (found := grading_hardware(row)) else "the maker's API (its latency includes the network)"),
                  invalid,
                  "Option probabilities: " + ("yes, so its calibration error is measured" if metrics["probabilities"] else
@@ -1697,8 +1710,9 @@ def model_page(data: Data, model: dict[str, Any]) -> str:
         row = model["scores"].get(key) or {}
         commit = row.get("commit")
         runs = ", ".join(map(str, row.get("runs") or [])) or "–"
-        # The bench file's own notes on the row (how and where it ran, a provisional status), as the file words them.
-        notes = f'<span class="small ab-row-notes">{esc(row["notes"])}</span>' if row.get("notes") else ""
+        # The bench file's own notes on the row (how and where it ran, a provisional status), as the file words them
+        # (row_notes: a three-seed row's mean invalid rate as its flag writes it).
+        notes = f'<span class="small ab-row-notes">{esc(row_notes(row))}</span>' if row.get("notes") else ""
         rows.append(f'<tr>{head}<td class="num">{number(value)}{combined_parts(data, model) if key == "combined" else ""}</td><td class="num">{rank_text(data, model, key)}</td>'
                     f'<td class="num">{"–" if row.get("calibration_error") is None else number(100 * row["calibration_error"])}</td>'
                     f'<td>{f"<code title=\"{esc(commit)}\">{esc(commit[:7])}</code>" if commit else "–"}</td><td><span class="small">{esc(runs)}</span>{notes}</td></tr>')
