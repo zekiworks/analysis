@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results f5ffd6d9 (14 November 2026)
+
+- MiniCPM5-2B's English reading (thinking on) is now the mean of three seeds (Ümit via Zeki #6969, #6979). Seed 0 is its first run, 1051: 419 of 547 right. Seeds 1 and 2 are runs 1118 (431) and 1119 (432), on logic's server (one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, `--max-num-seqs 16`) with the first run's request settings except the seed, 32 in flight. Mean 78.1%, lowest and highest 76.6% and 79.0% (a range, not a confidence interval). The note "Baseline server capacity not retained; repeats use max-num-seqs 16." stays with the three runs (Zeki #6998). The mean moves it up one place, above Metask-Jev 4B (422 right). Its paired Turkish comparison, cost and latency stay on run 1051 and name it.
+- MiniCPM5-2B's Turkish runs (thinking on) were not asked: its Turkish smoke (run 1120, 20 questions at the same settings) failed the gate. 15 of 20 replies had no final answer line, none was cut off. The English page shows its Turkish side as Paused with this reason, as for its thinking-off setup (run 1096); the next step is Ümit's.
+- No other number changed.
+
 ## Results c07004db (14 November 2026)
 
 - Added Gemini 4 Hydrogen's Turkish runs (Ümit via Zeki #5663; Ümit #6854), on the same subscription-bridge lane and settings as its English run (logic #6947): thinking high, 16 questions per request, one request at a time, with the answer-layout paragraph. Text run 1114: 2,156 of 2,198 right (98.1%; reading 638 of 656, grammar 1,518 of 1,542), no invalid answer. That ties Gemini 3.8 Flash for 2nd of 106 Text tab setups, one answer behind Claude Fable 5.2 (2,157), in letter group a with Claude Fable 5.2 and GPT-6 Astra. Its "Bilmiyorum" run (1117): 2,141 right, 8 "Bilmiyorum", 38 wrong and 11 invalid (one reply whose entries could not be read, counted wrong by the rule): non-hallucination 17.4%, answered 99.1%. On the 547 kept reading questions it got 531 right in Turkish and 529 in English (−0.4 points, not significant). Billed through the subscription; at the API's prices its Text run would have cost $10.56.
