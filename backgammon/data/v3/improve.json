@@ -616,7 +616,7 @@
     "series_done": 2,
     "setup": "LFM2.5-24B-A2B (on)",
     "status": "running",
-    "updated_at": "2026-11-14T18:02:16+00:00"
+    "updated_at": "2026-11-14T18:27:37+00:00"
    },
    {
     "reason": null,
@@ -627,10 +627,10 @@
    },
    {
     "reason": null,
-    "series_done": 1,
+    "series_done": 2,
     "setup": "GPT-6.1 Sol (high)",
     "status": "running",
-    "updated_at": "2026-11-14T18:09:39+00:00"
+    "updated_at": "2026-11-14T18:29:23+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -640,7 +640,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-14T18:19:38+00:00"
+  "updated_at": "2026-11-14T18:34:44+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -6166,7 +6166,7 @@
      "reason": null,
      "series_done": 2,
      "status": "running",
-     "updated_at": "2026-11-14T18:02:16+00:00"
+     "updated_at": "2026-11-14T18:27:37+00:00"
     },
     "range": null,
     "reason": null,
@@ -6791,20 +6791,20 @@
    },
    {
     "after": {
-     "error_rate": 21.043242141604424,
-     "right_safety": 98.0,
+     "error_rate": 20.17966978251934,
+     "right_safety": 97.0,
      "risks_found": 67.0
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 200,
-     "expected": 200,
+     "answered": 400,
+     "expected": 400,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 100,
-     "safety_pays": 100,
-     "tests": 1,
-     "valid": 200
+     "risk_pays": 200,
+     "safety_pays": 200,
+     "tests": 2,
+     "valid": 400
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -6823,12 +6823,12 @@
      "risks_found": 55.0
     },
     "change": {
-     "error_rate": -4.189491122961044,
-     "right_safety": 4.0,
+     "error_rate": -5.053063482046127,
+     "right_safety": 3.0,
      "risks_found": 12.0
     },
     "cost": {
-     "api_equivalent_usd": 18.1583,
+     "api_equivalent_usd": 20.7349,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -6855,9 +6855,9 @@
     "key": "gpt-6.1-sol-high",
     "progress": {
      "reason": null,
-     "series_done": 1,
+     "series_done": 2,
      "status": "running",
-     "updated_at": "2026-11-14T18:09:39+00:00"
+     "updated_at": "2026-11-14T18:29:23+00:00"
     },
     "range": null,
     "reason": null,
@@ -6930,15 +6930,85 @@
        "wall_seconds": 1183.3
       },
       "wins": 8
+     },
+     {
+      "finished": true,
+      "game_decisions": 225,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- With a strong home board, be willing to break an anchor and expose escaping checkers. The danger of being hit must be weighed against the cost of staying trapped.\n- Use the opponent’s time on the bar to mobilize back checkers, rather than automatically bringing an advanced checker closer to home.\n- During the bear-in, spread spare checkers efficiently across home-board points. Avoid unnecessary outside points and tall stacks when a safe, better-balanced alternative exists.\n- In the opening, consider splitting the back checkers as well as developing builders; improving the front position is not the only priority.\n- In a noncontact bearoff, use small dice to improve the remaining distribution and reduce future wasted rolls. Compare taking a checker off with preparing smoother follow-up rolls."
+       },
+       {
+        "game": 2,
+        "text": "- When entering from the bar, compare hitting with anchoring. Against a weak opposing board, a tempo hit can outweigh immediate security.\n- Don’t bury useful builders on the ace point just to remove a blot or make a safe point. Preserve flexibility, especially while the opponent is on the bar.\n- With big doubles, balance escaping back checkers against building my home board. Clearing an advanced anchor completely is not automatically best.\n- During the bear-in, spread spare checkers across useful points rather than overloading the six point. Compare distributions, not just immediate safety.\n- In a contact-free bearoff, strongly favor taking two checkers off when possible. Don’t automatically use an exact bearoff roll to move a higher checker down."
+       },
+       {
+        "game": 3,
+        "text": "- Prioritize making useful home-board points over tidying blots or stacking safe points. A stronger board can justify leaving an outfield shot.\n- Before hitting, assess the resulting structure. Avoid hits that merely bury another checker on a low point without improving containment.\n- Keep builders active and well distributed. Avoid stripping useful points or piling checkers onto low points while important gaps remain.\n- Once I have an advanced anchor, avoid overcrowding it or automatically pushing the remaining back checker forward. Compare those moves with improving my forward position.\n- Judge risk by its payoff, not by blot count alone. Accept exposure for lasting positional gains; reject unnecessary exposure for a low-value hit."
+       },
+       {
+        "game": 4,
+        "text": "- When making a home-board point, compare the resulting spare distribution. Unstacking a crowded outer point can be better than simply advancing the last rear checker.\n- Look for hits that also escape a back checker or gain tempo. Safety sometimes comes from attacking, not from avoiding contact.\n- In contact bearoffs, check blocked landing points before automatically bearing off. Moving a high checker down can preserve flexibility and reduce future wasted dice.\n- Keep evaluating checker play independently of the result: a gammon win can still hide small structural and bearoff errors worth correcting."
+       },
+       {
+        "game": 5,
+        "text": "- Don’t confuse covering blots with improving my position. Preserve useful home-board slots and spread builders rather than burying checkers on already crowded points.\n- Release surplus checkers from an advanced anchor before my home board crunches. Accept reasonable exposure to maintain timing and flexibility.\n- Use the tempo gained by hitting to improve elsewhere: advance a back checker or unstack a heavy point instead of automatically retreating the hitter to safety.\n- When escaping, compare landing points by actual return shots and follow-up rolls. Moving farther is not automatically better, and avoiding every shot can be too costly.\n- With two scattered runners, consider bringing the leading checker close to home rather than advancing the rear checker automatically. Evaluate the whole escape plan, not just immediate safety."
+       },
+       {
+        "game": 6,
+        "text": "- Weigh a loose hit’s tempo and containment value against return shots. Playing safely can be costly when it lets a trapped enemy checker escape.\n- Don’t hit automatically just because you can make the ace point. Compare useful outfield points that connect my checkers and preserve builders before burying material deep.\n- Prefer building another useful home-board point to stacking an existing point when the added board strength justifies the exposure.\n- In uneven bearoffs, compare clearing the highest occupied point with taking an extra checker off. Better distribution can save more rolls than the immediate extra checker."
+       },
+       {
+        "game": 7,
+        "text": "- Prioritize useful point-making and coordinated development over running a lone back checker into danger. A strong blocking point can be worth more than immediate escape.\n- Don’t hit automatically. Weigh the tempo gained against return shots, broken structure, and checkers buried on low points—especially when the opponent holds an advanced anchor.\n- Develop spare checkers instead of splitting or advancing the last back checker without a clear tactical benefit.\n- When far behind against a bearing-off opponent, give gammon-saving urgency to escaping rear checkers. Don’t divert big rolls into low-value attacks or unnecessary home-board construction.\n- Safety is not just avoiding blots. Accept calculated exposure when it improves mobility; clustering rear checkers can leave them stranded and increase gammon danger."
+       },
+       {
+        "game": 8,
+        "text": "- Prioritize escaping rear checkers before an opposing prime closes. An opponent on the bar can provide a valuable escape tempo; making another attacking point may be less urgent.\n- With a strong home board, actively look for double hits. Putting two checkers on the bar can outweigh the comfort of covering an outfield blot.\n- Accept calculated exposure to split, advance, and activate back checkers. Keeping them safely anchored can become dangerous if escape routes are disappearing.\n- When saving a gammon becomes the main objective, prioritize getting a checker home and bearing it off—not automatically clearing the rearmost checkers first.\n- Favor useful development over attractive-looking extras: an additional deep hit or a safely stacked checker may contribute less than an active builder or escaping runner."
+       },
+       {
+        "game": 9,
+        "text": "- Before choosing a comfortable anchor or quiet development, look for a tempo hit that also advances a back checker. Safety can cost valuable initiative.\n- Compare hits by the resulting position: disruption, return shots, and board structure matter more than simply hitting the most accessible blot.\n- Don’t automatically cover an outer-board blot. Leaving it exposed can be worthwhile when improving home-board distribution and preserving timing.\n- During the bear-in, use doubles to bring outside spares home rather than unnecessarily reshuffling checkers already inside. Plan how to clear the remaining points.\n- In contact bearoffs, weigh extra checkers borne off against actual hitting chances. Don’t sacrifice substantial bearoff progress merely to avoid leaving any blot."
+       },
+       {
+        "game": 10,
+        "text": "- When a backgammon loss threatens, prioritize getting every checker out of the opponent’s home board before their last checker comes off—even if advancing an escaped checker looks faster.\n- Use the opponent’s time on the bar to strengthen my board. Filling important gaps can be worth much more than moving a rear checker.\n- Evaluate hits by what they accomplish, not how many I can make. Avoid deep hits that bury builders, weaken useful points, or distract from escape.\n- Develop rear checkers purposefully: seek useful splits, redistribute spare checkers, and take escape opportunities rather than automatically stacking anchors.\n- Keep my forward position flexible and connected. Unstack heavy points and preserve useful builders instead of rushing individual checkers deep into my home board."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 19.316097423434258,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 96.0,
+       "risk_pays": 100,
+       "risks_found": 67.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1184.5
+      },
+      "wins": 7
      }
     ],
-    "series_finished": 1,
+    "series_finished": 2,
     "setup": "GPT-6.1 Sol (high)",
     "state": "running",
-    "status": "running, 1 of 5 series",
+    "status": "running, 2 of 5 series",
     "steps_done": [
      "E1",
-     "S1"
+     "S1",
+     "S2"
     ],
     "threshold": null,
     "verdict": false
@@ -6993,11 +7063,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-14T18:19:38+00:00"
+  "updated_at": "2026-11-14T18:34:44+00:00"
  },
- "source_sha256": "8eb62b4c31d147eb3b6aca416d6619424ee9160a5b962daf94ff4665245c20f3",
+ "source_sha256": "1c9048b73c591996257f7f620356c09c2e407cfe41d11436e404100c02230080",
  "status": {
-  "last_update": "2026-11-14T18:19:38+00:00",
+  "last_update": "2026-11-14T18:34:44+00:00",
   "line": "12 of 20 models with a verdict · 2 running · 2 paused · 0 incomplete or stopped",
   "models": 20,
   "paused": 2,
