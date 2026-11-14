@@ -626,11 +626,18 @@
     "updated_at": "2026-11-13T09:10:16+00:00"
    },
    {
-    "reason": null,
+    "reason": "waiting for its turn",
+    "series_done": 0,
+    "setup": "LFM2.5-2.6B (on)",
+    "status": "paused",
+    "updated_at": "2026-11-08T16:10:46+00:00"
+   },
+   {
+    "reason": "waiting for its turn",
     "series_done": 4,
     "setup": "GPT-6.1 Sol (high)",
-    "status": "running",
-    "updated_at": "2026-11-14T22:37:04+00:00"
+    "status": "paused",
+    "updated_at": "2026-11-14T22:53:39+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -640,7 +647,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-14T22:49:31+00:00"
+  "updated_at": "2026-11-14T23:00:37+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -6791,6 +6798,51 @@
    },
    {
     "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": null,
+    "before": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [],
+    "empty_done": 0,
+    "improved": null,
+    "key": "lfm2.5-2.6b-on",
+    "progress": {
+     "reason": "waiting for its turn",
+     "series_done": 0,
+     "status": "paused",
+     "updated_at": "2026-11-08T16:10:46+00:00"
+    },
+    "range": null,
+    "reason": "waiting for its turn in its lane",
+    "series": [],
+    "series_finished": 0,
+    "setup": "LFM2.5-2.6B (on)",
+    "state": "paused",
+    "status": "paused: waiting for its turn in its lane",
+    "steps_done": [],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
      "error_rate": 20.379898622632027,
      "right_safety": 96.0,
      "risks_found": 64.5
@@ -6828,7 +6880,7 @@
      "risks_found": 5.166666666666664
     },
     "cost": {
-     "api_equivalent_usd": 41.1816,
+     "api_equivalent_usd": 41.269,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -6884,13 +6936,13 @@
     "improved": null,
     "key": "gpt-6.1-sol-high",
     "progress": {
-     "reason": null,
+     "reason": "waiting for its turn",
      "series_done": 4,
-     "status": "running",
-     "updated_at": "2026-11-14T22:37:04+00:00"
+     "status": "paused",
+     "updated_at": "2026-11-14T22:53:39+00:00"
     },
     "range": 8.0,
-    "reason": null,
+    "reason": "waiting for its turn in its lane",
     "series": [
      {
       "finished": true,
@@ -7171,8 +7223,8 @@
     ],
     "series_finished": 4,
     "setup": "GPT-6.1 Sol (high)",
-    "state": "running",
-    "status": "running, 4 of 5 series",
+    "state": "paused",
+    "status": "paused: waiting for its turn in its lane",
     "steps_done": [
      "E1",
      "S1",
@@ -7235,16 +7287,16 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-14T22:49:31+00:00"
+  "updated_at": "2026-11-14T23:00:37+00:00"
  },
- "source_sha256": "9aba1a50be9f8776330ab55d87868d490ed8f9d6ecf15cd1fe55c8d95480dd77",
+ "source_sha256": "2e623431722f70b3f58ffe9942e6034bd9b4be72069e883ffbe0cd3d5edef45d",
  "status": {
-  "last_update": "2026-11-14T22:49:31+00:00",
-  "line": "12 of 20 models with a verdict · 2 running · 2 paused · 0 incomplete or stopped",
+  "last_update": "2026-11-14T23:00:37+00:00",
+  "line": "12 of 20 models with a verdict · 1 running · 4 paused · 0 incomplete or stopped",
   "models": 20,
-  "paused": 2,
+  "paused": 4,
   "phase": "running",
-  "running": 2,
+  "running": 1,
   "stopped": 0,
   "verdicts": 12
  },
