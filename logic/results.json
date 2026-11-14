@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-14T04:06:15Z",
+ "generated_at": "2026-11-14T04:13:29Z",
  "tests": {
   "logic": {
    "name": "Logic",
@@ -2676,7 +2676,7 @@
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
-     "non_hallucination": 0.7272727272727273,
+     "non_hallucination": 0.7391304347826086,
      "cost_per_1000": 0.0,
      "cost_usd": 0.0,
      "cost_unit": "USD",
@@ -2778,11 +2778,11 @@
      "setup_label": "LFM3-1.7B (chat, thinking, on our GPU)",
      "group": "chat",
      "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
-     "accuracy": 0.9889042995839112,
-     "wilson_low": 0.9835425627365938,
-     "wilson_high": 0.9925324766202287,
-     "right": 2139,
-     "n": 2163,
+     "accuracy": 0.9893666204345816,
+     "wilson_low": null,
+     "wilson_high": null,
+     "right": null,
+     "n": null,
      "decision_score": null,
      "chosen_answer_brier": null,
      "n_scored": null,
@@ -2808,9 +2808,18 @@
        "run_id": "lfm3-1.7b-vllm-seed1_en",
        "right": 2143,
        "n": 2163
+      },
+      {
+       "seed": 2,
+       "run_id": "lfm3-1.7b-vllm-seed2_en",
+       "right": 2138,
+       "n": 2163
       }
      ],
-     "seeds_complete": "2/3"
+     "seeds_complete": "3/3",
+     "accuracy_basis": "mean of 3 seeds",
+     "seed_min": 0.9884419787332409,
+     "seed_max": 0.9907535829865927
     },
     {
      "name": "Gemma 4 12B Unified",
@@ -5132,11 +5141,11 @@
      "setup_label": "LFM3-1.7B (chat, thinking, on our GPU)",
      "group": "chat",
      "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
-     "accuracy": 0.9394768856447688,
-     "wilson_low": 0.9308019611198589,
-     "wilson_high": 0.9471260655506831,
-     "right": 3089,
-     "n": 3288,
+     "accuracy": 0.9390713706407136,
+     "wilson_low": null,
+     "wilson_high": null,
+     "right": null,
+     "n": null,
      "decision_score": null,
      "chosen_answer_brier": null,
      "n_scored": null,
@@ -5162,9 +5171,18 @@
        "run_id": "lfm3-1.7b-vllm-seed1_en+lfm3-1.7b-vllm-seed1_en",
        "right": 3087,
        "n": 3288
+      },
+      {
+       "seed": 2,
+       "run_id": "lfm3-1.7b-vllm-seed2_en+lfm3-1.7b-vllm-seed2_en",
+       "right": 3087,
+       "n": 3288
       }
      ],
-     "seeds_complete": "2/3"
+     "seeds_complete": "3/3",
+     "accuracy_basis": "mean of 3 seeds",
+     "seed_min": 0.9388686131386861,
+     "seed_max": 0.9394768856447688
     },
     {
      "name": "MiniCPM5-2B",
