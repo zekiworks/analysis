@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results f1e85cf4 (14 November 2026)
+
+- LFM3-1.7B's English reading (thinking on) is now the mean of three sampling seeds (Ümit via Zeki #6969, #6976; shown as on Logic & Math, #6988, #6989, #6994). Seed 0 is its Run 2 (run 1091, 392 of 547 right). Seeds 1 and 2 are runs 1115 (390) and 1116 (385), asked on logic's server (one RTX PRO 6000 Blackwell, vLLM nightly be47189f, BF16, max-num-seqs 32; logic #7041) with the first run's request settings except the seed, 32 in flight. The mean is 71.1%, with the lowest and highest, 70.4%–71.7%, in place of the 95% interval: a range, not a confidence interval. The three seeds' 1,167 right answers are exactly three times the first run's 389, so its place does not change. The first run (1061) stays the historical paired baseline against its Turkish run (1089), and its English "I don't know" column stays on run 1062; each is named where it is shown.
+- Every English number on the site now comes through one helper. A setup with seed runs shows its first run's number, named with how many of its 3 seeds are in, until all three are; then it shows their mean, ranked and charted by it. Where a table holds such a row, its heads and meaning line say so (Zeki #7044 on Logic & Math's heads). MiniCPM5-2B (thinking on) reads "run 1051 · 1 of 3 seeds", with Zeki's note (#6998): "Baseline server capacity not retained; repeats use max-num-seqs 16."
+- No other number changed.
+
 ## Results fca3f8f4 (14 November 2026)
 
 - Added Granite-4.2-3B's English reading, thinking on, the setup Logic & Math published (logic #6934, on its server while its own runs paused): `ibm-granite/granite-4.2-3b` at `4e9c275`, one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, reasoning effort high, up to 65,536 output tokens (its Logic & Math smoke cut off at 32,768), temperature 1.0, top_p 0.95, seed 0, 32 requests in flight, one question per request. Run 1104: 407 of 547 kept questions right (74.4%), 140 wrong, no invalid answer: 95th of 116 English setups, between Gemma 4 E2B (408) and LFM2.5-2.6B (404). $2.72 per 1,000 questions from GPU time; median request 40.5 s. Its thinking-off setup, the one in Ümit's table (#6516, #6924), is a setup of its own, queued in logic's GPU 1 queue.

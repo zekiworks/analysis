@@ -77,7 +77,9 @@ SECTION_WORDS = {"repeat_runs": "the repeat runs of each repeated setup (the Sta
                                       "first run",
                  "english_runs": "the English reading runs on the kept questions",
                  "english_dont_know_runs": "the English \u201cI don't know\u201d runs",
-                 "english_dont_know_turkish_runs": "their Turkish counterparts on the kept questions"}
+                 "english_dont_know_turkish_runs": "their Turkish counterparts on the kept questions",
+                 "english_seed_runs": "the English three-seed setups' seed runs that no repeat check holds (their "
+                                      "setups' English number is the seeds' mean)"}
 
 
 def build(site: Site) -> dict[str, str]:

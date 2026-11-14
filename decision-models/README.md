@@ -322,6 +322,29 @@ python3 -m http.server 8000                                # preview at http://1
     and the model's `backend`, `precision` and `revision` in `MODELS` (`plain_access` in `export_results.py`), its
     confidence reads not measured, its cost is the GPU time as for the other local runs, and its prompt version is
     that of the answers file's `plain_prompts` (the runner's `PLAIN_PROMPTS`), published in `answers.json` with it.
+    **Three-seed English triples** (Ümit via Zeki, bus #6969, #6979, #6989, #6994, #6998; Logic & Math shows the same,
+    #6988): `page_config.json`'s `english_reading.seed_runs` lists, per model id, `runs`, the English run of each
+    sampling seed 0, 1 and 2 (list index = seed, null until it is in; LFM3-1.7B: 1091, its repeat 2, not its first run
+    1061; MiniCPM5-2B: 1051, its first run), and an optional `note`, shown verbatim beside the listed runs. Seeds 1
+    and 2 are repeat-numbered English runs of the same setup (`english_repeat.sh` with `SEED` and `REPEAT`); filling in
+    their run ids is the only edit needed. `export_results.py` (`seed_runs_config`, `seed_held_runs`, `seed_block`)
+    stops unless each listed run is an English run of that setup on exactly the kept questions with the first run's
+    prompts and translations, its `request_params` `seed` is its list index (never inferred from a run number), and the
+    listed runs' `request_params` differ in nothing but `seed` (the server's own settings are not recorded with a run,
+    so not checked); it adds the setup's `seeds` (`of`, `completed`, per seed `seed`, `run`, `right`, `questions`,
+    `accuracy` or null, and with all in `mean`, `min`, `max`, plus `note`) and ranks English setups by the mean once
+    complete (`english_rank_value`). A listed run with a repeat number that no repeat check holds is held out of its
+    setup's `runs` and published in `answers.json`'s `english_seed_runs` (in `answers-english.json`); one a repeat
+    check holds (1091) stays in `repeat_check_runs`, the Experiments entry unchanged; `reproduce.py` recomputes `seeds`.
+    On the site every English number and ranking goes through `english_value` and `english_second` in
+    `sitebuild/english_reading.py` (Leaderboard English part, `english/`, `turkish-vs-english/`, model pages, the link
+    preview, Highlights and All benches' `english_bench`): while fewer than three are in, the row keeps its published
+    first run's number and names it, with "run 1061 · 1 of 3 seeds" beside it, never a partial mean; with all three, the
+    number is the mean of the three accuracies with "min–max of 3 seeds" in place of the 95% interval (a range, never
+    called a confidence interval; the Leaderboard's bar has no whisker), ranked and charted by it, and its seed runs with
+    their right answers listed in the details box, the model page and the English table. What needs one run's answers
+    stays on its run and names it: the Turkish-vs-English paired test and difference ("historical paired baseline, run
+    1061", against Turkish run 1089), the "I don't know" column and the confidence, cost and latency lines ("from run N").
     **`vllm-plain` setups with Turkish runs**: once such a setup has its Turkish Text run (2,198 questions, plain answer
     line "CEVAP: X", `plain_prompts`' `turkish`) and its Turkish "Bilmiyorum" run (`turkish_dont_know`), it is a setup
     like any chat setup: on the Text tab, the Leaderboard, its model page, the Hallucination tab, Turkish vs English

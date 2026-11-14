@@ -1597,9 +1597,11 @@ def accuracy_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
 
 
 def english_image(snap: Snapshot, size: dict[str, int], theme: str) -> str:
-    """The English reading page's link preview: the most accurate setups on the kept reading questions in English."""
+    """The English reading page's link preview: the most accurate setups on the kept reading questions in English (a
+    three-seed setup by its mean once all its seeds are in, english_reading.english_value; Zeki #6989)."""
+    from sitebuild.english_reading import english_value  # here: sitebuild.english_reading imports this module
     data = snap.results["english_reading"]
-    rows = [(image_label(snap, snap.by_id[model["turkish_run"]]), model["english"]["accuracy"]) for model in data["models"]]
+    rows = [(image_label(snap, snap.by_id[model["turkish_run"]]), english_value(model)) for model in data["models"]]
     return ranking_image(snap, size, theme, f"English reading: the {IMAGE_TOP} most accurate setups",
                          f"{count(data['questions'])} Turkish reading questions, translated into English. Accuracy: right answers.",
                          rows, f"The full ranking of all {count(len(rows))} setups is on the English reading page.")

@@ -91,15 +91,15 @@ def anchor(base: str, group: str) -> str:
 
 
 def group_models(site: Site, data: dict[str, Any], group: str) -> list[dict[str, Any]]:
-    """The English setups of a group, in english_reading.models' order (by English right answers)."""
+    """The English setups of a group, in english_reading.models' order (by English accuracy, english_value)."""
     return [model for model in data["models"] if site.in_group(site.by_id[model["turkish_run"]], group)]
 
 
 def english_members(site: Site, data: dict[str, Any], group: str) -> list[dict[str, Any]]:
-    """The English reading page's setups of a group: group_models with the group's English-only setups, by English right
-    answers (a stable sort, so the paired setups keep english_reading.models' order among equals)."""
+    """The English reading page's setups of a group: group_models with the group's English-only setups, by English
+    accuracy (english_value; a stable sort, so the paired setups keep english_reading.models' order among equals)."""
     alone = [model for model in english_only(data) if site.in_group(setup_run(site, model), group)]
-    return sorted(group_models(site, data, group) + alone, key=lambda model: -model["english"]["right"])
+    return sorted(group_models(site, data, group) + alone, key=lambda model: -english_value(model))
 
 
 def noun(group: str, count: int) -> str:
@@ -176,6 +176,78 @@ def setup_run(site: Site, model: dict[str, Any]) -> dict[str, Any]:
     cost = model["cost"]["english"] or {}
     return {**model, "cost_basis": cost.get("basis"), "api_equivalent_usd": cost.get("usd"),
             "cost_upper_bound": bool(cost.get("upper_bound")), "price": cost.get("price")}
+
+
+# The three-seed English triples (results.json english_reading's `seeds`, page_config.json english_reading.seed_runs;
+# Ümit via Zeki, bus #6969, #6979, #6989, #6994, #6998; Logic & Math shows the same, #6988). Every place that shows or
+# ranks a setup's English accuracy reads it through these. While fewer than all its seeds are in, a setup keeps its
+# published first run's number and names that run, with the seeds in so far beside it, never a partial mean; with all of
+# them, its number is their mean with "min–max of 3 seeds" in place of the 95% interval (a range, never called a
+# confidence interval), ranked and charted by it, its runs listed with the entry's note. What needs one run's answers
+# (the paired test and difference with Turkish, “I don't know”, confidence, per-question diagnostics, answer links)
+# stays on its own run and names it.
+def seeds_complete(model: dict[str, Any]) -> bool:
+    """Whether a setup's seed runs are all in (english_reading's `seeds`)."""
+    seeds = model.get("seeds")
+    return bool(seeds) and seeds["completed"] == seeds["of"]
+
+
+def english_value(model: dict[str, Any]) -> float:
+    """A setup's English accuracy as shown, ranked and charted: its seeds' mean once all are in, else its first run's."""
+    return model["seeds"]["mean"] if seeds_complete(model) else model["english"]["accuracy"]
+
+
+def english_second(model: dict[str, Any], digits: int = 1) -> str | None:
+    """The line under a setup's English number besides (or, with all seeds in, instead of) its 95% interval: "70.9%–72.2%
+    min–max of 3 seeds" with all seeds in; "run 1061 · 1 of 3 seeds" while some are missing (the number shown is that
+    run's); None for a setup without seeds."""
+    seeds = model.get("seeds")
+    if not seeds:
+        return None
+    if seeds_complete(model):
+        low, high = pct(seeds["min"], digits), pct(seeds["max"], digits)
+        if low == high:  # a range that would print as one number gets one more decimal (Zeki #7044 on Logic & Math's)
+            low, high = pct(seeds["min"], digits + 1), pct(seeds["max"], digits + 1)
+        return f"{low}\u2013{high} min\u2013max of {seeds['of']} seeds"
+    return f"run {model['run']} \u00b7 {seeds['completed']} of {seeds['of']} seeds"
+
+
+def paired_line(model: dict[str, Any]) -> str | None:
+    """The line under an English number that stays the first run's (the paired comparison with Turkish, its difference
+    and test): "historical paired baseline, run 1061" with all seeds in; while some are missing, english_second's
+    progress; None for a setup without seeds."""
+    if seeds_complete(model):
+        return f"historical paired baseline, run {model['run']}"
+    return english_second(model)
+
+
+def from_run(model: dict[str, Any], run: int) -> str | None:
+    """For a number of one run (“I don't know”, confidence, cost, answers) beside a setup's three-seed mean: "from run
+    N"; None while the setup shows its first run's number anyway."""
+    return f"from run {run}" if seeds_complete(model) else None
+
+
+def seed_runs_text(model: dict[str, Any], total: int) -> str | None:
+    """With all seeds in, each seed's run and right answers, then the entry's note verbatim (Zeki #6998): "seed 0: run
+    1091, 392 of 547 right; …". None otherwise."""
+    if not seeds_complete(model):
+        return None
+    seeds = model["seeds"]
+    runs = "; ".join(f"seed {item['seed']}: run {item['run']}, {item['right']:,} of {total:,} right" for item in seeds["runs"])
+    return runs + (f". {seeds['note']}" if seeds.get("note") else "")
+
+
+def seed_note(models: list[dict[str, Any]]) -> str:
+    """A table note's sentence on the setups run with three sampling seeds among `models`; empty without one."""
+    seeded = [model for model in models if model.get("seeds")]
+    if not seeded:
+        return ""
+    return (f" {esc(joined([model['name'] for model in seeded]))} {'is' if len(seeded) == 1 else 'are'} run with "
+            f"{seeded[0]['seeds']['of']} sampling seeds: until all are in, the number is the first English run's, named "
+            "with the seeds in so far; then it is the mean of the runs' accuracies, ranked by it, with their lowest and "
+            "highest (min–max, a range, not a confidence interval) under it. The paired comparison with Turkish and the "
+            "“I don't know” runs stay on their own runs.")
+
 
 
 def idk_key(model: dict[str, Any]) -> int:
@@ -675,7 +747,8 @@ def face(site: Site, data: dict[str, Any], group: str) -> str:
           "text": f"{pct(model['turkish']['accuracy'], digits)} · {pct(model['english']['accuracy'], digits)}",
           "bars": family_bars(site, model["turkish_run"], (model["turkish"]["accuracy"], "turkish"), (model["english"]["accuracy"], "english")),
           "title": f"{label(site, model)}: {model['turkish']['right']:,} of {total:,} right in Turkish, "
-                   f"{model['english']['right']:,} in English ({100 * model['difference']:+.{digits}f} points)"}
+                   f"{model['english']['right']:,} in English ({100 * model['difference']:+.{digits}f} points)"
+                   + (f"; English: {paired_line(model)}" if paired_line(model) else "")}
          for model in models],
         '<span><i class="swatch swatch-turkish"></i>Turkish (the Text tab run), the upper bar</span> '
         '<span><i class="swatch swatch-english"></i>English (first run), the lower bar, striped</span> '
@@ -832,10 +905,10 @@ def against_reference(site: Site, data: dict[str, Any]) -> str:
 
 
 def ranks(models: list[dict[str, Any]], side: str) -> dict[int, int]:
-    """Each setup's place by right answers in one language among these setups, 1, 2, 3 without repeats (1 = most right;
-    Zeki #4630); setups with as many right keep their order in `models`, the table's, which claims no difference; by
-    Turkish run."""
-    ordered = sorted(models, key=lambda model: -model[side]["right"])
+    """Each setup's place by accuracy in one language among these setups (English: english_value, a three-seed setup's
+    mean once all are in), 1, 2, 3 without repeats (1 = most right; Zeki #4630); setups with the same accuracy keep their
+    order in `models`, the table's, which claims no difference; by Turkish run."""
+    ordered = sorted(models, key=lambda model: -(english_value(model) if side == "english" else model[side]["accuracy"]))
     return {model["turkish_run"]: place for place, model in enumerate(ordered, 1)}
 
 
@@ -866,9 +939,16 @@ def english_only_list(site: Site, data: dict[str, Any], group: str) -> str:
     if not alone:
         return ""
     running, paused = turkish_running(site, data), turkish_paused(site, data)
-    items = joined([f'<a href="{href(site, model)}">{esc(label(site, model))}</a>: English '
-                    f'{pct(model["english"]["accuracy"], digits)} ({model["english"]["right"]:,} of {data["questions"]:,} '
-                    f"right), Turkish "
+
+    def english(model: dict[str, Any]) -> str:
+        """The English number (english_value) with its count, or a three-seed setup's range or progress."""
+        second = english_second(model, digits)
+        if seeds_complete(model):
+            return f"{pct(english_value(model), digits)} (the mean of {model['seeds']['of']} seeds, {esc(second)})"
+        return (f'{pct(model["english"]["accuracy"], digits)} ({model["english"]["right"]:,} of {data["questions"]:,} right'
+                + (f"; {esc(second)}" if second else "") + ")")
+
+    items = joined([f'<a href="{href(site, model)}">{esc(label(site, model))}</a>: English {english(model)}, Turkish '
                     + (f"{paused[model['model']][0].lower()} ({esc(paused[model['model']][1])})" if model["model"] in paused else
                        "still running" if model["model"] in running else "Not run") for model in alone])
     return (f'<p class="note" {shown(group)}>English-only setups (no Turkish run, so in no paired test and no Holm '
@@ -935,7 +1015,9 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
 
     rows = []
     for model in models:
-        values = [pct(model["turkish"]["accuracy"], digits), pct(model["english"]["accuracy"], digits),
+        second = paired_line(model)
+        values = [pct(model["turkish"]["accuracy"], digits),
+                  pct(model["english"]["accuracy"], digits) + (f'<span class="small">{esc(second)}</span>' if second else ""),
                   f"{100 * model['difference']:+.{digits}f}{' *' if significant(model) else ''}"]
         if word:
             entry = same_word[model["turkish_run"]]
@@ -1018,6 +1100,7 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
             f'(<a href="#{anchor("chart-cost", group)}">Cost</a>, <a href="#{anchor("chart-latency", group)}">Latency</a>).'
             + (" " + missing_note(site, models, tuple(SIDES))).rstrip() + " Rank: by accuracy among the "
             f"{len(models)} {noun(group, len(models))} in each language, 1 the most accurate, tied setups sharing a rank."
+            f"{seed_note(models)}"
             f'{languages_note} The full tables are under <a href="#info">Info</a>.'
             + "</p>"
             f'<p class="note">{esc(cost_note(site, models, tuple(SIDES)))}</p></section>')
@@ -1058,7 +1141,8 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
             text += '<span class="small">the same in every run</span>'
         elif span:
             text += f'<span class="small">range {pct(span["low"], digits)} to {pct(span["high"], digits)}</span>'
-        return text
+        second = paired_line(model) if side == "english" else None
+        return text + (f'<span class="small">{esc(second)}</span>' if second else "")
 
     paired = model["paired"]
     values = [
@@ -2476,9 +2560,9 @@ def build(site: Site) -> dict[str, str]:
     word = data.get("dont_know_word")
     if word:
         check_dont_know_word(site, data, word)
-    rights = [model["english"]["right"] for model in data["models"]]
+    values = [english_value(model) for model in data["models"]]
     rates = [model["english"]["non_hallucination"] or 0 for model in (idk or {}).get("models", [])]
-    if rights != sorted(rights, reverse=True) or rates != sorted(rates, reverse=True):
+    if values != sorted(values, reverse=True) or rates != sorted(rates, reverse=True):
         raise SystemExit("english_reading: the charts expect the setups ordered by English accuracy and, with the option, "
                          "by the English non-hallucination rate")
     structural = check_structural(site, record)
@@ -2583,7 +2667,7 @@ def build(site: Site) -> dict[str, str]:
     </section>
     <section class="card" id="results">
       <h2>Results</h2>
-      <p class="note">The setups of the model group in view, ordered by accuracy in English, highest first. Each row compares the setup's first English run with its Text tab run, out of the {kept} kept questions; an invalid answer counts as not right. Where a side has more than one run, its accuracy shows the range over its runs and its runs show how many answers changed between them. The paired counts, p and the Holm-adjusted p (over all {family} English {noun("all", family)}, whatever the group shown) are those of the exact McNemar test; * marks a Holm-adjusted p below {SIGNIFICANT:g}.</p>
+      <p class="note">The setups of the model group in view, ordered by accuracy in English, highest first. Each row compares the setup's first English run with its Text tab run, out of the {kept} kept questions; an invalid answer counts as not right. Where a side has more than one run, its accuracy shows the range over its runs and its runs show how many answers changed between them. The paired counts, p and the Holm-adjusted p (over all {family} English {noun("all", family)}, whatever the group shown) are those of the exact McNemar test; * marks a Holm-adjusted p below {SIGNIFICANT:g}.{seed_note(data["models"])}</p>
       {copies(lambda group: table(site, data, group))}
       {"".join(not_run_list(site, data, group) for group in GROUPS)}
     </section>

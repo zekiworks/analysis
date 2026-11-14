@@ -31,11 +31,12 @@ import json
 from typing import Any
 
 from sitebuild.english_reading import (NO_OPTION, NO_RATE, NOT_RUN, PATH as COMPARISON, RECORD, RUNNING, TRANSLATORS,
-                                       anchor, check_dont_know, cost_note, english_members, english_only, entry_href,
-                                       experiments_note, group_models, idk_key, label, limit_line, limit_note,
-                                       measure_card, measure_cell, measure_heads, missing_note, missing_side, name_html,
-                                       noun, only_anchor, setup_families, setup_icon, setup_key, setup_run,
-                                       turkish_paused, turkish_running, under_way)
+                                       anchor, check_dont_know, cost_note, english_members, english_only, english_second,
+                                       english_value, entry_href, experiments_note, from_run, group_models, idk_key, label,
+                                       limit_line, limit_note, measure_card, measure_cell, measure_heads, missing_note,
+                                       missing_side, name_html, noun, only_anchor, seed_note, seed_runs_text, seeds_complete,
+                                       setup_families, setup_icon, setup_key, setup_run, turkish_paused, turkish_running,
+                                       under_way)
 from sitebuild import holding_back as hold
 from sitebuild.site import (GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, measure_rows, more_link, pct,
                             rel, shown)
@@ -48,8 +49,9 @@ TITLE = "English reading"
 def check(site: Site, data: dict[str, Any]) -> None:
     """Stops the build when english_reading no longer fits what the page says: each setup with its Text tab run, the
     first English run the one shown, its counts covering the kept questions and its accuracy its counts, in order of
-    English right answers; the decision and chat groups adding up to every setup; each English-only setup without a Text
-    tab run, in its own order of English accuracy, its group its kind's."""
+    English accuracy (english_value: a three-seed setup's mean once all its seeds are in); the decision and chat groups
+    adding up to every setup; each English-only setup without a Text tab run, in its own order of English accuracy, its
+    group its kind's."""
     problems = []
     models, total = data["models"], data["questions"]
     for model in models:
@@ -64,9 +66,9 @@ def check(site: Site, data: dict[str, Any]) -> None:
                 problems.append(f"{model['name']}: its {side} counts do not give its accuracy on the {total} questions")
     if problems:
         raise SystemExit("english_view:\n  " + "\n  ".join(problems))
-    rights = [model["english"]["right"] for model in models]
-    if rights != sorted(rights, reverse=True):
-        problems.append("the setups are not ordered by English right answers")
+    values = [english_value(model) for model in models]
+    if values != sorted(values, reverse=True):
+        problems.append("the setups are not ordered by English accuracy")
     if len(group_models(site, data, "decision")) + len(group_models(site, data, "chat")) != len(models):
         problems.append("the decision and chat groups do not add up to every setup")
     alone = english_only(data)
@@ -78,7 +80,7 @@ def check(site: Site, data: dict[str, Any]) -> None:
             problems.append(f"{model['name']}: its English counts do not give its accuracy on the {total} questions")
         if model["group"] != ("decision" if site.decision(model) else "chat"):
             problems.append(f"{model['name']}: English only, its group is not its kind's")
-    if [model["english"]["accuracy"] for model in alone] != sorted((model["english"]["accuracy"] for model in alone), reverse=True):
+    if [english_value(model) for model in alone] != sorted((english_value(model) for model in alone), reverse=True):
         problems.append("the English-only setups are not ordered by English accuracy")
     if problems:
         raise SystemExit("english_view:\n  " + "\n  ".join(problems))
@@ -165,17 +167,32 @@ def build(site: Site) -> dict[str, str]:
 
     def accuracy_card(group: str) -> str:
         members = english_members(site, data, group)
+
+        def text(model: dict[str, Any]) -> str:
+            if seeds_complete(model):
+                return f"{pct(english_value(model), digits)} · mean of {model['seeds']['of']}"
+            return f"{pct(model['english']['accuracy'], digits)} · {model['english']['right']:,}"
+
+        def title(model: dict[str, Any]) -> str:
+            if seeds_complete(model):
+                return (f"{label(site, model)}: {pct(english_value(model), digits)} right in English, the mean of "
+                        f"{model['seeds']['of']} seeds ({english_second(model, digits)}; {seed_runs_text(model, total)})")
+            second = english_second(model, digits)
+            return (f"{label(site, model)}: {model['english']['right']:,} of {total:,} right in English "
+                    f"(run {model['run']})" + (f"; {second}" if second else ""))
+
         rows = [{"label": site.title(setup_run(site, model)), "tag": site.tag(setup_run(site, model)),
                  "family": family(model)["name"], "href": href(site, model),
                  "class_key": site.model_class(setup_run(site, model)),
-                 "text": f"{pct(model['english']['accuracy'], digits)} · {model['english']['right']:,}",
-                 "bars": [{"value": model["english"]["accuracy"], "colour": family(model)["colour"]}],
-                 "title": f"{label(site, model)}: {model['english']['right']:,} of {total:,} right in English "
-                          f"(run {model['run']})"}
+                 "text": text(model),
+                 "bars": [{"value": english_value(model), "colour": family(model)["colour"]}],
+                 "title": title(model)}
                 for model in members]
+        seeded = any(seeds_complete(model) for model in members)
         return card(anchor("chart-accuracy", group), shown(group), f"Accuracy in English · {total:,} machine-translated questions",
                     f"Share of the {total:,} kept reading questions answered right in English, then the right answers of "
-                    f"{total:,}: each of the {len(members)} {noun(group, len(members))}' first English run · higher is better",
+                    f"{total:,}: each of the {len(members)} {noun(group, len(members))}' first English run"
+                    + (", or the mean of a setup's three seed runs" if seeded else "") + " · higher is better",
                     rows, family_legend([family(model) for model in members]), ("Accuracy · Right", "% · Right"))
 
     def rates_card(group: str) -> str:
@@ -270,7 +287,11 @@ def build(site: Site) -> dict[str, str]:
 
     def table(group: str) -> str:
         """A group's copy of the table, ranked by English accuracy, with the English non-hallucination column."""
-        heads = [("English accuracy", "first English run; higher is better"),
+        members = english_members(site, data, group)
+        # The head names each kind of number the column shows (Zeki #7044 on Logic & Math's heads), as the chart does.
+        seeded = any(seeds_complete(model) for model in members)
+        heads = [("English accuracy", "first English run" + (", or the mean of a setup's three seed runs" if seeded else "")
+                  + "; higher is better"),
                  (SCORE_HEAD, "first English run; higher is better"),
                  ("Turkish accuracy", f"Text tab run, same {total:,}; for context"),
                  ("English non-hallucination",
@@ -278,11 +299,15 @@ def build(site: Site) -> dict[str, str]:
         heads += measure_heads("cost", ("english",)) + measure_heads("latency", ("english",))
         labels = [f"{head} ({note})" for head, note in heads]
         rows = []
-        members = english_members(site, data, group)
         running, paused = turkish_running(site, data), turkish_paused(site, data)
         for model in members:
+            second = english_second(model, digits)
+            seed_runs = seed_runs_text(model, total)
             values = [
-                f'{pct(model["english"]["accuracy"], digits)}<span class="small">{model["english"]["right"]:,} of {total:,} right</span>',
+                (f'{pct(english_value(model), digits)}<span class="small">{esc(second)}</span>'
+                 f'<span class="small">{esc(seed_runs)}</span>') if seeds_complete(model) else
+                f'{pct(model["english"]["accuracy"], digits)}<span class="small">{model["english"]["right"]:,} of {total:,} right</span>'
+                + (f'<span class="small">{esc(second)}</span>' if second else ""),
                 f'{pct(model["turkish"]["accuracy"], digits)}<span class="small">{model["turkish"]["right"]:,} of {total:,} right</span>'
                 if "turkish_run" in model else
                 f'<span class="nm">{paused[model["model"]][0]}</span><span class="small">its Text tab run {esc(paused[model["model"]][1])}</span>'
@@ -299,7 +324,8 @@ def build(site: Site) -> dict[str, str]:
                 f'{counts["dont_know"] + counts["wrong"]:,} not right</span>'
                 f'<span class="small">answered {pct(counts["attempt_rate"], digits)}</span>'
                 + ("" if hold.error_rate(counts) is None else
-                   f'<span class="small">error rate {pct(hold.error_rate(counts), digits)}</span>'))
+                   f'<span class="small">error rate {pct(hold.error_rate(counts), digits)}</span>')
+                + (f'<span class="small">{from_run(model, counts["run"])}</span>' if from_run(model, counts["run"]) else ""))
             values += [measure_cell(site, model, "cost", "english"), measure_cell(site, model, "latency", "english")]
             run = setup_run(site, model)
             row_id = "" if "turkish_run" in model else f' id="{anchor(only_anchor(model), group)}"'
@@ -335,7 +361,7 @@ def build(site: Site) -> dict[str, str]:
                 + f'; the paired comparison is on <a href="{comparison}">English and Turkish</a>.{rate_note} English cost: $ '
                 f"{cost_per()}, with its basis under it; English latency: the median time per request, with the request "
                 "size and the requests in flight under it, each from the first English run (Cost and Latency below)."
-                + (" " + missing_note(site, members, ("english",))).rstrip()
+                + (" " + missing_note(site, members, ("english",))).rstrip() + seed_note(members)
                 + " Each name opens its model page's English section"
                 + (" (an English-only setup has no model page: its name opens its row here)" if alone else "")
                 + "; its tooltip gives its settings and English run.</p>"

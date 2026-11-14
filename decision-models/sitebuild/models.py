@@ -13,8 +13,8 @@ from typing import Any
 import build_page as bp
 
 from sitebuild import english_view, holding_back as hold, vision
-from sitebuild.english_reading import (ENGLISH_ANCHOR, PATH as COMPARISON, english_only, measure_cell, missing_side,
-                                       setup_labels)
+from sitebuild.english_reading import (ENGLISH_ANCHOR, PATH as COMPARISON, english_only, english_second, english_value,
+                                       measure_cell, missing_side, paired_line, seed_runs_text, seeds_complete, setup_labels)
 from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, NOT_MEASURED_CONFIDENCE, REPO_URL, ROUTE_LLMS, Site, cost_missing, cost_per,
                             cost_switch, cost_value, esc, interval, latency_text, parameters_text, pct, rel, request_size,
                             size_sentence)
@@ -425,9 +425,11 @@ def web_grounding(site: Site, run: dict[str, Any]) -> str | None:
 def english(site: Site, run: dict[str, Any]) -> str | None:
     """For a setup with an English run (results.json english_reading.models, by its Text tab run): its right answers of
     the kept reading questions in its first English run and its accuracy (the range over its English runs where it has
-    several), its English non-hallucination rate with “I don't know” where measured (english_reading.dont_know), the
-    first English run's cost and median latency, the English runs' settings from their records in answers.json, and the
-    rule on empty and broken replies' counts for its English “I don't know” runs (idk_counts)."""
+    several; a three-seed setup's mean with its min–max and its seed runs once all are in, else its run and the seeds in
+    so far, english_second; Zeki #6989, #6994), its English non-hallucination rate with “I don't know” where measured
+    (english_reading.dont_know), the first English run's cost and median latency, the English runs' settings from their
+    records in answers.json, and the rule on empty and broken replies' counts for its English “I don't know” runs
+    (idk_counts)."""
     data = site.results.get("english_reading")
     if data is None or run["run"] not in setup_labels(site):
         return None
@@ -436,9 +438,13 @@ def english(site: Site, run: dict[str, Any]) -> str | None:
     records = {item["run"]: item for item in site.answers["english_runs"]}
     held = [records[number] for number in model["runs"]]
     spread = (model["spread"] or {}).get("english")
-    accuracy = pct(model["english"]["accuracy"], digits) + (
-        f"; {pct(spread['low'], digits)} to {pct(spread['high'], digits)} over its {len(held)} English runs"
-        if spread else "")
+    second = english_second(model, digits)
+    accuracy = (f"{pct(english_value(model), digits)}, the mean of {model['seeds']['of']} seeds; {esc(second)}"
+                if seeds_complete(model) else pct(model["english"]["accuracy"], digits) + (
+                    f"; {pct(spread['low'], digits)} to {pct(spread['high'], digits)} over its {len(held)} English runs"
+                    if spread else "") + (f"; {esc(second)}" if second else ""))
+    seed_runs = seed_runs_text(model, total)
+    paired = paired_line(model) if seeds_complete(model) else None
     idk = data["dont_know"]
     found = next((item["english"] for item in idk["models"] + english_only(idk) if item["text_run"] == run["run"]), None)
     option = esc(idk["option"])
@@ -463,8 +469,10 @@ def english(site: Site, run: dict[str, Any]) -> str | None:
             f'tab settings. Every setup: <a href="{rel(path, english_view.PATH)}">English reading</a>; against Turkish: '
             f'<a href="{rel(path, COMPARISON)}">English and Turkish</a>.</p>'
             + facts([
-                ("Right answers", f"{model['english']['right']:,} of {total:,}, first English run ({model['run']})"),
+                ("Right answers", f"{model['english']['right']:,} of {total:,}, first English run ({model['run']})"
+                 + (f"; {esc(paired)} with Turkish" if paired else "")),
                 ("Accuracy", accuracy),
+                *([("Seed runs", esc(seed_runs))] if seed_runs else []),
                 (f"Non-hallucination with “{option}”", rate),
                 (f"Answered with “{option}”", answered),
                 (f"Error rate with “{option}”", error),

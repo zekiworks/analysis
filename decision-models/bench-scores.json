@@ -4,7 +4,7 @@
    "bench": "reading-text",
    "title": "Reading · Turkish",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-14T03:04:38Z",
+   "updated": "2026-11-14T04:46:53Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
@@ -2137,7 +2137,7 @@
    "bench": "turkish-reading",
    "title": "Turkish Reading",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-14T03:04:38Z",
+   "updated": "2026-11-14T04:46:53Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 656 Turkish reading questions (units 1 to 6) right (accuracy 100%)"
@@ -4270,7 +4270,7 @@
    "bench": "turkish-grammar",
    "title": "Turkish Grammar",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-14T03:04:38Z",
+   "updated": "2026-11-14T04:46:53Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 1,542 Turkish grammar questions (units 7 to 20) right (accuracy 100%)"
@@ -6403,7 +6403,7 @@
    "bench": "reading-english",
    "title": "Reading · English",
    "url": "https://zekiworks.github.io/analysis/decision-models/english/",
-   "updated": "2026-11-14T03:04:38Z",
+   "updated": "2026-11-14T04:46:53Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 547 kept reading questions, translated into English, right (accuracy 100%)"
@@ -8413,16 +8413,18 @@
      "score_0_100": 63.89396709323583,
      "raw": {
       "metric": "accuracy",
-      "value": 0.7111517367458866,
+      "value": 0.7111517367458867,
       "questions": 547,
       "options": 5
      },
      "calibration_error": null,
      "improvement_points": null,
      "runs": [
-      "english:1061"
+      "english:1091",
+      "english:1115",
+      "english:1116"
      ],
-     "notes": "our GPU (logic's server, vLLM nightly 0.34.0rc1.dev302 (commit be47189f; no released vLLM serves LFM3) BF16, revision LiquidAI/LFM3-1.7B@0dc4268), one question per request, plain answer line CEVAP: X (no answer schema); sampling min_p 0.0, repetition_penalty 1.1, seed 0, temperature 0.1, top_k 50, top_p 1.0, thinking on; output cap 32,768; the kept reading questions in English"
+     "notes": "our GPU (logic's server, vLLM nightly 0.34.0rc1.dev302 (commit be47189f; no released vLLM serves LFM3) BF16, revision LiquidAI/LFM3-1.7B@0dc4268), one question per request, plain answer line CEVAP: X (no answer schema); sampling min_p 0.0, repetition_penalty 1.1, seed 0, temperature 0.1, top_k 50, top_p 1.0, thinking on; output cap 32,768; the kept reading questions in English; the mean of 3 seed runs"
     },
     {
      "repo": "LiquidAI/LFM2.5-8B-A1B",
@@ -8855,7 +8857,7 @@
    "bench": "reading-vision",
    "title": "Reading · Vision",
    "url": "https://zekiworks.github.io/analysis/decision-models/vision/",
-   "updated": "2026-11-14T02:52:07Z",
+   "updated": "2026-11-14T04:34:46Z",
    "score": {
     "zero": "chance: 1 of each question's options right on every question (accuracy 20% with 5 options)",
     "hundred": "every one of the 763 questions that depend on the printed page right, read from the page image alone (accuracy 100%)"

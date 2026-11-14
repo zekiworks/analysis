@@ -13,7 +13,8 @@ from typing import Any
 import build_page as bp
 
 from sitebuild import vision
-from sitebuild.english_reading import (SIGNIFICANT, english_members, english_only, idk_key, setup_key, setup_run)
+from sitebuild.english_reading import (SIGNIFICANT, english_members, english_only, english_value, idk_key, setup_key,
+                                       setup_run)
 from sitebuild.site import Site, billions, esc, pct, rel
 
 PATH = "highlights/"
@@ -50,7 +51,7 @@ def best_decision(site: Site) -> str:
     finding(against["reference_run"] in tested, "the test's reference is an English decision model run")
     top = tested[against["reference_run"]]
     run = setup_run(site, top)
-    finding(top["english"]["right"] == max(model["english"]["right"] for model in decision),
+    finding(english_value(top) == max(english_value(model) for model in decision),
             f"{site.plain(run)} has the most English right answers of the decision models")
     close = [model for model in against["models"] if model["p_holm"] >= SIGNIFICANT]
     behind = [model for model in against["models"] if model["p_holm"] < SIGNIFICANT
@@ -74,8 +75,8 @@ def chat_ahead(site: Site) -> str:
     questions = data["questions"]
     decision, chat = english_members(site, data, "decision"), english_members(site, data, "chat")
     best_chat, best_dec = chat[0], decision[0]
-    finding(best_chat["english"]["right"] > best_dec["english"]["right"], "the best chat setup gets more right than the best decision model")
-    above = sum(model["english"]["right"] > best_dec["english"]["right"] for model in chat)
+    finding(english_value(best_chat) > english_value(best_dec), "the best chat setup gets more right than the best decision model")
+    above = sum(english_value(model) > english_value(best_dec) for model in chat)
     said = lambda model: f"{site.shown(setup_run(site, model))}, {model['english']['right']:,} ({pct(model['english']['accuracy'])})"  # noqa: E731
     return card("In English, the best chat models get more questions right than any decision model",
                 [f"Right answers of the {questions:,} questions: the best chat model, {said(best_chat)}; the best decision "
@@ -141,11 +142,12 @@ def small_english(site: Site) -> str:
     small = [model for model in data["english_only"] if model["group"] == "chat" and model["billing"] == "local"
              and model["parameters"] is not None and model["parameters"] <= site.small_max]
     finding(bool(small), "a small open-weights chat model run in English only")
-    best = max(small, key=lambda model: model["english"]["right"])
+    best = max(small, key=english_value)
+    finding(not best.get("seeds"), f"{site.plain(setup_run(site, best))}'s card counts one run, not a three-seed setup")
     finding((best["hardware"] or "").startswith("1 × "), f"{site.plain(setup_run(site, best))} ran on one GPU")
     everyone = data["models"] + data["english_only"]
-    above = sum(model["english"]["right"] > best["english"]["right"] for model in everyone)
-    top = max(model["english"]["right"] for model in everyone)
+    above = sum(english_value(model) > english_value(best) for model in everyone)
+    top = max(round(english_value(model) * data["questions"]) for model in everyone)
     questions = data["questions"]
     return card(f"A {billions(best['parameters'])} open model on one GPU gets {pct(best['english']['accuracy'])} of the English reading questions",
                 [f"{site.shown(setup_run(site, best))} answered {best['english']['right']:,} of {questions:,} right, the best of the "

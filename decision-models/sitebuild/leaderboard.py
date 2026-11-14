@@ -24,7 +24,9 @@ from typing import Any
 import benchmark_metrics as bm
 import build_page as bp
 from sitebuild import holding_back as hold
-from sitebuild.english_reading import (BASIS_WORDS, english_only, entry_href, idk_key, setup_families, setup_run, under_way)
+from sitebuild.english_reading import (BASIS_WORDS, english_only, english_second, english_value, entry_href, from_run,
+                                       idk_key, paired_line, seed_runs_text, seeds_complete, setup_families, setup_run,
+                                       under_way)
 from sitebuild.names import base_model, tag_html
 from sitebuild.site import (NO_ANSWERS, NOT_MEASURED, NOT_MEASURED_CONFIDENCE, Site, cost_missing, cost_per, cost_value, esc,
                             family_icon, latency_text, measure_keys, parameters_text, pct, plain_line, rel, request_size,
@@ -190,6 +192,13 @@ def bar(correct: int, total: int, colour: str, kind: str = "") -> str:
     low, high = bm.wilson_interval(correct, total)
     return (f'<span class="lb-bar{kind}"><span class="lb-fill" style="width:{100 * correct / total:.2f}%;background:{colour}">'
             f'</span><span class="lb-whisker" style="left:{100 * low:.2f}%;width:{100 * (high - low):.2f}%"></span></span>')
+
+
+def mean_bar(value: float, colour: str) -> str:
+    """The bar of a three-seed setup's mean (english_reading's `seeds`, Zeki #6989): filled to the mean, without a
+    whisker, as the lowest and highest of three runs are no confidence interval."""
+    return (f'<span class="lb-bar"><span class="lb-fill" style="width:{100 * value:.2f}%;background:{colour}"></span>'
+            "</span>")
 
 
 def interval(correct: int, total: int) -> str:
@@ -402,7 +411,11 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
 
 
 def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]:
-    """The English part (both False) or the Both part: the head cells and the body rows."""
+    """The English part (both False) or the Both part: the head cells and the body rows. A three-seed setup
+    (english_reading's `seeds`; Ümit via Zeki #6969, #6979, #6989, #6994) reads and ranks in the English part as
+    english_value and english_second give it, with its runs (seed_runs_text) and the run of each other number named in
+    its details box; in the Both part, the paired comparison with Turkish, its English side stays its first run
+    (paired_line)."""
     kept, digits = board.kept, site.config["percent_digits"]
     run_of = lambda model: setup_run(site, model)  # noqa: E731
 
@@ -413,27 +426,46 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
         cost = model["cost"]["english"]
         value = cost["per_1000"] if cost else None
         size = (model["latency"].get("english") or {}).get("questions_per_request")
+        second, paired = english_second(model, digits), paired_line(model)
+
+        def mine(line: str | None, run: int | None) -> str | None:
+            """A details line of one run's number, naming that run beside a three-seed mean (from_run)."""
+            named = from_run(model, run) if line and run is not None else None
+            return f"{line} ({named})" if named else line
+
+        accuracy = (f"Accuracy in English {pct(english_value(model))}, the mean of {model['seeds']['of']} seeds "
+                    f"({esc(second)}), {bp.count(kept)} kept reading questions" if seeds_complete(model) else
+                    f"Accuracy in English {pct(en['accuracy'])} {interval(en['right'], kept)}, {bp.count(kept)} kept "
+                    "reading questions" + (f" \u00b7 {esc(second)}" if second else ""))
+        seed_runs = seed_runs_text(model, kept)
         lines = ([f"Turkish {pct(tr['accuracy'])} {interval(tr['right'], kept)} · English {pct(en['accuracy'])} "
-                  f"{interval(en['right'], kept)}, on the same {bp.count(kept)} kept reading questions",
+                  f"{interval(en['right'], kept)}" + (f" ({esc(paired)})" if paired else "")
+                  + f", on the same {bp.count(kept)} kept reading questions",
                   f"English minus Turkish: {100 * model['difference']:+.1f} points"] if both else
-                 [f"Accuracy in English {pct(en['accuracy'])} {interval(en['right'], kept)}, {bp.count(kept)} kept reading questions",
-                  held_line(board.english_option, held, digits, pending),
-                  " · ".join(filter(None, (cost_text(site, run_of(model), value, cost["basis"] if cost else None,
-                                                     bool(cost and cost.get("upper_bound"))),
-                                           f"{bp.count(size)} question{'' if size == 1 else 's'} per request" if size else None))),
+                 [accuracy,
+                  f"Seeds: {esc(seed_runs)}" if seed_runs else None,
+                  mine(held_line(board.english_option, held, digits, pending), held["run"] if held else None),
+                  mine(" · ".join(filter(None, (cost_text(site, run_of(model), value, cost["basis"] if cost else None,
+                                                          bool(cost and cost.get("upper_bound"))),
+                                                f"{bp.count(size)} question{'' if size == 1 else 's'} per request" if size else None))),
+                       model["run"]),
                   # An English-only setup (no Text tab run, no model page): said so, with how it was called.
                   *(["English only: no Text tab run, so not in the Turkish and Both parts",
                      f"How we called it: {esc(model['access'])}"]
                     if tr is None else []),
                   "Confidence: not measured" if plain_line(model) else None,
-                  (f"Confidence: chosen-answer Brier {model['decision_score']['brier']:.4f}, Decision Score (AA formula) "
-                   f"{model['decision_score']['score']:.2f}" if "decision_score" in model else None),
-                  latency_line(model["latency"].get("english"))])
+                  mine(f"Confidence: chosen-answer Brier {model['decision_score']['brier']:.4f}, Decision Score (AA formula) "
+                       f"{model['decision_score']['score']:.2f}" if "decision_score" in model else None, model["run"]),
+                  mine(latency_line(model["latency"].get("english")), model["run"])])
         if both:
-            cells = [pct(tr["accuracy"]), pct(en["accuracy"]), f"{100 * model['difference']:+.1f}"]
+            cells = [pct(tr["accuracy"]),
+                     pct(en["accuracy"]) + (f'<span class="small">{esc(paired)}</span>' if paired else ""),
+                     f"{100 * model['difference']:+.1f}"]
             glance: list[str | None] = []
         else:
             hall = held_cell(held, digits, pending)
+            if held and from_run(model, held["run"]):
+                hall += f'<span class="small">{from_run(model, held["run"])}</span>'
             mark = f'{site.config["first_cost_marks"]["upper"]["mark"]} ' if cost and cost.get("upper_bound") else ""
             money = (cost_missing(run_of(model)) if value is None else
                      f'{cost_value(value, mark)}<span class="small">{esc(BASIS_WORDS[cost["basis"]])}</span>')
@@ -444,21 +476,31 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
             glance = [f"Latency {latency_text(timing['median_request_seconds'])}" if timing else None, f"Cost {spent}"]
         return lines, cells, glance
 
-    def score(model: dict[str, Any]) -> tuple[str, int]:
+    def score(model: dict[str, Any]) -> tuple[str, float]:
         colour = setup_families(site)[run_of(model)["run"]]["colour"]
         en, tr = model["english"], model.get("turkish")
         if both:
             return (f'{bar(tr["right"], kept, colour)}{bar(en["right"], kept, colour, " lb-en")}'
                     f'<span class="lb-value">{pct(tr["accuracy"])}<span class="small">{pct(en["accuracy"])}</span></span>',
                     tr["right"])
-        return f'{bar(en["right"], kept, colour)}<span class="lb-value">{pct(en["accuracy"])}{ci(en["right"], kept)}</span>', en["right"]
+        second = english_second(model, site.config["percent_digits"])
+        if seeds_complete(model):
+            # Ranked by the mean, in right answers of the kept questions as the other rows (data-score).
+            return (f'{mean_bar(english_value(model), colour)}<span class="lb-value">{pct(english_value(model))}'
+                    f'<span class="small lb-ci">{esc(second)}</span></span>', round(english_value(model) * kept, 3))
+        return (f'{bar(en["right"], kept, colour)}<span class="lb-value">{pct(en["accuracy"])}{ci(en["right"], kept)}'
+                + (f'<span class="small lb-ci">{esc(second)}</span>' if second else "") + "</span>", en["right"])
 
     rows = board.english_rows(both)
     if both:
         heads = [f"Turkish · English<span class=\"small\">{bp.count(kept)} questions, 95% intervals</span>", "Turkish",
                  "English", "Difference<span class=\"small\">points, English minus Turkish</span>"]
     else:
-        heads = [f"Accuracy in English<span class=\"small\">{bp.count(kept)} questions, 95% interval</span>",
+        # A head names each kind of number its column shows (Zeki #7044 on Logic & Math's): a three-seed mean's row
+        # shows the seeds' min–max where the others show a 95% interval.
+        seeded = any(seeds_complete(model) for model, _ in rows)
+        heads = [f"Accuracy in English<span class=\"small\">{bp.count(kept)} questions, 95% interval"
+                 + ("; min\u2013max of 3 seeds where marked" if seeded else "") + "</span>",
                  held_head(board.english_option), BRIER_HEAD, f"Cost<span class=\"small\">{cost_per()}</span>", LATENCY_HEAD]
     body = table_rows(site, board, "bo" if both else "en", rows, run_of, facts, score,
                       lambda model: entry_href(site, "", model), False)
@@ -569,8 +611,9 @@ def table(part: str, heads: list[str], body: list[str], caption: str) -> str:
             "</tbody></table></div>")
 
 
-def meaning(part: str, total: int, kept: int, groups: dict[str, int]) -> str:
-    """What the score means, the one line under each part's table (groups: the reading and grammar question counts)."""
+def meaning(part: str, total: int, kept: int, groups: dict[str, int], seeded: bool = False) -> str:
+    """What the score means, the one line under each part's table (groups: the reading and grammar question counts;
+    seeded: a row of the English part shows a three-seed mean, drawn without a whisker)."""
     return {
         "turkish": f"Accuracy: the share of the {bp.count(total)} Turkish questions answered right, with its 95% interval "
                    "as the whisker; higher is better.",
@@ -579,7 +622,9 @@ def meaning(part: str, total: int, kept: int, groups: dict[str, int]) -> str:
         "turkish-grammar": f"Accuracy on grammar: the share of the {bp.count(groups['grammar'])} Turkish grammar questions "
                            "answered right, with its 95% interval as the whisker; higher is better.",
         "english": f"Accuracy in English: the share of the {bp.count(kept)} kept reading questions, translated, answered "
-                   "right, with its 95% interval as the whisker; higher is better.",
+                   "right, with its 95% interval as the whisker"
+                   + ("; a setup run with three seeds shows their mean, without a whisker, its lowest and highest under it"
+                      if seeded else "") + "; higher is better.",
         "both": f"Turkish (solid) and English (striped) accuracy on the same {bp.count(kept)} kept reading questions, with "
                 "95% intervals, ranked by Turkish, as on English and Turkish.",
     }[part]
@@ -669,6 +714,7 @@ def leaderboard(site: Site, about: str = "about/#leaderboard") -> str:
     bo_heads, bo_body = english(site, board, True)
     runs = [*site.runs, *(setup_run(site, model) for model in english_only(board.english))]
     groups = {name: site.runs[0]["groups"][name]["questions"] for name in ("reading", "grammar")}
+    seeded = any(seeds_complete(model) for model, _ in board.english_rows(False))
     parts = {"turkish": table("turkish", tr_heads, tr_body, "One row per model: Turkish accuracy"),
              "turkish-reading": table("turkish-reading", re_heads, re_body, "One row per model: Turkish reading accuracy"),
              "turkish-grammar": table("turkish-grammar", gr_heads, gr_body, "One row per model: Turkish grammar accuracy"),
@@ -693,7 +739,7 @@ def leaderboard(site: Site, about: str = "about/#leaderboard") -> str:
                  + (f"; of the models here only {esc(bp.and_list(listed))} list it" if listed else "") + ".</p>")
     panels = "".join(f'<div class="lb-part" data-lb-part="{part}"{"" if part == DEFAULT_PART else " hidden"}>'
                      f'{measure_keys("", (part,))}{parts[part]}'
-                     f'<p class="chart-sub lb-meaning">{esc(meaning(part, board.total, board.kept, groups))}</p>'
+                     f'<p class="chart-sub lb-meaning">{esc(meaning(part, board.total, board.kept, groups, seeded))}</p>'
                      f'<p class="table-note lb-empty" hidden>{esc(EMPTY_LINE)}</p>'
                      f'<p class="table-note lb-numbers">{esc(numbers[part])}</p>'
                      f'{tr_legend if part.startswith("turkish") else ""}</div>'

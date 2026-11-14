@@ -13,7 +13,9 @@ enter only `dont_know_option_word` and answers.json's `dont_know_word_runs`, fre
 `hosted_glide_rerun` and answers.json's `rerun_runs`, and the web grounding test's own runs (the pilots,
 WEB_GROUNDING_PILOTS, and the repeats of its first runs, web_grounding_repeat) only `web_grounding` and answers.json's
 `web_grounding_runs`. The repeat checks' Text and English repeat runs (page_config.json `repeat_checks`) enter only
-`repeat_checks` and answers.json's `repeat_check_runs`. The answers' sections in ANSWER_FILES (the repeat runs,
+`repeat_checks` and answers.json's `repeat_check_runs`. The three-seed English runs (page_config.json
+english_reading.seed_runs) that are repeats enter only their setup's `english_reading` `seeds` and, unless a repeat check
+already holds them, answers.json's `english_seed_runs`. The answers' sections in ANSWER_FILES (the repeat runs,
 `repeat_runs` and `repeat_check_runs`) are written to files of their own beside answers.json, which lists them under
 `files`, so that no file nears GitHub's 100 MiB limit.
 """
@@ -45,7 +47,8 @@ DEFAULT_OUTPUT = Path(__file__).resolve().parent / "results.json"
 # Each file carries answers.json's ANSWERS_HEADER so it stands alone, and answers.json lists them under `files`
 # (reproduce.load_answers merges them back). A file over ANSWERS_LIMIT stops the export: move a section out of it here.
 ANSWER_FILES = {"answers-repeats.json": ("repeat_runs", "repeat_check_runs"),
-                "answers-english.json": ("english_runs", "english_dont_know_runs", "english_dont_know_turkish_runs")}
+                "answers-english.json": ("english_runs", "english_dont_know_runs", "english_dont_know_turkish_runs",
+                                         "english_seed_runs")}
 ANSWERS_HEADER = ("schema_version", "dataset")
 ANSWERS_LIMIT = 80_000_000  # bytes
 # The English reading track's public record (runner translate_reading.py publish): flags, per-question hashes, prompts.
@@ -3196,6 +3199,107 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
     return {"models": models, "english_only": english_only, "records": {record["run_id"]: record for record in records}}
 
 
+# The three-seed English triples (page_config.json english_reading.seed_runs; Ümit via Zeki, bus #6969, #6979, #6989,
+# #6994): a setup's English runs with sampling seeds 0, 1 and 2 (the `seed` of each run's request_params, never its run
+# number), identical request settings but the seed. While fewer than SEEDS are in, the setup keeps its published first
+# run; with all of them its English number is their mean, with the lowest and highest beside it (not an interval).
+SEEDS = 3
+# The run record's keys a seed run shares with its setup's first English run (setup, bank, questions, prompts, kind).
+SEED_SAME = ("provider", "model", "thinking", "questions_per_request", "perplexity_mode", "dataset_sha256", "question_list",
+             "prompt_version", "shuffle_options", "replace_key_text", "dont_know", "dont_know_word", "rerun", "english")
+
+
+def seed_runs_config() -> dict[str, dict[str, Any]]:
+    """page_config.json's english_reading.seed_runs `models`, checked: per model id, `runs` with one run id or null per
+    seed (list index = seed), seed 0's given, and an optional `note` (Zeki #6998: shown verbatim wherever the runs or
+    their settings are listed); no run listed twice."""
+    config = json.loads(PAGE_CONFIG_PATH.read_text(encoding="utf-8"))["english_reading"].get("seed_runs") or {}
+    models = config.get("models") or {}
+    for model, entry in models.items():
+        runs = entry.get("runs") if isinstance(entry, dict) else None
+        if (not isinstance(runs, list) or len(runs) != SEEDS or runs[0] is None or set(entry) - {"runs", "note"}
+                or not isinstance(entry.get("note", ""), str)
+                or any(run is not None and (not isinstance(run, int) or isinstance(run, bool)) for run in runs)):
+            raise ValueError(f"english_reading.seed_runs: {model}: `runs`, one run id or null per seed {list(range(SEEDS))} "
+                             f"with seed 0's given, and at most a text `note` expected; found {entry}")
+    listed = [run for entry in models.values() for run in entry["runs"] if run is not None]
+    if len(set(listed)) != len(listed):
+        raise ValueError(f"english_reading.seed_runs: a run is listed twice ({sorted(listed)})")
+    return models
+
+
+def seed_held_runs(config: dict[str, dict[str, Any]], by_run: dict[int, dict[str, Any]], held: dict[int, int]) -> frozenset[int]:
+    """The seed runs held out of english_reading's setups, so that each setup's runs, range and answers changed stay as
+    published: every listed run with a repeat number that the repeat checks do not hold already (those stay in
+    repeat_check_runs, as LFM3-1.7B's run 1091). Their answers go to answers.json's `english_seed_runs` only. Each
+    listed run must be in the report as an English run of its model id without the option."""
+    found = set()
+    for model, entry in config.items():
+        for seed, run in enumerate(entry["runs"]):
+            if run is None:
+                continue
+            label = f"english_reading.seed_runs: {model} seed {seed}, run {run}"
+            record = by_run.get(run)
+            if record is None:
+                raise ValueError(f"{label} is not in the report: give the export its report (EXTRA_REPORTS) and its run id")
+            if (record["model"] != model or not record.get("english") or record.get("dont_know")
+                    or record.get("dont_know_word") or record.get("rerun") is not None):
+                raise ValueError(f"{label} is not an English run of {model} without the option")
+            if record.get("repeat") is not None and run not in held:
+                found.add(run)
+    return frozenset(found)
+
+
+def seed_block(model: dict[str, Any], entry: dict[str, Any], first: dict[str, Any], pool: dict[int, dict[str, Any]],
+               kept: list[int]) -> dict[str, Any]:
+    """A setup's `seeds` (english_reading.seed_runs `entry`, Ümit via Zeki #6969, #6979, #6989): `of` SEEDS, how many
+    are in (`completed`) and per seed its run, right answers, questions and accuracy on the kept questions (None until
+    it is in); with all of them, the mean, lowest and highest accuracy; and the entry's `note` when it has one (Zeki
+    #6998). `first` is the setup's first English run's answers, `pool` every English run's answers by run. Stops on a
+    listed run that is not a complete English run of the setup on exactly the kept questions (SEED_SAME), whose
+    request_params seed is not its place in the list, or whose request settings differ from the other seed runs' in
+    anything but the seed (the server's settings are not recorded with a run, so not checked)."""
+    total = len(kept)
+    runs: list[dict[str, Any] | None] = []
+    settings: dict[int, str] = {}
+    for seed, run_id in enumerate(entry["runs"]):
+        if run_id is None:
+            runs.append(None)
+            continue
+        label = f"english_reading.seed_runs: {model['name']} seed {seed}, run {run_id}"
+        run = pool.get(run_id)
+        if run is None:
+            raise ValueError(f"{label}: not among the answers' English runs")
+        differ = [key for key in SEED_SAME if run.get(key) != first.get(key)]
+        if differ:
+            raise ValueError(f"{label} differs from the setup's first English run {first['run']} in {', '.join(differ)}")
+        if [index for index, value in enumerate(run["correct"]) if value is not None] != kept:
+            raise ValueError(f"{label} was not asked exactly the {total} kept questions")
+        params = json.loads(run.get("request_params") or "null")
+        if not isinstance(params, dict) or params.get("seed") != seed:
+            raise ValueError(f"{label}: its request_params seed is {(params or {}).get('seed')!r}, not {seed}")
+        settings[run_id] = json.dumps({key: value for key, value in params.items() if key != "seed"}, sort_keys=True)
+        right = sum(1 for index in kept if run["correct"][index])
+        runs.append({"seed": seed, "run": run_id, "right": right, "questions": total, "accuracy": right / total})
+    if len(set(settings.values())) > 1:
+        raise ValueError(f"english_reading.seed_runs: {model['name']}: runs {sorted(settings)} differ in request settings "
+                         "other than the seed")
+    found = [item for item in runs if item is not None]
+    block: dict[str, Any] = {"of": SEEDS, "completed": len(found), "runs": runs}
+    if len(found) == SEEDS:
+        values = [item["accuracy"] for item in found]
+        block.update({"mean": statistics.mean(values), "min": min(values), "max": max(values)})
+    if entry.get("note"):
+        block["note"] = entry["note"]
+    return block
+
+
+def english_rank_value(model: dict[str, Any]) -> float:
+    """The accuracy an English setup ranks by: its seeds' mean once all SEEDS are in, else its first English run's."""
+    seeds = model.get("seeds")
+    return seeds["mean"] if seeds and seeds["completed"] == seeds["of"] else model["english"]["accuracy"]
+
+
 def kept_questions(answers: dict[str, Any], public: dict[str, Any]) -> list[int]:
     """The positions in the answers of the English reading track's kept questions (english-reading.json), after
     checking that its question list gives its counts and holds only scored questions of their units."""
@@ -3213,7 +3317,7 @@ def kept_questions(answers: dict[str, Any], public: dict[str, Any]) -> list[int]
 
 
 def english_reading_answers_part(section: dict[str, Any], document: dict[str, Any], answers: dict[str, Any],
-                                 public: dict[str, Any]) -> dict[str, Any]:
+                                 public: dict[str, Any], seed_runs: dict[str, dict[str, Any]] | None = None) -> dict[str, Any]:
     """The `english_reading` section from the answers file and the track's public record (english-reading.json): the
     English prompts (english_prompts, the decision models' System One instructions naming English, and
     english_chat_prompts, the chat models' Turkish run prompts in English, each hashed as the runner hashes them; every
@@ -3223,9 +3327,12 @@ def english_reading_answers_part(section: dict[str, Any], document: dict[str, An
     right, wrong and invalid answers and accuracy of its first English run and of its Text tab run, the difference, the
     accuracy range and the questions whose answer differs over each side's runs (None for a side with one run, and for
     both when both sides have one), and the first English run against the Text tab run as right answers in each (exact
-    McNemar, bm.paired_comparison: first English, second Turkish) with Holm's correction over every model. Ordered by
-    English accuracy, best first, then by name. The English-only setups (`english_only`) get their first English run's
-    right, wrong and invalid answers and accuracy only, in the same order."""
+    McNemar, bm.paired_comparison: first English, second Turkish) with Holm's correction over every model. The setups
+    of `seed_runs` (seed_runs_config, by model id) get their `seeds` (seed_block, from the English runs, the repeat
+    checks' and the held-out seed runs' answers), and the paired test, difference and range stay their first run's.
+    Ordered by English accuracy (english_rank_value: a complete triple's mean), best first, then by name. The
+    English-only setups (`english_only`) get their first English run's right, wrong and invalid answers and accuracy
+    only (and their `seeds`), in the same order."""
     prompts = document.get("english_prompts")
     if prompts is None:
         raise ValueError("the answers file has English runs but no english_prompts")
@@ -3300,10 +3407,18 @@ def english_reading_answers_part(section: dict[str, Any], document: dict[str, An
         )
     for model, adjusted in zip(models, bm.holm([model["paired"]["p"] for model in models])):
         model["paired"]["p_holm"] = adjusted
-    models.sort(key=lambda item: (-item["english"]["accuracy"], item["name"].casefold(), item["run"]))
     # English-only setups: the first English run's answers only, in no paired test and no Holm family.
     english_only = [{**model, "english": counted(by_id[model["run"]])} for model in section["english_only"]]
-    english_only.sort(key=lambda item: (-item["english"]["accuracy"], item["name"].casefold(), item["run"]))
+    # The three-seed triples (Ümit via Zeki #6969, #6979, #6989): each listed model id names exactly one setup.
+    seed_runs = seed_runs or {}
+    pool = {run["run"]: run for key in ("english_runs", "repeat_check_runs", "english_seed_runs") for run in answers.get(key, [])}
+    for name, entry in seed_runs.items():
+        found = [model for model in models + english_only if model["model"] == name]
+        if len(found) != 1:
+            raise ValueError(f"english_reading.seed_runs: {name} names {len(found)} English setups, not one")
+        found[0]["seeds"] = seed_block(found[0], entry, by_id[found[0]["run"]], pool, kept)
+    models.sort(key=lambda item: (-english_rank_value(item), item["name"].casefold(), item["run"]))
+    english_only.sort(key=lambda item: (-english_rank_value(item), item["name"].casefold(), item["run"]))
     return {
         "instructions": instructions,
         "options_heading": heading.strip(),
@@ -4489,15 +4604,15 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
                    english_dont_know_section: dict[str, Any] | None = None,
                    option_word_section: dict[str, Any] | None = None,
                    rerun_section: dict[str, Any] | None = None, grounding_runs: frozenset[int] = frozenset(),
-                   check_runs: dict[int, int] | None = None) -> dict[str, Any]:
+                   check_runs: dict[int, int] | None = None, seed_runs: frozenset[int] = frozenset()) -> dict[str, Any]:
     """The per-question answers of the runs in `data`, from benchmark_ollama.py --export-answers: the main
     runs, the repeats of each repeated configuration, the runs of each measured routing pipeline, the runs with
     the "I don't know" option (`dont_know_section`), the runs in English (`english_section`), the English "I don't
     know" comparison's runs in English and its Turkish runs on the kept questions (`english_dont_know_section`), the
     option-word check's runs (`option_word_section`), the hosted GLiDE rerun (`rerun_section`), the web grounding
-    test's own runs (`grounding_runs`, web_grounding_runs) and the repeat checks' held-out runs (`check_runs`, each with
-    its first run; repeat_check_runs), which no other list holds. A run's answers on questions it was not asked are
-    None, also in `correct`."""
+    test's own runs (`grounding_runs`, web_grounding_runs), the repeat checks' held-out runs (`check_runs`, each with
+    its first run; repeat_check_runs) and the held-out English seed runs (`seed_runs`, seed_held_runs), which no other
+    list holds. A run's answers on questions it was not asked are None, also in `correct`."""
     check_runs = check_runs or {}
     dataset = next(
         (item for item in document["datasets"] if item["graded_sha256"] == data["dataset"]["graded_sha256"]), None
@@ -4539,12 +4654,18 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
     word_runs = {model["i_dont_know"]["run"] for model in (option_word_section or {}).get("models", [])}
     rerun_runs = {rerun_section["run"]} if rerun_section else set()
     missing = (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)
-               | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs | grounding_runs | set(check_runs)) - set(by_id)
+               | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs | grounding_runs | set(check_runs)
+               | seed_runs) - set(by_id)
     if missing:
         raise ValueError(f"the answers file lacks runs {sorted(missing)}")
     if set(check_runs) & (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)
-                          | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs | grounding_runs):
+                          | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs | grounding_runs | seed_runs):
         raise ValueError(f"runs {sorted(check_runs)}: the repeat checks' runs are also in another section")
+    if seed_runs & (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)
+                    | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs | grounding_runs) \
+            or any(not by_id[run].get("english") or by_id[run].get("dont_know") for run in seed_runs):
+        raise ValueError(f"runs {sorted(seed_runs)}: the held-out English seed runs are also in another section, or not "
+                         "English runs without the option")
     if grounding_runs & (main | set(repeats) | set(pipelines) | set(batching) | set(dont_know_sets) | set(english_sets)
                          | set(english_idk_sets) | set(turkish_idk_sets) | word_runs | rerun_runs):
         raise ValueError(f"runs {sorted(grounding_runs)}: the web grounding test's pilots and the others are mixed up")
@@ -4617,6 +4738,8 @@ def export_answers(document: dict[str, Any], data: dict[str, Any], dont_know_sec
         # The repeat checks' held-out repeat runs, each with its first run (results.json `repeat_checks`).
         **({"repeat_check_runs": [{**by_id[run], "repeat_check": first} for run, first in sorted(check_runs.items())]}
            if check_runs else {}),
+        # The held-out English seed runs (results.json english_reading's `seeds`, page_config.json seed_runs).
+        **({"english_seed_runs": [by_id[run] for run in sorted(seed_runs)]} if seed_runs else {}),
     }
 
 
@@ -4686,15 +4809,18 @@ def main() -> int:
         # their Turkish counterparts on the kept questions only `english_reading.dont_know`. The option-word check's runs
         # enter only `dont_know_option_word` and fresh runs only `hosted_glide_rerun`. The web grounding test's own runs
         # (web_grounding_runs: its pilots and the repeats of its first runs) enter only `web_grounding`. The repeat
-        # checks' Text and English repeat runs (repeat_check_runs) enter only `repeat_checks`.
+        # checks' Text and English repeat runs (repeat_check_runs) enter only `repeat_checks`, and the English seed runs
+        # with a repeat number (seed_held_runs) only their setup's `seeds`.
         by_run = {record["run_id"]: record for record in records}
         grounding = web_grounding_runs(by_run)
         checks_config = repeat_check_config()
         held = repeat_check_runs(checks_config, by_run)
+        seed_config = seed_runs_config()
+        seed_held = seed_held_runs(seed_config, by_run, held)
         words = [record for record in records if record.get("dont_know_word")]
         reruns = [record for record in records if record.get("rerun") is not None]
         kept = [record for record in records if not record.get("dont_know_word") and record.get("rerun") is None
-                and record["run_id"] not in grounding and record["run_id"] not in held]
+                and record["run_id"] not in grounding and record["run_id"] not in held and record["run_id"] not in seed_held]
         data = export(
             [record for record in kept if not record.get("dont_know") and not record.get("english")],
             without_held(json.loads(analysis.group(1)), by_run, held) if analysis else {},
@@ -4705,7 +4831,7 @@ def main() -> int:
         option_word = dont_know_option_word(words, section, data, by_run)
         rerun = hosted_glide_rerun(reruns, section, data, by_run)
         document = json.loads(args.answers.read_text(encoding="utf-8"))
-        answers = export_answers(document, data, section, english, english_idk, option_word, rerun, grounding, held)
+        answers = export_answers(document, data, section, english, english_idk, option_word, rerun, grounding, held, seed_held)
         if section is not None:
             data["dont_know"] = dont_know_answers_part(section, document, answers)
         if option_word is not None:
@@ -4715,7 +4841,7 @@ def main() -> int:
         public = None
         if english is not None:
             public = json.loads(ENGLISH_READING_PATH.read_text(encoding="utf-8"))
-            data["english_reading"] = english_reading_answers_part(english, document, answers, public)
+            data["english_reading"] = english_reading_answers_part(english, document, answers, public, seed_config)
             if english_idk is not None:
                 data["english_reading"]["dont_know"] = english_dont_know_answers_part(english_idk, document, answers, public)
                 data["dont_know_english_option"] = dont_know_english_option(data["english_reading"]["dont_know"])

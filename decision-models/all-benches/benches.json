@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-14T02:11:19Z",
+    "updated": "2026-11-14T04:38:34Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -555,7 +555,7 @@
        "logic:minicpm5-2b_en",
        "logic:minicpm5-2b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: MiniCPM5-2B (off · chat)",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: MiniCPM5-2B (off · chat); 1 of 3 seed runs complete; the value is the seed-0 run's",
       "gpu_hours": 1.5375,
       "gpu_cost_usd": 3.8283750000000003
      },
@@ -2449,7 +2449,7 @@
      }
     ]
    },
-   "sha256": "aea4147565dc2cf4c74241a13c07238038ba66f818b2db9963dadd291e03c4ae"
+   "sha256": "33d3c8a4270ef146187649b5fd0ca1bbe3a36eeaa67cc0f13e18e85e9f770b7e"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -2459,7 +2459,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-14T02:11:19Z",
+    "updated": "2026-11-14T04:38:34Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2492,6 +2492,38 @@
       "runs": [
        "math:claude-opus-5.5-sub_en",
        "math:claude-opus-5.5-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "claude-fable-5.1",
+      "name": "Claude Fable 5.1",
+      "display_name": "Claude Fable 5.1",
+      "tag": "chat",
+      "class_label": "Closed · Flagship",
+      "base_model": null,
+      "setup_label": "Claude Fable 5.1",
+      "maker": "Anthropic",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 99.65325936199723,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9972260748959778,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:claude-fable-5.1-sub_en",
+       "math:claude-fable-5.1-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
@@ -2844,7 +2876,7 @@
        "math:minicpm5-2b_en",
        "math:minicpm5-2b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: MiniCPM5-2B (off · chat)",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: MiniCPM5-2B (off · chat); 1 of 3 seed runs complete; the value is the seed-0 run's",
       "gpu_hours": 0.3605555555555556,
       "gpu_cost_usd": 0.8977833333333335
      },
@@ -2990,10 +3022,10 @@
       "params_total": 1.73,
       "params_active": 1.73,
       "quantization": "BF16",
-      "score_0_100": 98.6130374479889,
+      "score_0_100": 98.67082755432268,
       "raw": {
        "metric": "accuracy",
-       "value": 0.9889042995839112,
+       "value": 0.9893666204345816,
        "questions": 2163,
        "options": 5
       },
@@ -3003,7 +3035,7 @@
        "math:lfm3-1.7b-vllm_en",
        "math:lfm3-1.7b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: LFM3-1.7B (off · chat)",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: LFM3-1.7B (off · chat); accuracy is the mean of 3 seed runs (min 0.9884, max 0.9908): seed 0 lfm3-1.7b-vllm_en 2139/2163, seed 1 lfm3-1.7b-vllm-seed1_en 2143/2163, seed 2 lfm3-1.7b-vllm-seed2_en 2138/2163",
       "gpu_hours": 0.11277777777777778,
       "gpu_cost_usd": 0.28081666666666666
      },
@@ -4897,7 +4929,7 @@
      }
     ]
    },
-   "sha256": "d8c8ab408f39dacab81540e713c95d28597d3f265dc37bc23d2ef41daccccf33"
+   "sha256": "4887c527eeeac5f7a00341e47bf159c7b38096bd316e1716c08bf5f1fcaa63de"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -4907,7 +4939,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-14T02:11:19Z",
+    "updated": "2026-11-14T04:38:34Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -5012,6 +5044,38 @@
        "math:claude-sonnet-5.5-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "claude-fable-5.1",
+      "name": "Claude Fable 5.1",
+      "display_name": "Claude Fable 5.1",
+      "tag": "chat",
+      "class_label": "Closed · Flagship",
+      "base_model": null,
+      "setup_label": "Claude Fable 5.1",
+      "maker": "Anthropic",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 97.71897810218977,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9817518248175182,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:claude-fable-5.1-sub_en",
+       "math:claude-fable-5.1-sub_en"
+      ],
+      "notes": "hosted API (the maker's service); no complete 'I don't know' run",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -5211,9 +5275,11 @@
       "improvement_points": null,
       "runs": [
        "logic:gpt-6.1-terra-sub_en",
-       "math:gpt-6.1-terra-sub_en"
+       "math:gpt-6.1-terra-sub_en",
+       "logic:gpt-6.1-terra-sub_en_dontknow",
+       "math:gpt-6.1-terra-sub_en_dontknow"
       ],
-      "notes": "hosted API (the maker's service); no complete 'I don't know' run",
+      "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -5415,7 +5481,7 @@
        "logic:minicpm5-2b_en_dontknow",
        "math:minicpm5-2b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: MiniCPM5-2B (off · chat)",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: MiniCPM5-2B (off · chat); 1 of 3 seed runs complete; the value is the seed-0 run's",
       "gpu_hours": 1.8980555555555556,
       "gpu_cost_usd": 4.726158333333334
      },
@@ -7427,7 +7493,7 @@
      }
     ]
    },
-   "sha256": "b4869cb2f10a345e201ac29770bb0c2788f08a5533bf8d2c61924ea90b262934"
+   "sha256": "8b1c6e0f55c142f9585a603c391892162acc2ad086bcb46ff3076b3da16d250c"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -8467,10 +8533,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-14T03:20Z",
+    "updated": "2026-11-14T05:05Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "c9638dfedb7d297d2e05203eca26f771d6a32b4492e441be212bbfdebc84d60d"
+   "sha256": "29029375edafb1ee4a76baed434d5168bb5077d00c7082d1c2231d4689e3dd6f"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",

@@ -63,7 +63,9 @@ tokens, sources and PWS-Decisions' aggregates of web-grounding.json. Then the re
 page_config.json's manifest): each entry's first run and repeats with their right answers recomputed from the answers
 (Text: the scored questions; English: the kept questions; Vision: vision.json's cell and vision-repeats.json's passes),
 a retained entry's repeats as its Stability tab set, every other Text and English repeat in answers.json's
-`repeat_check_runs` only, as a repeat of its first run's setup.
+`repeat_check_runs` only, as a repeat of its first run's setup. The English seed runs (page_config.json
+english_reading.seed_runs) held out of every other list are answers.json's `english_seed_runs`, and each listed setup's
+`seeds` is recomputed from its runs' answers (check_english_reading).
 Last the footer date (`updated`, when results with this content first went out): never older than a published run's
 date, and with --report never older than the newest
 `updated` of the runs answers.json publishes. answers.json keeps some sections in files of their own beside it (its
@@ -863,7 +865,8 @@ def check_grading(answers: dict[str, Any], keys: list[str | None], scored: list[
     for run in (answers.get("repeat_runs", []) + answers.get("pipeline_runs", []) + answers.get("batching_runs", [])
                 + answers.get("dont_know_runs", []) + answers.get("english_runs", []) + answers.get("english_dont_know_runs", [])
                 + answers.get("english_dont_know_turkish_runs", []) + answers.get("dont_know_word_runs", [])
-                + answers.get("rerun_runs", []) + answers.get("web_grounding_runs", []) + answers.get("repeat_check_runs", [])):
+                + answers.get("rerun_runs", []) + answers.get("web_grounding_runs", []) + answers.get("repeat_check_runs", [])
+                + answers.get("english_seed_runs", [])):
         given = [index for index in scored if run["correct"][index] is not None and keys[index] is not None]
         differ = sum(1 for index in given if int(run["choice"][index] == keys[index]) != int(run["correct"][index]))
         if "≠" in checks.cell(not differ, f"{len(given)} answers", f"{differ} not from the key"):
@@ -987,7 +990,7 @@ def check_dont_know(docs: Path, results: dict[str, Any], answers: dict[str, Any]
     listed = [run_id for model in (section or {}).get("models", []) for run_id in model["runs"]]
     others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "english_runs",
                                      "english_dont_know_runs", "english_dont_know_turkish_runs", "dont_know_word_runs",
-                                     "rerun_runs", "web_grounding_runs") for run in answers.get(key, [])}
+                                     "rerun_runs", "web_grounding_runs", "english_seed_runs") for run in answers.get(key, [])}
     if sorted(listed) != sorted(runs) or set(listed) & others or (section is not None and section["questions"] != len(scored)):
         checks.failed += 1
         return [f"  runs: results.json lists {sorted(listed)}, answers.json's dont_know_runs {sorted(runs)}, also elsewhere "
@@ -1185,7 +1188,8 @@ def counted_dont_know(run: dict[str, Any], scored: list[int]) -> dict[str, Any]:
 def listed_elsewhere(answers: dict[str, Any], own: str) -> set[int]:
     """The runs of every answers.json list but `own`."""
     keys = ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs", "english_runs", "english_dont_know_runs",
-            "english_dont_know_turkish_runs", "dont_know_word_runs", "rerun_runs", "web_grounding_runs", "repeat_check_runs")
+            "english_dont_know_turkish_runs", "dont_know_word_runs", "rerun_runs", "web_grounding_runs", "repeat_check_runs",
+            "english_seed_runs")
     return {run["run"] for key in keys if key != own for run in answers.get(key, [])}
 
 
@@ -2330,7 +2334,7 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
               for run_id in model["runs"]]
     others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs",
                                      "english_dont_know_runs", "english_dont_know_turkish_runs", "dont_know_word_runs",
-                                     "rerun_runs", "web_grounding_runs") for run in answers.get(key, [])}
+                                     "rerun_runs", "web_grounding_runs", "english_seed_runs") for run in answers.get(key, [])}
     if sorted(listed) != sorted(runs) or set(listed) & others:
         checks.failed += 1
         return [f"  runs: results.json lists {sorted(listed)}, answers.json's english_runs {sorted(runs)}, also elsewhere "
@@ -2464,7 +2468,7 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
         tests.append((model, test["p"]))
     for (model, _), adjusted in zip(tests, bm.holm([p for _, p in tests])):
         check(f"{model['name']}, p_holm", model["paired"]["p_holm"], adjusted, p=True)
-    order = [model["run"] for model in sorted(section["models"], key=lambda item: (-item["english"]["accuracy"], item["name"].casefold(), item["run"]))]
+    order = [model["run"] for model in sorted(section["models"], key=lambda item: (-seeded_accuracy(item), item["name"].casefold(), item["run"]))]
     check("model order", [model["run"] for model in section["models"]], order)
     only = {model["run"]: model for model in section.get("english_only", [])}
     check("English-only setups", sorted(only), sorted(item["runs"][0] for item in alone))
@@ -2479,9 +2483,54 @@ def check_english_reading(docs: Path, results: dict[str, Any], answers: dict[str
         check(f"{name}, English counts", [model["english"][key] for key in ("right", "wrong", "invalid")],
               [first[key] for key in ("right", "wrong", "invalid")])
         check(f"{name}, English accuracy", model["english"]["accuracy"], first["accuracy"], metric=True)
-    order = [model["run"] for model in sorted(only.values(), key=lambda item: (-item["english"]["accuracy"], item["name"].casefold(), item["run"]))]
+    order = [model["run"] for model in sorted(only.values(), key=lambda item: (-seeded_accuracy(item), item["name"].casefold(), item["run"]))]
     check("English-only order", [model["run"] for model in section.get("english_only", [])], order)
+    # The three-seed triples (page_config.json english_reading.seed_runs; Ümit via Zeki #6969, #6979, #6989): each listed
+    # setup's `seeds` from its runs' answers on the kept questions, each run's request_params seed its place in the list
+    # and its other request settings the same as the other seed runs'; the mean, lowest and highest only with all in.
+    seed_config = (json.loads((docs / "page_config.json").read_text(encoding="utf-8"))["english_reading"]
+                   .get("seed_runs") or {}).get("models", {})
+    entries = section["models"] + section.get("english_only", [])
+    check("setups with seeds", sorted(model["model"] for model in entries if "seeds" in model), sorted(seed_config))
+    pool = {run["run"]: run for key in ("english_runs", "repeat_check_runs", "english_seed_runs") for run in answers.get(key, [])}
+    for model in entries:
+        if "seeds" not in model:
+            continue
+        listed = (seed_config.get(model["model"]) or {}).get("runs", [])
+        name = f"{model['name']} (English run {model['run']}), seeds"
+        check(f"{name}: note (Zeki #6998)", model["seeds"].get("note"), (seed_config.get(model["model"]) or {}).get("note") or None)
+        found, settings = [], set()
+        for seed, run_id in enumerate(listed):
+            run = pool.get(run_id)
+            if run is None:
+                found.append(None if run_id is None else {"seed": seed, "run": run_id, "missing": True})
+                continue
+            params = json.loads(run.get("request_params") or "{}")
+            check(f"{name}: run {run_id}'s request_params seed", seed, params.get("seed"))
+            settings.add(json.dumps({key: value for key, value in params.items() if key != "seed"}, sort_keys=True))
+            right = sum(1 for index in kept if run["correct"][index] == 1)
+            found.append({"seed": seed, "run": run_id, "right": right, "questions": total, "accuracy": right / total})
+        check(f"{name}: the same request settings but the seed", True, len(settings) <= 1)
+        values = [item["accuracy"] for item in found if item is not None]
+        expected = {"of": len(listed), "completed": len(values), "runs": found}
+        if len(values) == len(listed):
+            expected.update({"mean": statistics.mean(values), "min": min(values), "max": max(values)})
+        published = model["seeds"]
+        check(f"{name}: runs and right answers", [published.get(key) for key in ("of", "completed")] + [
+            None if item is None else {key: item[key] for key in ("seed", "run", "right", "questions")} for item in published["runs"]],
+            [expected[key] for key in ("of", "completed")] + [
+            None if item is None else {key: item.get(key) for key in ("seed", "run", "right", "questions")} for item in expected["runs"]])
+        for key in ("mean", "min", "max"):
+            if key in expected or key in published:
+                check(f"{name}: {key}", published.get(key), expected.get(key), metric=True)
     return mismatches
+
+
+def seeded_accuracy(model: dict[str, Any]) -> float:
+    """The accuracy an English setup ranks by: its three seeds' mean once all are in (export_results.english_rank_value),
+    else its first English run's."""
+    seeds = model.get("seeds")
+    return seeds["mean"] if seeds and seeds["completed"] == seeds["of"] else model["english"]["accuracy"]
 
 
 def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[str, Any], scored: list[int],
@@ -2511,7 +2560,7 @@ def check_english_dont_know(docs: Path, results: dict[str, Any], answers: dict[s
     listed_subset = [run_id for model in models if model["turkish"]["subset"] for run_id in model["turkish"]["runs"]]
     listed_full = [run_id for model in models if not model["turkish"]["subset"] for run_id in model["turkish"]["runs"]]
     others = {run["run"] for key in ("runs", "repeat_runs", "pipeline_runs", "batching_runs", "dont_know_runs", "english_runs",
-                                     "dont_know_word_runs", "rerun_runs", "web_grounding_runs")
+                                     "dont_know_word_runs", "rerun_runs", "web_grounding_runs", "english_seed_runs")
               for run in answers.get(key, [])}
     if (sorted(listed_english) != sorted(english_runs) or sorted(listed_subset) != sorted(subset_runs)
             or (set(listed_english) | set(listed_subset)) & others or not set(listed_full) <= set(full_runs)

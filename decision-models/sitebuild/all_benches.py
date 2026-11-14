@@ -448,7 +448,10 @@ class Data:
             self.maker_family.setdefault(norm(family["maker"]), family["name"])
         self.training = config["training"]
         self.missing_colours: set[str] = set()
-        self.only_english = {entry["run"]: entry for entry in english_only(site.results["english_reading"])}
+        # An English-only setup by its first English run and, for a three-seed setup whose English bench row lists its
+        # seed runs (bench_scores.english_bench, Zeki #6989), by each of them.
+        self.only_english = {run: entry for entry in english_only(site.results["english_reading"])
+                             for run in [entry["run"], *(item["run"] for item in (entry.get("seeds") or {}).get("runs", []) if item)]}
         self.aliases = {bench: names for bench, names in config["aliases"].items() if bench != "about"}
         self.models: dict[str, dict[str, Any]] = {}
         for bench in self.all_benches:

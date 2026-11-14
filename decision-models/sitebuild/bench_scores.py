@@ -26,7 +26,7 @@ from typing import Any
 import benchmark_metrics as bm
 import export_results as er
 from sitebuild import leaderboard
-from sitebuild.english_reading import english_only, setup_families
+from sitebuild.english_reading import english_only, english_value, seeds_complete, setup_families
 from sitebuild.names import model_key
 from sitebuild.site import Site
 
@@ -188,7 +188,8 @@ def english_ece(site: Site, run_id: int) -> float | None:
 def english_bench(site: Site) -> dict[str, Any]:
     """Reading · English: the kept reading questions in English (results.json english_reading). One row per Text row
     with an English run: the English entry of the row's chosen Text run, else of its other runs in their order, its
-    first English run scored; then each English-only setup (no Text tab run). The row's name, repo, maker, kind and size
+    first English run scored, or a three-seed setup's mean once all its seeds are in (english_value, with its seed runs;
+    Ümit via Zeki #6989); then each English-only setup (no Text tab run). The row's name, repo, maker, kind and size
     are its Text row's, so the combined page joins the two."""
     data = site.results["english_reading"]
     total = data["questions"]
@@ -197,18 +198,21 @@ def english_bench(site: Site) -> dict[str, Any]:
     models = []
 
     def add(entry: dict[str, Any], run: dict[str, Any], maker: str, kind: str) -> None:
-        counts = entry["english"]
+        value = english_value(entry)
+        seeded = seeds_complete(entry)
+        runs = [item["run"] for item in entry["seeds"]["runs"]] if seeded else entry["runs"]
         repo, commit = checkpoint(run)
         params_total, params_active = sizes(run)
         models.append({
             "repo": repo, "commit": commit, "name": site.title(run), "tag": site.tag(run), "model_key": run_key(run),
             "maker": maker, "kind": kind,
             "params_total": params_total, "params_active": params_active, "quantization": quantization(run),
-            "score_0_100": score(counts["accuracy"], 1 / TEXT_OPTIONS),
-            "raw": {"metric": "accuracy", "value": counts["accuracy"], "questions": total, "options": TEXT_OPTIONS},
+            "score_0_100": score(value, 1 / TEXT_OPTIONS),
+            "raw": {"metric": "accuracy", "value": value, "questions": total, "options": TEXT_OPTIONS},
             "calibration_error": english_ece(site, entry["run"]), "improvement_points": None,
-            "runs": [f"english:{item}" for item in entry["runs"]],
-            "notes": f"{run['access']}; the kept reading questions in English"})
+            "runs": [f"english:{item}" for item in runs],
+            "notes": f"{run['access']}; the kept reading questions in English"
+                     + (f"; the mean of {entry['seeds']['of']} seed runs" if seeded else "")})
 
     for run, others in text_rows(site):
         entry = next((by_text[item["run"]] for item in (run, *others) if item["run"] in by_text), None)
