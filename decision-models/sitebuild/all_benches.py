@@ -232,8 +232,9 @@ def grading_section(data: "Data") -> str:
     # A score is one run's, except a row the feed gives as the mean of three seeds (compactor #7058, grading #7060).
     seeded = [row.get("display_name") or row["name"] for row in rows if len(row["runs"]) > 1]
     runs = ("The scores are first runs" if not seeded else
-            f"The scores are first runs, except {bp.and_list(seeded)}'s, the mean of three full runs with seeds 0, 1 and "
-            "2, with their lowest and highest beside it (a range, not a confidence interval)")
+            "The scores are first runs, except " + bp.and_list([f"{name}'s" for name in seeded]) + ", the mean of "
+            "three full runs with seeds 0, 1 and 2, with their lowest and highest beside it (a range, not a confidence "
+            "interval)")
     facts = {"models": bp.count(len(rows)), "api": bp.count(len(rows) - local), "local": bp.count(local),
              "decision": bp.count(decision), "chat": bp.count(chat), "name": name, "runs": runs}
     out = (f'<h2 id="grading">{esc(name)}: does the text give this answer?</h2>'
@@ -291,6 +292,15 @@ def number(value: float, digits: int = 1) -> str:
     """A score as the page writes it, with a true minus sign."""
     text = f"{value:.{digits}f}"
     return "\u2212" + text[1:] if text.startswith("-") and text.strip("-0.") else text.lstrip("-")
+
+
+def small_share(share: float) -> str:
+    """A share as a percentage to one decimal, with up to two more when a nonzero share would read 0.0% (MiniCPM5-2B's
+    two invalid replies of 6,207 are 0.03%, not none)."""
+    digits = 1
+    while share and digits < 3 and not round(100 * share, digits):
+        digits += 1
+    return f"{100 * share:.{digits}f}%"
 
 
 def kind_of(row: dict[str, Any]) -> str:
@@ -1186,8 +1196,8 @@ class GradingBench(ui.Bench):
         # A three-seed row's invalid replies: their mean rate with each seed's count, never one invented count (grading
         # #7060).
         per_seed = "; ".join(f"seed {seed['seed']}: {bp.count(seed['invalid'])}" for seed in seeds)
-        invalid = (f"Invalid replies: {pct(row['invalid_rate_mean'])} of {bp.count(GRADING_PAIRS)} on average ({per_seed}), "
-                   "counted wrong" if seeds else
+        invalid = (f"Invalid replies: {small_share(row['invalid_rate_mean'])} of {bp.count(GRADING_PAIRS)} on average "
+                   f"({per_seed}), counted wrong" if seeds else
                    f"Invalid replies: {bp.count(metrics['invalid'])} of {bp.count(GRADING_PAIRS)}, counted wrong")
         lines = [f"<strong>{esc(row.get('display_name') or row['name'])}</strong> · {esc(row.get('maker') or 'maker not given')}",
                  esc(self.class_text(model) or "Size not disclosed"),
@@ -1237,7 +1247,7 @@ class GradingBench(ui.Bench):
             invalid = self.metrics[row["runs"][0]]["invalid"]
             # A chat row's replies without an answer, as a flag beside its name (the box says they count wrong); a
             # three-seed row's as their mean rate, each seed's count in its box (grading #7060).
-            flag = (f"{100 * row['invalid_rate_mean']:.1f}% invalid, mean of {len(self.seeds(model))} seeds"
+            flag = (f"{small_share(row['invalid_rate_mean'])} invalid, mean of {len(self.seeds(model))} seeds"
                     if self.seeds(model) else f"{bp.count(invalid)} invalid" if invalid else "")
             written = self.written(model, key)
             # On a phone, under the name: its latency and its cost, each labelled, the API list price or our GPU time

@@ -1,9 +1,9 @@
 {
  "bench": "grading",
- "updated": "2026-11-14T05:10:10Z",
+ "updated": "2026-11-14T11:03:03Z",
  "feed": {
   "file": "bench-scores.json",
-  "sha256": "ea75e507057cbb94729b7bc9d3c2f8af6328b33b9099272c58bad054b1d50a5d"
+  "sha256": "9ac4ebcc919b68dc24b3a12fb0b923c9e04ba2dd8a8788c7c534ff61a118682d"
  },
  "cohort_pairs": 2069,
  "label_pairs": {
@@ -445,26 +445,6 @@
    "probabilities": false
   },
   {
-   "run": "grading:chat-minicpm5-2b-v1",
-   "model_key": "minicpm5-2b",
-   "latency_s_median": 4.017,
-   "latency_s_p90": 11.065,
-   "requests_in_flight": 64,
-   "requests_measured": 2069,
-   "api_cost_per_1000_usd_list_price": null,
-   "price_usd_per_million_input": null,
-   "price_source": null,
-   "price_date": null,
-   "gpu_seconds_per_1000": 95.5,
-   "recall_reference": 0.8864,
-   "recall_other": 0.7508,
-   "recall_none": 0.8609,
-   "wrong_answer_recall": 0.7508,
-   "false_alarm_rate": 0.0557,
-   "invalid": 3,
-   "probabilities": false
-  },
-  {
    "run": "grading:chat-gemma-4-12b-v1",
    "model_key": "gemma-4-12b",
    "latency_s_median": 6.618,
@@ -482,6 +462,66 @@
    "wrong_answer_recall": 0.5319,
    "false_alarm_rate": 0.0241,
    "invalid": 0,
+   "probabilities": false
+  },
+  {
+   "run": "grading:chat-minicpm5-2b-nothink-v1",
+   "model_key": "minicpm5-2b-nothink",
+   "latency_s_median": 1.087,
+   "latency_s_p90": 4.376,
+   "requests_in_flight": 64,
+   "requests_measured": 2069,
+   "api_cost_per_1000_usd_list_price": null,
+   "price_usd_per_million_input": null,
+   "price_source": null,
+   "price_date": null,
+   "gpu_seconds_per_1000": 94.1,
+   "recall_reference": 0.8896,
+   "recall_other": 0.2827,
+   "recall_none": 0.8521,
+   "wrong_answer_recall": 0.2827,
+   "false_alarm_rate": 0.0293,
+   "invalid": 10,
+   "probabilities": false
+  },
+  {
+   "run": "grading:chat-lfm3-1.7b-nothink-v1",
+   "model_key": "lfm3-1.7b-nothink",
+   "latency_s_median": 7.057,
+   "latency_s_p90": 20.892,
+   "requests_in_flight": 64,
+   "requests_measured": 2069,
+   "api_cost_per_1000_usd_list_price": null,
+   "price_usd_per_million_input": null,
+   "price_source": null,
+   "price_date": null,
+   "gpu_seconds_per_1000": 166.6,
+   "recall_reference": 0.9299,
+   "recall_other": 0.6201,
+   "recall_none": 0.8183,
+   "wrong_answer_recall": 0.6201,
+   "false_alarm_rate": 0.0333,
+   "invalid": 7,
+   "probabilities": false
+  },
+  {
+   "run": "grading:chat-gemma-4-e2b-think-v1",
+   "model_key": "gemma-4-e2b-think",
+   "latency_s_median": 4.53,
+   "latency_s_p90": 6.604,
+   "requests_in_flight": 64,
+   "requests_measured": 2069,
+   "api_cost_per_1000_usd_list_price": null,
+   "price_usd_per_million_input": null,
+   "price_source": null,
+   "price_date": null,
+   "gpu_seconds_per_1000": 132.8,
+   "recall_reference": 0.8992,
+   "recall_other": 0.462,
+   "recall_none": 0.8321,
+   "wrong_answer_recall": 0.462,
+   "false_alarm_rate": 0.0523,
+   "invalid": 1,
    "probabilities": false
   },
   {
@@ -512,6 +552,37 @@
     810,
     813,
     827
+   ],
+   "probabilities": false
+  },
+  {
+   "run": "grading:chat-minicpm5-2b-seed0-v1",
+   "model_key": "minicpm5-2b",
+   "runs": [
+    "grading:chat-minicpm5-2b-seed0-v1",
+    "grading:chat-minicpm5-2b-seed1-v1",
+    "grading:chat-minicpm5-2b-seed2-v1"
+   ],
+   "aggregation": "mean of 3 seeds; latency over all requests of the three runs",
+   "latency_s_median": 5.181,
+   "latency_s_p90": 8.962,
+   "requests_in_flight": 30,
+   "requests_measured": 6207,
+   "api_cost_per_1000_usd_list_price": null,
+   "price_usd_per_million_input": null,
+   "price_source": null,
+   "price_date": null,
+   "gpu_seconds_per_1000": 201.5,
+   "recall_reference": 0.8974,
+   "recall_other": 0.7599,
+   "recall_none": 0.8588,
+   "wrong_answer_recall": 0.7599,
+   "false_alarm_rate": 0.0649,
+   "invalid": null,
+   "invalid_per_seed": [
+    2,
+    0,
+    0
    ],
    "probabilities": false
   }

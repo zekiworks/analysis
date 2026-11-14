@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-14T05:10:06Z",
+ "updated": "2026-11-14T11:02:59Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -412,21 +412,53 @@
    "params_total": 2.52,
    "params_active": 2.52,
    "quantization": "BF16",
-   "score_0_100": 78.25036249395842,
+   "score_0_100": 79.09618173030448,
    "raw": {
     "metric": "accuracy",
-    "value": 0.8550024166263895,
+    "value": 0.8606412115353633,
     "questions": 2069,
     "options": 3
    },
    "calibration_error": null,
    "improvement_points": null,
    "runs": [
-    "grading:chat-minicpm5-2b-v1"
+    "grading:chat-minicpm5-2b-seed0-v1",
+    "grading:chat-minicpm5-2b-seed1-v1",
+    "grading:chat-minicpm5-2b-seed2-v1"
    ],
-   "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 3 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
-   "gpu_hours": 0.05490692201258399,
-   "gpu_cost_usd": null
+   "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); replies without a final 'ANSWER: X' line, counted wrong: mean rate 0% (per seed in seed_runs); gpu_hours is the mean of the three runs",
+   "gpu_hours": 0.1157823629882952,
+   "gpu_cost_usd": null,
+   "accuracy_basis": "mean of 3 seeds",
+   "seed_min": 0.8550024166263895,
+   "seed_max": 0.8641855969067183,
+   "seed_runs": [
+    {
+     "run": "grading:chat-minicpm5-2b-seed0-v1",
+     "seed": 0,
+     "accuracy": 0.8550024166263895,
+     "invalid": 2,
+     "cutoff": 0,
+     "wrong_answers_caught": 255
+    },
+    {
+     "run": "grading:chat-minicpm5-2b-seed1-v1",
+     "seed": 1,
+     "accuracy": 0.8641855969067183,
+     "invalid": 0,
+     "cutoff": 0,
+     "wrong_answers_caught": 245
+    },
+    {
+     "run": "grading:chat-minicpm5-2b-seed2-v1",
+     "seed": 2,
+     "accuracy": 0.8627356210729821,
+     "invalid": 0,
+     "cutoff": 0,
+     "wrong_answers_caught": 250
+    }
+   ],
+   "invalid_rate_mean": 0.0003222168519413565
   },
   {
    "name": "Gemma 4 12B Unified",
@@ -485,6 +517,62 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "LFM3-1.7B",
+   "display_name": "LFM3-1.7B",
+   "tag": "thinking off · chat",
+   "model_key": "lfm3-1.7b-nothink",
+   "maker": "Liquid AI",
+   "kind": "chat",
+   "repo": "LiquidAI/LFM3-1.7B",
+   "commit": "0dc4268b561499c648c7ba7c9466bf3d8d01517a",
+   "params_total": 1.73,
+   "params_active": 1.73,
+   "quantization": "BF16",
+   "score_0_100": 75.64040599323346,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8376027066215563,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-lfm3-1.7b-nothink-v1"
+   ],
+   "notes": "LiquidAI/LFM3-1.7B@0dc4268b, BF16, cu135-nightly-be47189f37f6162991366ff6b91539f6e9d1f432 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; 7 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
+   "gpu_hours": 0.09572078474699319,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Gemma 4 E2B",
+   "display_name": "Gemma 4 E2B",
+   "tag": "thinking on · chat",
+   "model_key": "gemma-4-e2b-think",
+   "maker": "Google",
+   "kind": "chat",
+   "repo": "google/gemma-4-E2B-it",
+   "commit": "4adf15748de9e1a0097b6274cee9c15836c41c37",
+   "params_total": 5.1,
+   "params_active": 5.1,
+   "quantization": "BF16",
+   "score_0_100": 70.56549057515707,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8037699371677138,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-gemma-4-e2b-think-v1"
+   ],
+   "notes": "google/gemma-4-E2B-it@4adf1574, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 1 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
+   "gpu_hours": 0.07629477478691463,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "Qwen3.5-2B",
    "display_name": "Qwen3.5-2B",
    "tag": "thinking on · chat",
@@ -510,6 +598,34 @@
    ],
    "notes": "Qwen/Qwen3.5-2B@15852e8c, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 94 of 2069 replies (5%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
    "gpu_hours": 0.38449188006265794,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "MiniCPM5-2B",
+   "display_name": "MiniCPM5-2B",
+   "tag": "thinking off · chat",
+   "model_key": "minicpm5-2b-nothink",
+   "maker": "OpenBMB",
+   "kind": "chat",
+   "repo": "openbmb/MiniCPM5-2B",
+   "commit": "42433e90dad95123ab87729fd7011e7110629556",
+   "params_total": 2.52,
+   "params_active": 2.52,
+   "quantization": "BF16",
+   "score_0_100": 66.79555340744321,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7786370227162881,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-minicpm5-2b-nothink-v1"
+   ],
+   "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; 10 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
+   "gpu_hours": 0.05406686166060087,
    "gpu_cost_usd": null
   },
   {
