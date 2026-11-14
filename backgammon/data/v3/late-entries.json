@@ -19773,6 +19773,739 @@
    "slug": "liquid-d1-2b",
    "status": "Published",
    "total": 19
+  },
+  {
+   "close": null,
+   "confidence": {
+    "auroc_best": 0.7322733731173628,
+    "auroc_blunder": 0.6990471518540216,
+    "confident_badly_wrong": {
+     "den": 1710,
+     "n": 0,
+     "share": 0.0
+    },
+    "cutoffs": {
+     "0.9": {
+      "blunders": {
+       "den": 0,
+       "n": 0,
+       "share": null
+      },
+      "kept": {
+       "den": 1710,
+       "n": 0,
+       "share": 0.0
+      },
+      "mean_loss": null,
+      "too_few": true
+     },
+     "0.99": {
+      "blunders": {
+       "den": 0,
+       "n": 0,
+       "share": null
+      },
+      "kept": {
+       "den": 1710,
+       "n": 0,
+       "share": 0.0
+      },
+      "mean_loss": null,
+      "too_few": true
+     }
+    },
+    "ece": 0.1024800846204276,
+    "held_out": {
+     "blunders": 0.032368865241493384,
+     "kept": 0.02838560396546067,
+     "no_cutoff": 76,
+     "runs": 300
+    },
+    "n": 1710,
+    "surest": {
+     "cut": 0.40150158998972496,
+     "error_rate": 18.048545780861488,
+     "n": 428,
+     "too_few": false
+    },
+    "too_few": false
+   },
+   "entry": "2026-11-14T19:47:39.029Z",
+   "exchanges": {
+    "cut_off": 0,
+    "decisions": 1710,
+    "efforts": {},
+    "limit_sent": 0,
+    "output_limit": 32768,
+    "past_limit_no_limit_sent": 0,
+    "with_exchanges": 1710
+   },
+   "field": [
+    "Celeris-1 Decision",
+    "Clef",
+    "Cygnet",
+    "Perplexity Decider Flash v1.2",
+    "Perplexity Decider 27B v1.1 (local GPU)",
+    "Perplexity Decider 27B v1.2 (local GPU)",
+    "Fastino GLiDE",
+    "Fastino GLiDE v1.2",
+    "GNUbg weak",
+    "GPT-6 Luna (Decisions API)",
+    "Jev 1.13.0",
+    "Jev 1.14.0",
+    "Liquid d1-ultra",
+    "Inception Mercury Decide",
+    "Open-Jev 27B v1.1",
+    "Random",
+    "Safest",
+    "SubQ Snap Preview",
+    "Winnow-12B"
+   ],
+   "field_league": 1,
+   "matches": [
+    {
+     "finished": "2026-11-14T19:48:25.904Z",
+     "id": 1437,
+     "opponent": "Fastino GLiDE",
+     "score_against": 4,
+     "score_for": 2,
+     "started": "2026-11-14T19:47:39.029Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T19:48:54.906Z",
+     "id": 1438,
+     "opponent": "Celeris-1 Decision",
+     "score_against": 3,
+     "score_for": 6,
+     "started": "2026-11-14T19:48:26.717Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T19:49:04.456Z",
+     "id": 1439,
+     "opponent": "GNUbg weak",
+     "score_against": 6,
+     "score_for": 1,
+     "started": "2026-11-14T19:48:55.392Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T19:49:11.093Z",
+     "id": 1440,
+     "opponent": "Random",
+     "score_against": 1,
+     "score_for": 5,
+     "started": "2026-11-14T19:49:04.919Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T19:49:17.033Z",
+     "id": 1441,
+     "opponent": "Safest",
+     "score_against": 5,
+     "score_for": 1,
+     "started": "2026-11-14T19:49:11.496Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T19:49:33.199Z",
+     "id": 1442,
+     "opponent": "Liquid d1-ultra",
+     "score_against": 1,
+     "score_for": 6,
+     "started": "2026-11-14T19:49:17.524Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T19:49:51.210Z",
+     "id": 1443,
+     "opponent": "Jev 1.14.0",
+     "score_against": 2,
+     "score_for": 5,
+     "started": "2026-11-14T19:49:33.669Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T19:50:02.468Z",
+     "id": 1444,
+     "opponent": "Jev 1.13.0",
+     "score_against": 1,
+     "score_for": 6,
+     "started": "2026-11-14T19:49:51.579Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T19:50:24.195Z",
+     "id": 1445,
+     "opponent": "SubQ Snap Preview",
+     "score_against": 6,
+     "score_for": 3,
+     "started": "2026-11-14T19:50:02.894Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T19:50:24.775Z",
+     "id": 1446,
+     "opponent": "Inception Mercury Decide",
+     "score_against": 0,
+     "score_for": 0,
+     "started": "2026-11-14T19:50:24.686Z",
+     "status": "aborted"
+    },
+    {
+     "finished": "2026-11-14T19:56:38.948Z",
+     "id": 1447,
+     "opponent": "Cygnet",
+     "score_against": 5,
+     "score_for": 0,
+     "started": "2026-11-14T19:56:22.334Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T19:58:12.153Z",
+     "id": 1448,
+     "opponent": "Winnow-12B",
+     "score_against": 6,
+     "score_for": 0,
+     "started": "2026-11-14T19:57:34.864Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T19:59:19.314Z",
+     "id": 1449,
+     "opponent": "Perplexity Decider Flash v1.2",
+     "score_against": 2,
+     "score_for": 5,
+     "started": "2026-11-14T19:58:46.862Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T20:02:30.474Z",
+     "id": 1450,
+     "opponent": "Perplexity Decider 27B v1.2 (local GPU)",
+     "score_against": 2,
+     "score_for": 7,
+     "started": "2026-11-14T20:00:08.472Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T20:04:49.285Z",
+     "id": 1451,
+     "opponent": "Fastino GLiDE v1.2",
+     "score_against": 6,
+     "score_for": 1,
+     "started": "2026-11-14T20:03:27.628Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T20:09:27.278Z",
+     "id": 1452,
+     "opponent": "Clef",
+     "score_against": 3,
+     "score_for": 7,
+     "started": "2026-11-14T20:05:44.144Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T20:12:17.810Z",
+     "id": 1453,
+     "opponent": "Open-Jev 27B v1.1",
+     "score_against": 2,
+     "score_for": 5,
+     "started": "2026-11-14T20:10:07.752Z",
+     "status": "finished"
+    },
+    {
+     "finished": "2026-11-14T20:14:46.913Z",
+     "id": 1454,
+     "opponent": "Perplexity Decider 27B v1.1 (local GPU)",
+     "score_against": 5,
+     "score_for": 0,
+     "started": "2026-11-14T20:13:28.793Z",
+     "status": "finished"
+    }
+   ],
+   "name": "Liquid d1-Omni-2B",
+   "not_played": [
+    {
+     "opponent": "GPT-6 Luna (Decisions API)",
+     "out_of_scope": true,
+     "reason": "opponent's API out of credit"
+    },
+    {
+     "opponent": "Inception Mercury Decide",
+     "out_of_scope": true,
+     "reason": "opponent no longer served on OpenRouter"
+    }
+   ],
+   "played": 17,
+   "price": {
+    "date": null,
+    "input_per_mtok": null,
+    "label": "estimate: GPU time, at most",
+    "output_per_mtok": null,
+    "source": "content/own_cost.json (wall clock on our machines × hourly rate)"
+   },
+   "quality": {
+    "auroc": 0.7322733731173628,
+    "best_share": 0.40350877192982454,
+    "blunder_share": 0.3140350877192982,
+    "brier": 0.21426720351746026,
+    "clusters": 80,
+    "confidence_n": 1710,
+    "confident_badly_wrong": 0.0,
+    "cost_coverage": 1.0,
+    "decisions": 1710,
+    "ece": 0.1024800846204276,
+    "engine_scored": 1710,
+    "error_hi": 57.44308628433984,
+    "error_lo": 43.4655985362529,
+    "error_rate": 49.79613642943533,
+    "first_date": "2026-11-14",
+    "group_sizes": [],
+    "grouped": 0,
+    "invalid": 0,
+    "last_date": "2026-11-14",
+    "mean_confidence": 0.30102868730939697,
+    "over_budget": 0.0,
+    "own_cost": {
+     "decisions": 1710,
+     "estimate": true,
+     "excluded_hours": 0.0,
+     "gaps": [],
+     "gpu_decisions": 1710,
+     "gpu_usd": 1.1235142833610374,
+     "hosted_decisions": 0,
+     "hosted_unpriced": 0,
+     "hosted_usd": 0,
+     "hours": 0.45121055556668166,
+     "kind": "gpu",
+     "parts": [
+      {
+       "gpus": 1,
+       "hours": 0.45121055556668166,
+       "machine": "rtx_pro_6000",
+       "usd": 1.1235142833610374,
+       "usd_per_gpu_hour": 2.49
+      }
+     ],
+     "provenance": "content/own_cost.json: wall clock on our machines × hourly rate",
+     "spark_rate": null,
+     "usd": 1.1235142833610374,
+     "usd_per_1000": 0.657025896702361
+    },
+    "p95_loss": 0.42634550631046286,
+    "probability_source": "decision",
+    "retry_mean": 0.011870175438596493,
+    "scored": 1710,
+    "time_median": 0.0635,
+    "time_p90": 0.142,
+    "tokens_in": 3336.0409356725145,
+    "tokens_out": 0.0,
+    "too_few": false,
+    "usd_per_1000": 0.657025896702361,
+    "very_confident": 0.0,
+    "worst_mean": 0.7341423793587574
+   },
+   "record": {
+    "drawn": 0,
+    "lost": 8,
+    "won": 9
+   },
+   "risk": {
+    "main": {
+     "by_call": {
+      "missed": 19.716191274380822,
+      "needless": 12.08123090671517,
+      "none": 4.049348534896359,
+      "right_risk": 2.0772749917549,
+      "right_safety": 4.552308761934091,
+      "wrong_risk": 7.319781959753985
+     },
+     "calls": {
+      "missed": 332.0,
+      "needless": 175.0,
+      "right_risk": 188.0,
+      "right_safety": 553.0,
+      "wrong_risk": 99.0
+     },
+     "confidence": {
+      "auroc_right_risk": 0.5575399906817828,
+      "missed_mean_p": 0.26096416298242925,
+      "missed_n": 332,
+      "taken_grouped": 0,
+      "taken_n": 462,
+      "taken_other": 0
+     },
+     "error_rate": 49.79613642943533,
+     "found": {
+      "den": 619.0,
+      "n": 188.0,
+      "share": 0.3037156704361874
+     },
+     "good": {
+      "den": 462.0,
+      "n": 188.0,
+      "share": 0.4069264069264069
+     },
+     "judgement": 53.166552752578596,
+     "judgement_hi": 55.586399751069315,
+     "judgement_lo": 50.93532654686919,
+     "judgement_na": null,
+     "map": {
+      "wrong_share": 0.2296983758700696,
+      "x": 0.6962843295638126,
+      "y": 0.2403846153846154
+     },
+     "margin": 0.001,
+     "missed": {
+      "den": 619.0,
+      "n": 332.0,
+      "share": 0.5363489499192245
+     },
+     "needless": {
+      "den": 728.0,
+      "n": 175.0,
+      "share": 0.2403846153846154
+     },
+     "needless_by_loss": {
+      "big": {
+       "den": 728.0,
+       "n": 127.0,
+       "share": 0.17445054945054944
+      },
+      "medium": {
+       "den": 728.0,
+       "n": 33.0,
+       "share": 0.04532967032967033
+      },
+      "small": {
+       "den": 728.0,
+       "n": 15.0,
+       "share": 0.020604395604395604
+      }
+     },
+     "no_trade_off": 363.0,
+     "reference": null,
+     "right_safety": {
+      "den": 728.0,
+      "n": 553.0,
+      "share": 0.7596153846153846
+     },
+     "risk_pays": 619.0,
+     "safety_pays": 728.0,
+     "scored": 1710,
+     "sdt": {
+      "aim": {
+       "den": 287.0,
+       "n": 188.0,
+       "share": 0.6550522648083623
+      },
+      "beta": 1.3671901712024612,
+      "caution": 0.3975069790198251,
+      "caution_hi": 0.4755865267864002,
+      "caution_lo": 0.322051953871412,
+      "cstar": 0.5103501100208903,
+      "cstar_note": "unstable: fewer than 200 needless risks behind a mean cost",
+      "cstar_status": "unstable",
+      "dprime": 0.6128296196173766,
+      "dprime_hi": 0.7532455784638639,
+      "dprime_lo": 0.47570956897738653,
+      "false_alarm": {
+       "den": 728.0,
+       "n": 175.0,
+       "share": 0.2403846153846154
+      },
+      "false_alarm_rate": 0.24074074074074073,
+      "hit": {
+       "den": 619.0,
+       "n": 287.0,
+       "share": 0.46365105008077545
+      },
+      "hit_rate": 0.4637096774193548,
+      "missed_loss": 0.20310052457344102,
+      "missed_n": 332.0,
+      "na": null,
+      "needless_loss": 0.23610176971980504,
+      "needless_n": 175.0
+     },
+     "size": {
+      "bad": {
+       "mean": 11.996350364963504,
+       "n": 274.0,
+       "too_few": false
+      },
+      "right": {
+       "mean": 9.851063829787234,
+       "n": 188.0,
+       "too_few": true
+      }
+     },
+     "stake": {
+      "big": {
+       "found": {
+        "den": 332.0,
+        "n": 123.0,
+        "share": 0.3704819277108434
+       },
+       "missed": {
+        "den": 332.0,
+        "n": 165.0,
+        "share": 0.49698795180722893
+       },
+       "risk_pays": 332.0,
+       "wrong": {
+        "den": 332.0,
+        "n": 44.0,
+        "share": 0.13253012048192772
+       }
+      },
+      "medium": {
+       "found": {
+        "den": 228.0,
+        "n": 60.0,
+        "share": 0.2631578947368421
+       },
+       "missed": {
+        "den": 228.0,
+        "n": 135.0,
+        "share": 0.5921052631578947
+       },
+       "risk_pays": 228.0,
+       "wrong": {
+        "den": 228.0,
+        "n": 33.0,
+        "share": 0.14473684210526316
+       }
+      },
+      "small": {
+       "found": {
+        "den": 59.0,
+        "n": 5.0,
+        "share": 0.0847457627118644
+       },
+       "missed": {
+        "den": 59.0,
+        "n": 32.0,
+        "share": 0.5423728813559322
+       },
+       "risk_pays": 59.0,
+       "wrong": {
+        "den": 59.0,
+        "n": 22.0,
+        "share": 0.3728813559322034
+       }
+      }
+     },
+     "trade_off": 1347.0,
+     "wrong": {
+      "den": 619.0,
+      "n": 99.0,
+      "share": 0.15993537964458804
+     }
+    },
+    "robust": {
+     "by_call": {
+      "missed": 19.198970304943664,
+      "needless": 13.193972304201962,
+      "none": 4.049348534896359,
+      "right_risk": 1.649369900686699,
+      "right_safety": 5.069529731371249,
+      "wrong_risk": 6.634945653335393
+     },
+     "calls": {
+      "missed": 300.0,
+      "needless": 202.0,
+      "right_risk": 168.0,
+      "right_safety": 585.0,
+      "wrong_risk": 92.0
+     },
+     "confidence": {
+      "auroc_right_risk": 0.5620343375445416,
+      "missed_mean_p": 0.25848944497414367,
+      "missed_n": 300,
+      "taken_grouped": 0,
+      "taken_n": 462,
+      "taken_other": 0
+     },
+     "error_rate": 49.79613642943533,
+     "found": {
+      "den": 560.0,
+      "n": 168.0,
+      "share": 0.3
+     },
+     "good": {
+      "den": 462.0,
+      "n": 168.0,
+      "share": 0.36363636363636365
+     },
+     "judgement": 52.16645489199492,
+     "judgement_hi": 54.54323112145561,
+     "judgement_lo": 49.76719183360102,
+     "judgement_na": null,
+     "map": {
+      "wrong_share": 0.23469387755102042,
+      "x": 0.7,
+      "y": 0.25667090216010163
+     },
+     "margin": 0.02,
+     "missed": {
+      "den": 560.0,
+      "n": 300.0,
+      "share": 0.5357142857142857
+     },
+     "needless": {
+      "den": 787.0,
+      "n": 202.0,
+      "share": 0.25667090216010163
+     },
+     "needless_by_loss": {
+      "big": {
+       "den": 787.0,
+       "n": 141.0,
+       "share": 0.17916137229987295
+      },
+      "medium": {
+       "den": 787.0,
+       "n": 41.0,
+       "share": 0.052096569250317665
+      },
+      "small": {
+       "den": 787.0,
+       "n": 20.0,
+       "share": 0.025412960609911054
+      }
+     },
+     "no_trade_off": 363.0,
+     "reference": null,
+     "right_safety": {
+      "den": 787.0,
+      "n": 585.0,
+      "share": 0.7433290978398983
+     },
+     "risk_pays": 560.0,
+     "safety_pays": 787.0,
+     "scored": 1710,
+     "sdt": {
+      "aim": {
+       "den": 260.0,
+       "n": 168.0,
+       "share": 0.6461538461538462
+      },
+      "beta": 1.4343469750383395,
+      "caution": 0.37108355407732985,
+      "caution_hi": 0.4494312767912701,
+      "caution_lo": 0.2998200734410087,
+      "cstar": 0.6404613920295279,
+      "cstar_note": null,
+      "cstar_status": "valid",
+      "dprime": 0.563202841678299,
+      "dprime_hi": 0.7107296793722068,
+      "dprime_lo": 0.42782159764779626,
+      "false_alarm": {
+       "den": 787.0,
+       "n": 202.0,
+       "share": 0.25667090216010163
+      },
+      "false_alarm_rate": 0.2569796954314721,
+      "hit": {
+       "den": 560.0,
+       "n": 260.0,
+       "share": 0.4642857142857143
+      },
+      "hit_rate": 0.464349376114082,
+      "missed_loss": 0.21886826147635777,
+      "missed_n": 300.0,
+      "na": null,
+      "needless_loss": 0.22338309544737978,
+      "needless_n": 202.0
+     },
+     "size": {
+      "bad": {
+       "mean": 11.891156462585034,
+       "n": 294.0,
+       "too_few": false
+      },
+      "right": {
+       "mean": 9.779761904761905,
+       "n": 168.0,
+       "too_few": true
+      }
+     },
+     "stake": {
+      "big": {
+       "found": {
+        "den": 332.0,
+        "n": 116.0,
+        "share": 0.3493975903614458
+       },
+       "missed": {
+        "den": 332.0,
+        "n": 165.0,
+        "share": 0.49698795180722893
+       },
+       "risk_pays": 332.0,
+       "wrong": {
+        "den": 332.0,
+        "n": 51.0,
+        "share": 0.1536144578313253
+       }
+      },
+      "medium": {
+       "found": {
+        "den": 228.0,
+        "n": 52.0,
+        "share": 0.22807017543859648
+       },
+       "missed": {
+        "den": 228.0,
+        "n": 135.0,
+        "share": 0.5921052631578947
+       },
+       "risk_pays": 228.0,
+       "wrong": {
+        "den": 228.0,
+        "n": 41.0,
+        "share": 0.17982456140350878
+       }
+      },
+      "small": {
+       "found": {
+        "den": 0.0,
+        "n": 0.0,
+        "share": null
+       },
+       "missed": {
+        "den": 0.0,
+        "n": 0.0,
+        "share": null
+       },
+       "risk_pays": 0.0,
+       "wrong": {
+        "den": 0.0,
+        "n": 0.0,
+        "share": null
+       }
+      }
+     },
+     "trade_off": 1347.0,
+     "wrong": {
+      "den": 560.0,
+      "n": 92.0,
+      "share": 0.16428571428571428
+     }
+    }
+   },
+   "route": {
+    "provider": "local (d1_server.py)",
+    "reasoning": null,
+    "spec": "d1-local/LiquidAI/d1-Omni-2B"
+   },
+   "running": 0,
+   "slug": "liquid-d1-omni-2b",
+   "status": "Published",
+   "total": 19
   }
  ],
  "note": "Late entries: not in any standings table, league table or other setup's numbers; each entrant's own late-entry games only.",
