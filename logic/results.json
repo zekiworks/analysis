@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-14T07:20:58Z",
+ "generated_at": "2026-11-14T08:35:35Z",
  "tests": {
   "logic": {
    "name": "Logic",
@@ -24,7 +24,7 @@
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
-     "non_hallucination": 0.75,
+     "non_hallucination": 0.5714285714285714,
      "cost_per_1000": 0.0,
      "cost_usd": 0.0,
      "cost_unit": "USD",
@@ -108,7 +108,7 @@
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
-     "non_hallucination": 0.76,
+     "non_hallucination": 0.8043478260869565,
      "cost_per_1000": null,
      "cost_usd": null,
      "cost_unit": "USD",
@@ -518,11 +518,11 @@
      "setup_label": "MiniCPM5-2B (chat, thinking, on our GPU)",
      "group": "chat",
      "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
-     "accuracy": 0.8871111111111111,
-     "wilson_low": 0.867285818834836,
-     "wilson_high": 0.9043016208909855,
-     "right": 998,
-     "n": 1125,
+     "accuracy": 0.8885925925925925,
+     "wilson_low": null,
+     "wilson_high": null,
+     "right": null,
+     "n": null,
      "decision_score": null,
      "chosen_answer_brier": null,
      "n_scored": null,
@@ -548,9 +548,18 @@
        "run_id": "minicpm5-2b-seed1_en",
        "right": 993,
        "n": 1125
+      },
+      {
+       "seed": 2,
+       "run_id": "minicpm5-2b-seed2_en",
+       "right": 1008,
+       "n": 1125
       }
      ],
-     "seeds_complete": "2/3"
+     "seeds_complete": "3/3",
+     "accuracy_basis": "mean of 3 seeds",
+     "seed_min": 0.8826666666666667,
+     "seed_max": 0.896
     },
     {
      "name": "Gemma 4 12B Unified",
