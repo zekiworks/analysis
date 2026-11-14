@@ -130,8 +130,10 @@ GRADING_COPY = (
     "setting is its row's tag). These numbers apply only to this cohort and request setting. Additional models receive "
     "rows only after completion on the same frozen cohort.",
     "Requests contain one question each. A chat model's reply without a final 'ANSWER: X' line counts wrong (the rule was "
-    "fixed before the runs); each row's notes say how many replies that was, and whether it came from the reply format "
-    "or from the reasoning parser is not established. {runs}; no diagnostic run was made.",
+    "fixed before the runs); each row's notes say how many replies that was. The full reply texts of these runs were not "
+    "kept (only the last 140 pairs of one resumed run were), so whether such a reply came from the reply format, the "
+    "reasoning parser or an answer that was genuinely absent cannot be established afterwards. {runs}; no diagnostic run "
+    "was made.",
     "{name} is a separate benchmark tab. Combined scoring is unchanged.",
 )
 # What a bench's table counts per model, where not questions.
