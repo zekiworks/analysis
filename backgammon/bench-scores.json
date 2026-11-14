@@ -303,6 +303,31 @@
   },
   {
    "calibration_error": null,
+   "commit": "8fcee858f7f20a50bfa3c8f984c22adb3cbb46a2",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "Sthānika AI",
+   "model_key": "sieve-31b-v3",
+   "name": "Sieve 31B v3",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #44. sthanika-ai/Sieve-31B-v3 @ 8fcee85 on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through the server its card names (sieve-serve, sieve-decisions 0.5.1 at github.com/sthanika-ai/Sieve 1e64657, defaults), one request at a time; never on a hosted API. First stage 12 Nov 2026: its 9 hosted and program opponents (#1221–#1229, runner a127626); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1411–#1418, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1230 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). Serving policy one read and 2 option orders averaged; probabilities rounded to 4 places. Its replies carry no input-token count, so the runner records 0 input tokens (per-token figures unknown, not zero). Never truncates (no token limit of its own; a request it cannot answer is refused, 422); nothing refused. Its first stage was stopped once after 12 h with pairs open (13 Nov 08:47 UTC) and finished at 11:29 UTC. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 31.27,
+   "params_total": 31.27,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1740,
+    "value": 27.491367377083876
+   },
+   "repo": "sthanika-ai/Sieve-31B-v3",
+   "runs": [
+    "backgammon:sieve-31b-v3"
+   ],
+   "score_0_100": 77.3,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
    "commit": "fa4bf7ee3bb56a8bc421dad090631be1c5845c2d",
    "improvement_points": null,
    "kind": "decision",
@@ -400,6 +425,31 @@
    ],
    "score_0_100": 76.16,
    "tag": "off"
+  },
+  {
+   "calibration_error": null,
+   "commit": "866c0fc6e040cba23fcc72113a80e5c99d5ebab1",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "Turion.AI",
+   "model_key": "turion-jev-31b",
+   "name": "Turion Jev 31B",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #46. turion-ai/turion-jev-31b @ 866c0fc on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), FP8 at load, through the server its package ships (python -m turion_jev.serve, vLLM 0.32.0 in process, --quantization fp8 --no-recheck), one request at a time; never on a hosted API. First stage 13 Nov 2026: its 9 hosted and program opponents (#1241–#1249, runner a127626 for #1241, then a72223d); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1403–#1410, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1250 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). BF16 weights quantised to FP8 at load and re-scoring off (--no-recheck), as in the card's run; probabilities rounded to 6 places. Its server was stopped after an OOM kill on spark2 (13 Nov 12:33 UTC, 3 failed health checks); from 14:29 UTC it ran through logic's launcher turion_serve_headroom.py --gpu-mem 0.80 (logic #6191), which sets only vLLM's memory share (the KV cache size) and then runs turion_jev.serve unchanged, pinned by its sha256. Never truncates: a prompt over 65,536 tokens is refused (422); nothing refused. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 31.27,
+   "params_total": 31.27,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1855,
+    "value": 29.695650621887165
+   },
+   "repo": "turion-ai/turion-jev-31b",
+   "runs": [
+    "backgammon:turion-jev-31b"
+   ],
+   "score_0_100": 75.48,
+   "tag": "NVIDIA DGX Spark (GB10)"
   },
   {
    "calibration_error": null,
@@ -803,6 +853,31 @@
   },
   {
    "calibration_error": null,
+   "commit": "416088f77cfce09633906a3675c7cd2e5dabcf10",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "StartLux",
+   "model_key": "startlux-decision-v1.1-4b-instant",
+   "name": "StartLux-Decision-v1.1-4B-Instant",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #47. startlux-models/StartLux-Decision-v1.1-4B-Instant @ 416088f on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through its package's own server (startlux-decide 1.1.0 serve --launch-vllm, vLLM 0.31.0), one request at a time; never on a hosted API. First stage 13 Nov 2026: its 9 hosted and program opponents (#1251–#1259, runner 62ae46a); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1387–#1394, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1260 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). Instant: one read-out per pass, no thinking; 26 letters per pass including the hidden 'None of the above' (serve's default none_check); the server knocks longer lists out in groups of at most 25. Never truncates: vLLM refuses over 131,072 tokens (422); nothing refused. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 4.66,
+   "params_total": 4.66,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1989,
+    "value": 40.14492664971263
+   },
+   "repo": "startlux-models/StartLux-Decision-v1.1-4B-Instant",
+   "runs": [
+    "backgammon:startlux-decision-v1-1-4b-instant"
+   ],
+   "score_0_100": 66.85,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
    "commit": null,
    "improvement_points": null,
    "kind": "decision",
@@ -953,6 +1028,31 @@
   },
   {
    "calibration_error": null,
+   "commit": "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "Apertix AI",
+   "model_key": "cerno-9b-v1.2",
+   "name": "Cerno 9B v1.2",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #48. apertixai/cerno-9b-v1.2 @ f02a632 on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through the card's own in-process transformers engine (CernoEngine) behind logic's thin System One server (cerno_server.py, request/response mapping only), one request at a time; never on a hosted API. First stage 13 Nov 2026: its 9 hosted and program opponents (#1261–#1269, runner 2a22d1f); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1395–#1402, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1270 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). Probabilities rounded to 4 places. The decider would cut a state ('Context:' block) over 32,768 tokens (its engine default) without refusing; that cut is never reached in League 1 (longest state block 5,856 tokens over its 31,793 distinct stored requests); the longest prompt (251 options) is 28,349 tokens, within its 262,144 context. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 8.95,
+   "params_total": 8.95,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 2108,
+    "value": 48.46733851637514
+   },
+   "repo": "apertixai/cerno-9b-v1.2",
+   "runs": [
+    "backgammon:cerno-9b-v1-2"
+   ],
+   "score_0_100": 59.98,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
    "commit": null,
    "improvement_points": null,
    "kind": "decision",
@@ -975,6 +1075,81 @@
    ],
    "score_0_100": 58.94,
    "tag": "NVIDIA RTX PRO 6000 Blackwell"
+  },
+  {
+   "calibration_error": null,
+   "commit": "f1e6cd147dda82c9ffa3e8e725d5c1f175566fb1",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "StartLux",
+   "model_key": "startlux-decision-v1.1-2b-instant",
+   "name": "StartLux-Decision-v1.1-2B-Instant",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #23. startlux-models/StartLux-Decision-v1.1-2B-Instant @ f1e6cd1 on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through its package's own server (startlux-decide 1.1.0 serve --launch-vllm, vLLM 0.31.0), one request at a time; never on a hosted API. First stage 11 Nov 2026: its 9 hosted and program opponents (#970–#978, runner 2a27d5d); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1379–#1386, runner 2a27d5d). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #979 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). Instant: one read-out per pass, no thinking; one letter per option, 26 per pass; the server knocks longer lists out in groups of at most 25 (the 3 best of each to a final pass); serve's default none_check (a hidden 'None of the above' option). Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 2.27,
+   "params_total": 2.27,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1771,
+    "value": 50.041675172169825
+   },
+   "repo": "startlux-models/StartLux-Decision-v1.1-2B-Instant",
+   "runs": [
+    "backgammon:startlux-decision-v1-1-2b"
+   ],
+   "score_0_100": 58.68,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
+   "commit": "779944d2cc8ffa19cef386aee83c83bcb967ade2",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "PelaAI",
+   "model_key": "knowline-4b-gen5.5",
+   "name": "KnowLine 4B Gen5.5",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #22. PelaAI/KnowLine-4B-Gen5.5 @ 779944d on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), FP8 at load, through the repo's own serve_knowline.sh (SGLang 0.5.21 with FP8 at load, as the card serves it, then its knowline_server.py front end), one request at a time; never on a hosted API. First stage 11 Nov 2026: its 9 hosted and program opponents (#957–#965, runner b727222); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1371–#1378, runner b727222). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #966 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). FP8 at load (--quantization fp8, as the card and serve_knowline.sh serve it), --mem-fraction-static 0.72. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 4.66,
+   "params_total": 4.66,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 2153,
+    "value": 53.58964786854003
+   },
+   "repo": "PelaAI/KnowLine-4B-Gen5.5",
+   "runs": [
+    "backgammon:knowline-4b-gen5-5"
+   ],
+   "score_0_100": 55.75,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
+   "commit": "53245d470a4ce316e32fd0d18c24e142c697f40b",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "PelaAI",
+   "model_key": "knowline-2b-gen1",
+   "name": "KnowLine-2B-Gen1",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #40. PelaAI/KnowLine-2B-Gen1 @ 53245d4 on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through the repo's own serve_knowline.sh (SGLang 0.5.21, then its knowline_server.py front end), one request at a time; never on a hosted API. First stage 12 Nov 2026: its 9 hosted and program opponents (#1181–#1189, runner e4ce0e9); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1355–#1362, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1190 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). It never truncates (SGLang without --allow-auto-truncate refuses over its 262,144-token context); nothing refused. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 2.27,
+   "params_total": 2.27,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1955,
+    "value": 54.54787061647381
+   },
+   "repo": "PelaAI/KnowLine-2B-Gen1",
+   "runs": [
+    "backgammon:knowline-2b-gen1"
+   ],
+   "score_0_100": 54.96,
+   "tag": "NVIDIA DGX Spark (GB10)"
   },
   {
    "calibration_error": null,
@@ -1003,6 +1178,31 @@
   },
   {
    "calibration_error": null,
+   "commit": "6496ae641cc71b149ce9dad69bd97f2a44e7bf11",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "StartLux",
+   "model_key": "startlux-decision-v1.1-0.8b-instant",
+   "name": "StartLux-Decision-v1.1-0.8B-Instant",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #27. startlux-models/StartLux-Decision-v1.1-0.8B-Instant @ 6496ae6 on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through its package's own server (startlux-decide 1.1.0 serve --launch-vllm, vLLM 0.31.0), one request at a time; never on a hosted API. First stage 11 Nov 2026: its 9 hosted and program opponents (#1000–#1014, runner e4ce0e9); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1339–#1346, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1015 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). Instant: one read-out per pass, no thinking; 26 letters per pass including the hidden 'None of the above' (serve's default none_check); the server knocks longer lists out in groups of at most 25. Never truncates: vLLM refuses over 131,072 tokens (422); nothing refused. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 0.87,
+   "params_total": 0.87,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1882,
+    "value": 64.7133435424532
+   },
+   "repo": "startlux-models/StartLux-Decision-v1.1-0.8B-Instant",
+   "runs": [
+    "backgammon:startlux-decision-v1-1-0-8b-instant"
+   ],
+   "score_0_100": 46.56,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
    "commit": null,
    "improvement_points": null,
    "kind": "decision",
@@ -1025,6 +1225,156 @@
    ],
    "score_0_100": 45.87,
    "tag": "NVIDIA RTX PRO 6000 Blackwell"
+  },
+  {
+   "calibration_error": null,
+   "commit": "00f122c120cdeed82284106cb77d9bab5a50ad16",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "Fastino",
+   "model_key": "glide-2b",
+   "name": "GLiDE 2B",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #41. fastino/GLiDE-2B @ 00f122c on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through the server its repository ships (python -m glide.server, GLIDE_MAX_BATCH=1), one request at a time; never on a hosted API. First stage 12 Nov 2026: its 9 hosted and program opponents (#1191–#1199, runner e4ce0e9); local stage 13 Nov, 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1298–#1305, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1200 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). It never truncates: a prompt over GLIDE_MAX_LEN 40,000 tokens is refused (422); League 1's longest stored request (251 options) is 28,323 tokens; nothing refused. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 1.88,
+   "params_total": 1.88,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1676,
+    "value": 67.35153148630923
+   },
+   "repo": "fastino/GLiDE-2B",
+   "runs": [
+    "backgammon:glide-2b"
+   ],
+   "score_0_100": 44.39,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
+   "commit": "6b27831f7b783c03278bd946d4d8f4f7a98a3798",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "PelaAI",
+   "model_key": "knowline-0.8b-gen1",
+   "name": "KnowLine-0.8B-Gen1",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #25. PelaAI/KnowLine-0.8B-Gen1 @ 6b27831 on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through the repo's own serve_knowline.sh (SGLang 0.5.21, then its knowline_server.py front end), one request at a time; never on a hosted API. First stage 11 Nov 2026: its 9 hosted and program opponents (#983–#991, runner e4ce0e9); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1331–#1338, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #992 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). It never truncates (SGLang without --allow-auto-truncate refuses over its 262,144-token context); nothing refused. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 0.87,
+   "params_total": 0.87,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1728,
+    "value": 71.94117152270067
+   },
+   "repo": "PelaAI/KnowLine-0.8B-Gen1",
+   "runs": [
+    "backgammon:knowline-0-8b-gen1"
+   ],
+   "score_0_100": 40.6,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
+   "commit": "9eacdeec79fa48ec52a8d6f54b331376b4bbfaf0",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "Fastino",
+   "model_key": "glide-0.8b",
+   "name": "GLiDE 0.8B",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #42. fastino/GLiDE-0.8B @ 9eacdee on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through the server its repository ships (python -m glide.server, GLIDE_MAX_BATCH=1), one request at a time; never on a hosted API. First stage 12 Nov 2026: its 9 hosted and program opponents (#1201–#1209, runner e4ce0e9); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1315–#1322, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1210 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). It never truncates: a prompt over GLIDE_MAX_LEN 40,000 tokens is refused (422); League 1's longest stored request (251 options) is 28,323 tokens; nothing refused. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 0.75,
+   "params_total": 0.75,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1832,
+    "value": 80.36733062441692
+   },
+   "repo": "fastino/GLiDE-0.8B",
+   "runs": [
+    "backgammon:glide-0-8b"
+   ],
+   "score_0_100": 33.64,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
+   "commit": "bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "OmniJev",
+   "model_key": "onejev1.6-0.8b",
+   "name": "OneJev1.6-0.8B",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #30. OmniJev/OneJev1.6-0.8B @ bcd88a3 on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through the server its card names (Flide 0.1.11 flide serve, format onejev-slot-v2), one request at a time; never on a hosted API. First stage 11 Nov 2026: its 9 hosted and program opponents (#1041–#1049, runner e4ce0e9); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1347–#1354, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1050 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). No calibration file shipped, so temperature 1; probabilities rounded to 6 places by the server. Never truncates: state plus a question over 32,768 tokens, or a request over 65,536, is refused (422); nothing refused. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 0.85,
+   "params_total": 0.85,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1763,
+    "value": 82.51933623327157
+   },
+   "repo": "OmniJev/OneJev1.6-0.8B",
+   "runs": [
+    "backgammon:onejev1-6-0-8b"
+   ],
+   "score_0_100": 31.86,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
+   "commit": "6bda7ab91aeb36dcad6d27828a8871e548c7fc71",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "Fastino",
+   "model_key": "glide-0.4b",
+   "name": "GLiDE 0.4B",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #43. fastino/GLiDE-0.4B @ 6bda7ab on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through the server its repository ships (python -m glide.server, GLIDE_MAX_BATCH=1, GLIDE_MAX_LEN=8006), one request at a time; never on a hosted API. First stage 12 Nov 2026: its 9 hosted and program opponents (#1211–#1219, runner e4ce0e9); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1323–#1330, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1220 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). An encoder (ModernBERT) whose model would shorten a prompt over 7,999 tokens instead of refusing it, so it gets at most 74 options per request: every League 1 stored request of at most 74 options fits (at most 7,833 tokens with the card's prompt), and longer play lists are split into equal groups of at most 74 and a final among the group winners (the league's split rule, as Winnow and Clef; 678 of League 1's 36,995 decisions, 1.8%, have more than 74 options). The server runs with GLIDE_MAX_LEN=8006, which refuses (422) any prompt the model would shorten, as a backstop. Nothing shortened or refused. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 0.4,
+   "params_total": 0.4,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1355,
+    "value": 113.21918488208658
+   },
+   "repo": "fastino/GLiDE-0.4B",
+   "runs": [
+    "backgammon:glide-0-4b"
+   ],
+   "score_0_100": 6.51,
+   "tag": "NVIDIA DGX Spark (GB10)"
+  },
+  {
+   "calibration_error": null,
+   "commit": "885af1af8a07edf4ed34df83ca0d995ed8201283",
+   "improvement_points": null,
+   "kind": "decision",
+   "maker": "Knowledgator",
+   "model_key": "gliclass-v4-edge",
+   "name": "GLiClass v4 Edge",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (opponent's API out of credit); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (opponent no longer served on OpenRouter); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #36. knowledgator/gliclass-v4-edge @ 885af1a on our DGX Spark (spark2, the whole GB10, handed over by logic one server at a time), BF16, through turkce's gliclass_server.py with the card's own System One mapping (gliclass 0.1.22, one pass per choice question), one request at a time; never on a hosted API. First stage 12 Nov 2026: its 9 hosted and program opponents (#1141–#1169, runner e4ce0e9); local stage 14 Nov 2026: the 8 setups we run ourselves, one at a time on an RTX PRO 6000 Blackwell of ours (#1363–#1370, runner 2a22d1f). It played 17 of its 19 opponents: its pair with Mercury Decide was not played (Mercury Decide is no longer served on OpenRouter; match #1170 aborted at its warm-up; outside the requested scope, Ümit, 12 Nov) and its pair with GPT-6 Luna was not played (GPT-6 Luna's API was out of credit; outside the requested scope, Ümit, 12 Nov). Options, instructions and state share one 16,384-token input (refused with 422 above it, never cut); League 1's worst case, the longest state plus 218 options at the longest label, is 16,367 tokens, so play lists over 218 options are split into equal groups of at most 218 and a final among the group winners (the league's split rule, as Winnow and Clef; 24 of League 1's 36,995 decisions have more than 218 options). Nothing shortened or refused. Its first stage was interrupted once (12 Nov 08:59 UTC, the server failed 3 health checks in a row) and resumed at 10:15 UTC. Its cost is an estimate from its time on the DGX Spark (GPU time, at most).; run on our GPUs",
+   "params_active": 0.44,
+   "params_total": 0.44,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1405,
+    "value": 133.5217322955352
+   },
+   "repo": "knowledgator/gliclass-v4-edge",
+   "runs": [
+    "backgammon:gliclass-v4-edge"
+   ],
+   "score_0_100": -10.25,
+   "tag": "NVIDIA DGX Spark (GB10)"
   }
  ],
  "score": {
@@ -1032,6 +1382,6 @@
   "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
  },
  "title": "Backgammon",
- "updated": "2026-11-14T10:35Z",
+ "updated": "2026-11-14T10:44Z",
  "url": "https://zekiworks.github.io/analysis/backgammon/"
 }
