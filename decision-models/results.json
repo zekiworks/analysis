@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "32e5eafe",
-  "updated": "2026-11-13T20:42:24Z",
+  "results_version": "60cf1eb4",
+  "updated": "2026-11-14T00:07:39Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -773058,6 +773058,36 @@
         ]
       },
       {
+        "area": "text",
+        "name": "GLiDE 2B (open)",
+        "status": "done",
+        "note": "fastino/GLiDE-2B at 00f122c on one DGX Spark (GB10), BF16, behind the GLiDE server its repository ships (one request at a time), as run 915: repeat 2 on 13 November 2026 (logic's server on spark2, reloaded as on 12 November; Ümit #6410, #6416), every one of its 2,198 answers as in run 915.",
+        "first": {
+          "run": 915,
+          "repeat": null,
+          "date": "2026-11-10",
+          "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+          "access": "GLiDE server (Fastino's release code), self-hosted",
+          "cost_basis": null,
+          "usd": null,
+          "right": 776,
+          "questions": 2198
+        },
+        "repeats": [
+          {
+            "run": 1098,
+            "repeat": 2,
+            "date": "2026-11-13",
+            "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+            "access": "GLiDE server (Fastino's release code), self-hosted",
+            "cost_basis": null,
+            "usd": null,
+            "right": 776,
+            "questions": 2198
+          }
+        ]
+      },
+      {
         "area": "english",
         "name": "KnowLine 31B Gen1.5",
         "status": "done",
@@ -773233,6 +773263,36 @@
             "cost_basis": "maker",
             "usd": 0.22683592000000002,
             "right": 392,
+            "questions": 547
+          }
+        ]
+      },
+      {
+        "area": "english",
+        "name": "GLiDE 2B (open)",
+        "status": "done",
+        "note": "fastino/GLiDE-2B at 00f122c on one DGX Spark (GB10), BF16, behind the GLiDE server its repository ships (one request at a time), as run 917: repeat 2 on 13 November 2026 (logic's server on spark2; Ümit #6410, #6416), every one of its 547 answers as in run 917. Its English “I don't know” run was repeated the same way: run 1102, 368 right, 47 “I don't know”, 132 wrong, every answer as in its first run 919.",
+        "first": {
+          "run": 917,
+          "repeat": null,
+          "date": "2026-11-10",
+          "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+          "access": "GLiDE server (Fastino's release code), self-hosted",
+          "cost_basis": null,
+          "usd": null,
+          "right": 383,
+          "questions": 547
+        },
+        "repeats": [
+          {
+            "run": 1100,
+            "repeat": 2,
+            "date": "2026-11-13",
+            "hardware": "1 × DGX Spark, GB10 (128 GB unified memory); BF16",
+            "access": "GLiDE server (Fastino's release code), self-hosted",
+            "cost_basis": null,
+            "usd": null,
+            "right": 383,
             "questions": 547
           }
         ]

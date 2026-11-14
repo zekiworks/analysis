@@ -174,6 +174,11 @@ def grading_metrics(data: "Data") -> dict[str, dict[str, Any]] | None:
     wrong = sorted(run for run, key in feed.items() if by_run[run].get("model_key") != key)
     if wrong:
         raise SystemExit(f"grading metrics: model_key differs from the feed's for {wrong}")
+    # A GPU time is only read with its hardware (grading #6823): a row with one whose notes name no hardware we know stops.
+    unnamed = sorted(row.get("display_name") or row["name"] for row in rows
+                     if by_run[row["runs"][0]].get("gpu_seconds_per_1000") is not None and grading_hardware(row) is None)
+    if unnamed:
+        raise SystemExit(f"grading metrics: GPU time on hardware its notes do not name ({unnamed}); see GRADING_HARDWARE")
     return by_run
 
 
@@ -195,11 +200,14 @@ def grading_section(data: "Data") -> str:
     file = data.by_key[GRADING]["metrics"]
     words, pairs = file["definitions"], file["label_pairs"]
     items = [
-        ("Latency", f"{words['latency']}."),
+        ("Latency", f"{words['latency']}. Each self-hosted row ran on its own hardware, our RTX PRO 6000 or a DGX "
+                    "Spark (in its notes and its box); runs on different hardware are not on an equal footing, even "
+                    "at the same requests in flight."),
         ("List price per 1,000", f"{words['api_cost_per_1000_usd_list_price']}."),
         ("GPU time per 1,000", f"{words['gpu_seconds_per_1000']}: a rate over the whole run, its wall time divided by all "
                                "the pairs it answered, at the run's requests in flight; not a measurement of these "
-                               "pairs alone."),
+                               "pairs alone. It is measured on the row's own hardware, named under its value: a DGX "
+                               "Spark's seconds and an RTX PRO 6000's are not like for like."),
         ("Wrong answers caught", f"{words['wrong_answer_recall']}, of the {bp.count(pairs['other'])} such pairs; false "
                                  f"alarms: {words['false_alarm_rate']} ({bp.count(file['false_alarm_pairs'])})."),
         ("Recall by label", f"{words['recall']} (the reference answer {bp.count(pairs['reference'])} pairs, a "
@@ -919,6 +927,19 @@ def model_cell(model: dict[str, Any], setups: bool = True) -> str:
                if setups and model["setups"] else "") + "</td>")
 
 
+# The hardware a self-hosted Grading row ran on, as its notes name it (compactor #6822: each row's notes name the server,
+# revision and hardware): its name under the row's GPU time and the line in its box (grading #6823), since a DGX Spark's
+# seconds and an RTX PRO 6000's are not like for like. A row with GPU time whose notes name neither stops the build.
+GRADING_HARDWARE = (("DGX Spark", "DGX Spark", "one NVIDIA DGX Spark (GB10)"),
+                    ("RTX PRO 6000", "RTX PRO 6000", "one RTX PRO 6000 Blackwell (96 GB), ours"))
+
+
+def grading_hardware(row: dict[str, Any]) -> tuple[str, str] | None:
+    """A Grading row's hardware (GRADING_HARDWARE): its short name and its words, or None (a maker's API)."""
+    notes = row.get("notes") or ""
+    return next(((short, words) for needle, short, words in GRADING_HARDWARE if needle in notes), None)
+
+
 # Grading's measures on its own page (GradingBench), in their column order: key, head, its unit line (every head two
 # lines, so they align, Ümit #6712), higher is better, and what the head explains on hover, keyboard focus and tap (the
 # grading agent's words, grading #6690; {other}, {false_alarms}: metrics.json's denominators). Every measure is a column
@@ -937,12 +958,15 @@ GRADING_MEASURES = (
      "rejection."),
     ("latency", "Latency", "median, p90 under it", False, "Client wall time per request: the median, the 90th "
      "percentile under it, and how many requests ran at once. Runs at different concurrency are not speeds under the "
-     "same load."),
+     "same load, and neither are runs on different hardware (our RTX PRO 6000, a DGX Spark or the maker's API, named in "
+     "the model's box), even at the same concurrency."),
     ("price", "List price", "$ per 1,000 pairs", False, "Input tokens billed × the maker's list price, per 1,000 pairs "
      "(the price, its source and date in the model's box); a list price, not an invoice. Not verified: no list price "
      "of that model at that date could be checked; never a zero."),
-    ("gpu", "GPU time", "s per 1,000 pairs", False, "Measured wall time of the whole run on one of our GPUs, model load "
-     "excluded, over all the pairs it answered, per 1,000 pairs: a rate, not API dollars."),
+    ("gpu", "GPU time", "s per 1,000 pairs", False, "Measured wall time of the whole run on the row's own GPU, named "
+     "under the value (our RTX PRO 6000 or a DGX Spark), model load excluded, over all the pairs it answered, per 1,000 "
+     "pairs: a rate, not API dollars. Seconds on different hardware are not like for like, even at the same requests "
+     "in flight."),
 )
 
 
@@ -1024,7 +1048,7 @@ class GradingBench(ui.Bench):
 
     def written(self, model: dict[str, Any], key: str) -> tuple[str, tuple[str, ...]] | None:
         """A measure's value as text and the lines under it (none, or one each: latency's p90, then its requests in
-        flight); None where the model has no value."""
+        flight; GPU time's hardware, grading #6823); None where the model has no value."""
         value = self.value(model, key)
         if value is None:
             return None
@@ -1036,8 +1060,14 @@ class GradingBench(ui.Bench):
             "caught": (f"{100 * value:.1f}%", (f"{100 * metrics['false_alarm_rate']:.1f}%\u00a0false\u00a0alarms",)),
             "latency": (seconds(value), (f"p90\u00a0{seconds(metrics['latency_s_p90'])}", f"{metrics['requests_in_flight']}\u00a0at\u00a0a\u00a0time")),
             "price": (f"${value:.3f}" if value < 1 else f"${value:.2f}", ()),
-            "gpu": (f"{value:,.0f} s" if value >= 10 else f"{value:.1f} s", ()),
+            "gpu": (f"{value:,.0f} s" if value >= 10 else f"{value:.1f} s", self.on_hardware(model)),
         }[key]
+
+    def on_hardware(self, model: dict[str, Any]) -> tuple[str, ...]:
+        """GPU time's line under its value: the hardware the run measured it on, its name alone and unbroken, so the
+        column stays as narrow as before (grading_hardware; grading #6823)."""
+        found = grading_hardware(model["scores"][GRADING])
+        return (found[0].replace(" ", "\u00a0"),) if found else ()
 
     def shown(self, model: dict[str, Any], key: str) -> str:
         """A measure's cell: its value with each of its lines under it, never beside it (zw-stack: a narrow column, Ümit
@@ -1079,6 +1109,7 @@ class GradingBench(ui.Bench):
         lines = [f"<strong>{esc(row.get('display_name') or row['name'])}</strong> · {esc(row.get('maker') or 'maker not given')}",
                  esc(self.class_text(model) or "Size not disclosed"),
                  esc(row.get("notes") or ""),
+                 "Hardware: " + (found[1] if (found := grading_hardware(row)) else "the maker's API (its latency includes the network)"),
                  f"Invalid replies: {bp.count(metrics['invalid'])} of {bp.count(GRADING_PAIRS)}, counted wrong",
                  "Option probabilities: " + ("yes, so its calibration error is measured" if metrics["probabilities"] else
                                              "none (a chat model's label), so no calibration error and no confidence"),
@@ -1112,11 +1143,14 @@ class GradingBench(ui.Bench):
             # A chat row's replies without an answer, as a flag beside its name (the box says they count wrong).
             flag = f"{bp.count(invalid)} invalid" if invalid else ""
             written = self.written(model, key)
-            # On a phone, under the name: its latency and its cost, each labelled, the API list price or our GPU time,
-            # never one figure for both (Zeki #6754); the table's columns still hold every measure.
+            # On a phone, under the name: its latency and its cost, each labelled, the API list price or our GPU time
+            # with the hardware it was measured on, never one figure for both (Zeki #6754, grading #6823); the table's
+            # columns still hold every measure.
             text = lambda measure: (self.written(model, measure) or ("",))[0]  # noqa: E731
+            on = " ".join(f"on {short}" for short in self.on_hardware(model)).replace("\u00a0", " ")
             cost = (f"List price {text('price')}/1,000" if self.value(model, "price") is not None else
-                    f"GPU time {text('gpu')}/1,000" if self.value(model, "gpu") is not None else "List price not verified")
+                    f"GPU time {text('gpu')}/1,000 {on}".rstrip() if self.value(model, "gpu") is not None else
+                    "List price not verified")
             glance = ((f"Latency {text('latency')}",) if self.value(model, "latency") is not None else ()) + (cost,)
             out.append(ui.Row(
                 model=ui.Model(name=model["name"], colour=model["colour"], dot_title=model["maker"] or "",

@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 60cf1eb4 (14 November 2026)
+
+- GLiDE 2B's Run 2 joins the Experiments page's repeat checks (Ümit #6410, #6416; logic #6825), on logic's server on spark2, reloaded as for its first runs (`fastino/GLiDE-2B` at `00f122c`, one request at a time): Text run 1098, 776 of 2,198 right, and English run 1100, 383 of 547, each with every answer as in its first run (915, 917); its English "I don't know" run was repeated too (run 1102: 368 right, 47 "I don't know", every answer as in run 919), given in the check's note. The published scores stay the first runs'.
+- No other number changed.
+
 ## Results 32e5eafe (13 November 2026)
 
 - MiniCPM5-2B with thinking off joins as a setup of its own (`openbmb/MiniCPM5-2B` at `42433e9`, served as `minicpm5-2b-nothink`; Ümit #6516, #6527; logic #6770): logic's server on one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, the chat template with thinking off, temperature 1.0, top-p 0.95, seed 0, up to 32,768 output tokens, one question per request, 32 in flight. English reading run 1094: 370 of the 547 kept questions right (67.6%), its 8 replies without a letter counted wrong; 101st of the 114 English setups, between StartLux-Decision v1.1 2B (381) and Liquid d1-2B (359); with thinking on, MiniCPM5-2B has 419 (76.6%). English "I don't know" run 1095: 324 right, 33 "I don't know", 164 wrong (non-hallucination 16.8%, answered 89.2%) and 26 replies without a usable answer (23 unreadable, 3 cut off), invalid. Cost: $0.43 per 1,000 questions, an estimate from its GPU time; median request 7.29 s.

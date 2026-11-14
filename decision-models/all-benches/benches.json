@@ -4,12 +4,12 @@
   "logic": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-logic.json",
    "published": true,
-   "seen": "2026-11-13",
+   "seen": "2026-11-14",
    "file": {
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-13T20:29:16Z",
+    "updated": "2026-11-13T23:52:33Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -302,6 +302,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 2.2066666666666666,
       "gpu_cost_usd": 5.4946
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gpt-6.1-terra",
+      "name": "GPT-6.1 Terra",
+      "display_name": "GPT-6.1 Terra",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "GPT-6.1 Terra",
+      "maker": "OpenAI",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 92.44444444444444,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9395555555555556,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:gpt-6.1-terra-sub_en",
+       "logic:gpt-6.1-terra-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
      },
      {
       "repo": null,
@@ -2417,17 +2449,17 @@
      }
     ]
    },
-   "sha256": "545e2ff8d29a97b9d807a45b1ff842711bbb3be588b35761486df70f125e7c38"
+   "sha256": "0cabf06fbe9001ea01f13205b7ff8e2436cc91e586b97e87b0be70656bb2df9d"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
    "published": true,
-   "seen": "2026-11-13",
+   "seen": "2026-11-14",
    "file": {
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-13T20:29:16Z",
+    "updated": "2026-11-13T23:52:33Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -4833,17 +4865,17 @@
      }
     ]
    },
-   "sha256": "4ad620a186a9a43bb9bf4b7b80839a3aaa70b7e7165e3f5b823d8b5dd8d98bcb"
+   "sha256": "b0a1d537afdd07faada78651440851bf6da06eb4df415c0632720496a371e374"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
    "published": true,
-   "seen": "2026-11-13",
+   "seen": "2026-11-14",
    "file": {
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-13T20:29:16Z",
+    "updated": "2026-11-13T23:52:33Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -5417,9 +5449,11 @@
       "improvement_points": null,
       "runs": [
        "logic:lfm3-1.7b-vllm-nothink_en",
-       "math:lfm3-1.7b-vllm-nothink_en"
+       "math:lfm3-1.7b-vllm-nothink_en",
+       "logic:lfm3-1.7b-vllm-nothink_en_dontknow",
+       "math:lfm3-1.7b-vllm-nothink_en_dontknow"
       ],
-      "notes": "on our NVIDIA DGX Spark (GB10); other setups of this model under its row, not in this entry: LFM3-1.7B (on · chat); no complete 'I don't know' run",
+      "notes": "on our NVIDIA DGX Spark (GB10); other setups of this model under its row, not in this entry: LFM3-1.7B (on · chat)",
       "gpu_hours": 3.1822222222222223,
       "gpu_cost_usd": 0.6772336154515728
      },
@@ -7329,12 +7363,12 @@
      }
     ]
    },
-   "sha256": "7d4107af0d1e54fd8eafaee93f946abc17fd283c04a44445acf353aab9ffc566"
+   "sha256": "48d646287bbddc940a0f362226eb321d7f124f4ed06056facfd09c2516908fed"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
    "published": true,
-   "seen": "2026-11-13",
+   "seen": "2026-11-14",
    "file": {
     "bench": "backgammon",
     "models": [
@@ -8369,25 +8403,165 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-13T20:50Z",
+    "updated": "2026-11-14T00:20Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "a3f31cd17e81691930897bbf18e33b46ec9c0a1dbb2a40c05a170d7d7b891eb8"
+   "sha256": "4ecec1b70aa60d5e78f8f53baa01e193b5d9cc3bd9d8200a9c949e95d2935ff9"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
    "published": true,
-   "seen": "2026-11-13",
+   "seen": "2026-11-14",
    "file": {
     "bench": "grading",
     "title": "Grading · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-13T18:46:33Z",
+    "updated": "2026-11-13T23:48:01Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
     },
     "models": [
+     {
+      "name": "KnowLine-31B-Gen1.5",
+      "display_name": "KnowLine-31B-Gen1.5",
+      "tag": "",
+      "model_key": "knowline-31b-gen1.5",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "repo": "PelaAI/KnowLine-31B-Gen1.5",
+      "commit": "8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 88.83518608023199,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9255679072015467,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.05716040274263797,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-knowline-31b-gen1.5-v1"
+      ],
+      "notes": "PelaAI/KnowLine-31B-Gen1.5@8e56aa1b, the card's serve_knowline.sh (SGLang), BF16, served by logic on a DGX Spark (spark2) as for its published runs, self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 1.5019916954069576,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "Sieve 31B v3",
+      "display_name": "Sieve 31B v3",
+      "tag": "",
+      "model_key": "sieve-31b-v3",
+      "maker": "Sthānika AI",
+      "kind": "decision",
+      "repo": "sthanika-ai/Sieve-31B-v3",
+      "commit": "8fcee858f7f20a50bfa3c8f984c22adb3cbb46a2",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 88.11019816336393,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9207346544224263,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.0700594490091832,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-sieve-31b-v3-v1"
+      ],
+      "notes": "sthanika-ai/Sieve-31B-v3@8fcee858, sieve-serve 0.5.1 (text only, design 'letters'), BF16, served by logic on a DGX Spark (spark2) as for its published runs, self-hosted; the server reports no input-token count; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 1.6228648508469032,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "REAX 1.3",
+      "display_name": "REAX 1.3",
+      "tag": "",
+      "model_key": "reax-1.3",
+      "maker": "REAX",
+      "kind": "decision",
+      "repo": "decisionmodels/REAX-1.3",
+      "commit": "fa4bf7ee3bb56a8bc421dad090631be1c5845c2d",
+      "params_total": 57.36,
+      "params_active": 57.36,
+      "quantization": "FP8",
+      "score_0_100": 86.95021749637505,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9130014499758338,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.048274518773097234,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-reax-1.3-v1"
+      ],
+      "notes": "decisionmodels/REAX-1.3@fa4bf7ee, REAX Engine reax13 server on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.42833667592136754,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "Turion Jev 31B",
+      "display_name": "Turion Jev 31B",
+      "tag": "",
+      "model_key": "turion-jev-31b",
+      "maker": "Turion.AI",
+      "kind": "decision",
+      "repo": "turion-ai/turion-jev-31b",
+      "commit": "866c0fc6e040cba23fcc72113a80e5c99d5ebab1",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "FP8",
+      "score_0_100": 86.44272595456741,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9096181730304495,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.06694250072498793,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-turion-jev-31b-v1"
+      ],
+      "notes": "turion-ai/turion-jev-31b@866c0fc6, the card's turion_jev.serve on vLLM 0.32.0 (BF16 weights, FP8 at load, text only), served by logic on a DGX Spark (spark2) as for its published runs, self-hosted; vLLM memory share 0.80 instead of the card's 0.92 (KV cache only); one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.7637274554815272,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "GLiDE 27B",
+      "display_name": "GLiDE 27B",
+      "tag": "",
+      "model_key": "glide-27b",
+      "maker": "Fastino",
+      "kind": "decision",
+      "repo": "fastino/GLiDE-27B",
+      "commit": "4d32743ae96b74f0116f050d37742bbd43c04e7d",
+      "params_total": 27.0,
+      "params_active": 27.0,
+      "quantization": "BF16",
+      "score_0_100": 86.0802319961334,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9072015466408894,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.03608106551078754,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-glide-27b-v1"
+      ],
+      "notes": "fastino/GLiDE-27B@4d32743a, GLiDE server (glide.server), BF16, GLIDE_MAX_BATCH=1, served by logic on a DGX Spark (spark2) as for its published runs, self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.6924089500718801,
+      "gpu_cost_usd": null
+     },
      {
       "name": "GLiDE",
       "display_name": "GLiDE",
@@ -8697,6 +8871,34 @@
       "gpu_cost_usd": null
      },
      {
+      "name": "Qwen3.5-2B",
+      "display_name": "Qwen3.5-2B",
+      "tag": "thinking on · chat",
+      "model_key": "qwen3.5-2b",
+      "maker": "Alibaba",
+      "kind": "chat",
+      "repo": "Qwen/Qwen3.5-2B",
+      "commit": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+      "params_total": 2.27,
+      "params_active": 2.27,
+      "quantization": "BF16",
+      "score_0_100": 67.52054132431125,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7834702754954084,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-qwen3.5-2b-v1"
+      ],
+      "notes": "Qwen/Qwen3.5-2B@15852e8c, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 94 of 2069 replies (5%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
+      "gpu_hours": 0.38449188006265794,
+      "gpu_cost_usd": null
+     },
+     {
       "name": "GLiDE 2B",
       "display_name": "GLiDE 2B",
       "tag": "",
@@ -8750,6 +8952,34 @@
       ],
       "notes": "Qwen/Qwen3.5-4B@851bf6e8, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 164 of 2069 replies (8%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
       "gpu_hours": 0.4371316994510293,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "Gemma 4 E2B",
+      "display_name": "Gemma 4 E2B",
+      "tag": "thinking off · chat",
+      "model_key": "gemma-4-e2b",
+      "maker": "Google",
+      "kind": "chat",
+      "repo": "google/gemma-4-E2B-it",
+      "commit": "4adf15748de9e1a0097b6274cee9c15836c41c37",
+      "params_total": 5.1,
+      "params_active": 5.1,
+      "quantization": "BF16",
+      "score_0_100": 54.54325761237313,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6969550507491542,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-gemma-4-e2b-v1"
+      ],
+      "notes": "google/gemma-4-E2B-it@4adf1574, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; 0 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run)",
+      "gpu_hours": 0.013768695861743657,
       "gpu_cost_usd": null
      },
      {
@@ -8838,18 +9068,18 @@
      }
     ]
    },
-   "sha256": "961181dfe19ec76a3e92392b7fcea9d00f8ed492c37f51aa3de935f5ea2bf076"
+   "sha256": "f3df007fc6fdb0e00f9210978fa112f108349a4d58d30e736e7d45f769f2eaa1"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
    "published": true,
-   "seen": "2026-11-13",
+   "seen": "2026-11-14",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-13T18:46:39Z",
+    "updated": "2026-11-13T23:48:05Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "961181dfe19ec76a3e92392b7fcea9d00f8ed492c37f51aa3de935f5ea2bf076"
+     "sha256": "f3df007fc6fdb0e00f9210978fa112f108349a4d58d30e736e7d45f769f2eaa1"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -9110,6 +9340,106 @@
       "probabilities": true
      },
      {
+      "run": "grading:site-knowline-31b-gen1.5-v1",
+      "model_key": "knowline-31b-gen1.5",
+      "latency_s_median": 2.545,
+      "latency_s_p90": 3.881,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 2613.4,
+      "recall_reference": 0.9724,
+      "recall_other": 0.8359,
+      "recall_none": 0.9073,
+      "wrong_answer_recall": 0.8359,
+      "false_alarm_rate": 0.0305,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
+      "run": "grading:site-glide-27b-v1",
+      "model_key": "glide-27b",
+      "latency_s_median": 1.035,
+      "latency_s_p90": 1.951,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 1204.8,
+      "recall_reference": 0.9713,
+      "recall_other": 0.7477,
+      "recall_none": 0.8972,
+      "wrong_answer_recall": 0.7477,
+      "false_alarm_rate": 0.0149,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
+      "run": "grading:site-sieve-31b-v3-v1",
+      "model_key": "sieve-31b-v3",
+      "latency_s_median": 2.673,
+      "latency_s_p90": 3.931,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 2823.7,
+      "recall_reference": 0.9862,
+      "recall_other": 0.7933,
+      "recall_none": 0.896,
+      "wrong_answer_recall": 0.7933,
+      "false_alarm_rate": 0.0213,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
+      "run": "grading:site-reax-1.3-v1",
+      "model_key": "reax-1.3",
+      "latency_s_median": 0.677,
+      "latency_s_p90": 1.047,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 745.3,
+      "recall_reference": 0.9618,
+      "recall_other": 0.6748,
+      "recall_none": 0.9536,
+      "wrong_answer_recall": 0.6748,
+      "false_alarm_rate": 0.0121,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
+      "run": "grading:site-turion-jev-31b-v1",
+      "model_key": "turion-jev-31b",
+      "latency_s_median": 1.123,
+      "latency_s_p90": 1.956,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 1328.9,
+      "recall_reference": 0.9682,
+      "recall_other": 0.6626,
+      "recall_none": 0.9424,
+      "wrong_answer_recall": 0.6626,
+      "false_alarm_rate": 0.0167,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
       "run": "grading:chat-qwen3.5-4b-v1",
       "model_key": "qwen3.5-4b",
       "latency_s_median": 40.525,
@@ -9127,6 +9457,46 @@
       "wrong_answer_recall": 0.7143,
       "false_alarm_rate": 0.0592,
       "invalid": 164,
+      "probabilities": false
+     },
+     {
+      "run": "grading:chat-qwen3.5-2b-v1",
+      "model_key": "qwen3.5-2b",
+      "latency_s_median": 37.98,
+      "latency_s_p90": 69.559,
+      "requests_in_flight": 64,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 669.0,
+      "recall_reference": 0.8461,
+      "recall_other": 0.5471,
+      "recall_none": 0.807,
+      "wrong_answer_recall": 0.5471,
+      "false_alarm_rate": 0.0448,
+      "invalid": 94,
+      "probabilities": false
+     },
+     {
+      "run": "grading:chat-gemma-4-e2b-v1",
+      "model_key": "gemma-4-e2b",
+      "latency_s_median": 0.273,
+      "latency_s_p90": 4.09,
+      "requests_in_flight": 64,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 24.0,
+      "recall_reference": 0.9469,
+      "recall_other": 0.0547,
+      "recall_none": 0.6667,
+      "wrong_answer_recall": 0.0547,
+      "false_alarm_rate": 0.0144,
+      "invalid": 0,
       "probabilities": false
      },
      {
@@ -9191,7 +9561,7 @@
      }
     ]
    },
-   "sha256": "c8084e2aea1c692a7a4a2a094ae26249fbd6d812ed35d2e8ff70a43e4ed022da"
+   "sha256": "96d28d6f4718158bdf9bab3eda1524811d7db98084ff8746a9f02fdb63fa495e"
   }
  }
 }
