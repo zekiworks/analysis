@@ -299,6 +299,14 @@ MODELS: dict[str, dict[str, Any]] = {
         "this is an additional local setup.",
         "hardware": f"1 × {SPARK}; BF16",
     },
+    # Perplexity's v1.3 checkpoints, on logic's server on one of our GPUs (Ümit #7470, #7472, #7482: the open weights, no
+    # paid route), through the server and package as v1.2.
+    "pplx-decider-flash-v1.3": {
+        "name": "Perplexity Decider Flash v1.3",
+        "note": "Perplexity's released Flash v1.3 checkpoint, distilled from Decider 27B v1.3 on Qwen3.5-4B, run on our "
+        "hardware through the package it ships.",
+        "hardware": f"1 × {GPU}; BF16",
+    },
     # It ran on a DGX Spark (GB10).
     "glide-v1.2": {
         "name": "Fastino GLiDE v1.2",
@@ -854,6 +862,12 @@ SIZES: dict[str, dict[str, Any]] = {
                                 "scope": "language model (tied embeddings) + 0.33B vision encoder + 255-way readout",
                                 "sources": ["counted from the checkpoint's safetensors, perplexity-ai/pplx-decider-flash-v1.2@6d771ad",
                                             "https://huggingface.co/perplexity-ai/pplx-decider-flash-v1.2"], "read": READ},
+    "pplx-decider-flash-v1.3": {"total": 4_539_918_336,
+                                "repo": "perplexity-ai/pplx-decider-flash-v1.3", "commit": "d06fb3f",
+                                "scope": "language model (tied embeddings) + vision encoder + 255-way readout; its locate-span "
+                                         "adapter and head (0.13B), used only by its locate task, not counted",
+                                "sources": ["counted from the checkpoint's safetensors, perplexity-ai/pplx-decider-flash-v1.3@d06fb3f",
+                                            "https://huggingface.co/perplexity-ai/pplx-decider-flash-v1.3"], "read": READ},
     # Fastino's post: "serves 57.36B parameters versus GLiDE's 26.09B".
     "glide-v1.2": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
                    "repo": "fastino/GLiDE", "commit": "a7e4589",
@@ -2388,6 +2402,8 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
         ("open-jev", "open-jev-27b-v1.1"), ("pplx-decider", "pplx-decider-flash-v1.2"))},
     ("reax", "reax13", None): "added to the Hallucination tab on 6 November 2026 (run on our GPU), after the option-word "
     "check; not asked with “I don't know” yet.",
+    ("pplx-decider", "pplx-decider-flash-v1.3", None): "added to the Hallucination tab on 14 November 2026 (run on our GPU; "
+    "Ümit #7470), after the option-word check; not asked with “I don't know” yet.",
     **{(provider, model, None): "added to the Hallucination tab on 10 November 2026 (run on our GPU), after the "
        "option-word check; not asked with “I don't know” yet." for provider, model in (
         ("glide", "glide-27b"), ("glide", "glide-9b"), ("glide", "glide-2b"), ("glide", "glide-0.8b"), ("glide", "glide-0.4b"),

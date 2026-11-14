@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-14T14:42:40Z",
+ "updated": "2026-11-14T16:08:08Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -459,6 +459,34 @@
     }
    ],
    "invalid_rate_mean": 0.0003222168519413565
+  },
+  {
+   "name": "Perplexity Decider Flash v1.3",
+   "display_name": "Perplexity Decider Flash v1.3",
+   "tag": "",
+   "model_key": "perplexity-decider-flash-v1.3",
+   "maker": "Perplexity",
+   "kind": "decision",
+   "repo": "perplexity-ai/pplx-decider-flash-v1.3",
+   "commit": "d06fb3f2d97e0a52325a0d463c450cf0338f44fe",
+   "params_total": 4.0,
+   "params_active": 4.0,
+   "quantization": "BF16",
+   "score_0_100": 78.83035282745286,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8588690188496858,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.041819332198274745,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-perplexity-decider-flash-v1.3-v1"
+   ],
+   "notes": "perplexity-ai/pplx-decider-flash-v1.3@d06fb3f2, the runner's pplx_decider_server.py with the checkpoint's own pplx_decider package (as for its published v1.2 runs), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.035180532006086604,
+   "gpu_cost_usd": null
   },
   {
    "name": "Gemma 4 12B Unified",

@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 2dbbec2a (14 November 2026)
+
+- Added Perplexity Decider Flash v1.3 (Ümit #7470, #7472, #7482): its released weights, `perplexity-ai/pplx-decider-flash-v1.3` at `d06fb3f`, on logic's server on one RTX PRO 6000 Blackwell, BF16, through the server and package Decider Flash v1.2 used; local weights only, nothing billed, its cost from GPU time (no list price for v1.3). One question per request; every run passed the probability check. Text run 1123: 1,093 of 2,198 right (49.7%; reading 488 of 656, grammar 605 of 1,542), 82nd of 107 Text tab setups; Decider Flash v1.2 had 1,050. A repeat (run 1124) changed none of its 2,198 answers, so it keeps one run. English run 1126: 458 of 547 (83.7%; v1.2 448). "I don't know" runs: English 1128, 450 right and 7 "I don't know"; Turkish 1130, 1,052 right and 75 "Bilmiyorum". On the 547 kept questions it got 431 right in Turkish against 458 in English (not significant after the Holm correction).
+- Its size counts the checkpoint's decision path, 4,539,918,336 parameters as for v1.2; the new locate-span adapter and head (0.13B), used only by its locate task, are not counted. Its card names no language.
+
 ## Results f5ffd6d9 (14 November 2026)
 
 - MiniCPM5-2B's English reading (thinking on) is now the mean of three seeds (Ümit via Zeki #6969, #6979). Seed 0 is its first run, 1051: 419 of 547 right. Seeds 1 and 2 are runs 1118 (431) and 1119 (432), on logic's server (one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, `--max-num-seqs 16`) with the first run's request settings except the seed, 32 in flight. Mean 78.1%, lowest and highest 76.6% and 79.0% (a range, not a confidence interval). The note "Baseline server capacity not retained; repeats use max-num-seqs 16." stays with the three runs (Zeki #6998). The mean moves it up one place, above Metask-Jev 4B (422 right). Its paired Turkish comparison, cost and latency stay on run 1051 and name it.
