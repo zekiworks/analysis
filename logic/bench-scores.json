@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-14T02:11:19Z",
+ "updated": "2026-11-14T03:22:50Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -107,6 +107,38 @@
     "math:claude-sonnet-5.5-sub_en_dontknow"
    ],
    "notes": "hosted API (the maker's service)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "model_key": "claude-fable-5.1",
+   "name": "Claude Fable 5.1",
+   "display_name": "Claude Fable 5.1",
+   "tag": "chat",
+   "class_label": "Closed · Flagship",
+   "base_model": null,
+   "setup_label": "Claude Fable 5.1",
+   "maker": "Anthropic",
+   "kind": "chat",
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 97.71897810218977,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9817518248175182,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:claude-fable-5.1-sub_en",
+    "math:claude-fable-5.1-sub_en"
+   ],
+   "notes": "hosted API (the maker's service); no complete 'I don't know' run",
    "gpu_hours": null,
    "gpu_cost_usd": null
   },
@@ -510,7 +542,7 @@
     "logic:minicpm5-2b_en_dontknow",
     "math:minicpm5-2b_en_dontknow"
    ],
-   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: MiniCPM5-2B (off · chat)",
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: MiniCPM5-2B (off · chat); 1 of 3 seed runs complete; the value is the seed-0 run's",
    "gpu_hours": 1.8980555555555556,
    "gpu_cost_usd": 4.726158333333334
   },
