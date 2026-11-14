@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-14T16:25:11Z",
+ "updated": "2026-11-14T16:35:01Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -1125,6 +1125,40 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
    "gpu_hours": 0.15833333333333333,
    "gpu_cost_usd": 0.39425000000000004
+  },
+  {
+   "repo": "perplexity-ai/pplx-decider-v1.3",
+   "commit": "9c2ebb27470d3dec2ad7ab727727e40d142c7213",
+   "model_key": "perplexity-decider-27b-v1.3",
+   "name": "Perplexity Decider 27B v1.3",
+   "display_name": "Perplexity Decider 27B v1.3",
+   "tag": "NVIDIA RTX PRO 6000 Blackwell",
+   "class_label": "",
+   "base_model": null,
+   "setup_label": "Perplexity Decider 27B v1.3 (local GPU)",
+   "maker": "Perplexity",
+   "kind": "decision",
+   "params_total": 27.0,
+   "params_active": 27.0,
+   "quantization": "BF16",
+   "score_0_100": 58.02919708029196,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6642335766423357,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.05881688896428786,
+   "improvement_points": null,
+   "runs": [
+    "logic:decider-v1.3-local_en",
+    "math:decider-v1.3-local_en",
+    "logic:decider-v1.3-local_en_dontknow",
+    "math:decider-v1.3-local_en_dontknow"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+   "gpu_hours": 0.09388888888888888,
+   "gpu_cost_usd": 0.23378333333333334
   },
   {
    "repo": "vllm-sr/d3-ultra",
