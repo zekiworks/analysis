@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-14T03:36:24Z",
+ "generated_at": "2026-11-14T04:03:45Z",
  "tests": {
   "logic": {
    "name": "Logic",
@@ -583,11 +583,11 @@
      "setup_label": "LFM3-1.7B (chat, thinking, on our GPU)",
      "group": "chat",
      "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
-     "accuracy": 0.8444444444444444,
-     "wilson_low": 0.8220967233679585,
-     "wilson_high": 0.8644477838507693,
-     "right": 950,
-     "n": 1125,
+     "accuracy": 0.8423703703703703,
+     "wilson_low": null,
+     "wilson_high": null,
+     "right": null,
+     "n": null,
      "decision_score": null,
      "chosen_answer_brier": null,
      "n_scored": null,
@@ -613,9 +613,18 @@
        "run_id": "lfm3-1.7b-vllm-seed1_en",
        "right": 944,
        "n": 1125
+      },
+      {
+       "seed": 2,
+       "run_id": "lfm3-1.7b-vllm-seed2_en",
+       "right": 949,
+       "n": 1125
       }
      ],
-     "seeds_complete": "2/3"
+     "seeds_complete": "3/3",
+     "accuracy_basis": "mean of 3 seeds",
+     "seed_min": 0.8391111111111111,
+     "seed_max": 0.8444444444444444
     },
     {
      "name": "MiniCPM5-2B",
@@ -2667,7 +2676,7 @@
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
-     "non_hallucination": 0.7333333333333333,
+     "non_hallucination": 0.7272727272727273,
      "cost_per_1000": 0.0,
      "cost_usd": 0.0,
      "cost_unit": "USD",
