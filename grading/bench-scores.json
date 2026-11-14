@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-14T00:52:39Z",
+ "updated": "2026-11-14T05:10:06Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -664,21 +664,53 @@
    "params_total": 1.73,
    "params_active": 1.73,
    "quantization": "BF16",
-   "score_0_100": 26.341227646205894,
+   "score_0_100": 28.806186563557272,
    "raw": {
     "metric": "accuracy",
-    "value": 0.5089415176413726,
+    "value": 0.5253745770903818,
     "questions": 2069,
     "options": 3
    },
    "calibration_error": null,
    "improvement_points": null,
    "runs": [
-    "grading:chat-lfm3-1.7b-v1"
+    "grading:chat-lfm3-1.7b-seed0-v1",
+    "grading:chat-lfm3-1.7b-seed1-v1",
+    "grading:chat-lfm3-1.7b-seed2-v1"
    ],
-   "notes": "LiquidAI/LFM3-1.7B@0dc4268b, BF16, cu135-nightly-be47189f37f6162991366ff6b91539f6e9d1f432 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 838 of 2069 replies (41%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
-   "gpu_hours": 0.10640053966956638,
-   "gpu_cost_usd": null
+   "notes": "LiquidAI/LFM3-1.7B@0dc4268b, BF16, cu135-nightly-be47189f37f6162991366ff6b91539f6e9d1f432 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); replies without a final 'ANSWER: X' line, counted wrong: mean rate 39% (per seed in seed_runs); gpu_hours is the mean of the three runs",
+   "gpu_hours": 0.14709279863440347,
+   "gpu_cost_usd": null,
+   "accuracy_basis": "mean of 3 seeds",
+   "seed_min": 0.5229579507008216,
+   "seed_max": 0.52730787820203,
+   "seed_runs": [
+    {
+     "run": "grading:chat-lfm3-1.7b-seed0-v1",
+     "seed": 0,
+     "accuracy": 0.52730787820203,
+     "invalid": 810,
+     "cutoff": 1,
+     "wrong_answers_caught": 116
+    },
+    {
+     "run": "grading:chat-lfm3-1.7b-seed1-v1",
+     "seed": 1,
+     "accuracy": 0.5258579023682939,
+     "invalid": 813,
+     "cutoff": 0,
+     "wrong_answers_caught": 108
+    },
+    {
+     "run": "grading:chat-lfm3-1.7b-seed2-v1",
+     "seed": 2,
+     "accuracy": 0.5229579507008216,
+     "invalid": 827,
+     "cutoff": 2,
+     "wrong_answers_caught": 106
+    }
+   ],
+   "invalid_rate_mean": 0.39471564362816175
   }
  ]
 }

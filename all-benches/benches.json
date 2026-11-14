@@ -8546,7 +8546,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-14T00:52:39Z",
+    "updated": "2026-11-14T05:10:06Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -9208,25 +9208,57 @@
       "params_total": 1.73,
       "params_active": 1.73,
       "quantization": "BF16",
-      "score_0_100": 26.341227646205894,
+      "score_0_100": 28.806186563557272,
       "raw": {
        "metric": "accuracy",
-       "value": 0.5089415176413726,
+       "value": 0.5253745770903818,
        "questions": 2069,
        "options": 3
       },
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "grading:chat-lfm3-1.7b-v1"
+       "grading:chat-lfm3-1.7b-seed0-v1",
+       "grading:chat-lfm3-1.7b-seed1-v1",
+       "grading:chat-lfm3-1.7b-seed2-v1"
       ],
-      "notes": "LiquidAI/LFM3-1.7B@0dc4268b, BF16, cu135-nightly-be47189f37f6162991366ff6b91539f6e9d1f432 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 838 of 2069 replies (41%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
-      "gpu_hours": 0.10640053966956638,
-      "gpu_cost_usd": null
+      "notes": "LiquidAI/LFM3-1.7B@0dc4268b, BF16, cu135-nightly-be47189f37f6162991366ff6b91539f6e9d1f432 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); replies without a final 'ANSWER: X' line, counted wrong: mean rate 39% (per seed in seed_runs); gpu_hours is the mean of the three runs",
+      "gpu_hours": 0.14709279863440347,
+      "gpu_cost_usd": null,
+      "accuracy_basis": "mean of 3 seeds",
+      "seed_min": 0.5229579507008216,
+      "seed_max": 0.52730787820203,
+      "seed_runs": [
+       {
+        "run": "grading:chat-lfm3-1.7b-seed0-v1",
+        "seed": 0,
+        "accuracy": 0.52730787820203,
+        "invalid": 810,
+        "cutoff": 1,
+        "wrong_answers_caught": 116
+       },
+       {
+        "run": "grading:chat-lfm3-1.7b-seed1-v1",
+        "seed": 1,
+        "accuracy": 0.5258579023682939,
+        "invalid": 813,
+        "cutoff": 0,
+        "wrong_answers_caught": 108
+       },
+       {
+        "run": "grading:chat-lfm3-1.7b-seed2-v1",
+        "seed": 2,
+        "accuracy": 0.5229579507008216,
+        "invalid": 827,
+        "cutoff": 2,
+        "wrong_answers_caught": 106
+       }
+      ],
+      "invalid_rate_mean": 0.39471564362816175
      }
     ]
    },
-   "sha256": "286994c3adebea079f8258b7b66965db333ebf1ec35e29d9b9ddb6dea3172539"
+   "sha256": "ea75e507057cbb94729b7bc9d3c2f8af6328b33b9099272c58bad054b1d50a5d"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -9234,10 +9266,10 @@
    "seen": "2026-11-14",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-14T00:52:43Z",
+    "updated": "2026-11-14T05:10:10Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "286994c3adebea079f8258b7b66965db333ebf1ec35e29d9b9ddb6dea3172539"
+     "sha256": "ea75e507057cbb94729b7bc9d3c2f8af6328b33b9099272c58bad054b1d50a5d"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -9254,7 +9286,8 @@
      "wrong_answer_recall": "recall_other: texts stating a conflicting answer that were flagged 'other'",
      "false_alarm_rate": "gold 'reference' or 'none' pairs labelled 'other', over false_alarm_pairs; invalid replies are not counted as correct rejections, so 1 - false_alarm_rate is not an accuracy; read it beside invalid",
      "invalid": "replies without a usable label (chat: no final ANSWER line), counted wrong",
-     "probabilities": "this run's records hold per-option probabilities for every pair; says nothing about other runs of the model; no confidence is derived for chat models; calibration_error stays in bench-scores.json"
+     "probabilities": "this run's records hold per-option probabilities for every pair; says nothing about other runs of the model; no confidence is derived for chat models; calibration_error stays in bench-scores.json",
+     "seed_groups": "a row with 'runs' covers three full runs with seeds 0, 1, 2 under its first run's id: recalls and false_alarm_rate are the mean of the three, latency is over all their requests, gpu_seconds_per_1000 the mean rate; 'invalid' is null and each seed's count is in invalid_per_seed"
     },
     "models": [
      {
@@ -9698,26 +9731,6 @@
       "probabilities": false
      },
      {
-      "run": "grading:chat-lfm3-1.7b-v1",
-      "model_key": "lfm3-1.7b",
-      "latency_s_median": 8.08,
-      "latency_s_p90": 22.699,
-      "requests_in_flight": 64,
-      "requests_measured": 2069,
-      "api_cost_per_1000_usd_list_price": null,
-      "price_usd_per_million_input": null,
-      "price_source": null,
-      "price_date": null,
-      "gpu_seconds_per_1000": 185.1,
-      "recall_reference": 0.4586,
-      "recall_other": 0.3252,
-      "recall_none": 0.6441,
-      "wrong_answer_recall": 0.3252,
-      "false_alarm_rate": 0.0144,
-      "invalid": 838,
-      "probabilities": false
-     },
-     {
       "run": "grading:chat-gemma-4-12b-v1",
       "model_key": "gemma-4-12b",
       "latency_s_median": 6.618,
@@ -9736,10 +9749,41 @@
       "false_alarm_rate": 0.0241,
       "invalid": 0,
       "probabilities": false
+     },
+     {
+      "run": "grading:chat-lfm3-1.7b-seed0-v1",
+      "model_key": "lfm3-1.7b",
+      "runs": [
+       "grading:chat-lfm3-1.7b-seed0-v1",
+       "grading:chat-lfm3-1.7b-seed1-v1",
+       "grading:chat-lfm3-1.7b-seed2-v1"
+      ],
+      "aggregation": "mean of 3 seeds; latency over all requests of the three runs",
+      "latency_s_median": 5.288,
+      "latency_s_p90": 15.231,
+      "requests_in_flight": 30,
+      "requests_measured": 6207,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 255.9,
+      "recall_reference": 0.494,
+      "recall_other": 0.3343,
+      "recall_none": 0.6412,
+      "wrong_answer_recall": 0.3343,
+      "false_alarm_rate": 0.0163,
+      "invalid": null,
+      "invalid_per_seed": [
+       810,
+       813,
+       827
+      ],
+      "probabilities": false
      }
     ]
    },
-   "sha256": "b88345b1f44404b30222ed1ba6d013dbdf9a14299990fd4dc02900a4cf27404f"
+   "sha256": "cbf432ae7c1e248e5d3ccd83ccfb6a7d6e8c2324b596f391ec42c9e67bc56b41"
   }
  }
 }

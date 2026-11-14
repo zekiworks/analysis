@@ -131,7 +131,7 @@ GRADING_COPY = (
     "rows only after completion on the same frozen cohort.",
     "Requests contain one question each. A chat model's reply without a final 'ANSWER: X' line counts wrong (the rule was "
     "fixed before the runs); each row's notes say how many replies that was, and whether it came from the reply format "
-    "or from the reasoning parser is not established. The scores are first runs; no diagnostic run was made.",
+    "or from the reasoning parser is not established. {runs}; no diagnostic run was made.",
     "{name} is a separate benchmark tab. Combined scoring is unchanged.",
 )
 # What a bench's table counts per model, where not questions.
@@ -147,6 +147,32 @@ def grading_rows(data: "Data") -> list[dict[str, Any]] | None:
     if any(row["raw"]["questions"] != GRADING_PAIRS for row in rows):
         raise SystemExit(f"grading feed: a row not on {GRADING_PAIRS:,} pairs; the Methodology copy (GRADING_COPY) states that cohort")
     return rows
+
+
+def seed_problem(row: dict[str, Any], metrics: dict[str, Any]) -> str | None:
+    """Why a feed row and its metrics row break the three-seed join (compactor #7058, #7062; grading #7056, #7060), or
+    None. A row of one run carries no seed fields on either side. A row of several runs is the mean of seeds 0, 1, 2: its
+    accuracy their mean and its seed_min and seed_max their lowest and highest, its seed_runs its runs in seed order; its
+    metrics row, under its first run's id, lists the same runs and gives no single invalid count but the same count per
+    seed. Nothing is fitted to a row of several runs (grading #7056)."""
+    runs, seeds = row["runs"], row.get("seed_runs")
+    if len(runs) == 1:
+        found = [key for key in ("accuracy_basis", "seed_runs", "seed_min", "seed_max") if key in row]
+        found += [key for key in ("runs", "invalid_per_seed") if key in metrics]
+        return f"seed fields on a single run's row ({', '.join(found)})" if found else None
+    if row.get("accuracy_basis") != f"mean of {len(runs)} seeds" or not seeds:
+        return f"{len(runs)} runs but no mean of {len(runs)} seeds (accuracy_basis, seed_runs)"
+    if [seed["run"] for seed in seeds] != runs or [seed["seed"] for seed in seeds] != list(range(len(runs))):
+        return "its seed_runs are not its runs in seed order"
+    accuracies = [seed["accuracy"] for seed in seeds]
+    if (abs(row["raw"]["value"] - sum(accuracies) / len(accuracies)) > 1e-9 or row.get("seed_min") != min(accuracies)
+            or row.get("seed_max") != max(accuracies)):
+        return "its accuracy, seed_min or seed_max is not its seeds' mean, lowest or highest"
+    if metrics.get("runs") != runs:
+        return "its metrics row does not list the same runs"
+    if metrics.get("invalid") is not None or metrics.get("invalid_per_seed") != [seed["invalid"] for seed in seeds]:
+        return "its invalid counts per seed differ between the two files"
+    return None
 
 
 def grading_metrics(data: "Data") -> dict[str, dict[str, Any]] | None:
@@ -168,12 +194,17 @@ def grading_metrics(data: "Data") -> dict[str, dict[str, Any]] | None:
         if row["run"] in by_run:
             raise SystemExit(f"grading metrics: run {row['run']} twice")
         by_run[row["run"]] = row
-    feed = {run: row.get("model_key") for row in rows for run in row.get("runs") or []}
+    # Each feed row joins the metrics row under its first run's id; a row of three seed runs too, by one explicit
+    # contract (seed_problem; compactor #7058, #7062; grading #7056).
+    feed = {row["runs"][0]: row for row in rows}
     if len(feed) != len(rows) or sorted(feed) != sorted(by_run):
         raise SystemExit(f"grading metrics: rows not one to one with the feed's runs ({sorted(set(feed) ^ set(by_run))})")
-    wrong = sorted(run for run, key in feed.items() if by_run[run].get("model_key") != key)
+    wrong = sorted(run for run, row in feed.items() if by_run[run].get("model_key") != row.get("model_key"))
     if wrong:
         raise SystemExit(f"grading metrics: model_key differs from the feed's for {wrong}")
+    broken = [f"{run}: {problem}" for run, row in feed.items() if (problem := seed_problem(row, by_run[run]))]
+    if broken:
+        raise SystemExit(f"grading metrics: a row breaks the three-seed join ({'; '.join(broken)})")
     # A GPU time is only read with its hardware (grading #6823): a row with one whose notes name no hardware we know stops.
     unnamed = sorted(row.get("display_name") or row["name"] for row in rows
                      if by_run[row["runs"][0]].get("gpu_seconds_per_1000") is not None and grading_hardware(row) is None)
@@ -198,8 +229,13 @@ def grading_section(data: "Data") -> str:
     # The bench's name on every page is its label in page_config.json ("Answer Check", Ümit #6878 via grading #6880);
     # its key, addresses and anchors keep "grading" (/analysis/grading/, #grading, ?view=grading), so earlier links hold.
     name = data.by_key[GRADING]["label"]
+    # A score is one run's, except a row the feed gives as the mean of three seeds (compactor #7058, grading #7060).
+    seeded = [row.get("display_name") or row["name"] for row in rows if len(row["runs"]) > 1]
+    runs = ("The scores are first runs" if not seeded else
+            f"The scores are first runs, except {bp.and_list(seeded)}'s, the mean of three full runs with seeds 0, 1 and "
+            "2, with their lowest and highest beside it (a range, not a confidence interval)")
     facts = {"models": bp.count(len(rows)), "api": bp.count(len(rows) - local), "local": bp.count(local),
-             "decision": bp.count(decision), "chat": bp.count(chat), "name": name}
+             "decision": bp.count(decision), "chat": bp.count(chat), "name": name, "runs": runs}
     out = (f'<h2 id="grading">{esc(name)}: does the text give this answer?</h2>'
            + "".join(f"<p>{esc(text.format_map(facts))}</p>" for text in GRADING_COPY))
     if grading_metrics(data) is None:
@@ -221,6 +257,7 @@ def grading_section(data: "Data") -> str:
                             f"conflicting one {bp.count(pairs['other'])}, none {bp.count(pairs['none'])}); in each row's "
                             "notes on its wrong answers caught."),
         ("Invalid", f"{words['invalid']}."),
+        *([("Three seeds", f"{words['seed_groups']}.")] if words.get("seed_groups") else []),
         ("Probabilities", f"{words['probabilities']}."),
     ]
     return (out + f'<p>The {esc(name)} page\'s further columns come from the grading agent\'s '
@@ -994,6 +1031,15 @@ class GradingBench(ui.Bench):
         self.data, self.models, self.metrics, self.up = data, models, metrics, up
         self.file = data.by_key[GRADING]["metrics"]
         self.classes = dict(data.site.model_classes())
+        # The run each three-seed row replaced, outside the three (page_config.json all_benches outside_seeds; grading
+        # #7056, #7060), by model_key.
+        spec = next(spec for spec in data.site.config["all_benches"]["benches"] if spec["key"] == GRADING)
+        self.outside: dict[str, dict[str, str]] = spec.get("outside_seeds") or {}
+
+    def seeds(self, model: dict[str, Any]) -> list[dict[str, Any]]:
+        """A three-seed row's seed runs (seed_runs, as seed_problem checked them), else empty."""
+        row = model["scores"][GRADING]
+        return row["seed_runs"] if len(row["runs"]) > 1 else []
 
     def title(self) -> str:
         return self.data.by_key[GRADING]["label"]
@@ -1065,12 +1111,32 @@ class GradingBench(ui.Bench):
         metrics = self.metrics[model["scores"][GRADING]["runs"][0]]
         # Unbroken spaces inside each phrase: a narrow column breaks the line between phrases, never inside one.
         seconds = lambda value: f"{value:.2f}\u00a0s" if value < 10 else f"{value:.1f}\u00a0s"  # noqa: E731
+        row, seeds = model["scores"][GRADING], self.seeds(model)
+        # A three-seed row: its lowest and highest under its score and accuracy (two lines, so a narrow column breaks
+        # between them), and its other measures marked as the seeds' mean or pooled over their requests (grading #7056).
+        chance = 1 / row["raw"]["options"]
+        score_of = lambda accuracy: 100 * (accuracy - chance) / (1 - chance)  # noqa: E731
+
+        def span(show: Any) -> tuple[str, ...]:
+            """The lowest and highest, one more decimal where the two would read as one number (Zeki #7044 on Logic &
+            Math's ranges): a range, not a confidence interval."""
+            if not seeds:
+                return ()
+            low, high = row["seed_min"], row["seed_max"]
+            digits = 1 if show(low, 1) != show(high, 1) else 2
+            return (f"{show(low, digits)}\u2013{show(high, digits)}", f"min\u2013max\u00a0of\u00a0{len(seeds)}\u00a0seeds")
+
+        mean = (f"mean\u00a0of\u00a0{len(seeds)}\u00a0seeds",) if seeds else ()
+        pooled = (f"{len(seeds)}\u00a0seeds\u00a0pooled",) if seeds else ()
         return {
-            "score": (number(value), ()), "accuracy": (f"{100 * value:.1f}%", ()), "calibration": (number(value), ()),
-            "caught": (f"{100 * value:.1f}%", (f"{100 * metrics['false_alarm_rate']:.1f}%\u00a0false\u00a0alarms",)),
-            "latency": (seconds(value), (f"p90\u00a0{seconds(metrics['latency_s_p90'])}", f"{metrics['requests_in_flight']}\u00a0at\u00a0a\u00a0time")),
+            "score": (number(value), span(lambda accuracy, digits: number(score_of(accuracy), digits))),
+            "accuracy": (f"{100 * value:.1f}%", span(lambda accuracy, digits: f"{100 * accuracy:.{digits}f}%")),
+            "calibration": (number(value), ()),
+            "caught": (f"{100 * value:.1f}%", (f"{100 * metrics['false_alarm_rate']:.1f}%\u00a0false\u00a0alarms",) + mean),
+            "latency": (seconds(value), (f"p90\u00a0{seconds(metrics['latency_s_p90'])}",
+                                         f"{metrics['requests_in_flight']}\u00a0at\u00a0a\u00a0time") + pooled),
             "price": (f"${value:.3f}" if value < 1 else f"${value:.2f}", ()),
-            "gpu": (f"{value:,.0f} s" if value >= 10 else f"{value:.1f} s", self.on_hardware(model)),
+            "gpu": (f"{value:,.0f} s" if value >= 10 else f"{value:.1f} s", self.on_hardware(model) + mean),
         }[key]
 
     def on_hardware(self, model: dict[str, Any]) -> tuple[str, ...]:
@@ -1116,16 +1182,35 @@ class GradingBench(ui.Bench):
         pairs = self.file["label_pairs"]
         pct = lambda share: f"{100 * share:.1f}%"  # noqa: E731
         price = metrics["api_cost_per_1000_usd_list_price"]
+        seeds = self.seeds(model)
+        # A three-seed row's invalid replies: their mean rate with each seed's count, never one invented count (grading
+        # #7060).
+        per_seed = "; ".join(f"seed {seed['seed']}: {bp.count(seed['invalid'])}" for seed in seeds)
+        invalid = (f"Invalid replies: {pct(row['invalid_rate_mean'])} of {bp.count(GRADING_PAIRS)} on average ({per_seed}), "
+                   "counted wrong" if seeds else
+                   f"Invalid replies: {bp.count(metrics['invalid'])} of {bp.count(GRADING_PAIRS)}, counted wrong")
         lines = [f"<strong>{esc(row.get('display_name') or row['name'])}</strong> · {esc(row.get('maker') or 'maker not given')}",
                  esc(self.class_text(model) or "Size not disclosed"),
                  esc(row.get("notes") or ""),
                  "Hardware: " + (found[1] if (found := grading_hardware(row)) else "the maker's API (its latency includes the network)"),
-                 f"Invalid replies: {bp.count(metrics['invalid'])} of {bp.count(GRADING_PAIRS)}, counted wrong",
+                 invalid,
                  "Option probabilities: " + ("yes, so its calibration error is measured" if metrics["probabilities"] else
                                              "none (a chat model's label), so no calibration error and no confidence"),
-                 f"Recall by label: the reference answer {pct(metrics['recall_reference'])} of {bp.count(pairs['reference'])}, "
-                 f"a conflicting one {pct(metrics['recall_other'])} of {bp.count(pairs['other'])}, none "
-                 f"{pct(metrics['recall_none'])} of {bp.count(pairs['none'])}"]
+                 f"Recall by label{', the mean of its seeds' if seeds else ''}: the reference answer "
+                 f"{pct(metrics['recall_reference'])} of {bp.count(pairs['reference'])}, a conflicting one "
+                 f"{pct(metrics['recall_other'])} of {bp.count(pairs['other'])}, none {pct(metrics['recall_none'])} of "
+                 f"{bp.count(pairs['none'])}"]
+        if seeds:
+            lines.append("Seeds: " + "; ".join(
+                f"seed {seed['seed']}: {esc(seed['run'])}, {pct(seed['accuracy'])} right, {bp.count(seed['invalid'])} "
+                f"invalid, {bp.count(seed['cutoff'])} cut off, {bp.count(seed['wrong_answers_caught'])} wrong answers caught"
+                for seed in seeds) + ". Its score is their mean; the lowest and highest beside it are a range, not a "
+                "confidence interval")
+            lines.append(f"Measures: {esc(metrics['aggregation'])}")
+            outside = self.outside.get(row["model_key"])
+            if outside:
+                lines.append(f"Outside the three: its first run, {esc(outside['run'])}, {esc(outside['why'])}; not "
+                             f'ranked, kept in <a href="{esc(outside["file"])}">the file published before the seeds</a>')
         if price is not None:
             lines.append(f"List price ${metrics['price_usd_per_million_input']} per 1M input tokens, "
                          f'<a href="{esc(metrics["price_source"])}">its source</a> ({esc(metrics["price_date"])})')
@@ -1150,8 +1235,10 @@ class GradingBench(ui.Bench):
             row = model["scores"][GRADING]
             has = self.value(model, key) is not None
             invalid = self.metrics[row["runs"][0]]["invalid"]
-            # A chat row's replies without an answer, as a flag beside its name (the box says they count wrong).
-            flag = f"{bp.count(invalid)} invalid" if invalid else ""
+            # A chat row's replies without an answer, as a flag beside its name (the box says they count wrong); a
+            # three-seed row's as their mean rate, each seed's count in its box (grading #7060).
+            flag = (f"{100 * row['invalid_rate_mean']:.1f}% invalid, mean of {len(self.seeds(model))} seeds"
+                    if self.seeds(model) else f"{bp.count(invalid)} invalid" if invalid else "")
             written = self.written(model, key)
             # On a phone, under the name: its latency and its cost, each labelled, the API list price or our GPU time
             # with the hardware it was measured on, never one figure for both (Zeki #6754, grading #6823); the table's
