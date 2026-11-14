@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results fca3f8f4 (14 November 2026)
+
+- Added Granite-4.2-3B's English reading, thinking on, the setup Logic & Math published (logic #6934, on its server while its own runs paused): `ibm-granite/granite-4.2-3b` at `4e9c275`, one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16, reasoning effort high, up to 65,536 output tokens (its Logic & Math smoke cut off at 32,768), temperature 1.0, top_p 0.95, seed 0, 32 requests in flight, one question per request. Run 1104: 407 of 547 kept questions right (74.4%), 140 wrong, no invalid answer: 95th of 116 English setups, between Gemma 4 E2B (408) and LFM2.5-2.6B (404). $2.72 per 1,000 questions from GPU time; median request 40.5 s. Its thinking-off setup, the one in Ümit's table (#6516, #6924), is a setup of its own, queued in logic's GPU 1 queue.
+- Its English "I don't know" run (1110): 404 right, 23 "I don't know", 120 wrong (non-hallucination 16.1%, answered 95.8%), no invalid answer.
+- An English-only setup for now: its Turkish Text run stopped at 237 of 2,198 so that Ümit's three-seed runs go first on the same GPU (logic #7002), and resumes when logic loads Granite again, followed by "Bilmiyorum". The English page's Turkish side reads Paused with this reason, and the In progress table lists it.
+
 ## Results 6d01f5b1 (14 November 2026)
 
 - Added Gemini 4 Hydrogen's English reading (Ümit via Zeki #5663; Ümit #6854): run 1107, through Can's Antigravity subscription bridge (agbench), thinking high, 16 questions per request, one request at a time, with the answer-layout paragraph Gemini 4 Carbon's English runs used (the bridge applies no response format). 529 of 547 kept questions right (96.7%), 18 wrong, no invalid answer: 2nd of 115 English setups, after Claude Fable 5.2 (536). An English-only setup for now: its English "I don't know" run was under way when the bridge stopped answering at 01:54 UTC (the row's Non-hallucination column says so), and its Turkish runs follow on the same lane; the In progress table lists both. $0: the subscription, not billed per token.

@@ -4,7 +4,7 @@
    "bench": "reading-text",
    "title": "Reading · Turkish",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-14T02:16:37Z",
+   "updated": "2026-11-14T03:04:38Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
@@ -2137,7 +2137,7 @@
    "bench": "turkish-reading",
    "title": "Turkish Reading",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-14T02:16:37Z",
+   "updated": "2026-11-14T03:04:38Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 656 Turkish reading questions (units 1 to 6) right (accuracy 100%)"
@@ -4270,7 +4270,7 @@
    "bench": "turkish-grammar",
    "title": "Turkish Grammar",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-14T02:16:37Z",
+   "updated": "2026-11-14T03:04:38Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 1,542 Turkish grammar questions (units 7 to 20) right (accuracy 100%)"
@@ -6403,7 +6403,7 @@
    "bench": "reading-english",
    "title": "Reading · English",
    "url": "https://zekiworks.github.io/analysis/decision-models/english/",
-   "updated": "2026-11-14T02:16:37Z",
+   "updated": "2026-11-14T03:04:38Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 547 kept reading questions, translated into English, right (accuracy 100%)"
@@ -8300,6 +8300,31 @@
      "notes": "our GPU (logic's server, vLLM v0.30.0 BF16, revision google/gemma-4-E2B-it@4adf157), one question per request, plain answer line ANSWER: X (no answer schema); sampling temperature 0.0; output cap 8,192; the kept reading questions in English"
     },
     {
+     "repo": "ibm-granite/granite-4.2-3b",
+     "commit": "4e9c275",
+     "name": "Granite-4.2-3B",
+     "tag": "reasoning on · chat",
+     "model_key": "granite-4.2-3b",
+     "maker": "IBM",
+     "kind": "chat",
+     "params_total": 3.66,
+     "params_active": 3.66,
+     "quantization": "BF16",
+     "score_0_100": 68.00731261425959,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7440585009140768,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": null,
+     "improvement_points": null,
+     "runs": [
+      "english:1104"
+     ],
+     "notes": "our GPU (logic's server, vLLM v0.30.0 BF16, revision ibm-granite/granite-4.2-3b@4e9c275), one question per request, plain answer line ANSWER: X (no answer schema); sampling seed 0, temperature 1.0, top_p 0.95, thinking on; output cap 65,536; the kept reading questions in English"
+    },
+    {
      "repo": "LiquidAI/LFM2.5-2.6B",
      "commit": "7141b56",
      "name": "LFM2.5-2.6B",
@@ -8830,7 +8855,7 @@
    "bench": "reading-vision",
    "title": "Reading · Vision",
    "url": "https://zekiworks.github.io/analysis/decision-models/vision/",
-   "updated": "2026-11-14T02:03:47Z",
+   "updated": "2026-11-14T02:52:07Z",
    "score": {
     "zero": "chance: 1 of each question's options right on every question (accuracy 20% with 5 options)",
     "hundred": "every one of the 763 questions that depend on the printed page right, read from the page image alone (accuracy 100%)"
