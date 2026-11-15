@@ -318,6 +318,9 @@ SYSTEM_ONE = {
     # engine for the index's test kit, e.g. Jeffan-9B-1211; logic #8320): the same request at the default path, no model
     # field (it is not read), text only here. The model argument names the checkpoint in our records.
     "di-serve": SystemOneService("Decision Index engine", server_url("DI_SERVE_URL"), model_field=False),
+    # Valen 9B (Valen-Team/Valen-Decision-1.5-9B at 5a512117) behind its card's valen-vllm deployment (vllm/vllm-openai
+    # v0.33.0), which compactor serves on bariton GPU 2 and which refuses a request without the model field (logic #8775).
+    "valen": SystemOneService("Valen", server_url("VALEN_URL")),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
@@ -865,9 +868,9 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("di-serve", "Verdin-4B-v1.1"): 1,
     # vera-medium-omni (scar-ai/vera-medium-omni at 1f23a6cf), the card's own vera-serve on bariton GPU 2 (compactor #8676).
     ("di-serve", "vera-medium-omni"): 1,
-    # Dexy 9B v2 and Valen 9B on the same card, each through its card's own server (compactor #8690); keyed by the shared
-    # names table's names.
-    ("di-serve", "Dexy-Decision-9B-V2"): 1, ("di-serve", "Valen-Decision-1.5-9B"): 1,
+    # Dexy 9B v2 on the same card through its card's d3_server.py (compactor #8697), keyed by the shared names table's name;
+    # Valen 9B through its own provider, the model name its server answers to (compactor #8773).
+    ("di-serve", "Dexy-Decision-9B-V2"): 1, ("valen", "valen"): 1,
 }
 # Runs of a GPU_TIME setup that ran on a DGX Spark, by run id: no GPU-time estimate, as for the setups that ran only on a
 # Spark (the RTX PRO 6000's rate does not fit a Spark's request time; #4055). Cerno 9B v1.2's English runs on spark2.
@@ -1626,6 +1629,13 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="with --rescue: ask and write nothing; print what it would read and re-ask",
     )
+    parser.add_argument(
+        "--again",
+        action="store_true",
+        help="with --rescue: also ask once more every EMPTY reply that was already asked again and came back empty "
+        "(the owner's decision for Gemini 4 Carbon run 1108 and Hydrogen run 1109, Can #8772, Zeki #8774); both earlier "
+        "replies are kept, the second under \"empty_second_reply\"",
+    )
     parser.add_argument("--log-verbose", action="store_true")
     parser.add_argument("--progress-every", type=int, default=10)
     variant = parser.add_mutually_exclusive_group()
@@ -1712,6 +1722,8 @@ def parse_args() -> argparse.Namespace:
         parser.error("the model argument is required")
     if args.dry_run and args.rescue is None:
         parser.error("--dry-run needs --rescue")
+    if args.again and args.rescue is None:
+        parser.error("--again needs --rescue")
     for name in ("limit", "sample", "num_ctx"):
         value = getattr(args, name)
         if value is not None and value < 1:
@@ -5071,6 +5083,7 @@ def kinds_text(kinds: dict[str, int], names: dict[str, str] | None = None) -> st
 
 def rescue_run(
     connection: sqlite3.Connection, run_id: int, timeout: float, concurrency: int, dry_run: bool, will_ask: bool = False,
+    again: bool = False,
 ) -> list[str]:
     """--rescue: apply the rule on empty and broken replies (bus #3215) to finished run `run_id`, and return what it
     did, to print. (a) Every request with invalid answers whose stored reply is BROKEN has its clearly readable letters
@@ -5109,7 +5122,8 @@ def rescue_run(
                 to_retry.append((rows, questions, record))
             continue
         if empty_reply(reply):
-            if "empty_first_reply" not in record:
+            # With `again`, an empty reply already asked again (and empty again) is asked a third time, once.
+            if "empty_first_reply" not in record or (again and "empty_second_reply" not in record):
                 to_ask.append((rows, questions, record))
             continue
         whole = reads_whole(reader, reply, questions)
@@ -5210,11 +5224,16 @@ def rescue_run(
             first_reply = stored_reply(provider, first)
             errored = reply_error(first_reply) is not None
             # The first reply stays in the record: an empty one under "empty_first_reply" (its tokens count), an error
-            # under "error_reply" (not the model's reply).
-            record["error_reply" if errored else "empty_first_reply"] = first_reply
+            # under "error_reply" (not the model's reply). Asked again (`again`), the record keeps the run's first empty
+            # reply under "empty_first_reply" and its in-run retry, empty too, under "empty_second_reply".
+            if not errored and "empty_first_reply" in first:
+                record["empty_first_reply"] = first["empty_first_reply"]
+                record["empty_second_reply"] = first_reply
+            else:
+                record["error_reply" if errored else "empty_first_reply"] = first_reply
             record["rescued"] = {
                 "harness_commit": harness, "at": now, "first_request_seconds": rows[0]["request_seconds"],
-                "answers_before": first.get("answers"),
+                "answers_before": first.get("answers"), **({"again": True} if "empty_second_reply" in record else {}),
             }
             raw = json.dumps(record, ensure_ascii=False, separators=(",", ":"))
             found = sum(prediction is not None for prediction in predictions)
@@ -5257,14 +5276,16 @@ def rescue_run(
     return lines
 
 
-def rescue_runs(connection: sqlite3.Connection, run_ids: list[int], timeout: float, concurrency: int, dry_run: bool) -> list[str]:
+def rescue_runs(
+    connection: sqlite3.Connection, run_ids: list[int], timeout: float, concurrency: int, dry_run: bool, again: bool = False,
+) -> list[str]:
     """--rescue on each of `run_ids`. Unless `dry_run`, a dry run of every one of them comes first: a run it cannot
     re-ask (rescue_settings, or an OpenRouter run with empty replies to re-ask and no key) stops it before anything is
     asked or written."""
     if not dry_run:
         for run_id in run_ids:
-            rescue_run(connection, run_id, timeout, concurrency, dry_run=True, will_ask=True)
-    return [line for run_id in run_ids for line in rescue_run(connection, run_id, timeout, concurrency, dry_run)]
+            rescue_run(connection, run_id, timeout, concurrency, dry_run=True, will_ask=True, again=again)
+    return [line for run_id in run_ids for line in rescue_run(connection, run_id, timeout, concurrency, dry_run, again=again)]
 
 
 def decision_instructions(args: argparse.Namespace) -> str:
@@ -7584,7 +7605,7 @@ def main() -> int:
             result_connection = (sqlite3.connect(f"file:{result_path}?mode=ro", uri=True) if args.dry_run
                                  else open_result_database(result_path))
             result_connection.row_factory = sqlite3.Row
-            for line in rescue_runs(result_connection, args.rescue, args.timeout, args.concurrency, args.dry_run):
+            for line in rescue_runs(result_connection, args.rescue, args.timeout, args.concurrency, args.dry_run, args.again):
                 print(line, flush=True)
             if not args.dry_run:
                 print(f"Updated {args.database}; refresh the report (--refresh-report) to recompute the rescued runs' metrics")
