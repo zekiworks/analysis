@@ -74,11 +74,21 @@ SETUP_TEXTS = (
     "REAX's released REAX 1.3 on our hardware in FP8, through the maker's own engine: the 50/50 mean of two parts' "
     "option probabilities (Gemma and Qwen lines), text only; its card lists English only.",
     "PelaAI's released KnowLine 31B Gen1.5 and 0.8B Gen1 (BF16) and KnowLine 4B Gen5.5 (FP8 at load, as its card's code "
-    "does) on a DGX Spark, through their repository's own server (SGLang; it reads a request of up to 3,000 tokens twice); "
-    "the 31B and 4B are open decision models of the Jev Decision Index; their cards list English and Chinese.",
+    "does) on a DGX Spark, and KnowLine-9B-Gen1 (BF16) on an RTX PRO 6000, through their repository's own server (SGLang; "
+    "it reads a request of up to 3,000 tokens twice); the 31B and 4B are open decision models of the Jev Decision Index; "
+    "their cards list English and Chinese.",
     "MachinePulse's released karpo-decision-31B, a fine-tune of Gemma-4-31B-it with a 255-way readout, on our hardware "
     "in BF16, through the server of the package its card ships, text only; its runs shared the server with the Logic & "
     "Math site's, so its timing is not of a server of its own; its card names no language.",
+    "Poindexter Labs' released Copernicus-31B, a merge of KnowLine-31B-Gen1 and Sieve-31B-v3, on our hardware in BF16, "
+    "through the server its card ships (Transformers, text only); its card lists English only.",
+    "newsbang's released Adjudex 9B v5, a fine-tune of Qwen3.5-9B with a 255-way decision head, on our hardware in BF16, "
+    "through its card's autojev server (it answers only to jev-latest), text only; its card names no language.",
+    "tattrongvu's released Jeffan-9B-1211, built on Qwen3.5-9B, on our hardware in BF16, its card's Decision Index engine "
+    "behind a thin System One wrapper, text only; its card names no language.",
+    "Apertix AI's released Cerno 9B v1.2, a full fine-tune of Qwen3.5-9B, its card's in-process engine behind a thin "
+    "System One wrapper in BF16, text only: Turkish runs on an RTX PRO 6000, English runs on a DGX Spark; its card names "
+    "no language.",
     "StartLux Labs' released StartLux-Decision-v1.1-2B-Instant and -0.8B-Instant on a DGX Spark in BF16, through their "
     "package's own server (vLLM 0.31.0, not the card's 0.19.1, which has no build for that processor); non-commercial "
     "weights, used for evaluation; their cards list English only.",

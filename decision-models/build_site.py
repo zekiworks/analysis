@@ -92,8 +92,8 @@ INTRO = (
 DESCRIPTION = (
     "We tested {decision} decision models on a reading comprehension and grammar test in native Turkish (not "
     "translated): {questions} questions. "
-    "No model led on every measure. KnowLine-31B-Gen1.5 got the most answers right, ahead of REAX 1.3, Karpo Decision "
-    "31B, Gemini Decision 1 and Liquid's d1-ultra, which tied. Of the decision "
+    "No model led on every measure. Copernicus-31B and KnowLine-31B-Gen1.5 tied for the most answers right, ahead of "
+    "REAX 1.3, Karpo Decision 31B, Gemini Decision 1 and Liquid's d1-ultra, which tied. Of the decision "
     "models with no observed mistakes at 99% confidence, Karpo Decision 31B, run on our hardware, kept the most "
     "answers. With every model at 1 question per request, the decision model "
     "with the largest share took 34% to 62% of each LLM's questions, with accuracy at most 0.16 points lower, in a "
@@ -123,7 +123,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: KnowLine-31B-Gen1.5 clearly ahead at 81.8%; REAX 1.3, Karpo Decision 31B, Gemini Decision 1 and Liquid's d1-ultra, tied at 77.9%, 77.8%, 77.5% and 77.1%; GLiDE 27B at 71.1%; then Decider v1.2 with web search, GLiDE v1.2, Decider v1.3, hosted GLiDE, d3 and d3-ultra, Drex Max and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark, at 66.9% to 68.7%."
+SUMMARY_ACCURACY = "Accuracy: Copernicus-31B and KnowLine-31B-Gen1.5 lead, tied at 81.8%; REAX 1.3, Karpo Decision 31B, Gemini Decision 1 and Liquid's d1-ultra, tied at 77.9%, 77.8%, 77.5% and 77.1%; GLiDE 27B at 71.1%; then Decider v1.2 with web search, GLiDE v1.2, Decider v1.3, hosted GLiDE, d3 and d3-ultra, Drex Max and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark, at 66.9% to 68.7%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
@@ -878,15 +878,18 @@ def copy_checks(data: Data) -> list[str]:
             found.append(claim)
 
     check("Stability: every repeated setup ran 5 times", all(len(item["runs"]) == 5 for item in results["repeats"]))
-    best = max(decision, key=lambda run: accuracy(run)[0])
     knowline = data.by_name("PelaAI/KnowLine-31B-Gen1.5")
     gemini = data.by_name("google/gemini-decision-1")
     karpo = data.by_name("karpo-decision")
+    copernicus = data.by_name("Copernicus-31B")
     tied = (reax, karpo, gemini, ultra)
-    check("KnowLine-31B-Gen1.5 got the most answers right (among decision models), ahead of REAX 1.3, karpo-decision-31B, "
-          "Gemini Decision 1 and Liquid's d1-ultra, which tied",
-          best is knowline and not any(letter in (run.get("group") or "") for run in tied
-                                       for letter in (knowline.get("group") or ""))
+    most = max(accuracy(run)[0] for run in decision)
+    leaders = [run for run in decision if accuracy(run)[0] == most]
+    check("Copernicus-31B and KnowLine-31B-Gen1.5 tied for the most answers right (among decision models), ahead of "
+          "REAX 1.3, karpo-decision-31B, Gemini Decision 1 and Liquid's d1-ultra, which tied",
+          {run["run"] for run in leaders} == {copernicus["run"], knowline["run"]}
+          and not any(letter in (run.get("group") or "") for run in tied for lead in leaders
+                      for letter in (lead.get("group") or ""))
           and all(any(letter in (other.get("group") or "") for letter in (run.get("group") or ""))
                   for run in tied for other in tied))
     # No observed mistakes needs answers kept: a setup with none kept at 99% is in no such claim (Ümit #4665).
@@ -973,13 +976,15 @@ def copy_checks(data: Data) -> list[str]:
         correct, total = accuracy(run)
         return f"{100 * correct / total:.1f}"
 
-    check("Summary: KnowLine-31B-Gen1.5 has the highest accuracy among decision models, at 81.8%, clearly ahead: it shares "
-          "a letter with no other decision model",
-          ranked[0] is knowline and percent(knowline) == "81.8"
-          and not any(shares(knowline, run) for run in decision if run is not knowline))
+    check("Summary: Copernicus-31B and KnowLine-31B-Gen1.5 lead among decision models, tied at 81.8%: they share a letter "
+          "with each other and with no other decision model",
+          {ranked[0]["run"], ranked[1]["run"]} == {copernicus["run"], knowline["run"]}
+          and accuracy(copernicus) == accuracy(knowline) and percent(knowline) == "81.8" and shares(copernicus, knowline)
+          and not any(shares(lead, run) for lead in (copernicus, knowline) for run in decision
+                      if run is not copernicus and run is not knowline))
     check("Summary: REAX 1.3, karpo-decision-31B, Gemini Decision 1 and d1-ultra next, tied at 77.9%, 77.8%, 77.5% and "
           "77.1%: they share a letter with each other and with no other decision model",
-          ranked[1] is reax and ranked[2] is karpo and ranked[3] is gemini and ranked[4] is ultra
+          ranked[2] is reax and ranked[3] is karpo and ranked[4] is gemini and ranked[5] is ultra
           and (percent(reax), percent(karpo), percent(gemini), percent(ultra)) == ("77.9", "77.8", "77.5", "77.1")
           and all(shares(run, other) for run in tied for other in tied)
           and not any(shares(lead, run) for lead in tied for run in decision if not any(run is item for item in tied)))
@@ -987,16 +992,16 @@ def copy_checks(data: Data) -> list[str]:
     hosted = data.by_name("pplx-decider-v1.2", "perplexity", None)
     glide27 = data.by_name("glide-27b")
     decider13 = data.by_name("pplx-decider-v1.3")
-    check("Summary: GLiDE 27B at 71.1%", ranked[5] is glide27 and percent(glide27) == "71.1")
+    check("Summary: GLiDE 27B at 71.1%", ranked[6] is glide27 and percent(glide27) == "71.1")
     check("Summary: then Decider v1.2 with web search (through its API), GLiDE v1.2, Decider v1.3, hosted GLiDE, d3 and "
           "d3-ultra (tied on right answers), Drex Max v1 and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark, in "
           "that order",
           "DGX Spark" in (decider12.get("hardware") or "") and with_web["billing"] == "api" and decider["billing"] == "api"
           and glide["billing"] == "api"
-          and ranked[6] is with_web and ranked[7] is glide12 and ranked[8] is decider13 and ranked[9] is glide
-          and {run["run"] for run in ranked[10:12]} == {d3["run"], d3_ultra["run"]}
-          and accuracy(d3) == accuracy(d3_ultra) and ranked[12] is drex_v1 and ranked[13] is drex_11 and ranked[14] is mammoth
-          and {run["run"] for run in ranked[15:17]} == {decider["run"], decider12["run"]})
+          and ranked[7] is with_web and ranked[8] is glide12 and ranked[9] is decider13 and ranked[10] is glide
+          and {run["run"] for run in ranked[11:13]} == {d3["run"], d3_ultra["run"]}
+          and accuracy(d3) == accuracy(d3_ultra) and ranked[13] is drex_v1 and ranked[14] is drex_11 and ranked[15] is mammoth
+          and {run["run"] for run in ranked[16:18]} == {decider["run"], decider12["run"]})
     near = (with_web, glide12, decider13, glide, d3, d3_ultra, drex_v1, drex_11, mammoth, decider, decider12)
     check("Summary: at 66.9% to 68.7%",
           min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.7")

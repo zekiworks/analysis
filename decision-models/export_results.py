@@ -114,10 +114,12 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "sieve": {"access": "Sieve server (sieve-serve, the maker's release code), self-hosted, BF16", "scoring": True, "billing": "local"},
     "turion-jev": {"access": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load", "scoring": True, "billing": "local"},
     "startlux": {"access": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16", "scoring": True, "billing": "local"},
-    "cerno": {"access": "Cerno server (logic's thin server around the card's CernoEngine, transformers), self-hosted, BF16", "scoring": True, "billing": "local"},
+    "cerno": {"access": "Cerno server (a thin System One server around the card's CernoEngine, transformers: logic's for its English runs, compactor's di_serve.py for its Turkish runs), self-hosted, BF16", "scoring": True, "billing": "local"},
     # The Answer Check leaders compactor serves on GPU 0 (compactor #8155, #8167), each as its model card serves it.
     "karpo": {"access": "karpo-decision server (the System One server of the card's karpo-decision package, machinepulse-ai/karpo-decision at ac40d39), self-hosted, BF16", "scoring": True, "billing": "local"},
     "copernicus": {"access": "Copernicus server (the card's copernicus_server.py, Transformers), self-hosted, BF16", "scoring": True, "billing": "local"},
+    # Decision Index engines compactor serves on GPU 0 behind its shared adapter di_serve.py (logic #8320).
+    "di-serve": {"access": "Decision Index engine (compactor's di_serve.py around the engine its card ships), self-hosted, BF16", "scoring": True, "billing": "local"},
     # Ümit's tiny batch (#4578): the two providers it adds; its other models run through knowline, startlux, onejev and
     # baselabs.
     "meteor": {"access": "PKU-KCL-Meteor server (serving/server.py, the maker's release code, transformers), self-hosted, BF16", "scoring": True, "billing": "local"},
@@ -324,6 +326,36 @@ MODELS: dict[str, dict[str, Any]] = {
         "2026, so its latency and GPU-time cost were measured under that load.",
         "hardware": f"1 × {GPU}; BF16",
     },
+    # The Decision Index models compactor served on GPU 0 for Reading after its Answer Check and logic's Logic & Math
+    # (compactor #8268, #8282, #8317, #8330; Ümit #7616, #8157), each alone on its load, as its card serves it.
+    "Copernicus-31B": {
+        "name": "Copernicus-31B",
+        "note": "Poindexter Labs' released checkpoint, a merge of KnowLine-31B-Gen1 and Sieve-31B-v3 (both on Gemma-4-31B-it), "
+        "run on our hardware through its card's copernicus_server.py (Transformers, text only, the card's defaults).",
+        "hardware": f"1 × {GPU}; BF16",
+    },
+    "PelaAI/KnowLine-9B-Gen1": {
+        "name": "KnowLine-9B-Gen1",
+        "note": "PelaAI's released checkpoint, a merged LoRA fine-tune of Qwen3.5-9B, run on our hardware through its card's "
+        "serve_knowline.sh (SGLang 0.5.23 in the lmsysorg/sglang image; the card's launcher names 0.5.21, then "
+        "knowline_server.py), text only.",
+        "hardware": f"1 × {GPU}; BF16",
+    },
+    "jev-latest": {
+        "name": "Adjudex 9B v5",
+        "note": "newsbang's released Adjudex 9B v5 (newsbang/adjudex-9b-v5 at ffdcb82), a fine-tune of Qwen3.5-9B with a "
+        "255-way decision head, run on our hardware through its card's autojev server (Perplexity Decider v1.1's source, "
+        "unchanged), which answers only to the model name 'jev-latest', text only.",
+        "hardware": f"1 × {GPU}; BF16",
+    },
+    "Jeffan-9B-1211": {
+        "name": "Jeffan-9B-1211",
+        "note": "tattrongvu's released Jeffan-9B-1211 (tattrongvu/Jeffan-9B-1211 at 862d1a7), built on Qwen3.5-9B, which "
+        "reads every option's probability from one forward pass and generates no text. Its card ships only a Decision "
+        "Index engine (jeffan_engine:DecisionEngine), so it ran on our hardware behind compactor's di_serve.py (transformers "
+        "5.17.0, flash-linear-attention 0.5.2, without causal-conv1d, so PyTorch's reference convolution), text only.",
+        "hardware": f"1 × {GPU}; BF16",
+    },
     # It ran on a DGX Spark (GB10).
     "glide-v1.2": {
         "name": "Fastino GLiDE v1.2",
@@ -508,10 +540,11 @@ MODELS: dict[str, dict[str, Any]] = {
         "name": "Cerno 9B v1.2",
         "note": "Apertix AI's released Cerno 9B v1.2 (apertixai/cerno-9b-v1.2 at f02a632), a full fine-tune of Qwen3.5-9B "
         "with block-bidirectional attention. Its card ships no server, only an in-process engine (CernoEngine, "
-        "transformers, BF16); it ran on our hardware (one DGX Spark), one request at a time, through our thin System One "
-        "wrapper around that engine, text only. Input tokens are counted only where the engine reports them. "
+        "transformers, BF16); it ran on our hardware, one request at a time, through a thin System One wrapper around that "
+        "engine, text only: its English runs on one DGX Spark (logic's wrapper), its Turkish runs on one RTX PRO 6000 "
+        "(compactor's di_serve.py, 15 November 2026). Input tokens are counted only where the engine reports them. "
         "Probabilities rounded to 4 decimals by its own code; they sum to 1 only within that rounding.",
-        "hardware": f"1 × {SPARK}; BF16",
+        "hardware": f"1 × {GPU}; BF16",
     },
     "startlux-models/StartLux-Decision-v1.1-4B-Instant": {
         "name": "StartLux-Decision v1.1 4B",
@@ -899,6 +932,20 @@ SIZES: dict[str, dict[str, Any]] = {
                                 "31.3B in bf16 plus the readout",
                        "sources": ["counted from the checkpoint's safetensors, MachinePulseAI/karpo-decision-31B@d69cdd5",
                                    "https://huggingface.co/MachinePulseAI/karpo-decision-31B"], "read": "2026-11-15"},
+    # The four GPU 0 Decision Index models: every parameter in each pinned checkpoint's safetensors (their headers, as the
+    # Hub's safetensors index sums them; read 15 November 2026).
+    **{key: {"total": total, "repo": repo, "commit": commit, "scope": scope,
+             "sources": [f"counted from the checkpoint's safetensors, {repo}@{commit}", f"https://huggingface.co/{repo}"],
+             "read": "2026-11-15"}
+       for key, total, repo, commit, scope in (
+           ("Copernicus-31B", 31_273_088_876, "Poindexter-Labs/Copernicus-31B", "be71525",
+            "the whole checkpoint, its vision encoder included (text only here); the card says approximately 31 billion"),
+           ("PelaAI/KnowLine-9B-Gen1", 9_653_104_368, "PelaAI/KnowLine-9B-Gen1", "325378d",
+            "language model + the base's vision components (model-extra-from-base.safetensors; text only here)"),
+           ("jev-latest", 8_392_695_024, "newsbang/adjudex-9b-v5", "ffdcb82",
+            "language model + 255-way decision head (readout.safetensors)"),
+           ("Jeffan-9B-1211", 8_953_803_264, "tattrongvu/Jeffan-9B-1211", "862d1a7",
+            "language model, text only; the card says bf16, 8.95B parameters"))},
     # Fastino's post: "serves 57.36B parameters versus GLiDE's 26.09B".
     "glide-v1.2": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
                    "repo": "fastino/GLiDE", "commit": "a7e4589",
@@ -2448,6 +2495,10 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
     "Ümit #7470), after the option-word check; not asked with “I don't know” yet.",
     ("karpo", "karpo-decision", None): "added to the Hallucination tab on 15 November 2026 (run on our GPU; Ümit #7616), "
     "after the option-word check; not asked with “I don't know” yet.",
+    **{(provider, model, None): "added to the Hallucination tab on 15 November 2026 (run on our GPU; Ümit #7616, #8157), "
+       "after the option-word check; not asked with “I don't know” yet." for provider, model in (
+        ("copernicus", "Copernicus-31B"), ("knowline", "PelaAI/KnowLine-9B-Gen1"), ("pplx-decider", "jev-latest"),
+        ("di-serve", "Jeffan-9B-1211"), ("cerno", "apertixai/cerno-9b-v1.2"))},
     **{(provider, model, None): "added to the Hallucination tab on 10 November 2026 (run on our GPU), after the "
        "option-word check; not asked with “I don't know” yet." for provider, model in (
         ("glide", "glide-27b"), ("glide", "glide-9b"), ("glide", "glide-2b"), ("glide", "glide-0.8b"), ("glide", "glide-0.4b"),
@@ -3119,6 +3170,8 @@ ENGLISH_MACHINE = {
     ("glide", "glide-v1.2"): GPU,
     ("pplx-decider", "pplx-decider-v1.2"): GPU,
     ("pplx-decider", "pplx-decider-flash-v1.2"): GPU,
+    # Cerno's English runs (1085, 1087) on spark2; its Turkish runs (15 November 2026) on bariton GPU 0.
+    ("cerno", "apertixai/cerno-9b-v1.2"): SPARK,
 }
 
 

@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-15T07:08:25Z",
+ "updated": "2026-11-15T09:08:36Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -230,6 +230,34 @@
    ],
    "notes": "fastino/GLiDE-27B@4d32743a, GLiDE server (glide.server), BF16, GLIDE_MAX_BATCH=1, on one DGX Spark (ours) as for its published runs, self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 2 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
    "gpu_hours": 0.6924089500718801,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Logits Sigma-1 Duo",
+   "display_name": "Logits Sigma-1 Duo",
+   "tag": "",
+   "model_key": "logits-sigma-1-duo",
+   "maker": "Logits",
+   "kind": "decision",
+   "repo": "logitshq/Logits-Sigma-1-Duo",
+   "commit": "a0c1b6e8242916aafdcf9a5a49c1a952cb56e091",
+   "params_total": 57.36,
+   "params_active": 57.36,
+   "quantization": "FP8",
+   "score_0_100": 85.13774770420494,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9009183180280329,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.07037908459683984,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-logits-sigma-1-duo-v1"
+   ],
+   "notes": "logitshq/Logits-Sigma-1-Duo@a0c1b6e8 (weights and code identical to d9641cd8, the revision its card's run names; two members averaged per option, FP8 weights), its card's serving image (code/Dockerfile: torch 2.15, transformers 5.22.1, causal-conv1d 1.7.0, kit decision-index@25c6ec7) plus only gcc, libc6-dev and python3-dev, which its Triton kernels need to compile a launcher at first use and the image lacks, with the engine and option its serve.sh fixes (FP8 matmul on its own Triton kernel: its cuBLAS block-scaled path was not taken on this GPU, a fallback the engine makes itself), behind di_serve.py, our System One wrapper of the engine, on one RTX PRO 6000 (ours), self-hosted; text only (the load report lists FP8 scales missing for member A's vision tower, which text requests do not use; not checked on images); one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.41566869665931905,
    "gpu_cost_usd": null
   },
   {
@@ -513,6 +541,34 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "Cerno 9B v1.2",
+   "display_name": "Cerno 9B v1.2",
+   "tag": "",
+   "model_key": "cerno-9b-v1.2",
+   "maker": "Apertix AI",
+   "kind": "decision",
+   "repo": "apertixai/cerno-9b-v1.2",
+   "commit": "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 81.87530207829867,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8791686805219913,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.028972160463992265,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-cerno-9b-v1.2-v1"
+   ],
+   "notes": "apertixai/cerno-9b-v1.2@f02a632f, its card's Decision Index engine (CernoEngine, transformers 5.17.0, flash-linear-attention 0.5.2, kit decision-index@9eb2dbe2, the checkpoint's decider_config.json settings, loaded by Hub id and that revision as its card runs it, from the local copy; causal-conv1d not installed, so its PyTorch reference convolution) behind di_serve.py, our System One wrapper of the engine, BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.07257821582541932,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "KnowLine 4B Gen5.5",
    "display_name": "KnowLine 4B Gen5.5",
    "tag": "",
@@ -682,6 +738,34 @@
    ],
    "notes": "perplexity-ai/pplx-decider-flash-v1.3@d06fb3f2, the runner's pplx_decider_server.py with the checkpoint's own pplx_decider package (as for its published v1.2 runs), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
    "gpu_hours": 0.035180532006086604,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Chinese Decision Pointer 4B",
+   "display_name": "Chinese Decision Pointer 4B",
+   "tag": "",
+   "model_key": "chinese-decision-pointer-4b",
+   "maker": "quincyqiang",
+   "kind": "decision",
+   "repo": "quincyqiang/chinese-decision-pointer-4b",
+   "commit": "889f23e2655e5cba1208bb17f90526092813f5f2",
+   "params_total": 4.0,
+   "params_active": 4.0,
+   "quantization": "BF16",
+   "score_0_100": 78.10536491058483,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8540357660705655,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.0666280824070461,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-chinese-decision-pointer-4b-v1"
+   ],
+   "notes": "quincyqiang/chinese-decision-pointer-4b@889f23e2, its card's Decision Index engine (yanqiangmiffy/chinese-decision@c16450b, ChineseDecisionEngine with debias 'reverse' as its card's run; transformers 5.17.0, kit decision-index@9eb2dbe2, as the card names no kit commit; causal-conv1d not installed, so its PyTorch reference convolution) behind di_serve.py, our System One wrapper of the engine, BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.04414093524818924,
    "gpu_cost_usd": null
   },
   {

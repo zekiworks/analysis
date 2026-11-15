@@ -4,7 +4,7 @@
    "bench": "reading-text",
    "title": "Reading · Turkish",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-15T06:08:42Z",
+   "updated": "2026-11-15T09:14:47Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
@@ -424,6 +424,31 @@
       "text:870"
      ],
      "notes": "OpenRouter chat API, DeepInfra's endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included"
+    },
+    {
+     "repo": "Poindexter-Labs/Copernicus-31B",
+     "commit": "be71525",
+     "name": "Copernicus-31B",
+     "tag": "",
+     "model_key": "copernicus-31b",
+     "maker": "Poindexter Labs",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "BF16",
+     "score_0_100": 77.25204731574159,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8180163785259327,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.09057793964924428,
+     "improvement_points": null,
+     "runs": [
+      "text:1165"
+     ],
+     "notes": "Copernicus server (the card's copernicus_server.py, Transformers), self-hosted, BF16"
     },
     {
      "repo": "PelaAI/KnowLine-31B-Gen1.5",
@@ -1432,6 +1457,31 @@
      "notes": "OpenRouter chat API, Anthropic's own endpoint, fallbacks off, output cap 128,000 tokens, reasoning max"
     },
     {
+     "repo": "tattrongvu/Jeffan-9B-1211",
+     "commit": "862d1a7",
+     "name": "Jeffan-9B-1211",
+     "tag": "",
+     "model_key": "jeffan-9b-1211",
+     "maker": "tattrongvu",
+     "kind": "decision",
+     "params_total": 8.95,
+     "params_active": 8.95,
+     "quantization": "BF16",
+     "score_0_100": 46.257961783439484,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5700636942675159,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.04648128028635688,
+     "improvement_points": null,
+     "runs": [
+      "text:1192"
+     ],
+     "notes": "Decision Index engine (compactor's di_serve.py around the engine its card ships), self-hosted, BF16"
+    },
+    {
      "repo": null,
      "commit": null,
      "name": "d1",
@@ -1555,6 +1605,81 @@
       "text:128"
      ],
      "notes": "Winnow server (llama.cpp), self-hosted"
+    },
+    {
+     "repo": "PelaAI/KnowLine-9B-Gen1",
+     "commit": "325378d",
+     "name": "KnowLine-9B-Gen1",
+     "tag": "",
+     "model_key": "knowline-9b-gen1",
+     "maker": "PelaAI",
+     "kind": "decision",
+     "params_total": 9.65,
+     "params_active": 9.65,
+     "quantization": "BF16",
+     "score_0_100": 43.186988171064606,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5454959053685169,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.045748292761383084,
+     "improvement_points": null,
+     "runs": [
+      "text:1174"
+     ],
+     "notes": "KnowLine server (knowline_server.py over SGLang, PelaAI's release code), self-hosted"
+    },
+    {
+     "repo": "apertixai/cerno-9b-v1.2",
+     "commit": "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda",
+     "name": "Cerno 9B v1.2",
+     "tag": "",
+     "model_key": "cerno-9b-v1.2",
+     "maker": "Apertix AI",
+     "kind": "decision",
+     "params_total": 8.95,
+     "params_active": 8.95,
+     "quantization": "BF16",
+     "score_0_100": 43.073248407643305,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5445859872611465,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.09795232029117354,
+     "improvement_points": null,
+     "runs": [
+      "text:1201"
+     ],
+     "notes": "Cerno server (a thin System One server around the card's CernoEngine, transformers: logic's for its English runs, compactor's di_serve.py for its Turkish runs), self-hosted, BF16"
+    },
+    {
+     "repo": "newsbang/adjudex-9b-v5",
+     "commit": "ffdcb82",
+     "name": "Adjudex 9B v5",
+     "tag": "",
+     "model_key": "adjudex-9b-v5",
+     "maker": "newsbang",
+     "kind": "decision",
+     "params_total": 8.39,
+     "params_active": 8.39,
+     "quantization": "BF16",
+     "score_0_100": 41.42402183803457,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5313921747042766,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.09166090025561657,
+     "improvement_points": null,
+     "runs": [
+      "text:1183"
+     ],
+     "notes": "Perplexity Decider server, self-hosted"
     },
     {
      "repo": "baselabs/elephant-1",
@@ -2287,7 +2412,7 @@
    "bench": "turkish-reading",
    "title": "Turkish Reading",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-15T06:08:42Z",
+   "updated": "2026-11-15T09:14:47Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 656 Turkish reading questions (units 1 to 6) right (accuracy 100%)"
@@ -2655,6 +2780,31 @@
       "text:1156"
      ],
      "notes": "karpo-decision server (the System One server of the card's karpo-decision package, machinepulse-ai/karpo-decision at ac40d39), self-hosted, BF16"
+    },
+    {
+     "repo": "Poindexter-Labs/Copernicus-31B",
+     "commit": "be71525",
+     "name": "Copernicus-31B",
+     "tag": "",
+     "model_key": "copernicus-31b",
+     "maker": "Poindexter Labs",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "BF16",
+     "score_0_100": 91.42530487804879,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9314024390243902,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.06260098268975739,
+     "improvement_points": null,
+     "runs": [
+      "text:1165"
+     ],
+     "notes": "Copernicus server (the card's copernicus_server.py, Transformers), self-hosted, BF16"
     },
     {
      "repo": "PelaAI/KnowLine-31B-Gen1.5",
@@ -3665,6 +3815,31 @@
      "notes": "OpenRouter chat API, MiniMax's own endpoint, fallbacks off, output cap 65,536 tokens, reasoning included; JSON mode without the answer schema (the endpoint has no structured outputs), so the prompt adds a paragraph stating the answer layout"
     },
     {
+     "repo": "tattrongvu/Jeffan-9B-1211",
+     "commit": "862d1a7",
+     "name": "Jeffan-9B-1211",
+     "tag": "",
+     "model_key": "jeffan-9b-1211",
+     "maker": "tattrongvu",
+     "kind": "decision",
+     "params_total": 8.95,
+     "params_active": 8.95,
+     "quantization": "BF16",
+     "score_0_100": 78.65853658536584,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8292682926829268,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.11381959456970998,
+     "improvement_points": null,
+     "runs": [
+      "text:1192"
+     ],
+     "notes": "Decision Index engine (compactor's di_serve.py around the engine its card ships), self-hosted, BF16"
+    },
+    {
      "repo": "ZefanCai/Open-Jev-27B-v1.1",
      "commit": "28cf730",
      "name": "Open-Jev-27B-v1.1",
@@ -3790,6 +3965,31 @@
      "notes": "Nace.AI System One API"
     },
     {
+     "repo": "newsbang/adjudex-9b-v5",
+     "commit": "ffdcb82",
+     "name": "Adjudex 9B v5",
+     "tag": "",
+     "model_key": "adjudex-9b-v5",
+     "maker": "newsbang",
+     "kind": "decision",
+     "params_total": 8.39,
+     "params_active": 8.39,
+     "quantization": "BF16",
+     "score_0_100": 75.99085365853658,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8079268292682927,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.025417447322248297,
+     "improvement_points": null,
+     "runs": [
+      "text:1183"
+     ],
+     "notes": "Perplexity Decider server, self-hosted"
+    },
+    {
      "repo": "baselabs/elephant-1",
      "commit": "b3f8a93",
      "name": "Elephant-1",
@@ -3838,6 +4038,56 @@
       "text:907"
      ],
      "notes": "GLiDE server (Fastino's release code), self-hosted"
+    },
+    {
+     "repo": "PelaAI/KnowLine-9B-Gen1",
+     "commit": "325378d",
+     "name": "KnowLine-9B-Gen1",
+     "tag": "",
+     "model_key": "knowline-9b-gen1",
+     "maker": "PelaAI",
+     "kind": "decision",
+     "params_total": 9.65,
+     "params_active": 9.65,
+     "quantization": "BF16",
+     "score_0_100": 74.84756097560977,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7987804878048781,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.017336468117365566,
+     "improvement_points": null,
+     "runs": [
+      "text:1174"
+     ],
+     "notes": "KnowLine server (knowline_server.py over SGLang, PelaAI's release code), self-hosted"
+    },
+    {
+     "repo": "apertixai/cerno-9b-v1.2",
+     "commit": "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda",
+     "name": "Cerno 9B v1.2",
+     "tag": "",
+     "model_key": "cerno-9b-v1.2",
+     "maker": "Apertix AI",
+     "kind": "decision",
+     "params_total": 8.95,
+     "params_active": 8.95,
+     "quantization": "BF16",
+     "score_0_100": 74.65701219512194,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7972560975609756,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.03021341463414638,
+     "improvement_points": null,
+     "runs": [
+      "text:1201"
+     ],
+     "notes": "Cerno server (a thin System One server around the card's CernoEngine, transformers: logic's for its English runs, compactor's di_serve.py for its Turkish runs), self-hosted, BF16"
     },
     {
      "repo": "Qwen/Qwen3.5-4B",
@@ -4570,7 +4820,7 @@
    "bench": "turkish-grammar",
    "title": "Turkish Grammar",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-15T06:08:42Z",
+   "updated": "2026-11-15T09:14:47Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 1,542 Turkish grammar questions (units 7 to 20) right (accuracy 100%)"
@@ -5015,6 +5265,31 @@
       "text:957"
      ],
      "notes": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16"
+    },
+    {
+     "repo": "Poindexter-Labs/Copernicus-31B",
+     "commit": "be71525",
+     "name": "Copernicus-31B",
+     "tag": "",
+     "model_key": "copernicus-31b",
+     "maker": "Poindexter Labs",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "BF16",
+     "score_0_100": 71.22243839169909,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7697795071335928,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.10459595044202305,
+     "improvement_points": null,
+     "runs": [
+      "text:1165"
+     ],
+     "notes": "Copernicus server (the card's copernicus_server.py, Transformers), self-hosted, BF16"
     },
     {
      "repo": null,
@@ -5973,6 +6248,31 @@
      "notes": "Liquid AI decisions API"
     },
     {
+     "repo": "tattrongvu/Jeffan-9B-1211",
+     "commit": "862d1a7",
+     "name": "Jeffan-9B-1211",
+     "tag": "",
+     "model_key": "jeffan-9b-1211",
+     "maker": "tattrongvu",
+     "kind": "decision",
+     "params_total": 8.95,
+     "params_active": 8.95,
+     "quantization": "BF16",
+     "score_0_100": 32.47405966277561,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4597924773022049,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.030358104375877916,
+     "improvement_points": null,
+     "runs": [
+      "text:1192"
+     ],
+     "notes": "Decision Index engine (compactor's di_serve.py around the engine its card ships), self-hosted, BF16"
+    },
+    {
      "repo": "Cloudflare/clef",
      "commit": "2f3de3d",
      "name": "Clef",
@@ -6121,6 +6421,81 @@
       "text:45"
      ],
      "notes": "Open-Jev server, self-hosted"
+    },
+    {
+     "repo": "PelaAI/KnowLine-9B-Gen1",
+     "commit": "325378d",
+     "name": "KnowLine-9B-Gen1",
+     "tag": "",
+     "model_key": "knowline-9b-gen1",
+     "maker": "PelaAI",
+     "kind": "decision",
+     "params_total": 9.65,
+     "params_active": 9.65,
+     "quantization": "BF16",
+     "score_0_100": 29.71789883268482,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4377431906614786,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.06763983986109458,
+     "improvement_points": null,
+     "runs": [
+      "text:1174"
+     ],
+     "notes": "KnowLine server (knowline_server.py over SGLang, PelaAI's release code), self-hosted"
+    },
+    {
+     "repo": "apertixai/cerno-9b-v1.2",
+     "commit": "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda",
+     "name": "Cerno 9B v1.2",
+     "tag": "",
+     "model_key": "cerno-9b-v1.2",
+     "maker": "Apertix AI",
+     "kind": "decision",
+     "params_total": 8.95,
+     "params_active": 8.95,
+     "quantization": "BF16",
+     "score_0_100": 29.63683527885862,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.437094682230869,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.142308560311284,
+     "improvement_points": null,
+     "runs": [
+      "text:1201"
+     ],
+     "notes": "Cerno server (a thin System One server around the card's CernoEngine, transformers: logic's for its English runs, compactor's di_serve.py for its Turkish runs), self-hosted, BF16"
+    },
+    {
+     "repo": "newsbang/adjudex-9b-v5",
+     "commit": "ffdcb82",
+     "name": "Adjudex 9B v5",
+     "tag": "",
+     "model_key": "adjudex-9b-v5",
+     "maker": "newsbang",
+     "kind": "decision",
+     "params_total": 8.39,
+     "params_active": 8.39,
+     "quantization": "BF16",
+     "score_0_100": 26.71854734111543,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.41374837872892345,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.12177337512381844,
+     "improvement_points": null,
+     "runs": [
+      "text:1183"
+     ],
+     "notes": "Perplexity Decider server, self-hosted"
     },
     {
      "repo": "baselabs/elephant-1",
@@ -6853,7 +7228,7 @@
    "bench": "reading-english",
    "title": "Reading · English",
    "url": "https://zekiworks.github.io/analysis/decision-models/english/",
-   "updated": "2026-11-15T06:08:42Z",
+   "updated": "2026-11-15T09:14:47Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 547 kept reading questions, translated into English, right (accuracy 100%)"
@@ -7158,6 +7533,31 @@
       "english:579"
      ],
      "notes": "xAI Responses API, SuperGrok subscription; the kept reading questions in English"
+    },
+    {
+     "repo": "Poindexter-Labs/Copernicus-31B",
+     "commit": "be71525",
+     "name": "Copernicus-31B",
+     "tag": "",
+     "model_key": "copernicus-31b",
+     "maker": "Poindexter Labs",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "BF16",
+     "score_0_100": 91.08775137111516,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9287020109689214,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.0779339001233629,
+     "improvement_points": null,
+     "runs": [
+      "english:1168"
+     ],
+     "notes": "Copernicus server (the card's copernicus_server.py, Transformers), self-hosted, BF16; the kept reading questions in English"
     },
     {
      "repo": null,
@@ -7897,6 +8297,31 @@
      "notes": "OpenRouter chat API, Fireworks endpoint, fallbacks off; the kept reading questions in English"
     },
     {
+     "repo": "tattrongvu/Jeffan-9B-1211",
+     "commit": "862d1a7",
+     "name": "Jeffan-9B-1211",
+     "tag": "",
+     "model_key": "jeffan-9b-1211",
+     "maker": "tattrongvu",
+     "kind": "decision",
+     "params_total": 8.95,
+     "params_active": 8.95,
+     "quantization": "BF16",
+     "score_0_100": 84.46069469835466,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8756855575868373,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.08882281439908829,
+     "improvement_points": null,
+     "runs": [
+      "english:1195"
+     ],
+     "notes": "Decision Index engine (compactor's di_serve.py around the engine its card ships), self-hosted, BF16; the kept reading questions in English"
+    },
+    {
      "repo": null,
      "commit": null,
      "name": "Qwen3.8 Flash",
@@ -8267,6 +8692,31 @@
      "notes": "Nace.AI System One API; the kept reading questions in English"
     },
     {
+     "repo": "PelaAI/KnowLine-9B-Gen1",
+     "commit": "325378d",
+     "name": "KnowLine-9B-Gen1",
+     "tag": "",
+     "model_key": "knowline-9b-gen1",
+     "maker": "PelaAI",
+     "kind": "decision",
+     "params_total": 9.65,
+     "params_active": 9.65,
+     "quantization": "BF16",
+     "score_0_100": 82.40402193784277,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8592321755027422,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.0346777326975474,
+     "improvement_points": null,
+     "runs": [
+      "english:1177"
+     ],
+     "notes": "KnowLine server (knowline_server.py over SGLang, PelaAI's release code), self-hosted; the kept reading questions in English"
+    },
+    {
      "repo": "apertixai/cerno-9b-v1.2",
      "commit": "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda",
      "name": "Cerno 9B v1.2",
@@ -8289,7 +8739,7 @@
      "runs": [
       "english:1085"
      ],
-     "notes": "Cerno server (logic's thin server around the card's CernoEngine, transformers), self-hosted, BF16; the kept reading questions in English"
+     "notes": "Cerno server (a thin System One server around the card's CernoEngine, transformers: logic's for its English runs, compactor's di_serve.py for its Turkish runs), self-hosted, BF16; the kept reading questions in English"
     },
     {
      "repo": null,
@@ -8319,6 +8769,31 @@
       "english:403"
      ],
      "notes": "OpenRouter System One API; the kept reading questions in English"
+    },
+    {
+     "repo": "newsbang/adjudex-9b-v5",
+     "commit": "ffdcb82",
+     "name": "Adjudex 9B v5",
+     "tag": "",
+     "model_key": "adjudex-9b-v5",
+     "maker": "newsbang",
+     "kind": "decision",
+     "params_total": 8.39,
+     "params_active": 8.39,
+     "quantization": "BF16",
+     "score_0_100": 82.17550274223035,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8574040219378428,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.03432343925289232,
+     "improvement_points": null,
+     "runs": [
+      "english:1186"
+     ],
+     "notes": "Perplexity Decider server, self-hosted; the kept reading questions in English"
     },
     {
      "repo": null,
@@ -9434,7 +9909,7 @@
    "bench": "reading-vision",
    "title": "Reading · Vision",
    "url": "https://zekiworks.github.io/analysis/decision-models/vision/",
-   "updated": "2026-11-15T05:56:41Z",
+   "updated": "2026-11-15T09:01:47Z",
    "score": {
     "zero": "chance: 1 of each question's options right on every question (accuracy 20% with 5 options)",
     "hundred": "every one of the 763 questions that depend on the printed page right, read from the page image alone (accuracy 100%)"
