@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-15T13:28:26Z",
+ "updated": "2026-11-15T13:52:02Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2118,6 +2118,37 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
    "gpu_hours": 0.027777777777777776,
    "gpu_cost_usd": 0.06916666666666667
+  },
+  {
+   "repo": "startlux-models/StartLux-Decision-v1.1-9B-Instant",
+   "commit": "18a17f734966b213b2f00fa9c915e8b9af2a9b20",
+   "model_key": "startlux-decision-v1.1-9b",
+   "name": "StartLux-Decision-v1.1-9B-Instant",
+   "display_name": "StartLux-Decision-v1.1-9B-Instant",
+   "tag": "",
+   "class_label": "Open · 9.0B",
+   "base_model": null,
+   "setup_label": "StartLux-Decision v1.1 9B",
+   "maker": "StartLux",
+   "kind": "decision",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 48.046694405917705,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5843735552473417,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": 0.02693892628266125,
+   "improvement_points": null,
+   "runs": [
+    "math:startlux-9b_en"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10); no complete 'I don't know' run",
+   "gpu_hours": 0.08472222222222223,
+   "gpu_cost_usd": 0.018030399154393303
   },
   {
    "repo": "fastino/GLiDE-9B",

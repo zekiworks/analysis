@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-15T13:28:26Z",
+ "updated": "2026-11-15T13:52:02Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -2113,6 +2113,38 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
    "gpu_hours": 0.03944444444444445,
    "gpu_cost_usd": 0.09821666666666667
+  },
+  {
+   "repo": "startlux-models/StartLux-Decision-v1.1-9B-Instant",
+   "commit": "18a17f734966b213b2f00fa9c915e8b9af2a9b20",
+   "model_key": "startlux-decision-v1.1-9b",
+   "name": "StartLux-Decision-v1.1-9B-Instant",
+   "display_name": "StartLux-Decision-v1.1-9B-Instant",
+   "tag": "",
+   "class_label": "Open · 9.0B",
+   "base_model": null,
+   "setup_label": "StartLux-Decision v1.1 9B",
+   "maker": "StartLux",
+   "kind": "decision",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 42.974452554744516,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5437956204379562,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.02746704204461614,
+   "improvement_points": null,
+   "runs": [
+    "logic:startlux-9b_en",
+    "math:startlux-9b_en"
+   ],
+   "notes": "on our NVIDIA DGX Spark (GB10); no complete 'I don't know' run",
+   "gpu_hours": 0.13777777777777778,
+   "gpu_cost_usd": 0.0293215671494396
   },
   {
    "repo": null,

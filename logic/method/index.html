@@ -9115,7 +9115,7 @@
   &quot;temperature&quot;: 0.1
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
 
-{question}</pre></dd></dl></section><section class="run-record" id="run-logic-raon-1-nano_en"><h3>Logic · raon-1-nano_en</h3><dl class="facts"><dt>Name</dt><dd>Raon-1 nano <span class="name-tag">on · chat</span></dd><dt>Setup</dt><dd>Raon-1 nano (chat, thinking on, KRAFTON vLLM fork, on our GPU) · chat model</dd><dt>Model</dt><dd><code>raon-1-nano</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$14.98 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 6.02 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $14.979. GPU time = first to last stored answer, less gaps of more than 10 minutes; pauses left out: 2026-11-15 04:56:16–09:50:02 UTC<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano_en" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>GPU time</dt><dd>run raon-1-nano_en · first answer 2026-11-15 02:33:42 UTC · last answer 2026-11-15 13:28:25 UTC · span 39283.0 s, pauses included (not charged) · charged 21657.0 s in 2 stretchs (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $14.9794 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano_en" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>Requests in flight</dt><dd>≈ 29.5 in flight (sum of request latencies / active time)<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano_en" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>Output limit</dt><dd>32,768 tokens · 218 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 3.1B dense · 1.5B effective · source <a href="https://huggingface.co/KRAFTON/Raon-1-nano">https://huggingface.co/KRAFTON/Raon-1-nano</a> · read 2026-11-13 · the card states 1.5B effective parameters (3.1B total, including a 1.5B per-layer embedding table) (the maker&#x27;s figure is shown); checkpoint count 3.13B (3,130,797,328: per-layer embedding table 1.60B, token embeddings 0.40B tied, layers 1.12B; plus a materialised copy of the tied lm_head 0.40B and the MTP module 0.05B in separate files; dense)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:18636/v1/chat/completions</code></dd><dt>Started</dt><dd>15 Nov 2026 02:33 UTC; last answer 15 Nov 2026 13:28 UTC</dd><dt>Progress</dt><dd>893 answered of 1,125 asked; 0 request errors; paused at 893 of 1,125 since 2026-11-15T04:56Z (compactor #8247, zeki #8248); it resumes from its stored answers</dd><dt>Notes</dt><dd>Raon-1 nano, served with KRAFTON&#x27;s vLLM fork krafton-ai/vllm@13a5dd87 (branch raon-1-nano, precompiled; not a vLLM release) from KRAFTON/Raon-1-nano@fcf2d1d55e84e2f9fbe7b5d724dcfc4d861cfcee, vLLM reasoning parser raon_1 (the card lists Korean and English only; cost and speed are on another engine than the stock-vLLM rows), one RTX PRO 6000 on our GPU host alone; thinking on (enable_thinking true, the template default; on/off only, no levels); sampling temperature 0.1, presence_penalty 1.5, sampling from the model card, generation_config has none (&#x27;General&#x27; row); seed 0; max_tokens 32,768; one question per request, standard chat prompt with ANSWER: X on the last line, no JSON schema; parameters 1.5B / 3.1B active / total (card: 1.5B effective, 3.1B total incl. a 1.5B per-layer embedding table; MTP module 55M not loaded). English translations (DeepSeek + review). SMOKE GATE FAILED (2026-11-15T02:50Z): 9 of 50 bad: 9 cut off, 0 empty, 0 no letter, 0 failed; full runs asked anyway at the same settings (bus #6515: both modes at 32,768, published whichever way they come out; zeki #8211); the smoke answers are kept as these runs&#x27; first answers. PAUSED 2026-11-15T04:56:37Z (compactor #8247, zeki #8248): stopped on GPU 0 of our GPU host to free the card; 32 requests were in flight and not stored (the runner has no drain), so they are asked again as fresh requests on resume. Resumes from the stored answers at the same 32,768 settings and seed on its GPU 1 queue entry: a second segment on another card of the same model, not proof of an uninterrupted identical runtime; the pause is not counted in GPU time. PAUSE ACCOUNTING (zeki #8256): runner terminated 2026-11-15T04:56:45Z, server stopped 04:56:48Z; 32 requests in flight at 04:56:45 (read from the server&#x27;s metrics just before the stop), none stored. The site&#x27;s GPU time runs from first to last stored answer per stretch, so the active tail from the last stored answer of this benchmark (2026-11-15T04:56:16+00:00) to the termination is not in it: the GPU time of this segment is a lower bound by that tail. On resume only the missing questions are asked, as fresh requests after the interruption. RESUMED 2026-11-15T09:48Z on GPU 0 of our GPU host (booking r_93911c3b1645; compactor #8413/#8415, Umit #8343 item 3), not on the GPU 1 queue entry the pause note names; same 32,768 settings and seed, same KRAFTON vLLM fork; only the missing questions are asked.</dd><dt>Parameters</dt><dd><pre class="input-text">{
+{question}</pre></dd></dl></section><section class="run-record" id="run-logic-raon-1-nano_en"><h3>Logic · raon-1-nano_en</h3><dl class="facts"><dt>Name</dt><dd>Raon-1 nano <span class="name-tag">on · chat</span></dd><dt>Setup</dt><dd>Raon-1 nano (chat, thinking on, KRAFTON vLLM fork, on our GPU) · chat model</dd><dt>Model</dt><dd><code>raon-1-nano</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$15.95 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 6.41 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $15.952. GPU time = first to last stored answer, less gaps of more than 10 minutes; pauses left out: 2026-11-15 04:56:16–09:50:02 UTC<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano_en" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>GPU time</dt><dd>run raon-1-nano_en · first answer 2026-11-15 02:33:42 UTC · last answer 2026-11-15 13:51:51 UTC · span 40689.0 s, pauses included (not charged) · charged 23063.0 s in 2 stretchs (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $15.9519 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano_en" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>Requests in flight</dt><dd>≈ 30.0 in flight (sum of request latencies / active time)<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano_en" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>Output limit</dt><dd>32,768 tokens · 227 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 3.1B dense · 1.5B effective · source <a href="https://huggingface.co/KRAFTON/Raon-1-nano">https://huggingface.co/KRAFTON/Raon-1-nano</a> · read 2026-11-13 · the card states 1.5B effective parameters (3.1B total, including a 1.5B per-layer embedding table) (the maker&#x27;s figure is shown); checkpoint count 3.13B (3,130,797,328: per-layer embedding table 1.60B, token embeddings 0.40B tied, layers 1.12B; plus a materialised copy of the tied lm_head 0.40B and the MTP module 0.05B in separate files; dense)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:18636/v1/chat/completions</code></dd><dt>Started</dt><dd>15 Nov 2026 02:33 UTC; last answer 15 Nov 2026 13:51 UTC</dd><dt>Progress</dt><dd>1,027 answered of 1,125 asked; 0 request errors; paused at 1,027 of 1,125 since 2026-11-15T04:56Z (compactor #8247, zeki #8248); it resumes from its stored answers</dd><dt>Notes</dt><dd>Raon-1 nano, served with KRAFTON&#x27;s vLLM fork krafton-ai/vllm@13a5dd87 (branch raon-1-nano, precompiled; not a vLLM release) from KRAFTON/Raon-1-nano@fcf2d1d55e84e2f9fbe7b5d724dcfc4d861cfcee, vLLM reasoning parser raon_1 (the card lists Korean and English only; cost and speed are on another engine than the stock-vLLM rows), one RTX PRO 6000 on our GPU host alone; thinking on (enable_thinking true, the template default; on/off only, no levels); sampling temperature 0.1, presence_penalty 1.5, sampling from the model card, generation_config has none (&#x27;General&#x27; row); seed 0; max_tokens 32,768; one question per request, standard chat prompt with ANSWER: X on the last line, no JSON schema; parameters 1.5B / 3.1B active / total (card: 1.5B effective, 3.1B total incl. a 1.5B per-layer embedding table; MTP module 55M not loaded). English translations (DeepSeek + review). SMOKE GATE FAILED (2026-11-15T02:50Z): 9 of 50 bad: 9 cut off, 0 empty, 0 no letter, 0 failed; full runs asked anyway at the same settings (bus #6515: both modes at 32,768, published whichever way they come out; zeki #8211); the smoke answers are kept as these runs&#x27; first answers. PAUSED 2026-11-15T04:56:37Z (compactor #8247, zeki #8248): stopped on GPU 0 of our GPU host to free the card; 32 requests were in flight and not stored (the runner has no drain), so they are asked again as fresh requests on resume. Resumes from the stored answers at the same 32,768 settings and seed on its GPU 1 queue entry: a second segment on another card of the same model, not proof of an uninterrupted identical runtime; the pause is not counted in GPU time. PAUSE ACCOUNTING (zeki #8256): runner terminated 2026-11-15T04:56:45Z, server stopped 04:56:48Z; 32 requests in flight at 04:56:45 (read from the server&#x27;s metrics just before the stop), none stored. The site&#x27;s GPU time runs from first to last stored answer per stretch, so the active tail from the last stored answer of this benchmark (2026-11-15T04:56:16+00:00) to the termination is not in it: the GPU time of this segment is a lower bound by that tail. On resume only the missing questions are asked, as fresh requests after the interruption. RESUMED 2026-11-15T09:48Z on GPU 0 of our GPU host (booking r_93911c3b1645; compactor #8413/#8415, Umit #8343 item 3), not on the GPU 1 queue entry the pause note names; same 32,768 settings and seed, same KRAFTON vLLM fork; only the missing questions are asked.</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;chat_template_kwargs&quot;: {
     &quot;enable_thinking&quot;: true,
     &quot;truncate_history_thinking&quot;: false
@@ -10639,6 +10639,69 @@
     &quot;D&quot;: &quot;{option_D}&quot;,
     &quot;E&quot;: &quot;{option_E}&quot;,
     &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-startlux-9b_en"><h3>Logic · startlux-9b_en</h3><dl class="facts"><dt>Name</dt><dd>StartLux-Decision-v1.1-9B-Instant</dd><dt>Setup</dt><dd>StartLux-Decision v1.1 9B · decision model</dd><dt>Model</dt><dd><code>startlux-models/StartLux-Decision-v1.1-9B-Instant</code> · provider startlux</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.01129 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.0531 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.011 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run startlux-9b_en · first answer 2026-11-15 13:43:24 UTC · last answer 2026-11-15 13:46:35 UTC · span 191.0 s, pauses included (not charged) · charged 191.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0113 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 0.9 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 9B dense · source <a href="https://huggingface.co/startlux-models/StartLux-Decision-v1.1-9B-Instant">https://huggingface.co/startlux-models/StartLux-Decision-v1.1-9B-Instant</a> · read 2026-11-15 · the maker&#x27;s figure from its name (9B) is shown, as for every model (turkce #4263); this checkpoint not counted</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>internal address on a shared Spark host</code></dd><dt>Started</dt><dd>15 Nov 2026 13:43 UTC; last answer 15 Nov 2026 13:46 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup StartLux-Decision v1.1 9B (site run None); runner 88e48d7a1; startlux-models/StartLux-Decision-v1.1-9B-Instant@18a17f734966b213b2f00fa9c915e8b9af2a9b20 (weights CC BY-NC 4.0, non-commercial: run for this non-commercial benchmark; code Apache-2.0) behind the card&#x27;s server, the same package and environment as StartLux 4B (github.com/StartLuxLabs/StartLux-Decision at a99977d, ~/envs/startlux: vllm==0.31.0): ~/envs/startlux/bin/startlux-decide serve --model ~/decision-models/StartLux-Decision-v1.1-9B-Instant@18a17f734966b213b2f00fa9c915e8b9af2a9b20 --launch-vllm --gpus 0 --host 0.0.0.0 --port 19420; vision on (the server&#x27;s default); a shared Spark host (DGX Spark, GB10); runner provider &#x27;startlux&#x27; (System One at /v1/systemone, model ignored). Logic &amp; Math on the same load as Answer Check and Reading (Umit #8448, compactor #8468)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;startlux-models/StartLux-Decision-v1.1-9B-Instant&quot;,
+    &quot;--provider&quot;,
+    &quot;startlux&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;88e48d7a105591ae2fdc820271c91095643d401d&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-9B-Instant&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;startlux&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 180.14364112273324,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;9931e64362a91c74ceafa5b7aa629169e347174099bde707487256e1c0db423c&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;88e48d7a105591ae2fdc820271c91095643d401d&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 394757,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19420/v1/systemone
+{
+ &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-9B-Instant&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
    }
   }
  }
@@ -20586,7 +20649,7 @@
   }
  }
 }
-([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-qwen3.5-2b_en"><h3>Math · qwen3.5-2b_en</h3><dl class="facts"><dt>Name</dt><dd>Qwen3.5-2B <span class="name-tag">on · chat</span></dd><dt>Setup</dt><dd>Qwen3.5-2B (chat, thinking, on our GPU) · chat model</dd><dt>Model</dt><dd><code>qwen3.5-2b</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$3.685 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 1.48 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $3.685. GPU time = first to last stored answer, less gaps of more than 10 minutes; pauses left out: 2026-11-15 10:06:01–12:02:04 UTC</dd><dt>GPU time</dt><dd>run qwen3.5-2b_en · first answer 2026-11-15 10:03:40 UTC · last answer 2026-11-15 13:28:30 UTC · span 12290.0 s, pauses included (not charged) · charged 5327.0 s in 2 stretchs (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $3.6845 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 30.8 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>32,768 tokens · 67 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 2B dense · source <a href="https://huggingface.co/Qwen/Qwen3.5-2B">https://huggingface.co/Qwen/Qwen3.5-2B</a> · read 2026-11-13 · the card states Number of Parameters: 2B (the maker&#x27;s figure is shown); checkpoint count 2.27B (2,274,069,824: language model 1.88B incl. tied embeddings, vision encoder 0.33B, MTP head 0.06B; dense)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:18635/v1/chat/completions</code></dd><dt>Started</dt><dd>15 Nov 2026 10:03 UTC; last answer 15 Nov 2026 13:28 UTC</dd><dt>Progress</dt><dd>1,484 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Qwen3.5-2B, served with vLLM v0.30.0 (docker vllm/vllm-openai:v0.30.0), BF16 from Qwen/Qwen3.5-2B@15852e8c16360a2fea060d615a32b45270f8a8fc, vLLM reasoning parser qwen3 (vision tower loaded, for Reading&#x27;s Page images; text-only prompts here; the card warns the 2B &#x27;is more prone to entering thinking loops&#x27; in thinking mode), one RTX PRO 6000 on our GPU host alone; thinking on (enable_thinking true; the template default is off for this size; on/off only, no levels); sampling temperature 1, top_p 0.95, top_k 20, min_p 0, presence_penalty 1.5, repetition_penalty 1, sampling from the model card, generation_config has none (thinking mode, text tasks; the repo has no generation_config.json); seed 0; max_tokens 32,768; one question per request, standard chat prompt with ANSWER: X on the last line, no JSON schema; parameters 2.27B / 2.27B active / total (dense; checkpoint 2,274,069,824: language model 1.88B incl. tied embeddings, vision encoder 0.33B, MTP head 0.06B (not loaded); card: 2B). English translations (DeepSeek + review).</dd><dt>Parameters</dt><dd><pre class="input-text">{
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-qwen3.5-2b_en"><h3>Math · qwen3.5-2b_en</h3><dl class="facts"><dt>Name</dt><dd>Qwen3.5-2B <span class="name-tag">on · chat</span></dd><dt>Setup</dt><dd>Qwen3.5-2B (chat, thinking, on our GPU) · chat model</dd><dt>Model</dt><dd><code>qwen3.5-2b</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$4.665 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 1.87 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $4.665. GPU time = first to last stored answer, less gaps of more than 10 minutes; pauses left out: 2026-11-15 10:06:01–12:02:04 UTC</dd><dt>GPU time</dt><dd>run qwen3.5-2b_en · first answer 2026-11-15 10:03:40 UTC · last answer 2026-11-15 13:52:08 UTC · span 13708.0 s, pauses included (not charged) · charged 6745.0 s in 2 stretchs (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $4.6653 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 31.3 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>32,768 tokens · 93 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 2B dense · source <a href="https://huggingface.co/Qwen/Qwen3.5-2B">https://huggingface.co/Qwen/Qwen3.5-2B</a> · read 2026-11-13 · the card states Number of Parameters: 2B (the maker&#x27;s figure is shown); checkpoint count 2.27B (2,274,069,824: language model 1.88B incl. tied embeddings, vision encoder 0.33B, MTP head 0.06B; dense)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:18635/v1/chat/completions</code></dd><dt>Started</dt><dd>15 Nov 2026 10:03 UTC; last answer 15 Nov 2026 13:52 UTC</dd><dt>Progress</dt><dd>1,846 answered of 2,163 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Qwen3.5-2B, served with vLLM v0.30.0 (docker vllm/vllm-openai:v0.30.0), BF16 from Qwen/Qwen3.5-2B@15852e8c16360a2fea060d615a32b45270f8a8fc, vLLM reasoning parser qwen3 (vision tower loaded, for Reading&#x27;s Page images; text-only prompts here; the card warns the 2B &#x27;is more prone to entering thinking loops&#x27; in thinking mode), one RTX PRO 6000 on our GPU host alone; thinking on (enable_thinking true; the template default is off for this size; on/off only, no levels); sampling temperature 1, top_p 0.95, top_k 20, min_p 0, presence_penalty 1.5, repetition_penalty 1, sampling from the model card, generation_config has none (thinking mode, text tasks; the repo has no generation_config.json); seed 0; max_tokens 32,768; one question per request, standard chat prompt with ANSWER: X on the last line, no JSON schema; parameters 2.27B / 2.27B active / total (dense; checkpoint 2,274,069,824: language model 1.88B incl. tied embeddings, vision encoder 0.33B, MTP head 0.06B (not loaded); card: 2B). English translations (DeepSeek + review).</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;chat_template_kwargs&quot;: {
     &quot;enable_thinking&quot;: true
   },
@@ -21140,13 +21203,76 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-startlux-9b_en"><h3>Math · startlux-9b_en</h3><dl class="facts"><dt>Name</dt><dd>StartLux-Decision-v1.1-9B-Instant</dd><dt>Setup</dt><dd>StartLux-Decision v1.1 9B · decision model</dd><dt>Model</dt><dd><code>startlux-models/StartLux-Decision-v1.1-9B-Instant</code> · provider startlux</dd><dt>GPU</dt><dd>NVIDIA DGX Spark (GB10)</dd><dt>Cost</dt><dd>$0.01803 for the run, DGX Spark · estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h · GPU time, at most: 0.0847 h × $0.213/h on an NVIDIA DGX Spark (GB10) = $0.018 (CHF 4,000 ÷ (3 years × 8,760 h) = $0.185/h + electricity (79.1 W chip draw × CHF 0.2838/kWh = $0.027/h; the GB10 chip&#x27;s draw measured with nvidia-smi, not the whole machine; ewz.natur&#x27;s high-rate tariff, the tariff basis, not our verified contract), = $0.213/h at 1.2185 USD/CHF). GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run startlux-9b_en · first answer 2026-11-15 13:46:39 UTC · last answer 2026-11-15 13:51:44 UTC · span 305.0 s, pauses included (not charged) · charged 305.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $0.0180 for the run (charged seconds × $0.213/GPU-hour × 1 NVIDIA DGX Spark (GB10), at most)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: 9B dense · source <a href="https://huggingface.co/startlux-models/StartLux-Decision-v1.1-9B-Instant">https://huggingface.co/startlux-models/StartLux-Decision-v1.1-9B-Instant</a> · read 2026-11-15 · the maker&#x27;s figure from its name (9B) is shown, as for every model (turkce #4263); this checkpoint not counted</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>internal address on a shared Spark host</code></dd><dt>Started</dt><dd>15 Nov 2026 13:46 UTC; last answer 15 Nov 2026 13:51 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup StartLux-Decision v1.1 9B (site run None); runner 88e48d7a1; startlux-models/StartLux-Decision-v1.1-9B-Instant@18a17f734966b213b2f00fa9c915e8b9af2a9b20 (weights CC BY-NC 4.0, non-commercial: run for this non-commercial benchmark; code Apache-2.0) behind the card&#x27;s server, the same package and environment as StartLux 4B (github.com/StartLuxLabs/StartLux-Decision at a99977d, ~/envs/startlux: vllm==0.31.0): ~/envs/startlux/bin/startlux-decide serve --model ~/decision-models/StartLux-Decision-v1.1-9B-Instant@18a17f734966b213b2f00fa9c915e8b9af2a9b20 --launch-vllm --gpus 0 --host 0.0.0.0 --port 19420; vision on (the server&#x27;s default); a shared Spark host (DGX Spark, GB10); runner provider &#x27;startlux&#x27; (System One at /v1/systemone, model ignored). Logic &amp; Math on the same load as Answer Check and Reading (Umit #8448, compactor #8468)</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;startlux-models/StartLux-Decision-v1.1-9B-Instant&quot;,
+    &quot;--provider&quot;,
+    &quot;startlux&quot;,
+    &quot;--timeout&quot;,
+    &quot;60&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;88e48d7a105591ae2fdc820271c91095643d401d&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;local&quot;,
+  &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-9B-Instant&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: null,
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;startlux&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 299.12650946922076,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;e6ec11eaf8cee12d6458f23b364926073b75d3e76560d1f8a6bd343c916ee251&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;88e48d7a105591ae2fdc820271c91095643d401d&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 60.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 416668,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST http://spark2:19420/v1/systemone
+{
+ &quot;model&quot;: &quot;startlux-models/StartLux-Decision-v1.1-9B-Instant&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <nav class="footer-links" aria-label="About this site"><a href="../about/">About</a><a href="../method/">Method</a><a href="../about/#data">Data</a></nav>
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 15 Nov 2026 13:28 UTC from the logic and math benchmark.db files (701,202 graded answers in 449 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 15 Nov 2026 13:52 UTC from the logic and math benchmark.db files (704,986 graded answers in 451 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
