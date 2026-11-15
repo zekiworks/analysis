@@ -859,6 +859,8 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("cerno", "apertixai/cerno-9b-v1.2"): 1,
     # Logits Sigma-1 Duo (logitshq/Logits-Sigma-1-Duo at a0c1b6e8, FP8) behind di_serve.py on one GPU (compactor #8409).
     ("di-serve", "Logits-Sigma-1-Duo"): 1,
+    # Qwen3.5-2B (Qwen/Qwen3.5-2B at 15852e8c) on logic's GPU 1 vLLM v0.30.0 server (Ümit #6515, #8343).
+    ("vllm-plain", "qwen3.5-2b"): 1,
 }
 # Runs of a GPU_TIME setup that ran on a DGX Spark, by run id: no GPU-time estimate, as for the setups that ran only on a
 # Spark (the RTX PRO 6000's rate does not fit a Spark's request time; #4055). Cerno 9B v1.2's English runs on spark2.
@@ -872,6 +874,7 @@ SETUP_OF: dict[tuple[str, str], tuple[str, str]] = {
     ("vllm-plain", "lfm3-1.7b-vllm-nothink"): ("vllm-plain", "lfm3-1.7b"),
     ("vllm-plain", "granite-4.2-3b-nothink"): ("vllm-plain", "granite-4.2-3b"),
     ("vllm-plain", "qwen3.5-4b-nothink"): ("vllm-plain", "qwen3.5-4b"),
+    ("vllm-plain", "qwen3.5-2b-nothink"): ("vllm-plain", "qwen3.5-2b"),
     ("vllm-plain", "raon-1-nano-nothink"): ("vllm-plain", "raon-1-nano"),
     ("vllm-plain", "gemma-4-e2b-it-think-32k"): ("vllm-plain", "gemma-4-e2b-it"),
     ("vllm-plain", "gemma-4-e4b-it-think-32k"): ("vllm-plain", "gemma-4-e4b-it"),
