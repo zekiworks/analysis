@@ -10504,10 +10504,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-15T11:20Z",
+    "updated": "2026-11-15T11:50Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "05c97a344c007baab9202dff18b2a4bccdb00fccc73116f9c65611c7e6218a57"
+   "sha256": "9036fbd31f4f3cb5a3fbd94651e6693e13cfaccbc9911cd54ffb21ee78ddaacf"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
@@ -10517,7 +10517,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-15T10:43:51Z",
+    "updated": "2026-11-15T11:32:29Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -11568,6 +11568,34 @@
       "gpu_cost_usd": null
      },
      {
+      "name": "Verdin-4B-v1.1",
+      "display_name": "Verdin-4B-v1.1",
+      "tag": "",
+      "model_key": "verdin-4b-v1.1",
+      "maker": "victorbennett",
+      "kind": "decision",
+      "repo": "victorbennett/Verdin-4B-v1.1",
+      "commit": "45830d216bb7e45f43f0a482c131a7cafa6d189f",
+      "params_total": 4.0,
+      "params_active": 4.0,
+      "quantization": "BF16",
+      "score_0_100": 75.35041082648621,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8356694055099082,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.03399785843308816,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-verdin-4b-v1.1-v1"
+      ],
+      "notes": "victorbennett/Verdin-4B-v1.1@45830d21, its card's own server (python -m verdin.server, in the package versions its card lists: torch 2.8.0 cu128, transformers 5.17.0, flash-linear-attention 0.5.2, triton 3.8.0; no causal-conv1d, so its own torch conv path), BF16, on one RTX PRO 6000 (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.031078735832046005,
+      "gpu_cost_usd": null
+     },
+     {
       "name": "Gemma 4 E2B",
       "display_name": "Gemma 4 E2B",
       "tag": "thinking on · chat",
@@ -11905,7 +11933,7 @@
      }
     ]
    },
-   "sha256": "475325a7aef0a28e8a0403eea0b23f3dea8af61f9c856aba3679c1b069ae5fcc"
+   "sha256": "80fb5953d80b7e92bcb7a96a4cafe6ee78256cf2e353bebed4829c1abb274e20"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -11913,10 +11941,10 @@
    "seen": "2026-11-15",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-15T10:44:01Z",
+    "updated": "2026-11-15T11:32:38Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "475325a7aef0a28e8a0403eea0b23f3dea8af61f9c856aba3679c1b069ae5fcc"
+     "sha256": "80fb5953d80b7e92bcb7a96a4cafe6ee78256cf2e353bebed4829c1abb274e20"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -12599,6 +12627,26 @@
       "probabilities": true
      },
      {
+      "run": "grading:site-verdin-4b-v1.1-v1",
+      "model_key": "verdin-4b-v1.1",
+      "latency_s_median": 0.049,
+      "latency_s_p90": 0.065,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 54.1,
+      "recall_reference": 0.9501,
+      "recall_other": 0.4681,
+      "recall_none": 0.8521,
+      "wrong_answer_recall": 0.4681,
+      "false_alarm_rate": 0.0374,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
       "run": "grading:chat-qwen3.5-4b-nothink-v1",
       "model_key": "qwen3.5-4b-nothink",
       "latency_s_median": 3.274,
@@ -12902,7 +12950,7 @@
      }
     ]
    },
-   "sha256": "0315ddeacc51377c8d30e8fece25ebe5a64dd16e62ccc0d9af094d2010d543d8"
+   "sha256": "78dcd55a586281daa416e874cc0a85a1ca0fd331a84cb0acb3f44e3eab43957f"
   }
  }
 }
