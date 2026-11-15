@@ -736,6 +736,8 @@ MODELS: dict[str, dict[str, Any]] = {
            ("granite-4.2-8b", "Granite-4.2-8B", "vLLM v0.30.0", "ibm-granite/granite-4.2-8b@a704214"),
            ("lfm2.5-24b-a2b", "LFM2.5-24B-A2B", "vLLM v0.30.0", "LiquidAI/LFM2.5-24B-A2B@1769516"),
            ("granite-4.2-30b", "Granite-4.2-30B", "vLLM v0.30.0", "ibm-granite/granite-4.2-30b@9e668ce"),
+           ("raon-1-nano", "Raon-1 nano", "KRAFTON's vLLM fork (krafton-ai/vllm@13a5dd8; not a vLLM release)",
+            "KRAFTON/Raon-1-nano@fcf2d1d"),
        )},
 }
 # Setups whose model ID another setup shares, by (provider, model, Perplexity mode): their entry replaces the model's in
@@ -1240,6 +1242,14 @@ SIZES: dict[str, dict[str, Any]] = {
                                 "only), counted; the card says 24.0B total, 2.45B active",
                        "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM2.5-24B-A2B@1769516",
                                    "https://huggingface.co/LiquidAI/LFM2.5-24B-A2B"], "read": "2026-11-12"},
+    # Raon-1 nano (logic #8180): the whole checkpoint as served, 1,624,805,632 of it the per-layer embedding table; the
+    # card says 1.5B effective, 3.1B total including a 1.5B per-layer embedding table, and 55M more in its MTP module.
+    "raon-1-nano": {"total": 3_529_911_568,
+                    "scope": "language model with its per-layer embedding table (1,624,805,632), text only; the card says "
+                             "1.5B effective, 3.1B total including a 1.5B per-layer embedding table",
+                    "repo": "KRAFTON/Raon-1-nano", "commit": "fcf2d1d",
+                    "sources": ["counted from the checkpoint's safetensors, KRAFTON/Raon-1-nano@fcf2d1d",
+                                "https://huggingface.co/KRAFTON/Raon-1-nano"], "read": "2026-11-15"},
 }
 # Setups that differ from another setup of the same served model only in their requests (thinking off or on, the output
 # cap), on the same checkpoint, server image and flags (Ümit #6516, #6924; logic #6770, #6955), by model id: that setup.
@@ -1250,6 +1260,7 @@ SETUP_OF: dict[str, str] = {
     "lfm3-1.7b-vllm-nothink": "lfm3-1.7b",
     "granite-4.2-3b-nothink": "granite-4.2-3b",
     "qwen3.5-4b-nothink": "qwen3.5-4b",
+    "raon-1-nano-nothink": "raon-1-nano",
     "gemma-4-e2b-it-think-32k": "gemma-4-e2b-it",
     "gemma-4-e4b-it-think-32k": "gemma-4-e4b-it",
     "gemma-4-12b-it-think-32k": "gemma-4-12b-it",

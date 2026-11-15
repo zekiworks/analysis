@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "f061dced",
-  "updated": "2026-11-14T23:39:55Z",
+  "results_version": "2dc402b2",
+  "updated": "2026-11-15T02:55:52Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -384444,6 +384444,80 @@
           "invalid": 8,
           "accuracy": 0.676416819012797
         }
+      },
+      {
+        "name": "Raon-1 nano",
+        "model": "raon-1-nano-nothink",
+        "provider": "vllm-plain",
+        "reasoning": "off",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1152,
+        "runs": [
+          1152
+        ],
+        "dates": [
+          "2026-11-15"
+        ],
+        "parameters": 3529911568,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model with its per-layer embedding table (1,624,805,632), text only; the card says 1.5B effective, 3.1B total including a 1.5B per-layer embedding table",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, KRAFTON/Raon-1-nano@fcf2d1d",
+          "https://huggingface.co/KRAFTON/Raon-1-nano"
+        ],
+        "parameters_read": "2026-11-15",
+        "setup_of": "raon-1-nano",
+        "group": "chat",
+        "access": "our GPU (logic's server, KRAFTON's vLLM fork (krafton-ai/vllm@13a5dd8; not a vLLM release) BF16, revision KRAFTON/Raon-1-nano@fcf2d1d), one question per request, plain answer line ANSWER: X (no answer schema); sampling presence_penalty 1.5, seed 0, temperature 0.1, thinking off; output cap 32,768",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 0.12867577160721133,
+            "per_1000": 0.23523907057991106,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 110893,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 114774
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 186.03726015500433
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 3.7438396430006833,
+            "p90_request_seconds": 7.080940291000298,
+            "concurrency": 32,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 294,
+          "wrong": 249,
+          "invalid": 4,
+          "accuracy": 0.5374771480804388
+        }
       }
     ],
     "dont_know": {
@@ -389462,6 +389536,42 @@
             "accuracy": 0.6453382084095064,
             "attempt_rate": 0.9049360146252285,
             "non_hallucination": 0.26424870466321243,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "Raon-1 nano",
+          "model": "raon-1-nano-nothink",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 1152,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1153,
+            "runs": [
+              1153
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 1,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {
+                "unreadable": 1
+              }
+            },
+            "right": 275,
+            "wrong": 200,
+            "dont_know": 71,
+            "invalid": 1,
+            "accuracy": 0.5027422303473492,
+            "attempt_rate": 0.8683729433272395,
+            "non_hallucination": 0.26199261992619927,
             "mean_dont_know_probability": null
           }
         },
