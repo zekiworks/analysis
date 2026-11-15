@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "a73ce0a2",
-  "updated": "2026-11-14T17:16:53Z",
+  "results_version": "f061dced",
+  "updated": "2026-11-14T23:39:55Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -1503,6 +1503,20 @@
         "output_tokens": 0.2
       },
       "text": "$0.08 input, $0.20 output per 1M tokens"
+    },
+    {
+      "provider": "vllm-plain",
+      "model": "qwen3.5-4b-nothink",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
     },
     {
       "provider": "vllm-sr",
@@ -42189,6 +42203,113 @@
       "single_question_latency": null
     },
     {
+      "run": 1146,
+      "model": "qwen3.5-4b-nothink",
+      "name": "Qwen3.5-4B",
+      "variant": null,
+      "reasoning": "off",
+      "provider": "vllm-plain",
+      "perplexity_mode": null,
+      "note": null,
+      "parameters": 4659865088,
+      "active_parameters": null,
+      "effective_parameters": null,
+      "parameters_scope": "language model (tied embeddings) + multi-token prediction layer + 0.33B vision encoder",
+      "parameters_source": [
+        "counted from the checkpoint's safetensors, Qwen/Qwen3.5-4B@851bf6e",
+        "https://huggingface.co/Qwen/Qwen3.5-4B"
+      ],
+      "parameters_read": "2026-11-09",
+      "setup_of": "qwen3.5-4b",
+      "access": "our GPU (logic's server, vLLM v0.30.0 BF16, revision Qwen/Qwen3.5-4B@851bf6e), one question per request, plain answer line CEVAP: X (no answer schema); sampling min_p 0.0, presence_penalty 1.5, repetition_penalty 1.0, seed 0, temperature 1.0, top_k 20, top_p 0.95, thinking off; output cap 32,768",
+      "questions_per_request": 1,
+      "concurrency": 32,
+      "correct": 1015,
+      "invalid": 21,
+      "invalid_replies": {
+        "invalid_without_rule": 21,
+        "read_from_broken_replies": 0,
+        "read_without_confidence": 0,
+        "empty_replies_asked_again": 0,
+        "asked_again_with_answers": 0,
+        "answers_after_asking_again": 0,
+        "error_replies_asked_again": 0,
+        "invalid_by_kind": {
+          "cut off": 12,
+          "unreadable": 9
+        }
+      },
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 449
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 566
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 1012
+        }
+      },
+      "tyt_mix": 0.6289070161494417,
+      "questions_per_minute": 46.43560919781533,
+      "request_seconds": 2840.0618033930004,
+      "median_request_seconds": 32.18796883500181,
+      "p90_request_seconds": 74.77572861049848,
+      "billing": "local",
+      "api_equivalent_usd": 1.964376080680159,
+      "cost_basis": "gpu",
+      "cost_upper_bound": false,
+      "requests": 2198,
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+      "input_tokens": 584163,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "cache_write_1h_input_tokens": 0,
+      "output_tokens": 4804243,
+      "confidence": null,
+      "previous": null,
+      "units": [
+        74,
+        116,
+        41,
+        81,
+        59,
+        78,
+        60,
+        22,
+        36,
+        34,
+        26,
+        27,
+        38,
+        33,
+        33,
+        69,
+        21,
+        45,
+        37,
+        85
+      ],
+      "started": "2026-11-14T21:56:16Z",
+      "updated": "2026-11-14T22:43:36Z",
+      "format_of": null,
+      "group": "R",
+      "latency": {
+        "source": "run",
+        "runs": [
+          1146
+        ],
+        "concurrency": 32,
+        "median_request_seconds": 32.18796883500181,
+        "p90_request_seconds": 74.77572861049848
+      },
+      "single_question_latency": null
+    },
+    {
       "run": 139,
       "model": "clef-flash",
       "name": "Clef-flash",
@@ -51836,7 +51957,7 @@
       "single_question_latency": null
     }
   ],
-  "group_pairs": 5778,
+  "group_pairs": 5886,
   "paired": [
     {
       "first": 980,
@@ -51926,7 +52047,7 @@
       "low": 0.00315656599695682,
       "high": 0.013221959935709241,
       "p": 0.0021024015732109547,
-      "p_holm": 0.21024015732109547,
+      "p_holm": 0.21234255889430642,
       "p_holm_all": 1.0
     },
     {
@@ -51965,7 +52086,7 @@
       "low": 0.0036661100122780893,
       "high": 0.019081842671980327,
       "p": 0.0052282430040142824,
-      "p_holm": 0.5123678143933996,
+      "p_holm": 0.517596057397414,
       "p_holm_all": 1.0
     },
     {
@@ -52069,8 +52190,8 @@
       "low": 0.03225197249317953,
       "high": 0.06419934688807616,
       "p": 4.460847421739139e-09,
-      "p_holm": 4.728498267043487e-07,
-      "p_holm_all": 4.028145221830442e-06
+      "p_holm": 4.773106741260879e-07,
+      "p_holm_all": 4.077214543469573e-06
     },
     {
       "first": 939,
@@ -52251,8 +52372,8 @@
       "low": 0.030679166621566563,
       "high": 0.07396141572602216,
       "p": 2.7673699726562264e-06,
-      "p_holm": 0.00028780647715624755,
-      "p_holm_all": 0.0019952737502851392
+      "p_holm": 0.0002905738471289038,
+      "p_holm_all": 0.002020180080039045
     },
     {
       "first": 315,
@@ -52290,7 +52411,7 @@
       "low": 0.0068147555519082505,
       "high": 0.04050098603134926,
       "p": 0.006946613741516137,
-      "p_holm": 0.6738215329270653,
+      "p_holm": 0.6807681466685814,
       "p_holm_all": 1.0
     },
     {
@@ -52355,8 +52476,8 @@
       "low": -0.06598964347625874,
       "high": -0.027731921582885947,
       "p": 2.0485146663561087e-06,
-      "p_holm": 0.00021509403996739141,
-      "p_holm_all": 0.0014933671917736033
+      "p_holm": 0.00021714255463374751,
+      "p_holm_all": 0.0015118038237708082
     },
     {
       "first": 129,
@@ -52381,8 +52502,8 @@
       "low": 0.056521036069118194,
       "high": 0.09361545164698735,
       "p": 3.678091628881056e-15,
-      "p_holm": 3.9723389591915407e-13,
-      "p_holm_all": 4.325435755564122e-12
+      "p_holm": 4.0091198754803513e-13,
+      "p_holm_all": 4.391641404883981e-12
     },
     {
       "first": 259,
@@ -52485,8 +52606,8 @@
       "low": 0.047455943209440694,
       "high": 0.08266234614451745,
       "p": 6.670084191087266e-13,
-      "p_holm": 7.136990084463375e-11,
-      "p_holm_all": 7.19702084218316e-10
+      "p_holm": 7.203690926374248e-11,
+      "p_holm_all": 7.290402020858381e-10
     },
     {
       "first": 862,
@@ -52667,7 +52788,7 @@
       "low": 0.008033138518606254,
       "high": 0.04929170224572496,
       "p": 0.007404857447081556,
-      "p_holm": 0.7108663149198293,
+      "p_holm": 0.718271172366911,
       "p_holm_all": 1.0
     },
     {
@@ -52823,8 +52944,8 @@
       "low": 0.01794483214073702,
       "high": 0.05757837077100093,
       "p": 0.00022780042456489667,
-      "p_holm": 0.023463443730184358,
-      "p_holm_all": 0.1293906411528613
+      "p_holm": 0.023691244154749255,
+      "p_holm_all": 0.13098524412481558
     },
     {
       "first": 127,
@@ -52958,14 +53079,27 @@
     },
     {
       "first": 205,
+      "second": 1146,
+      "questions": 2198,
+      "first_only": 379,
+      "second_only": 373,
+      "difference": 0.00272975432211101,
+      "low": -0.021723269675085696,
+      "high": 0.027182778319307713,
+      "p": 0.8553381428052532,
+      "p_holm": 1.0,
+      "p_holm_all": 1.0
+    },
+    {
+      "first": 1146,
       "second": 131,
       "questions": 2198,
-      "first_only": 334,
-      "second_only": 318,
-      "difference": 0.007279344858962694,
-      "low": -0.015488052520659101,
-      "high": 0.030046742238584487,
-      "p": 0.5569377816972405,
+      "first_only": 388,
+      "second_only": 378,
+      "difference": 0.004549590536851683,
+      "low": -0.02012954086943637,
+      "high": 0.02922872194313974,
+      "p": 0.7450664015966331,
       "p_holm": 1.0,
       "p_holm_all": 1.0
     },
@@ -53005,8 +53139,8 @@
       "low": 0.017970916928709595,
       "high": 0.06665146705673171,
       "p": 0.0007641053000487032,
-      "p_holm": 0.07793874060496772,
-      "p_holm_all": 0.4065040196259101
+      "p_holm": 0.07870284590501643,
+      "p_holm_all": 0.411852756726251
     },
     {
       "first": 126,
@@ -53018,8 +53152,8 @@
       "low": 0.015331309546318252,
       "high": 0.06383156579490104,
       "p": 0.0015873691578223686,
-      "p_holm": 0.16032428494005924,
-      "p_holm_all": 0.8016214247002962
+      "p_holm": 0.1619116540978816,
+      "p_holm_all": 0.8127330088050527
     },
     {
       "first": 1079,
@@ -53174,7 +53308,7 @@
       "low": 0.013539207117774642,
       "high": 0.061983995793963305,
       "p": 0.002569008789206413,
-      "p_holm": 0.2543318701314349,
+      "p_holm": 0.2569008789206413,
       "p_holm_all": 1.0
     },
     {
@@ -371485,6 +371619,44 @@
         }
       },
       {
+        "name": "Qwen3.5-4B",
+        "model": "qwen3.5-4b-nothink",
+        "provider": "vllm-plain",
+        "perplexity_mode": null,
+        "group": "chat",
+        "run": 1147,
+        "runs": [
+          1147
+        ],
+        "right": 964,
+        "wrong": 1132,
+        "dont_know": 84,
+        "invalid": 18,
+        "invalid_replies": {
+          "invalid_without_rule": 18,
+          "read_from_broken_replies": 0,
+          "read_without_confidence": 0,
+          "empty_replies_asked_again": 0,
+          "asked_again_with_answers": 0,
+          "answers_after_asking_again": 0,
+          "error_replies_asked_again": 0,
+          "invalid_by_kind": {
+            "cut off": 8,
+            "unreadable": 10
+          }
+        },
+        "accuracy": 0.4385805277525023,
+        "attempt_rate": 0.9535941765241128,
+        "non_hallucination": 0.06907894736842106,
+        "mean_dont_know_probability": null,
+        "spread": null,
+        "answers_changed": null,
+        "original_run": 1146,
+        "original_accuracy": 0.46178343949044587,
+        "derived": null,
+        "vs_confidence": null
+      },
+      {
         "name": "Metask-Jev 4B",
         "model": "metask-jev-4b-policy-mix",
         "provider": "metask",
@@ -379757,7 +379929,7 @@
           "english_only_right": 74,
           "turkish_only_right": 23,
           "p": 2.027109075312698e-07,
-          "p_holm": 1.8446692585345553e-05
+          "p_holm": 1.8649403492876823e-05
         },
         "decision_score": {
           "score": 88.1004137009927,
@@ -381365,6 +381537,95 @@
         }
       },
       {
+        "name": "Qwen3.5-4B",
+        "model": "qwen3.5-4b-nothink",
+        "provider": "vllm-plain",
+        "run": 1143,
+        "runs": [
+          1143
+        ],
+        "dates": [
+          "2026-11-14"
+        ],
+        "perplexity_mode": null,
+        "turkish_run": 1146,
+        "turkish_runs": [
+          1146
+        ],
+        "english_machine": null,
+        "cost": {
+          "english": {
+            "usd": 0.1691133676225187,
+            "per_1000": 0.30916520589125907,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 151925,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 413067
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 244.5012543940029
+          },
+          "turkish": {
+            "usd": 1.964376080680159,
+            "per_1000": 0.8937106827480249,
+            "basis": "gpu",
+            "upper_bound": false
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 9.743945411999448,
+            "p90_request_seconds": 19.495027575600396,
+            "concurrency": 32,
+            "questions_per_request": 1
+          },
+          "turkish": {
+            "median_request_seconds": 32.18796883500181,
+            "p90_request_seconds": 74.77572861049848,
+            "concurrency": 32,
+            "questions_per_request": 1,
+            "source": "run"
+          }
+        },
+        "english": {
+          "right": 440,
+          "wrong": 106,
+          "invalid": 1,
+          "accuracy": 0.8043875685557587
+        },
+        "turkish": {
+          "right": 394,
+          "wrong": 149,
+          "invalid": 4,
+          "accuracy": 0.720292504570384
+        },
+        "difference": 0.0840950639853747,
+        "spread": null,
+        "answers_changed": null,
+        "paired": {
+          "english_only_right": 95,
+          "turkish_only_right": 49,
+          "p": 0.00015720885376307122,
+          "p_holm": 0.01414879683867641
+        }
+      },
+      {
         "name": "Qwen3-14B",
         "model": "qwen3-14b",
         "provider": "vllm",
@@ -381544,7 +381805,7 @@
           "english_only_right": 90,
           "turkish_only_right": 35,
           "p": 9.23997771897882e-07,
-          "p_holm": 8.315979947080937e-05
+          "p_holm": 8.408379724270726e-05
         },
         "decision_score": {
           "score": 82.21084905828268,
@@ -381645,7 +381906,7 @@
           "english_only_right": 175,
           "turkish_only_right": 33,
           "p": 1.474858241680115e-24,
-          "p_holm": 1.5043554065137172e-22
+          "p_holm": 1.5191039889305184e-22
         }
       },
       {
@@ -381792,7 +382053,7 @@
           "english_only_right": 112,
           "turkish_only_right": 39,
           "p": 2.271450283600249e-09,
-          "p_holm": 2.1351632665842342e-07
+          "p_holm": 2.1578777694202365e-07
         },
         "decision_score": {
           "score": 77.81582860891653,
@@ -381893,7 +382154,7 @@
           "english_only_right": 166,
           "turkish_only_right": 40,
           "p": 1.9435372906100788e-19,
-          "p_holm": 1.943537290610079e-17
+          "p_holm": 1.9629726635161797e-17
         },
         "seeds": {
           "of": 3,
@@ -381981,7 +382242,7 @@
           "english_only_right": 135,
           "turkish_only_right": 49,
           "p": 1.7218675720944863e-10,
-          "p_holm": 1.635774193489762e-08
+          "p_holm": 1.6529928692107068e-08
         },
         "decision_score": {
           "score": 76.87952031780596,
@@ -382046,7 +382307,7 @@
           "english_only_right": 129,
           "turkish_only_right": 53,
           "p": 1.6944120417192497e-08,
-          "p_holm": 1.5758031987989022e-06
+          "p_holm": 1.5927473192160947e-06
         },
         "decision_score": {
           "score": 76.66106513904887,
@@ -382155,7 +382416,7 @@
           "english_only_right": 171,
           "turkish_only_right": 41,
           "p": 4.536077925178257e-20,
-          "p_holm": 4.58143870443004e-18
+          "p_holm": 4.626799483681822e-18
         },
         "decision_score": {
           "score": 74.15855038077375,
@@ -382220,7 +382481,7 @@
           "english_only_right": 141,
           "turkish_only_right": 61,
           "p": 1.7907697844040562e-08,
-          "p_holm": 1.6475082016517316e-06
+          "p_holm": 1.6654158994957723e-06
         },
         "decision_score": {
           "score": 70.59346383621033,
@@ -382285,7 +382546,7 @@
           "english_only_right": 161,
           "turkish_only_right": 39,
           "p": 8.323830722852912e-19,
-          "p_holm": 8.240592415624383e-17
+          "p_holm": 8.323830722852912e-17
         },
         "decision_score": {
           "score": 70.08836424032732,
@@ -382350,7 +382611,7 @@
           "english_only_right": 222,
           "turkish_only_right": 38,
           "p": 8.493716039465006e-33,
-          "p_holm": 8.833464681043606e-31
+          "p_holm": 8.918401841438256e-31
         },
         "decision_score": {
           "score": 69.84327454412265,
@@ -382415,7 +382676,7 @@
           "english_only_right": 148,
           "turkish_only_right": 57,
           "p": 1.6384792484557003e-10,
-          "p_holm": 1.5729400785174723e-08
+          "p_holm": 1.589324871002029e-08
         },
         "decision_score": {
           "score": 69.81580413306096,
@@ -382480,7 +382741,7 @@
           "english_only_right": 150,
           "turkish_only_right": 48,
           "p": 2.027549129468913e-13,
-          "p_holm": 1.9667226555848456e-11
+          "p_holm": 1.9869981468795345e-11
         },
         "decision_score": {
           "score": 69.65402914139592,
@@ -382545,7 +382806,7 @@
           "english_only_right": 206,
           "turkish_only_right": 34,
           "p": 3.328240035956695e-31,
-          "p_holm": 3.428087237035396e-29
+          "p_holm": 3.461369637394963e-29
         },
         "decision_score": {
           "score": 69.05212318938176,
@@ -382659,7 +382920,7 @@
           "english_only_right": 152,
           "turkish_only_right": 47,
           "p": 4.1558518126437847e-14,
-          "p_holm": 4.072734776390909e-12
+          "p_holm": 4.114293294517347e-12
         },
         "decision_score": {
           "score": 67.46941180530165,
@@ -384960,7 +385221,7 @@
             "english_only_wrong": 45,
             "turkish_only_wrong": 95,
             "p": 2.877574547626978e-05,
-            "p_holm": 0.00129490854643214
+            "p_holm": 0.0013236842919084099
           }
         },
         {
@@ -385523,7 +385784,7 @@
             "english_only_wrong": 44,
             "turkish_only_wrong": 160,
             "p": 1.1281099734141455e-16,
-            "p_holm": 5.302116875046484e-15
+            "p_holm": 5.414927872387898e-15
           }
         },
         {
@@ -385586,7 +385847,7 @@
             "english_only_wrong": 68,
             "turkish_only_wrong": 137,
             "p": 1.6455457800434282e-06,
-            "p_holm": 7.56951058819977e-05
+            "p_holm": 7.734065166204113e-05
           }
         },
         {
@@ -386393,7 +386654,7 @@
             "english_only_wrong": 25,
             "turkish_only_wrong": 7,
             "p": 0.0021024015732109547,
-            "p_holm": 0.092505669221282
+            "p_holm": 0.09460807079449296
           }
         },
         {
@@ -387818,6 +388079,72 @@
             "turkish_only_wrong": 19,
             "p": 0.15240777196147803,
             "p_holm": 1.0
+          }
+        },
+        {
+          "name": "Qwen3.5-4B",
+          "model": "qwen3.5-4b-nothink",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": 1146,
+          "english": {
+            "run": 1144,
+            "runs": [
+              1144
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 0,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {}
+            },
+            "right": 437,
+            "wrong": 106,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.7989031078610603,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.03636363636363636,
+            "mean_dont_know_probability": null
+          },
+          "turkish": {
+            "run": 1147,
+            "runs": [
+              1147
+            ],
+            "subset": false,
+            "invalid_replies": {
+              "invalid_without_rule": 18,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {
+                "cut off": 8,
+                "unreadable": 10
+              }
+            },
+            "right": 398,
+            "wrong": 140,
+            "dont_know": 5,
+            "invalid": 4,
+            "accuracy": 0.7276051188299817,
+            "attempt_rate": 0.9835466179159049,
+            "non_hallucination": 0.034482758620689655,
+            "mean_dont_know_probability": null
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 52,
+            "turkish_only_wrong": 86,
+            "p": 0.004786266356000327,
+            "p_holm": 0.2105957196640144
           }
         },
         {
@@ -666595,6 +666922,53 @@
           ]
         },
         {
+          "name": "Qwen3.5-4B",
+          "text_run": 1146,
+          "native": [
+            {
+              "language": "Turkish",
+              "wording": "Bilmiyorum",
+              "run": 1147,
+              "full_bank_restricted": true,
+              "right": 398,
+              "wrong": 140,
+              "abstained": 5,
+              "invalid": 4,
+              "coverage": 0.9835466179159049,
+              "risk": 0.26022304832713755
+            },
+            {
+              "language": "Turkish",
+              "wording": "I don't know",
+              "run": null
+            },
+            {
+              "language": "English",
+              "wording": "I don't know",
+              "run": 1144,
+              "full_bank_restricted": false,
+              "right": 437,
+              "wrong": 106,
+              "abstained": 4,
+              "invalid": 0,
+              "coverage": 0.9926873857404022,
+              "risk": 0.19521178637200737
+            }
+          ],
+          "curves": [
+            {
+              "language": "Turkish",
+              "run": 1146,
+              "points": []
+            },
+            {
+              "language": "English",
+              "run": 1143,
+              "points": []
+            }
+          ]
+        },
+        {
           "name": "Qwen3-14B",
           "text_run": 131,
           "native": [
@@ -792049,6 +792423,23 @@
           "paired": null
         },
         {
+          "name": "Qwen3.5-4B",
+          "text_run": 1146,
+          "english": {
+            "run": 1144,
+            "right": 437,
+            "wrong": 106,
+            "dont_know": 4,
+            "invalid": 0,
+            "accuracy": 0.7989031078610603,
+            "attempt_rate": 0.9926873857404022,
+            "non_hallucination": 0.03636363636363636,
+            "mean_dont_know_probability": null
+          },
+          "turkish": null,
+          "paired": null
+        },
+        {
           "name": "Qwen3-14B",
           "text_run": 131,
           "english": {
@@ -794442,6 +794833,18 @@
           "wrong_by_rank": "00000000000000000000100000001000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000100010000000000000000000000100000100000000000010000100000000000001000000001000000000000000000000000100000000101100000000000000100000000000010000000001000000000000100000010001000010110001000010000000000000000000010101000000000000000000010010001000001111010111000100000000000000101000000010100001001010110100001010011010010000000001110000100010000010000000011000010011011000001100100000100010010010001000100101000110010011101000001111001100010000001000100101000100000100101100001010101001100101111110110011011010000100111110100110110110101110100001000011110101101111111001111001110001001111100100011110101011111010010111010110010111000001011110001010110010010011101110111111100101110111000011111011111110111110010010011111011010101110010111100100111101111101010101011000111111111011000010110001010111111111111101111111011010110011001111111011011111000011111111010101011111111110101111001101101101011111101000111001111101011111010011110110011111111110011001111000001101111111011110111110111011111010000110110111011100001010011011001011111111001110011101001111111000111010000111111111111001000011011110110111110100111100000100101111001111111100011000001011011111111111110110110110101111111111011011011101111111000010111110011101111101100110100101000111101100101111100110110100000101111100011111100100110010111000001111011101111111111011101100101111111011010110011100011111100111101101001111011111011101110010111111101110011110111101111111111010111110111111111011011111111111110011010010110100101100110010101001111011110111110011111011011100111111111110010111111101111111110111001111111010111110111111110001111111111110111111110100111101001111111110101111111110011011111101001001111001110111111010111101101000111011100110110000100110111101101110111111011110100111001011101100000011111110101110111011111110110011101101011101111101101011110001001110011111111010101111111110111111001000111011111011010111111111110111110100101111110101101111111111111110101110100101101111011101111101101111110111110110010111110011111110110110111111111111111110101111111111101111"
         },
         {
+          "name": "Qwen3.5-4B",
+          "text_run": 1146,
+          "five_option_run": 1146,
+          "wrong": null,
+          "wrong_of_answers": null,
+          "difference": null,
+          "interval": null,
+          "p": null,
+          "p_holm": null,
+          "wrong_by_rank": ""
+        },
+        {
           "name": "Clef-flash",
           "text_run": 139,
           "five_option_run": 139,
@@ -796447,6 +796850,19 @@
           ]
         },
         {
+          "name": "Qwen3.5-4B",
+          "text_run": 1146,
+          "five_option_run": 1143,
+          "wrong": null,
+          "wrong_of_answers": null,
+          "difference": null,
+          "interval": null,
+          "p": null,
+          "p_holm": null,
+          "wrong_by_rank": "",
+          "points": []
+        },
+        {
           "name": "Qwen3-14B",
           "text_run": 131,
           "five_option_run": 770,
@@ -798025,6 +798441,12 @@
         "text_run": 205,
         "kept": 378,
         "wrong": 29
+      },
+      {
+        "name": "Qwen3.5-4B",
+        "text_run": 1146,
+        "kept": null,
+        "wrong": null
       },
       {
         "name": "Clef-flash",

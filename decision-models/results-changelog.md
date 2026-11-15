@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results f061dced (14 November 2026)
+
+- Added Qwen3.5-4B with thinking off (Ümit #6924), a setup of its own beside the thinking-on one: the same checkpoint and server as its Logic & Math runs (logic's GPU 1, one RTX PRO 6000 Blackwell, vLLM v0.30.0, BF16), the request settings of logic's own thinking-off run (`enable_thinking` false, temperature 1.0, top_p 0.95, top_k 20, presence penalty 1.5, seed 0, up to 32,768 output tokens), one question per request, 32 in flight. Text run 1146: 1,015 of 2,198 right (46.2%; reading 449 of 656, grammar 566 of 1,542), 21 replies without a readable letter (counted wrong), 87th of 109 Text tab setups. English run 1143: 440 of 547 (80.4%); thinking on had 476. "I don't know" runs: English 1144, 437 right and 4 "I don't know"; Turkish 1147, 964 right, 84 "Bilmiyorum" and 18 invalid. On the 547 kept questions it got 394 right in Turkish against 440 in English, a difference that holds after the Holm correction.
+- Qwen3.5-4B thinking on: its Turkish runs started on the same server at 23:26 UTC; the English page shows that side as Running.
+
 ## Results a73ce0a2 (14 November 2026)
 
 - Added Perplexity Decider 27B v1.3 (Ümit #7470, #7472, #7482): its released weights, `perplexity-ai/pplx-decider-v1.3` at `9c2ebb2`, on logic's server on one RTX PRO 6000 Blackwell, BF16, through the server and package Decider 27B v1.2 used; local weights only, nothing billed, its cost from GPU time (no list price for v1.3). One question per request; every run passed the probability check. Text run 1134: 1,504 of 2,198 right (68.4%; reading 584 of 656, grammar 920 of 1,542), 42nd of 108 Text tab setups; v1.2 on our hardware had 1,474 (run 217). A repeat (run 1135) changed none of its 2,198 answers, so it keeps one run. English run 1137: 490 of 547 (89.6%; v1.2 on our hardware 485). "I don't know" runs: English 1139, 490 right and 5 "I don't know"; Turkish 1141, 1,482 right and 5 "Bilmiyorum". On the 547 kept questions it got 496 right in Turkish against 490 in English (no significant difference).
