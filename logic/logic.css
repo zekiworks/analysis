@@ -101,6 +101,13 @@ td.probs span { white-space: nowrap; }
 /* Column-head explanations (Ümit #9113): the side columns' boxes open to the left, so they stay on screen; narrower. */
 th .head-tip:hover::after, th .head-tip:focus::after { font-weight: 400; width: min(20rem, 80vw); }
 th.lb-wide .head-tip:hover::after, th.lb-wide .head-tip:focus::after { left: auto; right: 0; }
+/* Below 900 px the table scrolls sideways inside its wrap, which clips a box anchored to the head: there the box is a
+   panel pinned to the bottom of the screen instead, full width, so it is never cut off (tested at 390 px). */
+@media (max-width: 899.98px) {
+  th .head-tip:hover::after, th .head-tip:focus::after,
+  th.lb-wide .head-tip:hover::after, th.lb-wide .head-tip:focus::after { position: fixed; left: .75rem; right: .75rem; top: auto;
+    bottom: .75rem; width: auto; z-index: 50; font-size: .85rem; }
+}
 
 /* Current work. */
 .progress { display: block; width: 100%; min-width: 8rem; height: .7rem; margin: .2rem 0 .15rem; background: var(--sunk);
