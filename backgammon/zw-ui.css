@@ -14,6 +14,7 @@
   --zw-text: var(--text, #23221f);
   --zw-text-2: var(--text-2, #4b4944);
   --zw-panel: var(--panel, #f7f6f2);
+  --zw-pop: var(--pop, #ffffff);  /* a details box or a head's tip: raised above the panel it opens over (Ümit #9111) */
   --zw-sunk: var(--sunk, #efede8);
   --zw-edge: var(--edge, #cbc7bf);
   --zw-link: var(--link, #1d4ed8);
@@ -40,6 +41,7 @@
   --zw-text: var(--text, #ebe9e4);
   --zw-text-2: var(--text-2, #bab7b0);
   --zw-panel: var(--panel, #1a1a18);
+  --zw-pop: var(--pop, #2c2b27);
   --zw-sunk: var(--sunk, #131312);
   --zw-edge: var(--edge, #34332f);
   --zw-link: var(--link, #86b9f3);
@@ -63,6 +65,7 @@
     --zw-text: var(--text, #ebe9e4);
     --zw-text-2: var(--text-2, #bab7b0);
     --zw-panel: var(--panel, #1a1a18);
+    --zw-pop: var(--pop, #2c2b27);
     --zw-sunk: var(--sunk, #131312);
     --zw-edge: var(--edge, #34332f);
     --zw-link: var(--link, #86b9f3);
@@ -139,6 +142,8 @@ html:not(.zw-js) .zw-scope-part { display: block; }
 .zw-calc > summary:focus-visible, a.zw-calc-key:focus-visible, .zw-name:focus-visible { outline: 2px solid var(--zw-focus); outline-offset: 2px; }
 .zw-key[hidden] { display: none !important; }
 .zw-measures { margin: 0 0 .75rem; }
+/* Preset keys (Bench.shortcuts) under the title, outside the Filters: shown on the phone with the Filters closed. */
+.zw-presets { margin: 0 0 .5rem; }
 /* Without the script, where panels load on first show (Bench.lazy_panels): the Measure keys as links, each to its
    panel's own page (the default one to its place here); a panel page's link back to the main view. */
 .zw-nojs-measures { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; margin: 0 0 .75rem; }
@@ -194,10 +199,23 @@ html:not(.zw-js) .zw-view + .zw-view, html:not(.zw-js) .zw-list + .zw-list { mar
   text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
 .zw-tip-key:focus-visible { outline: 2px solid var(--zw-focus); outline-offset: 2px; }
 .zw-tip-body { display: none; position: absolute; left: 0; top: 100%; z-index: 35; width: max-content; max-width: min(18rem, calc(100vw - 2rem));
-  padding: .45rem .6rem; color: var(--zw-text); background: var(--zw-panel); border: 1px solid var(--zw-key-edge); border-radius: 6px;
+  padding: .45rem .6rem; color: var(--zw-text); background: var(--zw-pop); border: 1px solid var(--zw-key-edge); border-radius: 6px;
   box-shadow: var(--zw-shadow); font-size: .78rem; font-weight: 400; line-height: 1.4; text-align: left; white-space: normal; }
 .zw-tip:not([data-zw-quiet]):hover .zw-tip-body, .zw-tip:not([data-zw-quiet]) .zw-tip-key:focus-visible + .zw-tip-body,
 .zw-tip-key[aria-expanded="true"] + .zw-tip-body, html:not(.zw-js) .zw-tip:focus-within .zw-tip-body { display: block; }
+/* A key's own tip (Key.help: a Measure key's explanation, v2.7): shown while a mouse is over it (zw-ui.js sets
+   data-zw-hover on a mouse pointer only, so a touch screen's tap, which leaves :hover behind, never shows it over the
+   page) and by keyboard focus; a tap only chooses the key. */
+.zw-tip.zw-key-tip:not([data-zw-quiet]):hover .zw-tip-body { display: none; }
+.zw-tip.zw-key-tip[data-zw-hover]:not([data-zw-quiet]) .zw-tip-body,
+.zw-tip.zw-key-tip:not([data-zw-quiet]) .zw-key:focus-visible + .zw-tip-body { display: block; }
+/* A head's tip right of the rank (a measure or helper column, v2.6) opens leftwards, so it stays inside the page; on a
+   phone every tip opens in a box fixed at the bottom of the screen, whatever its head's place, never past its edge. */
+.zw-table th.zw-num .zw-tip-body, .zw-table th.zw-help .zw-tip-body, .zw-table th.zw-measure .zw-tip-body { left: auto; right: 0; }
+@media (max-width: 600px) {
+  .zw-tip-body, .zw-table th .zw-tip .zw-tip-body { position: fixed; left: .5rem; right: .5rem; top: auto; bottom: .5rem;
+    width: auto; max-width: none; font-size: .85rem; }
+}
 /* A model's other settings: sub-rows under its row, closed until its expander opens them (Reading's Leaderboard). */
 .zw-js .zw-table tbody tr.zw-sub-closed { display: none; }
 .zw-table tbody tr.zw-sub > td { background: var(--zw-sunk); }
@@ -227,13 +245,36 @@ td.zw-model { min-width: 0; overflow-wrap: anywhere; }
 .zw-dot { display: inline-block; width: .7rem; height: .7rem; margin-right: .4rem; border-radius: 50%; vertical-align: -.05rem;
   background: var(--zw-dot, var(--zw-text-2)); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25); }
 .zw-name { font-weight: 650; color: var(--zw-text); text-decoration: none; }
+/* Above a phone's width a name stays whole (v2.6): its tag and class move to the next line before the name breaks. */
+@media (min-width: 601px) { .zw-table .zw-name { white-space: nowrap; } }
 a.zw-name:hover { text-decoration: underline; }
 .zw-tag { display: inline-block; max-width: 100%; padding: 0 .3rem; color: var(--zw-text-2); border: 1px solid var(--zw-edge);
   border-radius: 4px; font-size: .72rem; font-weight: 400; line-height: 1.35; white-space: normal; vertical-align: .05em; }
 .zw-class { margin-left: .4rem; color: var(--zw-text-2); font-size: .76rem; white-space: nowrap; }
 .zw-flag { margin-left: .3rem; padding: 0 .35rem; color: var(--zw-text-2); font-size: .7rem; white-space: nowrap;
   border: 1px solid var(--zw-text-2); border-radius: .6rem; }
+/* A model's glance lines (v2.6): only on a phone (below), where the table's farther columns lie past the screen. */
+.zw-glance { display: none; }
 .zw-table .zw-measure { width: 34%; min-width: 8rem; }
+/* A table with more than two helpers (v2.6, compact_table: zw-many): above a phone's width, where the helpers show, the
+   bar takes its minimum and the helpers the rest. */
+@media (min-width: 601px) { .zw-table.zw-many .zw-measure { width: auto; min-width: 6rem; } }
+/* Where such a table is still wider than its box (a tablet), it scrolls inside the box, never the page (zw-ui.js wides:
+   zw-scrolls; without JavaScript always): the model column stays in place while the measures pass under it, a shade at
+   the right edge shows there is more (zw-wide-more), and a head's tip opens as on a phone, in a box at the bottom of the
+   screen, which the scrolling box cannot cut. */
+.zw-wide { position: relative; min-width: 0; }
+.zw-wide.zw-scrolls > .zw-wide-box, html:not(.zw-js) .zw-wide-box { overflow-x: auto; overscroll-behavior-x: contain; }
+.zw-wide.zw-scrolls td.zw-model, .zw-wide.zw-scrolls thead th:nth-child(2) { position: sticky; left: 0; z-index: 2; background: inherit; }
+.zw-wide.zw-scrolls thead th:nth-child(2) { background: var(--zw-panel); }
+.zw-wide.zw-scrolls tr.zw-sub > td.zw-model { background: var(--zw-sunk); }
+/* The open row's details box sits in its model cell, a stacking context of its own here: that cell goes above the later
+   rows' sticky model cells and the edge shade, or they cover the box's left part (the unreadable boxes, Ümit #9111). */
+.zw-wide.zw-scrolls tr.zw-open > td.zw-model { z-index: 4; }
+.zw-wide.zw-wide-more::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; z-index: 3; width: 1.5rem; pointer-events: none;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--zw-text) 22%, transparent)); }
+.zw-wide.zw-scrolls .zw-table th .zw-tip-body { position: fixed; left: .5rem; right: .5rem; top: auto; bottom: .5rem; width: auto;
+  max-width: 36rem; margin: 0 auto; font-size: .85rem; }
 /* The measure as a bar: --v the value 0..1, --lo/--hi its interval, --c the colour. */
 .zw-bar { position: relative; display: block; height: .75rem; margin: .2rem 0 .2rem; background: var(--zw-sunk); border-radius: 2px;
   box-shadow: inset 0 0 0 1px var(--zw-edge); }
@@ -243,6 +284,9 @@ a.zw-name:hover { text-decoration: underline; }
   width: calc((var(--hi, 0) - var(--lo, 0)) * 100%); background: var(--zw-text); box-shadow: 0 0 0 1px var(--zw-panel); }
 .zw-val { font-family: var(--zw-mono); font-size: .84rem; white-space: nowrap; }
 .zw-val .zw-int { margin-left: .4rem; color: var(--zw-text-2); font-size: .74rem; }
+/* A cell whose second line reads under its value, never beside it, and wraps inside its column (v2.6, opt-in: <span
+   class="zw-stack">): a helper's p90 or false-alarm rate in a narrow column, so a wide table still fits. */
+.zw-stack .zw-val .zw-int { display: block; margin-left: 0; white-space: normal; }
 /* A bar without an interval (bar() with low and high None): no whisker. */
 .zw-bar-plain::after { display: none; }
 /* Two series in one cell or chart row (bar(second=…), Bar.second: Reading's Turkish over English): the second striped
@@ -316,6 +360,12 @@ td.zw-help { white-space: nowrap; }
   .zw-table th { white-space: normal; }
   .zw-table th.zw-rank, .zw-table td.zw-rank { width: 1.6rem; padding-left: 0; }
   .zw-js .zw-table .zw-help:not(.zw-keep-phone) { display: none; }
+  /* A table with more than two helpers (v2.6: Grading) keeps them on a phone too: it scrolls inside its box with the
+     model column in place (.zw-wide), so every measure is in the first table, not only in the box; the model's glance
+     lines say the farthest ones under its name (Zeki #6751, #6754). */
+  .zw-js .zw-table.zw-many .zw-help:not(.zw-keep-phone) { display: table-cell; }
+  .zw-table.zw-many .zw-measure { width: auto; min-width: 5.5rem; }
+  .zw-glance { display: block; margin-top: .1rem; color: var(--zw-text-2); font-size: .72rem; }
   /* A kept helper column takes at most a third of the row and a smaller face, so the model and its measure keep room. */
   .zw-table .zw-help.zw-keep-phone { width: 30%; font-size: .72rem; }
   .zw-table .zw-keep-phone .zw-val { font-size: inherit; }
@@ -331,6 +381,7 @@ td.zw-help { white-space: nowrap; }
   .zw-val { font-size: .8rem; }
   .zw-val .zw-int { display: block; margin-left: 0; font-size: .68rem; }
   .zw-class { display: block; margin-left: 0; white-space: normal; }
+  .zw-table.zw-many td.zw-model { min-width: 9.5rem; max-width: 10.5rem; }
   .zw-bars > li { grid-template-columns: minmax(0, 1fr) 4.4rem; gap: .1rem .5rem; }
   .zw-bar-label { grid-column: 1 / -1; text-align: left; }
   .zw-bars.zw-ranked > li { grid-template-columns: 1.6rem minmax(0, 1fr) 4.4rem; }
@@ -366,7 +417,7 @@ html:not(.zw-js) .zw-boxes .zw-box { margin: 0 0 .5rem; padding: .5rem .7rem; ba
   border-radius: 6px; }
 html:not(.zw-js) .zw-box { padding-top: .3rem; border-top: 1px dashed var(--zw-edge); }
 .zw-js .zw-box { display: none; position: fixed; z-index: 40; box-sizing: border-box; max-width: calc(100vw - 16px); margin: 0; padding: .6rem .75rem;
-  overflow: auto; overscroll-behavior: contain; background: var(--zw-panel); border: 1px solid var(--zw-key-edge); border-radius: 8px;
+  overflow: auto; overscroll-behavior: contain; background: var(--zw-pop); border: 1px solid var(--zw-key-edge); border-radius: 8px;
   box-shadow: var(--zw-shadow); }
 .zw-js .zw-box.zw-open { display: block; }
 @media (max-width: 599.98px) {
@@ -408,7 +459,7 @@ a.zw-calc-key { font-size: .7rem; }
 .zw-js .zw-calcs { margin: 0; }
 .zw-js .zw-calcs-title, .zw-js .zw-calcs .zw-calc-body { display: none; }
 .zw-js .zw-calcs .zw-calc-body { position: fixed; z-index: 41; box-sizing: border-box; max-width: calc(100vw - 16px); margin: 0;
-  padding: .55rem .7rem; background: var(--zw-panel); border: 1px solid var(--zw-key-edge); border-radius: 8px; box-shadow: var(--zw-shadow); }
+  padding: .55rem .7rem; background: var(--zw-pop); border: 1px solid var(--zw-key-edge); border-radius: 8px; box-shadow: var(--zw-shadow); }
 .zw-js .zw-calcs .zw-calc-body.zw-open { display: block; }
 
 /* --- 5. Header: one row of page tabs; the phone's Filters bar ------------------------------------------------------
