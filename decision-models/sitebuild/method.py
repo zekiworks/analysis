@@ -86,6 +86,11 @@ SETUP_TEXTS = (
     "through its card's autojev server (it answers only to jev-latest), text only; its card names no language.",
     "tattrongvu's released Jeffan-9B-1211, built on Qwen3.5-9B, on our hardware in BF16, its card's Decision Index engine "
     "behind a thin System One wrapper, text only; its card names no language.",
+    "quincyqiang's released Chinese Decision Pointer 4B, a merged LoRA fine-tune of Qwen3.5-4B, its card's Decision Index "
+    "engine behind the same wrapper in BF16, original and reversed option order averaged, text only; its card lists "
+    "Chinese and English.",
+    "Logits' released Sigma-1 Duo, KnowLine-31B-Gen1 with Logits' LoRA and d3-ultra averaged 50/50, in FP8 on one GPU, its "
+    "card's engine and image behind the same wrapper, text only; its card names no language and no total size.",
     "Apertix AI's released Cerno 9B v1.2, a full fine-tune of Qwen3.5-9B, its card's in-process engine behind a thin "
     "System One wrapper in BF16, text only: Turkish runs on an RTX PRO 6000, English runs on a DGX Spark; its card names "
     "no language.",

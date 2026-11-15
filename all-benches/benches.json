@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-15T09:11:06Z",
+    "updated": "2026-11-15T10:29:55Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -2929,7 +2929,7 @@
      }
     ]
    },
-   "sha256": "aa98c0a4f0919217c5362b62050e9de5d5c12676810ad358f79b34a954563797"
+   "sha256": "649761c4a742b5fd8979ceee0ffa341de04b0c524303f7ff37d1204c83067433"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -2939,7 +2939,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-15T09:11:06Z",
+    "updated": "2026-11-15T10:29:55Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -3166,6 +3166,38 @@
        "math:inkling-small-64k_en_dontknow"
       ],
       "notes": "hosted API via OpenRouter",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gemini-4-carbon",
+      "name": "Gemini 4 Carbon",
+      "display_name": "Gemini 4 Carbon",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Gemini 4 Carbon (Antigravity subscription)",
+      "maker": "Google",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 99.47988904299584,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9958391123439667,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:gemini-4-carbon-sub_en",
+       "math:gemini-4-carbon-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -3903,6 +3935,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.26055555555555554,
       "gpu_cost_usd": 0.6487833333333334
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gpt-6-luna",
+      "name": "GPT-6 Luna",
+      "display_name": "GPT-6 Luna",
+      "tag": "chat",
+      "class_label": "Closed · Efficient",
+      "base_model": null,
+      "setup_label": "GPT-6 Luna (low)",
+      "maker": "OpenAI",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 92.08275543226998,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.93666204345816,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:gpt-6-luna-low-sub_en",
+       "math:gpt-6-luna-low-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
      },
      {
       "repo": "ecloudtech/Erk-14B",
@@ -5826,7 +5890,7 @@
      }
     ]
    },
-   "sha256": "f36a21137e56dbcafea7884e46e2b485f711af31cd23f45e1fc240dc686d5673"
+   "sha256": "3bdf750939f4590fb1c004ea5893e4f8ce2495f91f915f6643a74b029784ad1c"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -5836,7 +5900,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-15T09:11:06Z",
+    "updated": "2026-11-15T10:29:55Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -5871,6 +5935,40 @@
        "math:gpt-6-astra-sub_en",
        "logic:gpt-6-astra-sub_en_dontknow",
        "math:gpt-6-astra-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gemini-4-carbon",
+      "name": "Gemini 4 Carbon",
+      "display_name": "Gemini 4 Carbon",
+      "tag": "chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Gemini 4 Carbon (Antigravity subscription)",
+      "maker": "Google",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 98.25121654501217,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9860097323600974,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:gemini-4-carbon-sub_en",
+       "math:gemini-4-carbon-sub_en",
+       "logic:gemini-4-carbon-sub_en_dontknow",
+       "math:gemini-4-carbon-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
@@ -6793,6 +6891,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 2.5261111111111108,
       "gpu_cost_usd": 6.290016666666668
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gpt-6-luna",
+      "name": "GPT-6 Luna",
+      "display_name": "GPT-6 Luna",
+      "tag": "chat",
+      "class_label": "Closed · Efficient",
+      "base_model": null,
+      "setup_label": "GPT-6 Luna (low)",
+      "maker": "OpenAI",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 76.80961070559611,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8144768856447688,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:gpt-6-luna-low-sub_en",
+       "math:gpt-6-luna-low-sub_en"
+      ],
+      "notes": "hosted API (the maker's service); no complete 'I don't know' run",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
      },
      {
       "repo": "ecloudtech/Erk-14B",
@@ -8836,7 +8966,7 @@
      }
     ]
    },
-   "sha256": "a96d5c1e743cd087d6bbc1541405af4704f7f45b60f42bd82b87871e0f4e79a4"
+   "sha256": "f4f21490f498fed7d035a7f87f87fd9cc4c973e4b6ca88a8f75ad37d17dc7325"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -10276,10 +10406,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-15T09:35Z",
+    "updated": "2026-11-15T10:20Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "d16c1ea11a8151a52ed5c6cfaf58b1b962dfe72a0559e43c9581a9d4316a4be0"
+   "sha256": "883d612e8ca5cbf9dc1a224027ac8d367de287ada79bb29ad5d1d7d552569200"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",

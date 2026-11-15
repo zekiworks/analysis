@@ -123,7 +123,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: Copernicus-31B and KnowLine-31B-Gen1.5 lead, tied at 81.8%; REAX 1.3, Karpo Decision 31B, Gemini Decision 1 and Liquid's d1-ultra, tied at 77.9%, 77.8%, 77.5% and 77.1%; GLiDE 27B at 71.1%; then Decider v1.2 with web search, GLiDE v1.2, Decider v1.3, hosted GLiDE, d3 and d3-ultra, Drex Max and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark, at 66.9% to 68.7%."
+SUMMARY_ACCURACY = "Accuracy: Copernicus-31B and KnowLine-31B-Gen1.5 tied at 81.8%; REAX 1.3, Karpo Decision 31B, Gemini Decision 1 and d1-ultra, tied at 77.1% to 77.9%; Logits Sigma-1 Duo at 75.0%; GLiDE 27B at 71.1%; then Decider v1.2 with web search, GLiDE v1.2, Decider v1.3, hosted GLiDE, d3 and d3-ultra, Drex Max and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark, at 66.9% to 68.7%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
@@ -982,26 +982,29 @@ def copy_checks(data: Data) -> list[str]:
           and accuracy(copernicus) == accuracy(knowline) and percent(knowline) == "81.8" and shares(copernicus, knowline)
           and not any(shares(lead, run) for lead in (copernicus, knowline) for run in decision
                       if run is not copernicus and run is not knowline))
-    check("Summary: REAX 1.3, karpo-decision-31B, Gemini Decision 1 and d1-ultra next, tied at 77.9%, 77.8%, 77.5% and "
-          "77.1%: they share a letter with each other and with no other decision model",
+    sigma = data.by_name("Logits-Sigma-1-Duo")
+    check("Summary: REAX 1.3, karpo-decision-31B, Gemini Decision 1 and d1-ultra next, tied at 77.1% to 77.9%: they share "
+          "a letter with each other and, outside them, only with Logits Sigma-1 Duo below",
           ranked[2] is reax and ranked[3] is karpo and ranked[4] is gemini and ranked[5] is ultra
           and (percent(reax), percent(karpo), percent(gemini), percent(ultra)) == ("77.9", "77.8", "77.5", "77.1")
           and all(shares(run, other) for run in tied for other in tied)
-          and not any(shares(lead, run) for lead in tied for run in decision if not any(run is item for item in tied)))
+          and not any(shares(lead, run) for lead in tied for run in decision
+                      if not any(run is item for item in tied) and run is not sigma))
     with_web = data.by_name("pplx-decider-v1.2", "perplexity", "web_grounding")
     hosted = data.by_name("pplx-decider-v1.2", "perplexity", None)
     glide27 = data.by_name("glide-27b")
     decider13 = data.by_name("pplx-decider-v1.3")
-    check("Summary: GLiDE 27B at 71.1%", ranked[6] is glide27 and percent(glide27) == "71.1")
+    check("Summary: Logits Sigma-1 Duo at 75.0%", ranked[6] is sigma and percent(sigma) == "75.0")
+    check("Summary: GLiDE 27B at 71.1%", ranked[7] is glide27 and percent(glide27) == "71.1")
     check("Summary: then Decider v1.2 with web search (through its API), GLiDE v1.2, Decider v1.3, hosted GLiDE, d3 and "
           "d3-ultra (tied on right answers), Drex Max v1 and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark, in "
           "that order",
           "DGX Spark" in (decider12.get("hardware") or "") and with_web["billing"] == "api" and decider["billing"] == "api"
           and glide["billing"] == "api"
-          and ranked[7] is with_web and ranked[8] is glide12 and ranked[9] is decider13 and ranked[10] is glide
-          and {run["run"] for run in ranked[11:13]} == {d3["run"], d3_ultra["run"]}
-          and accuracy(d3) == accuracy(d3_ultra) and ranked[13] is drex_v1 and ranked[14] is drex_11 and ranked[15] is mammoth
-          and {run["run"] for run in ranked[16:18]} == {decider["run"], decider12["run"]})
+          and ranked[8] is with_web and ranked[9] is glide12 and ranked[10] is decider13 and ranked[11] is glide
+          and {run["run"] for run in ranked[12:14]} == {d3["run"], d3_ultra["run"]}
+          and accuracy(d3) == accuracy(d3_ultra) and ranked[14] is drex_v1 and ranked[15] is drex_11 and ranked[16] is mammoth
+          and {run["run"] for run in ranked[17:19]} == {decider["run"], decider12["run"]})
     near = (with_web, glide12, decider13, glide, d3, d3_ultra, drex_v1, drex_11, mammoth, decider, decider12)
     check("Summary: at 66.9% to 68.7%",
           min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.7")

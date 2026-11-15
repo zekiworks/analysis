@@ -2,6 +2,14 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results e2eabb7d (15 November 2026)
+
+- Added the last two Decision Index models compactor served on bariton GPU 0 for Reading, each alone on its load after its Answer Check and logic's Logic & Math runs (compactor #8387, #8409; Ümit #7616, #8157), both behind compactor's `di_serve.py` around the engine each card ships, one question per request, text only; local weights only, nothing billed, cost from GPU time. Every run passed the probability check, and each repeat Text run changed none of its 2,198 answers, so each keeps one run.
+  - Logits Sigma-1 Duo (Logits, `logitshq/Logits-Sigma-1-Duo` at `a0c1b6e`; two decision models on one GPU, KnowLine-31B-Gen1 with Logits' LoRA merged and vLLM-SR d3-ultra, whose option probabilities it averages 50/50; FP8, its card's own image and engine): Text run 1221, 1,649 of 2,198 right (75.0%; reading 603 of 656, grammar 1,046 of 1,542), 36th of 118 Text tab setups. English run 1229: 498 of 547 (91.0%). "I don't know": English 1231, 501 right and 2; Turkish 1233, 1,653 right and 2 "Bilmiyorum". Its card names no language and states no total size: its size is the two members' served count, 57,358,419,036 (the Jev index's, as the shared model_sizes.json and as for REAX 1.3).
+  - Chinese Decision Pointer 4B (quincyqiang, `quincyqiang/chinese-decision-pointer-4b` at `889f23e`, a merged LoRA fine-tune of Qwen3.5-4B; BF16, with its card's setting that averages the original and the reversed option order): Text run 1206, 1,026 right (46.7%; reading 465, grammar 561), 94th. English run 1209: 440 (80.4%). "I don't know": English 1211, 439 right and 4; Turkish 1213, 980 right and 136. Its card lists Chinese and English; size 4B by its card title (our count 4,207,067,905).
+  - On the 547 kept questions, neither differs between Turkish and English after the Holm correction.
+- The Method page's rows for the `di_serve.py` engines are now one per model (Jeffan-9B-1211, Chinese Decision Pointer 4B, Logits Sigma-1 Duo). The paired test now counts 118 comparisons (116 before), 6 passing as before.
+
 ## Results 83337338 (15 November 2026)
 
 - Added four Decision Index models that compactor served on bariton GPU 0 after its Answer Check and logic's Logic & Math runs, each alone on its load (compactor #8268, #8282, #8317, #8330; Ümit #7616, #8157): released weights on one RTX PRO 6000 Blackwell in BF16, through the server or engine each card ships, one question per request; local weights only, nothing billed, cost from GPU time. Every run passed the probability check, and each repeat Text run changed none of its 2,198 answers, so each keeps one run.

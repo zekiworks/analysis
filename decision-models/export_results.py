@@ -356,6 +356,24 @@ MODELS: dict[str, dict[str, Any]] = {
         "5.17.0, flash-linear-attention 0.5.2, without causal-conv1d, so PyTorch's reference convolution), text only.",
         "hardware": f"1 × {GPU}; BF16",
     },
+    "Chinese-Decision-Pointer-4B": {
+        "name": "Chinese Decision Pointer 4B",
+        "note": "quincyqiang's released Chinese Decision Pointer 4B (quincyqiang/chinese-decision-pointer-4b at 889f23e), a "
+        "merged LoRA fine-tune of Qwen3.5-4B that reads every candidate's probability in one forward pass. Its card ships "
+        "only a Decision Index engine (ChineseDecisionEngine from yanqiangmiffy/chinese-decision at c16450b), so it ran on "
+        "our hardware behind compactor's di_serve.py, with the card's debias 'reverse' (the original and reversed option "
+        "order averaged), without causal-conv1d (PyTorch's reference convolution), text only.",
+        "hardware": f"1 × {GPU}; BF16",
+    },
+    "Logits-Sigma-1-Duo": {
+        "name": "Logits Sigma-1 Duo",
+        "note": "Logits' released Sigma-1 Duo (logitshq/Logits-Sigma-1-Duo at a0c1b6e, the weights and code of d9641cd), "
+        "two decision models on one GPU whose per-option probabilities it averages 50/50: KnowLine-31B-Gen1 with Logits' "
+        "LoRA merged, and vLLM-SR d3-ultra. It ran on our hardware in FP8 through its card's own engine and image (plus "
+        "gcc, libc6-dev and python3-dev, which its Triton kernels need) behind compactor's di_serve.py, text only; the "
+        "engine took its own Triton FP8 kernel on this GPU.",
+        "hardware": f"1 × {GPU}; FP8",
+    },
     # It ran on a DGX Spark (GB10).
     "glide-v1.2": {
         "name": "Fastino GLiDE v1.2",
@@ -945,7 +963,15 @@ SIZES: dict[str, dict[str, Any]] = {
            ("jev-latest", 8_392_695_024, "newsbang/adjudex-9b-v5", "ffdcb82",
             "language model + 255-way decision head (readout.safetensors)"),
            ("Jeffan-9B-1211", 8_953_803_264, "tattrongvu/Jeffan-9B-1211", "862d1a7",
-            "language model, text only; the card says bf16, 8.95B parameters"))},
+            "language model, text only; the card says bf16, 8.95B parameters"),
+           ("Chinese-Decision-Pointer-4B", 4_207_067_905, "quincyqiang/chinese-decision-pointer-4b", "889f23e",
+            "language model with its pointer readout, text only"))},
+    # Sigma-1 Duo's safetensors have no total on the Hub (FP8 with scales): the Jev Decision Index's served count of the
+    # two members, as the shared model_sizes.json takes it (compactor #8377); its card states no total.
+    "Logits-Sigma-1-Duo": {"total": 57_358_419_036, "repo": "logitshq/Logits-Sigma-1-Duo", "commit": "a0c1b6e",
+                           "scope": "both members: KnowLine-31B-Gen1 with Logits' LoRA merged, and d3-ultra",
+                           "sources": ["the Jev Decision Index's served_params for logitshq/Logits-Sigma-1-Duo@a0c1b6e8",
+                                       "https://huggingface.co/logitshq/Logits-Sigma-1-Duo"], "read": "2026-11-15"},
     # Fastino's post: "serves 57.36B parameters versus GLiDE's 26.09B".
     "glide-v1.2": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
                    "repo": "fastino/GLiDE", "commit": "a7e4589",
@@ -2498,7 +2524,8 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
     **{(provider, model, None): "added to the Hallucination tab on 15 November 2026 (run on our GPU; Ümit #7616, #8157), "
        "after the option-word check; not asked with “I don't know” yet." for provider, model in (
         ("copernicus", "Copernicus-31B"), ("knowline", "PelaAI/KnowLine-9B-Gen1"), ("pplx-decider", "jev-latest"),
-        ("di-serve", "Jeffan-9B-1211"), ("cerno", "apertixai/cerno-9b-v1.2"))},
+        ("di-serve", "Jeffan-9B-1211"), ("cerno", "apertixai/cerno-9b-v1.2"),
+        ("di-serve", "Chinese-Decision-Pointer-4B"), ("di-serve", "Logits-Sigma-1-Duo"))},
     **{(provider, model, None): "added to the Hallucination tab on 10 November 2026 (run on our GPU), after the "
        "option-word check; not asked with “I don't know” yet." for provider, model in (
         ("glide", "glide-27b"), ("glide", "glide-9b"), ("glide", "glide-2b"), ("glide", "glide-0.8b"), ("glide", "glide-0.4b"),

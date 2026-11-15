@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 116 comparisons (6 pass).
-━━ passes the Holm adjustment across these 116 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 118 comparisons (6 pass).
+━━ passes the Holm adjustment across these 118 comparisons   ━━ does not pass
 
                                                 Claude Fable 5.2 · max · chat minus Gemini 3.8 Flash · high · chat                              ⠠⠤⡧⠤                               +0.0
                                               Gemini 3.8 Flash · high · chat minus Gemini 4 Hydrogen · high · chat                              ⠠⠤⡧⠄                               +0.0
@@ -36,7 +36,8 @@ shows a related but separate test, adjusted across these 116 comparisons (6 pass
                                                                                  REAX 1.3 minus Karpo Decision 31B                           ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠤                            +0.1
                                                              Karpo Decision 31B minus Gemini Decision 1 · 20261111                           ⠤⠤⠤⠤⠤⣷⠤⠤⠤⠤⠤⠄                          +0.3
                                                                        Gemini Decision 1 · 20261111 minus d1-ultra                           ⠠⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤⠤⠄                         +0.5
-                                                                           d1-ultra minus Qwen3.8-27B · low · chat                                ⡇⠤⠤⠤⠤⠤⠤⡦⠤⠤⠤⠤⠤⠄                   +2.4
+                                                                                 d1-ultra minus Logits Sigma-1 Duo                                ⡧⠤⠤⠤⠤⠤⡦⠤⠤⠤⠤⠄                     +2.0
+                                                                 Logits Sigma-1 Duo minus Qwen3.8-27B · low · chat                           ⠤⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤⠤                          +0.4
                                                                Qwen3.8-27B · low · chat minus GLM-5.3 · low · chat                          ⠤⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤⠤                          +0.1
                                                      GLM-5.3 · low · chat minus Gemma 4 31B · reasoning off · chat                             ⠠⠤⠤⡧⠤⠤⠤⡦⠤⠤⠤⠤⠤⠄                      +1.4
                                       Gemma 4 31B · reasoning off · chat minus Kimi K3.1 Pro · no reasoning · chat                           ⠤⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤⠤⠄                         +0.4
@@ -99,7 +100,8 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                   Qwen3.8-27B · yes/no scoring minus Perplexity Decider Flash v1.3                               ⠒⡗⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠒                   +2.2
                                                             Perplexity Decider Flash v1.3 minus KnowLine 4B Gen5.5                             ⠐⠒⠒⡗⠒⠒⠺⠒⠒⠒⠒⠒⠂                       +1.2
                                                             KnowLine 4B Gen5.5 minus Perplexity Decider Flash v1.2                            ⠒⠒⠒⠒⡗⠒⠗⠒⠒⠒⠒⠒                         +0.7
-                                                          Perplexity Decider Flash v1.2 minus Microsoft-Decision-1                             ⠒⠒⠒⡗⠒⠒⠺⠒⠒⠒⠒⠒⠒⠒                      +1.3
+                                                   Perplexity Decider Flash v1.2 minus Chinese Decision Pointer 4B                             ⠐⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒                        +1.1
+                                                            Chinese Decision Pointer 4B minus Microsoft-Decision-1                          ⠒⠒⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒⠒⠂                         +0.2
                                                       Microsoft-Decision-1 minus Qwen3.5-4B · reasoning off · chat                         ⠐⠒⠒⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒⠒⠒⠂                        +0.3
                                           Qwen3.5-4B · reasoning off · chat minus Qwen3-14B · reasoning off · chat                          ⠒⠒⠒⠒⠒⠒⡗⠗⠒⠒⠒⠒⠒⠒⠒                        +0.5
                                                                  Qwen3-14B · reasoning off · chat minus Clef-Flash                         ⠒⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒                          +0.0
