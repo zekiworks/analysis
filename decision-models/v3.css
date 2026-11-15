@@ -622,6 +622,16 @@ button.pick[aria-pressed="true"] { background: var(--sunk); border-color: var(--
 .hint:hover::after, .hint:focus::after { content: attr(data-tip); position: absolute; right: 0; top: calc(100% + 4px); z-index: 12;
   width: max-content; max-width: min(18rem, 80vw); padding: .4rem .6rem; background: var(--tip-bg); color: var(--tip-text); border-radius: 4px;
   font-family: var(--sans); font-size: .78rem; font-weight: 400; line-height: 1.35; text-align: left; white-space: normal; }
+/* Column-head explanations (leaderboard.head; Ümit #9110, #9113): the first columns' boxes open to the right, the
+   others to the left, so they stay on screen; on a narrow screen, where the table scrolls inside its frame, the box is
+   fixed at the bottom of the screen, which the frame cannot cut (as the shared kit's head tips). */
+th .head-tip { display: inline-block; }
+th .head-tip:hover::after, th .head-tip:focus::after { width: min(20rem, 80vw); }
+th:nth-child(-n+3) .head-tip:hover::after, th:nth-child(-n+3) .head-tip:focus::after { left: 0; right: auto; }
+@media (max-width: 900px) {
+  th .head-tip:hover::after, th .head-tip:focus::after { position: fixed; left: .5rem; right: .5rem; top: auto; bottom: .5rem;
+    width: auto; max-width: none; z-index: 40; font-size: .85rem; }
+}
 
 /* Routing: the choices, a small static diagram of the path and the table. */
 .tab-title { font-size: 1.05rem; margin: 0 0 .6rem; }

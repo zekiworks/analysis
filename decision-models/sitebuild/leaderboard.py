@@ -251,9 +251,17 @@ def details(site: Site, run: dict[str, Any], box: str, lines: list[str | None], 
             + "".join(f"<p>{line}</p>" for line in body if line) + "</div>")
 
 
+def head(label: str, unit: str, tip: str) -> str:
+    """A column head as Answer Check's (Ümit #9110, #9113; Zeki #9114): the measure's name, its unit as a small second
+    line, and what it is, shown on hover, keyboard focus or a tap (v3.css .hint). label and unit are HTML; tip is text."""
+    return f'<span class="hint head-tip" tabindex="0" data-tip="{esc(tip)}">{label}<span class="small">{unit}</span></span>'
+
+
 def held_head(option: str) -> str:
-    """The Non-hallucination column's head, with what it is in one phrase, as Logic & Math's (bus #4685)."""
-    return f'Non-hallucination<span class="small">of answers not right, % \u201c{esc(option)}\u201d \u00b7 higher is better</span>'
+    """The Non-hallucination column's head (as Logic & Math's, bus #4685)."""
+    return head("Non-hallucination", f"% \u201c{esc(option)}\u201d of answers not right",
+                f"From a separate run in which the model may answer \u201c{option}\u201d: of its answers that are not "
+                f"right, the share that are \u201c{option}\u201d rather than a wrong answer. Higher is better.")
 
 
 def held_cell(counts: dict[str, Any] | None, digits: int, pending: str | None = None) -> str:
@@ -300,9 +308,18 @@ def kept_line(sure: str, kept: dict[str, Any] | None, questions: int) -> str | N
 # (Ümit #6696, #6706 via Zeki #6718): Non-hallucination, Confidence, Cost and Latency, each from the row's one setup; their
 # Measure keys still open their views. Below 900 px the columns stay too, the table scrolling inside its frame with the
 # model column in place, and each row's latency and cost read under its name (glance_lines; v3.css, Zeki #6751, #6754).
-CONFIDENCE_HEAD = 'Confidence<span class="small">calibration gap, points \u00b7 lower is better</span>'
-BRIER_HEAD = 'Confidence<span class="small">chosen-answer Brier \u00b7 lower is better</span>'
-LATENCY_HEAD = 'Latency<span class="small">median seconds per request \u00b7 lower is better</span>'
+CONFIDENCE_HEAD = head("Confidence", "calibration gap, points",
+                       "How far the setup's confidence is from its accuracy (expected calibration error), in points: from "
+                       "its option probabilities, or from the confidence it wrote with each answer (written estimate); "
+                       "blank where it gives neither. Lower is better.")
+BRIER_HEAD = head("Confidence", "chosen-answer Brier",
+                  "The mean squared error of the probability the setup gave its chosen answer (the chosen answer's Brier "
+                  "score), where it gives one. Lower is better.")
+LATENCY_HEAD = head("Latency", "median s per request",
+                    "The median wall time of one request, in seconds; under it, the questions per request and the "
+                    "requests in flight: rows asked differently are not speeds under the same load. Lower is better.")
+COST_TIP = ("Estimated US dollars per 1,000 questions; under each value its basis: tokens at list prices, a "
+            "subscription priced as the API, or GPU time on our hardware. Lower is better.")
 
 
 def confidence_cell(run: dict[str, Any]) -> str:
@@ -412,13 +429,23 @@ def turkish(site: Site, board: Board, group: str | None = None) -> tuple[list[st
         return f'{bar(correct, questions, colour)}<span class="lb-value">{pct(correct / questions)}{ci(correct, questions)}</span>', correct
 
     rows = board.turkish_rows()
-    heads = (["Reading", "Grammar"] if group is None else ["Turkish<span class=\"small\">all questions</span>", other.capitalize()])
-    heads += [held_head(board.option), CONFIDENCE_HEAD, f"Cost<span class=\"small\">{cost_per()}</span>", LATENCY_HEAD]
+    sizes = {name: rows[0][0]["groups"][name]["questions"] for name in ("reading", "grammar")}
+    part_head = lambda name: head(name.capitalize(), f"of {bp.count(sizes[name])} questions",  # noqa: E731
+                                  f"Accuracy on the {bp.count(sizes[name])} Turkish {name} questions alone, from the same "
+                                  "run. Higher is better.")
+    heads = ([part_head("reading"), part_head("grammar")] if group is None else
+             [head("Turkish", f"of {bp.count(total)} questions",
+                   f"Accuracy on all {bp.count(total)} Turkish questions, from the same run. Higher is better."),
+              part_head(other)])
+    heads += [held_head(board.option), CONFIDENCE_HEAD, head("Cost", cost_per(), COST_TIP), LATENCY_HEAD]
     questions = total if group is None else counts(rows[0][0])[1]
     title = "Accuracy" if group is None else f"Accuracy on {group}"
     body = table_rows(site, board, "tr" if group is None else f"tr{group[0]}", rows, lambda run: run, facts, score,
                       lambda run: site.model_path(run), group is None, turkish=True)
-    return [f"{title}<span class=\"small\">{bp.count(questions)} questions, 95% interval</span>", *heads], body, len(rows)
+    what = "Turkish questions" if group is None else f"Turkish {group} questions"
+    return [head(title, f"of {bp.count(questions)} questions, 95% interval",
+                 f"Right answers out of the {bp.count(questions)} {what}; a reply without a readable answer counts wrong. "
+                 "The whisker is the 95% interval. Higher is better."), *heads], body, len(rows)
 
 
 def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]:
@@ -505,15 +532,26 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
 
     rows = board.english_rows(both)
     if both:
-        heads = [f"Turkish · English<span class=\"small\">{bp.count(kept)} questions, 95% intervals</span>", "Turkish",
-                 "English", "Difference<span class=\"small\">points, English minus Turkish</span>"]
+        heads = [head("Turkish · English", f"{bp.count(kept)} questions, 95% intervals",
+                      f"Turkish (solid) and English (striped) accuracy on the same {bp.count(kept)} kept reading "
+                      "questions, ranked by Turkish. Higher is better."),
+                 head("Turkish", f"of {bp.count(kept)} kept", f"Accuracy on the {bp.count(kept)} kept questions in "
+                      "Turkish. Higher is better."),
+                 head("English", f"of {bp.count(kept)} kept", f"Accuracy on the same {bp.count(kept)} questions "
+                      "translated into English. Higher is better."),
+                 head("Difference", "points, English minus Turkish",
+                      "English accuracy minus Turkish accuracy on the same questions, in percentage points: above 0, "
+                      "the setup does better in English.")]
     else:
         # A head names each kind of number its column shows (Zeki #7044 on Logic & Math's): a three-seed mean's row
         # shows the seeds' min–max where the others show a 95% interval.
         seeded = any(seeds_complete(model) for model, _ in rows)
-        heads = [f"Accuracy in English<span class=\"small\">{bp.count(kept)} questions, 95% interval"
-                 + ("; min\u2013max of 3 seeds where marked" if seeded else "") + "</span>",
-                 held_head(board.english_option), BRIER_HEAD, f"Cost<span class=\"small\">{cost_per()}</span>", LATENCY_HEAD]
+        heads = [head("Accuracy in English", f"of {bp.count(kept)} questions, 95% interval"
+                      + ("; min\u2013max of 3 seeds where marked" if seeded else ""),
+                      f"Right answers out of the {bp.count(kept)} kept reading questions, translated into English; a "
+                      "reply without a readable answer counts wrong. The whisker is the 95% interval"
+                      + (" (the lowest and highest of 3 seeds on a row marked so)" if seeded else "") + ". Higher is better."),
+                 held_head(board.english_option), BRIER_HEAD, head("Cost", cost_per(), COST_TIP), LATENCY_HEAD]
     body = table_rows(site, board, "bo" if both else "en", rows, run_of, facts, score,
                       lambda model: entry_href(site, "", model), False)
     return heads, body
@@ -615,11 +653,13 @@ def table_rows(site: Site, board: Board, prefix: str, rows: list[tuple[dict[str,
 
 
 def table(part: str, heads: list[str], body: list[str], caption: str) -> str:
-    head = "".join(f'<th scope="col" class="num lb-wide">{text}</th>' for text in heads[1:])
-    number = "Tier" if part == "turkish" else "Rank"
+    cells = "".join(f'<th scope="col" class="num lb-wide">{text}</th>' for text in heads[1:])
+    number = (head("Tier", "", "Rows in one tier are not told apart by the paired test; the number is the tier, not a "
+                   "rank.") if part == "turkish" else
+              head("Rank", "", "The place by this table's accuracy among the setups in view."))
     return (f'<div class="table-wrap"><table class="lb-table" data-part="{part}"><caption class="visually-hidden">{esc(caption)}'
             f'</caption><thead><tr><th scope="col" class="num">{number}</th><th scope="col">Model</th>'
-            f'<th scope="col" class="lb-score">{heads[0]}</th>{head}</tr></thead><tbody>{"".join(body)}'
+            f'<th scope="col" class="lb-score">{heads[0]}</th>{cells}</tr></thead><tbody>{"".join(body)}'
             "</tbody></table></div>")
 
 
