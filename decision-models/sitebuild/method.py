@@ -307,8 +307,9 @@ def names_table(site: Site) -> str:
     rows = []
     for recorded in dict.fromkeys(run["name"] for run in [*site.runs, *(site.results["english_reading"].get("english_only") or [])]):
         entry = names.entry(recorded)
-        source = (f'<a href="{esc(entry["evidence"]["url"])}">{esc(entry["evidence"]["url"].split("://", 1)[-1])}</a>'
-                  if entry and entry.get("evidence", {}).get("url") else "")
+        evidence = (entry or {}).get("evidence") or {}  # the shared table may hold "evidence": null (logic's master)
+        source = (f'<a href="{esc(evidence["url"])}">{esc(evidence["url"].split("://", 1)[-1])}</a>'
+                  if evidence.get("url") else "")
         rows.append(f'<tr><td>{esc(recorded)}</td><td>{esc(names.official(recorded, site.config))}</td>'
                     f'<td>{esc(entry["source_status"]) if entry else "not in the shared table yet"}</td><td>{source}</td></tr>')
     return ('<div class="table-wrap"><table class="settings"><thead><tr><th scope="col">Setup name in the results</th>'

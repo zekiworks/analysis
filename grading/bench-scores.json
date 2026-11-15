@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-15T02:32:59Z",
+ "updated": "2026-11-15T07:08:25Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -429,6 +429,34 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "Jeffan-9B-1211",
+   "display_name": "Jeffan-9B-1211",
+   "tag": "",
+   "model_key": "jeffan-9b-1211",
+   "maker": "tattrongvu",
+   "kind": "decision",
+   "repo": "tattrongvu/Jeffan-9B-1211",
+   "commit": "862d1a7a8b64a8d708ddb0b0cd775a740f01841a",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 82.96278395360076,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8864185596906718,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.033345923925473156,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-jeffan-9b-1211-v1"
+   ],
+   "notes": "tattrongvu/Jeffan-9B-1211@862d1a7a, its card's Decision Index engine (jeffan_engine:DecisionEngine, transformers 5.17.0, flash-linear-attention 0.5.2, kit decision-index@f8552a1, options max_len and budget 65,536 as its card; without the card's optional causal-conv1d, so its PyTorch reference convolution) behind di_serve.py, our System One wrapper of the engine, BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.05723418541718017,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "d1.1",
    "display_name": "d1.1",
    "tag": "",
@@ -482,6 +510,62 @@
    ],
    "notes": "fastino/GLiDE-9B@ab54df5a, GLiDE server (python -m glide.server) in vLLM v0.30.0 image with flash-linear-attention 0.5.2, as for GLiDE 2B, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
    "gpu_hours": 0.05197667056112872,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "KnowLine 4B Gen5.5",
+   "display_name": "KnowLine 4B Gen5.5",
+   "tag": "",
+   "model_key": "knowline-4b-gen5.5",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "repo": "PelaAI/KnowLine-4B-Gen5.5",
+   "commit": "779944d2cc8ffa19cef386aee83c83bcb967ade2",
+   "params_total": 4.0,
+   "params_active": 4.0,
+   "quantization": "FP8",
+   "score_0_100": 80.642822619623,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8709521507974867,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.045316565330469655,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-knowline-4b-gen5.5-v1"
+   ],
+   "notes": "PelaAI/KnowLine-4B-Gen5.5@779944d2 (the site's pin; no longer in the maker's repository, copied from the snapshot its published runs used, SHA256SUMS checked), its card's serve_knowline.sh (SGLang with FP8 at load, then knowline_server.py, card defaults) in the lmsysorg/sglang image with SGLang 0.5.23, on one RTX PRO 6000 (ours), self-hosted; its published runs were on a DGX Spark; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.028165908471719098,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Adjudex 9B v5",
+   "display_name": "Adjudex 9B v5",
+   "tag": "",
+   "model_key": "adjudex-9b-v5",
+   "maker": "newsbang",
+   "kind": "decision",
+   "repo": "newsbang/adjudex-9b-v5",
+   "commit": "ffdcb8254d1b22e40b2bbbf569f143e0b357aeca",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 80.42532624456258,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8695021749637506,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.049161628998359276,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-adjudex-9b-v5-v1"
+   ],
+   "notes": "newsbang/adjudex-9b-v5@ffdcb825, its card's autojev server (the Perplexity Decider v1.1 source, in the environment of its requirements), default settings, BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.04104341335131996,
    "gpu_cost_usd": null
   },
   {
@@ -738,6 +822,34 @@
    ],
    "notes": "baselabs/elephant-1@b3f8a934, the runner's baselabs_server.py in the card's setup.sh environment (OneJev 81ce62f1 with the checkpoint's serve.patch), on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
    "gpu_hours": 0.056309502522205596,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "KnowLine-9B-Gen1",
+   "display_name": "KnowLine-9B-Gen1",
+   "tag": "",
+   "model_key": "knowline-9b-gen1",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "repo": "PelaAI/KnowLine-9B-Gen1",
+   "commit": "325378d128e9f5eb5088196668f5874c5682b6c0",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 76.14789753504107,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8409859835669405,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.035704499480152495,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-knowline-9b-gen1-v1"
+   ],
+   "notes": "PelaAI/KnowLine-9B-Gen1@325378d1, its card's serve_knowline.sh (SGLang, then knowline_server.py, card defaults) in the lmsysorg/sglang image with SGLang 0.5.23 (the card's release launcher names 0.5.21, which we do not have), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.06016774425950634,
    "gpu_cost_usd": null
   },
   {

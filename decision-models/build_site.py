@@ -92,9 +92,9 @@ INTRO = (
 DESCRIPTION = (
     "We tested {decision} decision models on a reading comprehension and grammar test in native Turkish (not "
     "translated): {questions} questions. "
-    "No model led on every measure. KnowLine-31B-Gen1.5 got the most answers right, ahead of REAX 1.3, karpo-decision-31B, "
-    "Gemini Decision 1 and Liquid's d1-ultra, which tied. Of the decision "
-    "models with no observed mistakes at 99% confidence, karpo-decision-31B, run on our hardware, kept the most "
+    "No model led on every measure. KnowLine-31B-Gen1.5 got the most answers right, ahead of REAX 1.3, Karpo Decision "
+    "31B, Gemini Decision 1 and Liquid's d1-ultra, which tied. Of the decision "
+    "models with no observed mistakes at 99% confidence, Karpo Decision 31B, run on our hardware, kept the most "
     "answers. With every model at 1 question per request, the decision model "
     "with the largest share took 34% to 62% of each LLM's questions, with accuracy at most 0.16 points lower, in a "
     "replay of recorded answers."
@@ -123,7 +123,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: KnowLine-31B-Gen1.5 clearly ahead at 81.8%; REAX 1.3, karpo-decision-31B, Gemini Decision 1 and Liquid's d1-ultra, tied at 77.9%, 77.8%, 77.5% and 77.1%; GLiDE 27B at 71.1%; then Decider v1.2 with web search, GLiDE v1.2, Decider v1.3, hosted GLiDE, d3 and d3-ultra, Drex Max and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark, at 66.9% to 68.7%."
+SUMMARY_ACCURACY = "Accuracy: KnowLine-31B-Gen1.5 clearly ahead at 81.8%; REAX 1.3, Karpo Decision 31B, Gemini Decision 1 and Liquid's d1-ultra, tied at 77.9%, 77.8%, 77.5% and 77.1%; GLiDE 27B at 71.1%; then Decider v1.2 with web search, GLiDE v1.2, Decider v1.3, hosted GLiDE, d3 and d3-ultra, Drex Max and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark, at 66.9% to 68.7%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.

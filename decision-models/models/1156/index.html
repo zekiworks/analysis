@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>karpo-decision-31B · 1 question per request · Hilde</title>
+  <title>Karpo Decision 31B · 1 question per request · Hilde</title>
   <link rel="canonical" href="https://zekiworks.github.io/analysis/decision-models/models/1156/">
-  <meta name="description" content="karpo-decision-31B · 1 question per request: how we called it, results, confidence, latency and cost.">
+  <meta name="description" content="Karpo Decision 31B · 1 question per request: how we called it, results, confidence, latency and cost.">
   <script>document.documentElement.classList.add("js"); document.documentElement.dataset.theme = "dark"; try { if (localStorage.getItem("theme") === "light") document.documentElement.dataset.theme = "light"; if ((new URLSearchParams(location.search).get("cost-unit") || localStorage.getItem("costUnit")) === "1m") document.documentElement.dataset.costUnit = "1m"; } catch (e) {}</script>
   <link rel="stylesheet" href="../../suite-bar.css?v=97f06dc6">
   <link rel="stylesheet" href="../../v3.css?v=d8b4547f">
@@ -22,13 +22,13 @@
 
     <section class="card">
       <p class="eyebrow">Decision model</p>
-      <h1>karpo-decision-31B</h1>
+      <h1>Karpo Decision 31B</h1>
       <p class="subtitle">1 question per request</p>
       <dl class="key-figures"><div><dt>Accuracy, all 2,198 questions</dt><dd><span class="key-figure">77.8%</span><span class="small">76.0% to 79.5%, 95% interval; 1,710 right</span></dd></div><div><dt>Answers kept at 99% confidence</dt><dd><span class="key-figure">505 of 2,198</span><span class="small">0 wrong; share right 99.2% to 100.0%, 95% interval</span></dd></div><div><dt>Cost, $ <span class="cost-1k">per 1,000 questions</span><span class="cost-1m">per 1M questions</span></dt><dd><span class="key-figure"><span class="cost-1k">$0.105</span><span class="cost-1m">$105</span></span><span class="small"><a href="#cost">Basis and price under Cost</a></span></dd></div><div><dt>Latency</dt><dd><span class="key-figure">0.159 s</span><span class="small">median request, 1 question per request</span></dd></div></dl><p><a href="../../">Back to the leaderboard</a>.</p>
     </section>
     <section class="card" id="called">
       <h2>How we called it</h2>
-      <dl class="facts"><dt>Kind</dt><dd>Decision model</dd><dt>Access</dt><dd>karpo-decision server (the System One server of the card&#x27;s karpo-decision package, machinepulse-ai/karpo-decision at ac40d39), self-hosted, BF16</dd><dt>Paid as</dt><dd>Our own hardware</dd><dt>Model ID</dt><dd><code>karpo-decision</code></dd><dt>Parameters</dt><dd>not stated by the maker; counted from the released files: 31.27B.<span class="small">language model + vision encoder (575,743,536) + 255-way readout (1,370,880); the card says 31.3B in bf16 plus the readout; source: counted from the checkpoint&#x27;s safetensors, MachinePulseAI/karpo-decision-31B@d69cdd5, <a href="https://huggingface.co/MachinePulseAI/karpo-decision-31B">huggingface.co/MachinePulseAI/karpo-decision-31B</a>; read 15 November 2026</span></dd><dt>Hardware</dt><dd>1 × RTX PRO 6000 Blackwell (96 GB); BF16</dd><dt>Note</dt><dd>MachinePulse&#x27;s released checkpoint, a fine-tune of Gemma-4-31B-it with a 255-way readout that also reads images, run on our hardware through the System One server of the package its card ships (karpo-decision at ac40d39). Its Reading runs shared the server with the Logic &amp; Math site&#x27;s runs from 05:00 UTC on 15 November 2026, so its latency and GPU-time cost were measured under that load.</dd><dt>Confidence from</dt><dd>Option score</dd><dt>Run</dt><dd>1156, 15 November 2026</dd></dl>
+      <dl class="facts"><dt>Kind</dt><dd>Decision model</dd><dt>Access</dt><dd>karpo-decision server (the System One server of the card&#x27;s karpo-decision package, machinepulse-ai/karpo-decision at ac40d39), self-hosted, BF16</dd><dt>Paid as</dt><dd>Our own hardware</dd><dt>Model ID</dt><dd><code>karpo-decision</code></dd><dt>Parameters</dt><dd>31B dense, as the maker states it (counted from the released files: 31.27B).<span class="small">language model + vision encoder (575,743,536) + 255-way readout (1,370,880); the card says 31.3B in bf16 plus the readout; source: counted from the checkpoint&#x27;s safetensors, MachinePulseAI/Karpo Decision 31B@d69cdd5, <a href="https://huggingface.co/MachinePulseAI/Karpo Decision 31B">huggingface.co/MachinePulseAI/Karpo Decision 31B</a>; read 15 November 2026</span></dd><dt>Hardware</dt><dd>1 × RTX PRO 6000 Blackwell (96 GB); BF16</dd><dt>Note</dt><dd>MachinePulse&#x27;s released checkpoint, a fine-tune of Gemma-4-31B-it with a 255-way readout that also reads images, run on our hardware through the System One server of the package its card ships (karpo-decision at ac40d39). Its Reading runs shared the server with the Logic &amp; Math site&#x27;s runs from 05:00 UTC on 15 November 2026, so its latency and GPU-time cost were measured under that load.</dd><dt>Confidence from</dt><dd>Option score</dd><dt>Run</dt><dd>1156, 15 November 2026</dd></dl>
     </section>
     <section class="card" id="settings">
       <h2>Settings</h2>
