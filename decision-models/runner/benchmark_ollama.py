@@ -852,7 +852,15 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("knowline", "PelaAI/KnowLine-9B-Gen1"): 1,
     ("pplx-decider", "jev-latest"): 1,
     ("di-serve", "Jeffan-9B-1211"): 1,
+    # Chinese Decision Pointer 4B (quincyqiang/chinese-decision-pointer-4b at 889f23e2) behind di_serve.py (compactor
+    # #8387). Cerno 9B v1.2: its Turkish runs on GPU 0 (compactor #8353); its English runs ran on a DGX Spark
+    # (SPARK_RUNS), which this rate does not fit.
+    ("di-serve", "Chinese-Decision-Pointer-4B"): 1,
+    ("cerno", "apertixai/cerno-9b-v1.2"): 1,
 }
+# Runs of a GPU_TIME setup that ran on a DGX Spark, by run id: no GPU-time estimate, as for the setups that ran only on a
+# Spark (the RTX PRO 6000's rate does not fit a Spark's request time; #4055). Cerno 9B v1.2's English runs on spark2.
+SPARK_RUNS = frozenset({1085, 1087})
 # Setups that differ from another setup of the same served model only in their requests (thinking off or on, the output
 # cap), on the same checkpoint, server image and flags (Ümit #6516, #6924; logic #6770, #6955), by (provider, model):
 # that setup. Each takes its list price or GPU time; its own tokens or request time make its cost. export_results.py
@@ -6667,7 +6675,8 @@ def run_metrics(connection: sqlite3.Connection, run_key: str, search_dir: Path) 
             "rates": price.rates(),
             "text": price_text(price),
         }
-    elif (gpus := GPU_TIME.get((provider, run["model"]))) is not None and metrics["timed_seconds"] > 0:
+    elif ((gpus := GPU_TIME.get((provider, run["model"]))) is not None and metrics["timed_seconds"] > 0
+          and run["id"] not in SPARK_RUNS):
         # No public price for the same weights: the run's request time on the GPUs its server held, at GPU_RATE.
         metrics["cost_usd"] = GPU_RATE.cost(metrics["timed_seconds"], gpus)
         metrics["price"] = gpu_price(gpus)

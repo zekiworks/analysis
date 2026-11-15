@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-15T07:34:12Z",
+    "updated": "2026-11-15T08:51:18Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1200,6 +1200,37 @@
       "gpu_cost_usd": 0.07082104323594485
      },
      {
+      "repo": "logitshq/Logits-Sigma-1-Duo",
+      "commit": "a0c1b6e8242916aafdcf9a5a49c1a952cb56e091",
+      "model_key": "logits-sigma-1-duo",
+      "name": "Logits Sigma-1 Duo",
+      "display_name": "Logits Sigma-1 Duo",
+      "tag": "",
+      "class_label": "Open · 57B",
+      "base_model": null,
+      "setup_label": "Logits Sigma-1 Duo",
+      "maker": "Logits",
+      "kind": "decision",
+      "params_total": 57.36,
+      "params_active": 57.36,
+      "quantization": "FP8",
+      "score_0_100": 47.22222222222221,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5777777777777777,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.04976511336326297,
+      "improvement_points": null,
+      "runs": [
+       "logic:logits-sigma-1-duo_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 0.09555555555555556,
+      "gpu_cost_usd": 0.23793333333333336
+     },
+     {
       "repo": "fastino/GLiDE",
       "commit": "a7e45896be7c96ba3354891da790c5ec99c30b6c",
       "model_key": "fastino-glide-v1.2",
@@ -2384,6 +2415,38 @@
       "gpu_cost_usd": 0.09683333333333334
      },
      {
+      "repo": "quincyqiang/chinese-decision-pointer-4b",
+      "commit": "889f23e2655e5cba1208bb17f90526092813f5f2",
+      "model_key": "chinese-decision-pointer-4b",
+      "name": "Chinese Decision Pointer 4B",
+      "display_name": "Chinese Decision Pointer 4B",
+      "tag": "",
+      "class_label": "Open · 4.0B",
+      "base_model": "Qwen3.5-4B",
+      "setup_label": "Chinese Decision Pointer 4B",
+      "maker": "quincyqiang",
+      "kind": "decision",
+      "params_total": 4.0,
+      "params_active": 4.0,
+      "quantization": "BF16",
+      "score_0_100": 25.444444444444443,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.40355555555555556,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.15482393511855636,
+      "improvement_points": null,
+      "runs": [
+       "logic:chinese-pointer-4b_en",
+       "logic:chinese-pointer-4b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.013333333333333334,
+      "gpu_cost_usd": 0.0332
+     },
+     {
       "repo": "EldanRing/Winnow-12B",
       "commit": "b2b14213dfa252e6d6b543c8b334762e51772d29",
       "model_key": "winnow-12b",
@@ -2865,7 +2928,7 @@
      }
     ]
    },
-   "sha256": "90f7fafe9b778303adb6b4fae511dbca1b5a76ea5f5e5f1800caf3d3cf864c7f"
+   "sha256": "8be31b08fcf7edd83861cce35b6578f12f6668e3c6203d6e934486403085db70"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -2875,7 +2938,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-15T07:34:12Z",
+    "updated": "2026-11-15T08:51:18Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -3801,9 +3864,10 @@
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "math:qwen3.5-2b-nothink_en"
+       "math:qwen3.5-2b-nothink_en",
+       "math:qwen3.5-2b-nothink_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.31555555555555553,
       "gpu_cost_usd": 0.7857333333333334
      },
@@ -4030,6 +4094,37 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.3977777777777778,
       "gpu_cost_usd": 0.0846542019314466
+     },
+     {
+      "repo": "logitshq/Logits-Sigma-1-Duo",
+      "commit": "a0c1b6e8242916aafdcf9a5a49c1a952cb56e091",
+      "model_key": "logits-sigma-1-duo",
+      "name": "Logits Sigma-1 Duo",
+      "display_name": "Logits Sigma-1 Duo",
+      "tag": "",
+      "class_label": "Open · 57B",
+      "base_model": null,
+      "setup_label": "Logits Sigma-1 Duo",
+      "maker": "Logits",
+      "kind": "decision",
+      "params_total": 57.36,
+      "params_active": 57.36,
+      "quantization": "FP8",
+      "score_0_100": 69.02450300508552,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7521960240406842,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.07541269945078859,
+      "improvement_points": null,
+      "runs": [
+       "math:logits-sigma-1-duo_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 0.12222222222222222,
+      "gpu_cost_usd": 0.30433333333333334
      },
      {
       "repo": null,
@@ -5216,6 +5311,38 @@
       "gpu_cost_usd": 0.28427500000000006
      },
      {
+      "repo": "quincyqiang/chinese-decision-pointer-4b",
+      "commit": "889f23e2655e5cba1208bb17f90526092813f5f2",
+      "model_key": "chinese-decision-pointer-4b",
+      "name": "Chinese Decision Pointer 4B",
+      "display_name": "Chinese Decision Pointer 4B",
+      "tag": "",
+      "class_label": "Open · 4.0B",
+      "base_model": "Qwen3.5-4B",
+      "setup_label": "Chinese Decision Pointer 4B",
+      "maker": "quincyqiang",
+      "kind": "decision",
+      "params_total": 4.0,
+      "params_active": 4.0,
+      "quantization": "BF16",
+      "score_0_100": 38.04900601017106,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5043920480813685,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.1374209486331622,
+      "improvement_points": null,
+      "runs": [
+       "math:chinese-pointer-4b_en",
+       "math:chinese-pointer-4b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.01972222222222222,
+      "gpu_cost_usd": 0.04910833333333334
+     },
+     {
       "repo": "Cloudflare/clef-flash",
       "commit": "fde727a287004204b7518dcc983fe64379776712",
       "model_key": "clef-flash",
@@ -5697,7 +5824,7 @@
      }
     ]
    },
-   "sha256": "c183f919cfebc1ae8c98cf2c2ad91661bab3cb2466a524c599503d9fd92e2753"
+   "sha256": "ff46583f8926eb180e1fc4568dafbd663277217374a26f887b70107e8979f7bc"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -5707,7 +5834,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-15T07:34:12Z",
+    "updated": "2026-11-15T08:51:18Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -6623,9 +6750,11 @@
       "improvement_points": null,
       "runs": [
        "logic:qwen3.5-2b-nothink_en",
-       "math:qwen3.5-2b-nothink_en"
+       "math:qwen3.5-2b-nothink_en",
+       "logic:qwen3.5-2b-nothink_en_dontknow",
+       "math:qwen3.5-2b-nothink_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 1.0405555555555555,
       "gpu_cost_usd": 2.590983333333334
      },
@@ -6866,6 +6995,38 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.7305555555555556,
       "gpu_cost_usd": 0.15547524516739145
+     },
+     {
+      "repo": "logitshq/Logits-Sigma-1-Duo",
+      "commit": "a0c1b6e8242916aafdcf9a5a49c1a952cb56e091",
+      "model_key": "logits-sigma-1-duo",
+      "name": "Logits Sigma-1 Duo",
+      "display_name": "Logits Sigma-1 Duo",
+      "tag": "",
+      "class_label": "Open · 57B",
+      "base_model": null,
+      "setup_label": "Logits Sigma-1 Duo",
+      "maker": "Logits",
+      "kind": "decision",
+      "params_total": 57.36,
+      "params_active": 57.36,
+      "quantization": "FP8",
+      "score_0_100": 61.56478102189781,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6925182481751825,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.059973442131064064,
+      "improvement_points": null,
+      "runs": [
+       "logic:logits-sigma-1-duo_en",
+       "math:logits-sigma-1-duo_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 0.2177777777777778,
+      "gpu_cost_usd": 0.5422666666666667
      },
      {
       "repo": null,
@@ -8126,6 +8287,40 @@
       "gpu_cost_usd": 0.44266666666666676
      },
      {
+      "repo": "quincyqiang/chinese-decision-pointer-4b",
+      "commit": "889f23e2655e5cba1208bb17f90526092813f5f2",
+      "model_key": "chinese-decision-pointer-4b",
+      "name": "Chinese Decision Pointer 4B",
+      "display_name": "Chinese Decision Pointer 4B",
+      "tag": "",
+      "class_label": "Open · 4.0B",
+      "base_model": "Qwen3.5-4B",
+      "setup_label": "Chinese Decision Pointer 4B",
+      "maker": "quincyqiang",
+      "kind": "decision",
+      "params_total": 4.0,
+      "params_active": 4.0,
+      "quantization": "BF16",
+      "score_0_100": 33.73631386861313,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.4698905109489051,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.14337543762223412,
+      "improvement_points": null,
+      "runs": [
+       "logic:chinese-pointer-4b_en",
+       "math:chinese-pointer-4b_en",
+       "logic:chinese-pointer-4b_en_dontknow",
+       "math:chinese-pointer-4b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.03305555555555555,
+      "gpu_cost_usd": 0.08230833333333334
+     },
+     {
       "repo": "Cloudflare/clef-flash",
       "commit": "fde727a287004204b7518dcc983fe64379776712",
       "model_key": "clef-flash",
@@ -8637,7 +8832,7 @@
      }
     ]
    },
-   "sha256": "471982316bbd450d8532b26e9dd98373598133494eca01f45f4ba1011229ec0e"
+   "sha256": "ee82c0182423e0770736e000a062526a230e670d23b7c8a2487a729bd853b154"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -10077,10 +10272,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-15T06:35Z",
+    "updated": "2026-11-15T08:50Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "7a85e06ae86539427395c63cf10aa2ed1f71f462da81dc9b5583096a22a5f03b"
+   "sha256": "b3b3f9466381914b71e09846df68ea3c6be8f0e273247190bc658545f8b42fca"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
