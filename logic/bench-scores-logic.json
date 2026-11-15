@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-15T11:51:27Z",
+ "updated": "2026-11-15T12:00:08Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -932,7 +932,7 @@
     "logic:qwen3.5-2b-nothink_en",
     "logic:qwen3.5-2b-nothink_en_dontknow"
    ],
-   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Qwen3.5-2B (on · chat)",
    "gpu_hours": 0.725,
    "gpu_cost_usd": 1.8052500000000002
   },
@@ -2023,6 +2023,37 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.024444444444444446,
    "gpu_cost_usd": 0.005202213526513478
+  },
+  {
+   "repo": "Patrick-18/Dexy-Decision-9B-V2",
+   "commit": "4f434e2b5fd9f0addfe3233489571c2dc8ce7a19",
+   "model_key": "dexy-decision-9b-v2",
+   "name": "Dexy-Decision-9B-V2",
+   "display_name": "Dexy-Decision-9B-V2",
+   "tag": "",
+   "class_label": "Open · 9.0B",
+   "base_model": "vllm-sr/d3-flash",
+   "setup_label": "Dexy-Decision-9B-V2",
+   "maker": "Patrick-18",
+   "kind": "decision",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 31.66666666666666,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.4533333333333333,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": 0.14941316223793505,
+   "improvement_points": null,
+   "runs": [
+    "logic:dexy-9b_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 0.015277777777777777,
+   "gpu_cost_usd": 0.03804166666666667
   },
   {
    "repo": null,

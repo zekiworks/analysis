@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-15T11:51:27Z",
+ "updated": "2026-11-15T12:00:08Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2086,6 +2086,37 @@
    "notes": "hosted API (the maker's service)",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "Patrick-18/Dexy-Decision-9B-V2",
+   "commit": "4f434e2b5fd9f0addfe3233489571c2dc8ce7a19",
+   "model_key": "dexy-decision-9b-v2",
+   "name": "Dexy-Decision-9B-V2",
+   "display_name": "Dexy-Decision-9B-V2",
+   "tag": "",
+   "class_label": "Open · 9.0B",
+   "base_model": "vllm-sr/d3-flash",
+   "setup_label": "Dexy-Decision-9B-V2",
+   "maker": "Patrick-18",
+   "kind": "decision",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 48.509015256588064,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5880721220527045,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": 0.12131842805076583,
+   "improvement_points": null,
+   "runs": [
+    "math:dexy-9b_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 0.027777777777777776,
+   "gpu_cost_usd": 0.06916666666666667
   },
   {
    "repo": "fastino/GLiDE-9B",
