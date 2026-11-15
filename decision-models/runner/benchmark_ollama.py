@@ -838,6 +838,9 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("pplx-decider", "pplx-decider-v1.3"): 1,
     ("karpo", "karpo-decision"): 1,
     ("copernicus", "Copernicus-31B"): 1,
+    # Raon-1 nano (KRAFTON/Raon-1-nano at fcf2d1d5) on KRAFTON's vLLM fork (krafton-ai/vllm at 13a5dd87), logic's
+    # server on our GPU (logic #8180); no API sells it.
+    ("vllm-plain", "raon-1-nano"): 1,
 }
 # Setups that differ from another setup of the same served model only in their requests (thinking off or on, the output
 # cap), on the same checkpoint, server image and flags (Ümit #6516, #6924; logic #6770, #6955), by (provider, model):
@@ -848,6 +851,7 @@ SETUP_OF: dict[tuple[str, str], tuple[str, str]] = {
     ("vllm-plain", "lfm3-1.7b-vllm-nothink"): ("vllm-plain", "lfm3-1.7b"),
     ("vllm-plain", "granite-4.2-3b-nothink"): ("vllm-plain", "granite-4.2-3b"),
     ("vllm-plain", "qwen3.5-4b-nothink"): ("vllm-plain", "qwen3.5-4b"),
+    ("vllm-plain", "raon-1-nano-nothink"): ("vllm-plain", "raon-1-nano"),
     ("vllm-plain", "gemma-4-e2b-it-think-32k"): ("vllm-plain", "gemma-4-e2b-it"),
     ("vllm-plain", "gemma-4-e4b-it-think-32k"): ("vllm-plain", "gemma-4-e4b-it"),
     ("vllm-plain", "gemma-4-12b-it-think-32k"): ("vllm-plain", "gemma-4-12b-it"),
