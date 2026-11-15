@@ -98,6 +98,9 @@ td.probs span { white-space: nowrap; }
 .cost-tip:hover::after, .cost-tip:focus::after { content: attr(data-tip); position: absolute; z-index: 20; left: 0; top: 100%;
   width: min(26rem, 80vw); padding: .4rem .5rem; background: var(--bg, #fff); color: var(--text, #111); border: 1px solid var(--edge);
   border-radius: 4px; font-size: .78rem; line-height: 1.35; white-space: normal; text-align: left; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+/* Column-head explanations (Ümit #9113): the side columns' boxes open to the left, so they stay on screen; narrower. */
+th .head-tip:hover::after, th .head-tip:focus::after { font-weight: 400; width: min(20rem, 80vw); }
+th.lb-wide .head-tip:hover::after, th.lb-wide .head-tip:focus::after { left: auto; right: 0; }
 
 /* Current work. */
 .progress { display: block; width: 100%; min-width: 8rem; height: .7rem; margin: .2rem 0 .15rem; background: var(--sunk);
