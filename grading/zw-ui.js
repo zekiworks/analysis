@@ -1,7 +1,9 @@
 /* zw-ui.js: the shared UI kit of the Zeki Works bench sites (markup: zw_ui.py; contract: zw-ui.md). Copied byte for
    byte (sha256) into every site; never edit a copy. Base: logic's kit-form draft (bus #4885) of the Logic & Math site,
    completed by turkce against the kit contract (Ümit #4862); v2 with the three ports' asks (#4918, #4923, Reading's),
-   v2.1 with shared cost calculations and panels loaded on first show (logic #4931).
+   v2.1 with shared cost calculations and panels loaded on first show (logic #4931); v2.7: a details box on a raised
+   background, up to 560 px wide, opened by the mouse from its model cell only, and its cell above the later rows'
+   sticky cells, which covered a box that opened downward (Ümit #9111, grading #9115).
    Modules, each a no-op when its markup is absent: keys (filter rows, Measure keys and Chart / Table keys: the URL
    state), lists (tier/rank, Top N with its Show all button, pinned reference rows, sub-rows, empty lines, legends),
    panels (a panel outside the default view fetched from its fragment file on first show), filter bar (the phone's
@@ -455,7 +457,8 @@
         const box = boxOf(open), row = open.getBoundingClientRect();
         const cell = (open.querySelector('.zw-model') || open).getBoundingClientRect();
         const vw = root.clientWidth;
-        const width = Math.min(400, vw - 16);
+        // Up to 560 px on a wide screen, so a long note takes fewer lines (Ümit #9111); the window's width less 16 px on a phone.
+        const width = Math.min(560, vw - 16);
         box.style.width = `${width}px`;
         box.style.left = `${Math.max(8, Math.min(cell.left, vw - width - 8))}px`;
         box.style.maxHeight = '';
@@ -554,14 +557,18 @@
       const released = () => setTimeout(() => { pointing = false; });
       document.addEventListener('pointerup', released, true);
       document.addEventListener('pointercancel', released, true);
-      // The rows of a part of the block (all of it at start, a panel when it loads) get their listeners.
+      // The rows of a part of the block (all of it at start, a panel when it loads) get their listeners. A mouse opens
+      // a row's box from its model cell only (the box sits in that cell, so the pointer may move into it and to its
+      // links), not from anywhere in the row: reading across a row's numbers no longer lays a box over other rows
+      // (Ümit #9111, grading #9122). A click or tap anywhere in the row still opens and pins it.
       const adopt = scope => scope.querySelectorAll('[data-zw-box]').forEach(row => {
         if (row.dataset.zwAdopted) return;
         row.dataset.zwAdopted = '';
-        row.addEventListener('pointerenter', event => {
+        const hover = row.querySelector('.zw-model') || row;
+        hover.addEventListener('pointerenter', event => {
           if (event.pointerType === 'mouse' && !pinned && !held() && !calcs.isOpen()) show(row, false, 'mouse');
         });
-        row.addEventListener('pointerleave', event => {
+        hover.addEventListener('pointerleave', event => {
           if (event.pointerType === 'mouse' && !pinned && open === row && !held()) hide();
         });
         row.addEventListener('focusin', () => {

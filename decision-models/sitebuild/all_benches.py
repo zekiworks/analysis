@@ -1087,7 +1087,9 @@ def grading_hardware(row: dict[str, Any]) -> tuple[str, str] | None:
 GRADING_MEASURES = (
     ("score", "Score", "0–100", True, "(accuracy − 1/3) / (2/3) × 100: 0 = one of the three labels at random on every "
      "pair, 100 = every pair right; below chance reads below 0."),
-    ("accuracy", "Accuracy", "of 2,069 pairs", True, "Right first answers out of all 2,069 pairs; a reply without a "
+    # "Correct recorded labels", not "right first answers": some published runs do not guarantee the model's first
+    # output (grading #9115).
+    ("accuracy", "Accuracy", "of 2,069 pairs", True, "Correct recorded labels out of all 2,069 pairs; a reply without a "
      "usable label counts wrong."),
     ("calibration", "Calibration", "error, points", False, "Expected calibration error over 10 equal-width bins of the "
      "chosen label's probability, in points. Only where the run gives option probabilities: it is not a confidence, and "

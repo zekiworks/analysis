@@ -14,6 +14,7 @@
   --zw-text: var(--text, #23221f);
   --zw-text-2: var(--text-2, #4b4944);
   --zw-panel: var(--panel, #f7f6f2);
+  --zw-pop: var(--pop, #ffffff);  /* a details box or a head's tip: raised above the panel it opens over (Ümit #9111) */
   --zw-sunk: var(--sunk, #efede8);
   --zw-edge: var(--edge, #cbc7bf);
   --zw-link: var(--link, #1d4ed8);
@@ -40,6 +41,7 @@
   --zw-text: var(--text, #ebe9e4);
   --zw-text-2: var(--text-2, #bab7b0);
   --zw-panel: var(--panel, #1a1a18);
+  --zw-pop: var(--pop, #2c2b27);
   --zw-sunk: var(--sunk, #131312);
   --zw-edge: var(--edge, #34332f);
   --zw-link: var(--link, #86b9f3);
@@ -63,6 +65,7 @@
     --zw-text: var(--text, #ebe9e4);
     --zw-text-2: var(--text-2, #bab7b0);
     --zw-panel: var(--panel, #1a1a18);
+    --zw-pop: var(--pop, #2c2b27);
     --zw-sunk: var(--sunk, #131312);
     --zw-edge: var(--edge, #34332f);
     --zw-link: var(--link, #86b9f3);
@@ -196,7 +199,7 @@ html:not(.zw-js) .zw-view + .zw-view, html:not(.zw-js) .zw-list + .zw-list { mar
   text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
 .zw-tip-key:focus-visible { outline: 2px solid var(--zw-focus); outline-offset: 2px; }
 .zw-tip-body { display: none; position: absolute; left: 0; top: 100%; z-index: 35; width: max-content; max-width: min(18rem, calc(100vw - 2rem));
-  padding: .45rem .6rem; color: var(--zw-text); background: var(--zw-panel); border: 1px solid var(--zw-key-edge); border-radius: 6px;
+  padding: .45rem .6rem; color: var(--zw-text); background: var(--zw-pop); border: 1px solid var(--zw-key-edge); border-radius: 6px;
   box-shadow: var(--zw-shadow); font-size: .78rem; font-weight: 400; line-height: 1.4; text-align: left; white-space: normal; }
 .zw-tip:not([data-zw-quiet]):hover .zw-tip-body, .zw-tip:not([data-zw-quiet]) .zw-tip-key:focus-visible + .zw-tip-body,
 .zw-tip-key[aria-expanded="true"] + .zw-tip-body, html:not(.zw-js) .zw-tip:focus-within .zw-tip-body { display: block; }
@@ -259,6 +262,9 @@ a.zw-name:hover { text-decoration: underline; }
 .zw-wide.zw-scrolls td.zw-model, .zw-wide.zw-scrolls thead th:nth-child(2) { position: sticky; left: 0; z-index: 2; background: inherit; }
 .zw-wide.zw-scrolls thead th:nth-child(2) { background: var(--zw-panel); }
 .zw-wide.zw-scrolls tr.zw-sub > td.zw-model { background: var(--zw-sunk); }
+/* The open row's details box sits in its model cell, a stacking context of its own here: that cell goes above the later
+   rows' sticky model cells and the edge shade, or they cover the box's left part (the unreadable boxes, Ümit #9111). */
+.zw-wide.zw-scrolls tr.zw-open > td.zw-model { z-index: 4; }
 .zw-wide.zw-wide-more::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; z-index: 3; width: 1.5rem; pointer-events: none;
   background: linear-gradient(to right, transparent, color-mix(in srgb, var(--zw-text) 22%, transparent)); }
 .zw-wide.zw-scrolls .zw-table th .zw-tip-body { position: fixed; left: .5rem; right: .5rem; top: auto; bottom: .5rem; width: auto;
@@ -405,7 +411,7 @@ html:not(.zw-js) .zw-boxes .zw-box { margin: 0 0 .5rem; padding: .5rem .7rem; ba
   border-radius: 6px; }
 html:not(.zw-js) .zw-box { padding-top: .3rem; border-top: 1px dashed var(--zw-edge); }
 .zw-js .zw-box { display: none; position: fixed; z-index: 40; box-sizing: border-box; max-width: calc(100vw - 16px); margin: 0; padding: .6rem .75rem;
-  overflow: auto; overscroll-behavior: contain; background: var(--zw-panel); border: 1px solid var(--zw-key-edge); border-radius: 8px;
+  overflow: auto; overscroll-behavior: contain; background: var(--zw-pop); border: 1px solid var(--zw-key-edge); border-radius: 8px;
   box-shadow: var(--zw-shadow); }
 .zw-js .zw-box.zw-open { display: block; }
 @media (max-width: 599.98px) {
@@ -447,7 +453,7 @@ a.zw-calc-key { font-size: .7rem; }
 .zw-js .zw-calcs { margin: 0; }
 .zw-js .zw-calcs-title, .zw-js .zw-calcs .zw-calc-body { display: none; }
 .zw-js .zw-calcs .zw-calc-body { position: fixed; z-index: 41; box-sizing: border-box; max-width: calc(100vw - 16px); margin: 0;
-  padding: .55rem .7rem; background: var(--zw-panel); border: 1px solid var(--zw-key-edge); border-radius: 8px; box-shadow: var(--zw-shadow); }
+  padding: .55rem .7rem; background: var(--zw-pop); border: 1px solid var(--zw-key-edge); border-radius: 8px; box-shadow: var(--zw-shadow); }
 .zw-js .zw-calcs .zw-calc-body.zw-open { display: block; }
 
 /* --- 5. Header: one row of page tabs; the phone's Filters bar ------------------------------------------------------
