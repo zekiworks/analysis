@@ -314,6 +314,10 @@ SYSTEM_ONE = {
     # on compactor's GPU 0 loads (compactor #8155, #8167).
     "karpo": SystemOneService("karpo-decision", server_url("KARPO_URL")),
     "copernicus": SystemOneService("Copernicus", server_url("COPERNICUS_URL")),
+    # The Decision Index engines compactor serves on GPU 0 behind its one shared adapter, di_serve.py (each card's own
+    # engine for the index's test kit, e.g. Jeffan-9B-1211; logic #8320): the same request at the default path, no model
+    # field (it is not read), text only here. The model argument names the checkpoint in our records.
+    "di-serve": SystemOneService("Decision Index engine", server_url("DI_SERVE_URL"), model_field=False),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads

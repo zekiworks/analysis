@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-15T06:31:55Z",
+    "updated": "2026-11-15T07:05:26Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -912,6 +912,37 @@
       "gpu_cost_usd": 1.9933833333333335
      },
      {
+      "repo": "Qwen/Qwen3.5-2B",
+      "commit": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+      "model_key": "qwen3.5-2b",
+      "name": "Qwen3.5-2B",
+      "display_name": "Qwen3.5-2B",
+      "tag": "off · chat",
+      "class_label": "Open · 2.0B",
+      "base_model": null,
+      "setup_label": "Qwen3.5-2B (chat, thinking off, on our GPU)",
+      "maker": "Alibaba",
+      "kind": "chat",
+      "params_total": 2.0,
+      "params_active": 2.0,
+      "quantization": "BF16",
+      "score_0_100": 55.99999999999999,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.648,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:qwen3.5-2b-nothink_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 0.725,
+      "gpu_cost_usd": 1.8052500000000002
+     },
+     {
       "repo": "MachinePulseAI/karpo-decision-31B",
       "commit": "d69cdd57eab23271cbe65236ca8a00d80d7bb8c7",
       "model_key": "karpo-decision-31b",
@@ -1102,6 +1133,38 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.17527777777777778,
       "gpu_cost_usd": 0.037302235627613686
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gpt-6-luna",
+      "name": "GPT-6 Luna",
+      "display_name": "GPT-6 Luna",
+      "tag": "chat",
+      "class_label": "Closed · Efficient",
+      "base_model": null,
+      "setup_label": "GPT-6 Luna (low)",
+      "maker": "OpenAI",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 47.44444444444444,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5795555555555556,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:gpt-6-luna-low-sub_en",
+       "logic:gpt-6-luna-low-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
      },
      {
       "repo": "sthanika-ai/Sieve-31B-v3",
@@ -1742,6 +1805,38 @@
       "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
       "gpu_cost_usd": null
+     },
+     {
+      "repo": "newsbang/adjudex-9b-v5",
+      "commit": "ffdcb8254d1b22e40b2bbbf569f143e0b357aeca",
+      "model_key": "adjudex-9b-v5",
+      "name": "Adjudex 9B v5",
+      "display_name": "Adjudex 9B v5",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "Qwen3.5-9B",
+      "setup_label": "Adjudex 9B v5",
+      "maker": "newsbang",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 33.0,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.464,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.07197307821973589,
+      "improvement_points": null,
+      "runs": [
+       "logic:adjudex-9b_en",
+       "logic:adjudex-9b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.014166666666666666,
+      "gpu_cost_usd": 0.035275
      },
      {
       "repo": "baselabs/elephant-1",
@@ -2737,7 +2832,7 @@
      }
     ]
    },
-   "sha256": "be8acc03d8b1fdc9f740e50ac51dfd27739cb5249c2f03b9d988eac62606423b"
+   "sha256": "2fedd2548f394ec8251665e247d66ba20e0cc98abf6b9951adaca724cdcde60d"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -2747,7 +2842,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-15T06:31:55Z",
+    "updated": "2026-11-15T07:05:26Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -4513,6 +4608,38 @@
       "gpu_cost_usd": null
      },
      {
+      "repo": "newsbang/adjudex-9b-v5",
+      "commit": "ffdcb8254d1b22e40b2bbbf569f143e0b357aeca",
+      "model_key": "adjudex-9b-v5",
+      "name": "Adjudex 9B v5",
+      "display_name": "Adjudex 9B v5",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "Qwen3.5-9B",
+      "setup_label": "Adjudex 9B v5",
+      "maker": "newsbang",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 52.612112806287556,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6208969024503005,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.04793390671264879,
+      "improvement_points": null,
+      "runs": [
+       "math:adjudex-9b_en",
+       "math:adjudex-9b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.023055555555555555,
+      "gpu_cost_usd": 0.05740833333333334
+     },
+     {
       "repo": "baselabs/elephant-1",
       "commit": "b3f8a93462fb1051a9de031e94a7ff380e254072",
       "model_key": "elephant-1",
@@ -5474,7 +5601,7 @@
      }
     ]
    },
-   "sha256": "386062ac033598f805a269826a1be6b8376d0d0afd1833d09396582ff6d34602"
+   "sha256": "eaab9130b090782c90aede6801fe341fc8bb18430c41b3d59bac9da3a0b5b742"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -5484,7 +5611,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-15T06:31:55Z",
+    "updated": "2026-11-15T07:05:26Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -7293,6 +7420,40 @@
       "gpu_cost_usd": null
      },
      {
+      "repo": "newsbang/adjudex-9b-v5",
+      "commit": "ffdcb8254d1b22e40b2bbbf569f143e0b357aeca",
+      "model_key": "adjudex-9b-v5",
+      "name": "Adjudex 9B v5",
+      "display_name": "Adjudex 9B v5",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "Qwen3.5-9B",
+      "setup_label": "Adjudex 9B v5",
+      "maker": "newsbang",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 45.90176399026763,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5672141119221411,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.05615898820458099,
+      "improvement_points": null,
+      "runs": [
+       "logic:adjudex-9b_en",
+       "math:adjudex-9b_en",
+       "logic:adjudex-9b_en_dontknow",
+       "math:adjudex-9b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.03722222222222222,
+      "gpu_cost_usd": 0.09268333333333334
+     },
+     {
       "repo": "baselabs/elephant-1",
       "commit": "b3f8a93462fb1051a9de031e94a7ff380e254072",
       "model_key": "elephant-1",
@@ -8314,7 +8475,7 @@
      }
     ]
    },
-   "sha256": "26066121a9878139573d32309ef82c144cb8cba1cc9b8a73366518cd982ddd98"
+   "sha256": "0ddd8be4f8410497d485df0ccadd355575852cf1a7ee3172b41dae397f4aaf0e"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -9754,10 +9915,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-15T05:35Z",
+    "updated": "2026-11-15T06:35Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "341cde826a83346ddf000de390cb44a9c5f5670f92db05886f080d9720ea8b11"
+   "sha256": "7a85e06ae86539427395c63cf10aa2ed1f71f462da81dc9b5583096a22a5f03b"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
