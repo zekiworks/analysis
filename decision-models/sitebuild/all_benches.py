@@ -159,6 +159,21 @@ GRADING_COPY = (
      "attempts are kept apart and never merged. Their rows note how many pairs they recorded and how many further "
      "requests may have been answered but not recorded. Each published run started again from the first pair, so its "
      "outcomes are that run's recorded outputs, not guaranteed to be the model's first outputs."),
+    # Pre-run test requests and earlier scoring of the same material: compactor's reviewed additions as given (grading
+    # #8103, #8108; Zeki #8105; compactor #8107, #8109).
+    ("Test requests before a run.",
+     "Before some decision models' scored runs, a few published pairs (one to three) were sent to the model as test "
+     "requests, to check that its server answered with probabilities that sum to one. Those test outputs were printed, "
+     "not kept. The scored row for each such pair comes from the run's own, later request, so for those pairs the "
+     "recorded output is not the model's first output on the pair. The rows concerned say so in their notes and give "
+     "the count. The count comes from our own record of the test calls; requests that others may have sent to servers "
+     "they run are not covered."),
+    ("Earlier scoring of the same material.",
+     "Before Answer Check existed, two of the API decision models, d1-ultra and Gemini Decision, were used or tested as "
+     "scorers in the compactor project. There they scored compaction texts and question-bank questions from the same "
+     "held-out pool this benchmark's pairs were drawn from, in a different request form (all of a text's questions in "
+     "one request). How many of the 2,069 published pairs they saw that way has not been counted, so their rows make "
+     "no claim that these pairs were new to them."),
     "{name} is a separate benchmark tab. Combined scoring is unchanged.",
 )
 # What a bench's table counts per model, where not questions.

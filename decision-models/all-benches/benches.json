@@ -9394,10 +9394,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-15T00:20Z",
+    "updated": "2026-11-15T01:05Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "6098e4aa7c0ffd3c9d372e10a8ee47f8fe452267d5b928da47bbf97c71b7c374"
+   "sha256": "a86bed2fee505fa107a7b892ac3ab6fa27cbaf8de814627eeabcfddf383c7e17"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
@@ -9407,12 +9407,68 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-15T00:06:46Z",
+    "updated": "2026-11-15T01:07:33Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
     },
     "models": [
+     {
+      "name": "karpo-decision-31B",
+      "display_name": "karpo-decision-31B",
+      "tag": "",
+      "model_key": "karpo-decision-31b",
+      "maker": "MachinePulse",
+      "kind": "decision",
+      "repo": "MachinePulseAI/karpo-decision-31B",
+      "commit": "d69cdd57eab23271cbe65236ca8a00d80d7bb8c7",
+      "params_total": 31.3,
+      "params_active": 31.3,
+      "quantization": "BF16",
+      "score_0_100": 89.99516674722086,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9333011116481392,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.02798799607249211,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-karpo-decision-31b-v1"
+      ],
+      "notes": "MachinePulseAI/karpo-decision-31B@d69cdd57, its card's karpo-decision package (machinepulse-ai/karpo-decision@ac40d399) System One server, BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
+      "gpu_hours": 0.13244746838548202,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "Copernicus-31B",
+      "display_name": "Copernicus-31B",
+      "tag": "",
+      "model_key": "copernicus-31b",
+      "maker": "Poindexter Labs",
+      "kind": "decision",
+      "repo": "Poindexter-Labs/Copernicus-31B",
+      "commit": "be715259e97a743341f2d7a3e6a6298dab23ca0e",
+      "params_total": 31.3,
+      "params_active": 31.3,
+      "quantization": "BF16",
+      "score_0_100": 88.9801836636056,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9265345577573707,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.10967730780108835,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-copernicus-31b-v1"
+      ],
+      "notes": "Poindexter-Labs/Copernicus-31B@be715259, its card's copernicus_server.py (Transformers backend, the card's defaults), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
+      "gpu_hours": 0.33160791070381207,
+      "gpu_cost_usd": null
+     },
      {
       "name": "KnowLine-31B-Gen1.5",
       "display_name": "KnowLine-31B-Gen1.5",
@@ -9437,7 +9493,7 @@
       "runs": [
        "grading:site-knowline-31b-gen1.5-v1"
       ],
-      "notes": "PelaAI/KnowLine-31B-Gen1.5@8e56aa1b, the card's serve_knowline.sh (SGLang), BF16, on one DGX Spark (ours) as for its published runs, self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "notes": "PelaAI/KnowLine-31B-Gen1.5@8e56aa1b, the card's serve_knowline.sh (SGLang), BF16, on one DGX Spark (ours) as for its published runs, self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 1 published-cohort pair was sent in test requests whose outputs were not kept, so its scored row comes from a later request",
       "gpu_hours": 1.5019916954069576,
       "gpu_cost_usd": null
      },
@@ -9465,7 +9521,7 @@
       "runs": [
        "grading:site-sieve-31b-v3-v1"
       ],
-      "notes": "sthanika-ai/Sieve-31B-v3@8fcee858, sieve-serve 0.5.1 (text only, design 'letters'), BF16, on one DGX Spark (ours) as for its published runs, self-hosted; the server reports no input-token count; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "notes": "sthanika-ai/Sieve-31B-v3@8fcee858, sieve-serve 0.5.1 (text only, design 'letters'), BF16, on one DGX Spark (ours) as for its published runs, self-hosted; the server reports no input-token count; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 2 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
       "gpu_hours": 1.6228648508469032,
       "gpu_cost_usd": null
      },
@@ -9493,7 +9549,7 @@
       "runs": [
        "grading:site-reax-1.3-v1"
       ],
-      "notes": "decisionmodels/REAX-1.3@fa4bf7ee, REAX Engine reax13 server on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "notes": "decisionmodels/REAX-1.3@fa4bf7ee, REAX Engine reax13 server on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
       "gpu_hours": 0.42833667592136754,
       "gpu_cost_usd": null
      },
@@ -9521,7 +9577,7 @@
       "runs": [
        "grading:site-turion-jev-31b-v1"
       ],
-      "notes": "turion-ai/turion-jev-31b@866c0fc6, the card's turion_jev.serve on vLLM 0.32.0 (BF16 weights, FP8 at load, text only), on one DGX Spark (ours) as for its published runs, self-hosted; vLLM memory share 0.80 instead of the card's 0.92 (KV cache only); one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "notes": "turion-ai/turion-jev-31b@866c0fc6, the card's turion_jev.serve on vLLM 0.32.0 (BF16 weights, FP8 at load, text only), on one DGX Spark (ours) as for its published runs, self-hosted; vLLM memory share 0.80 instead of the card's 0.92 (KV cache only); one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 2 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
       "gpu_hours": 0.7637274554815272,
       "gpu_cost_usd": null
      },
@@ -9549,7 +9605,7 @@
       "runs": [
        "grading:site-perplexity-decider-27b-v1.3-v1"
       ],
-      "notes": "perplexity-ai/pplx-decider-v1.3@9c2ebb27, the runner's pplx_decider_server.py with the checkpoint's own pplx_decider package (as for its published v1.2 runs), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "notes": "perplexity-ai/pplx-decider-v1.3@9c2ebb27, the runner's pplx_decider_server.py with the checkpoint's own pplx_decider package (as for its published v1.2 runs), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
       "gpu_hours": 0.14082144462229776,
       "gpu_cost_usd": null
      },
@@ -9577,7 +9633,7 @@
       "runs": [
        "grading:site-glide-27b-v1"
       ],
-      "notes": "fastino/GLiDE-27B@4d32743a, GLiDE server (glide.server), BF16, GLIDE_MAX_BATCH=1, on one DGX Spark (ours) as for its published runs, self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "notes": "fastino/GLiDE-27B@4d32743a, GLiDE server (glide.server), BF16, GLIDE_MAX_BATCH=1, on one DGX Spark (ours) as for its published runs, self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 2 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
       "gpu_hours": 0.6924089500718801,
       "gpu_cost_usd": null
      },
@@ -9661,7 +9717,7 @@
       "runs": [
        "grading:site-fastino-glide-v1.2-v1"
       ],
-      "notes": "fastino/GLiDE@a7e4589, GLiDE server (Fastino's release code), BF16, GLIDE_MAX_BATCH=1, on one RTX PRO 6000 (ours) as the backgammon league's pinned server, self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "notes": "fastino/GLiDE@a7e4589, GLiDE server (Fastino's release code), BF16, GLIDE_MAX_BATCH=1, on one RTX PRO 6000 (ours) as the backgammon league's pinned server, self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 2 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
       "gpu_hours": 0.14576463736400147,
       "gpu_cost_usd": null
      },
@@ -9829,7 +9885,7 @@
       "runs": [
        "grading:site-glide-9b-v1"
       ],
-      "notes": "fastino/GLiDE-9B@ab54df5a, GLiDE server (python -m glide.server) in vLLM v0.30.0 image with flash-linear-attention 0.5.2, as for GLiDE 2B, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "notes": "fastino/GLiDE-9B@ab54df5a, GLiDE server (python -m glide.server) in vLLM v0.30.0 image with flash-linear-attention 0.5.2, as for GLiDE 2B, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
       "gpu_hours": 0.05197667056112872,
       "gpu_cost_usd": null
      },
@@ -9945,7 +10001,7 @@
       "runs": [
        "grading:site-perplexity-decider-flash-v1.3-v1"
       ],
-      "notes": "perplexity-ai/pplx-decider-flash-v1.3@d06fb3f2, the runner's pplx_decider_server.py with the checkpoint's own pplx_decider package (as for its published v1.2 runs), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "notes": "perplexity-ai/pplx-decider-flash-v1.3@d06fb3f2, the runner's pplx_decider_server.py with the checkpoint's own pplx_decider package (as for its published v1.2 runs), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
       "gpu_hours": 0.035180532006086604,
       "gpu_cost_usd": null
      },
@@ -10057,7 +10113,7 @@
       "runs": [
        "grading:site-elephant-1-v1"
       ],
-      "notes": "baselabs/elephant-1@b3f8a934, the runner's baselabs_server.py in the card's setup.sh environment (OneJev 81ce62f1 with the checkpoint's serve.patch), on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "notes": "baselabs/elephant-1@b3f8a934, the runner's baselabs_server.py in the card's setup.sh environment (OneJev 81ce62f1 with the checkpoint's serve.patch), on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
       "gpu_hours": 0.056309502522205596,
       "gpu_cost_usd": null
      },
@@ -10459,7 +10515,7 @@
      }
     ]
    },
-   "sha256": "56a94842a49a1149ca3994d022e8fef62c63b98fd003a55c3739a093bfbc32d6"
+   "sha256": "3f0abb3fe6527c3dd37f21de50743914acefcbcb058ee55c10a118b275a0e4ca"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -10467,10 +10523,10 @@
    "seen": "2026-11-15",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-15T00:10:16Z",
+    "updated": "2026-11-15T01:07:38Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "56a94842a49a1149ca3994d022e8fef62c63b98fd003a55c3739a093bfbc32d6"
+     "sha256": "3f0abb3fe6527c3dd37f21de50743914acefcbcb058ee55c10a118b275a0e4ca"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -10933,6 +10989,46 @@
       "probabilities": true
      },
      {
+      "run": "grading:site-karpo-decision-31b-v1",
+      "model_key": "karpo-decision-31b",
+      "latency_s_median": 0.216,
+      "latency_s_p90": 0.311,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 230.5,
+      "recall_reference": 0.9798,
+      "recall_other": 0.8085,
+      "recall_none": 0.9298,
+      "wrong_answer_recall": 0.8085,
+      "false_alarm_rate": 0.0167,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
+      "run": "grading:site-copernicus-31b-v1",
+      "model_key": "copernicus-31b",
+      "latency_s_median": 0.516,
+      "latency_s_p90": 0.829,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 577.0,
+      "recall_reference": 0.9883,
+      "recall_other": 0.8146,
+      "recall_none": 0.8997,
+      "wrong_answer_recall": 0.8146,
+      "false_alarm_rate": 0.0253,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
       "run": "grading:chat-qwen3.5-4b-nothink-v1",
       "model_key": "qwen3.5-4b-nothink",
       "latency_s_median": 3.274,
@@ -11216,7 +11312,7 @@
      }
     ]
    },
-   "sha256": "ee29ffdb827d10a8552b89d48e8c90f2cea36de5b6142b02e3b8d8bcdfc402f6"
+   "sha256": "7abf394f09d5420330a0d274adc17a527abfe6c836a82bcfef91ac5be69128bb"
   }
  }
 }
