@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results a5216ea7 (15 November 2026)
+
+- Qwen3.5-4B with thinking on gets its Turkish side (Ümit #6527), on logic's GPU 1 server of its thinking-off setup, which also answers to this setup's name, at the same request settings as its English runs (`enable_thinking` true, temperature 1.0, top_p 0.95, top_k 20, presence penalty 1.5, seed 0, up to 32,768 output tokens), one question per request, 32 in flight. Text run 1149: 1,295 of 2,198 right (58.9%; reading 519 of 656, grammar 776 of 1,542; 5 replies without a readable letter, counted wrong), 67th of 110 Text tab setups; thinking off has 1,015. "Bilmiyorum" run 1150: 1,282 right, 30 "Bilmiyorum", 5 invalid. On the 547 kept questions it gets 453 right in Turkish against 476 in English, a difference that does not hold after the Holm correction.
+- maker_colours.json copied again from the Logic & Math site's master: MachinePulse (karpo-decision-31B) and Poindexter Labs (Copernicus-31B) are grey, as IBM; no colour changed.
+
 ## Results 2dc402b2 (15 November 2026)
 
 - Added Raon-1 nano (KRAFTON) with thinking off, English only so far: `KRAFTON/Raon-1-nano` at `fcf2d1d` on KRAFTON's own vLLM fork (`krafton-ai/vllm` at `13a5dd8`, not a vLLM release), on logic's server on one RTX PRO 6000 Blackwell, BF16, at logic's settings (`enable_thinking` false, temperature 0.1, presence penalty 1.5, seed 0, up to 32,768 output tokens), one question per request, 32 in flight; its cost from GPU time. English run 1152: 294 of 547 right (53.7%; 4 replies without a readable letter, counted wrong), 115th of 120. English "I don't know" run 1153: 275 right and 71 "I don't know". Its Turkish smoke (run 1154: 3 of 20 replies at the token limit, 5 without a letter) stays as recorded; its Turkish runs are asked on its next load whichever way the smoke came out (Ümit #6515 via Zeki #8211). Its size shows the card's 3.1B total (including a 1.5B per-layer embedding table); our count of the checkpoint, 3,529,911,568, is in its details. Its card names Korean and English. Thinking on runs next on logic's GPU 0.

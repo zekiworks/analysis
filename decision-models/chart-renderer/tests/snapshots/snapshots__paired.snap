@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 109 comparisons (6 pass).
-━━ passes the Holm adjustment across these 109 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 110 comparisons (6 pass).
+━━ passes the Holm adjustment across these 110 comparisons   ━━ does not pass
 
                                                 Claude Fable 5.2 · max · chat minus Gemini 3.8 Flash · high · chat                              ⠠⠤⡧⠤                               +0.0
                                               Gemini 3.8 Flash · high · chat minus Gemini 4 Hydrogen · high · chat                              ⠠⠤⡧⠄                               +0.0
@@ -72,7 +72,8 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                                           Perplexity Decider 27B v1 minus Jev 1.14                             ⠐⠒⠒⡗⠒⠒⢺⠒⠒⠒⠒⠒⠒                       +1.2
                                                                           Perplexity Decider 27B v1 minus Jev 1.13                                ⡇ ⠒⠒⠒⠒⠒⠒⢺⠒⠒⠒⠒⠒⠒                  +2.9
                                                                                          OneJev-27B minus Jev 1.14                           ⠒⠒⠒⠒⠒⡗⡗⠒⠒⠒⠒⠒⠂                         +0.4
-                                                                                     Jev 1.14 minus Mercury Decide                            ⠐⠒⠒⠒⡗⠒⢺⠒⠒⠒⠒⠒⠒                        +0.9
+                                                                   Jev 1.14 minus Qwen3.5-4B · reasoning on · chat                         ⠐⠒⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒⠒                         +0.3
+                                                             Qwen3.5-4B · reasoning on · chat minus Mercury Decide                          ⠐⠒⠒⠒⠒⠒⡗⢺⠒⠒⠒⠒⠒⠒⠒                        +0.6
                                                          Mercury Decide minus GLM-5.3-Flash · reasoning off · chat                          ⠐⠒⠒⠒⠒⠒⡗⡗⠒⠒⠒⠒⠒⠒⠂                        +0.5
                                  GLM-5.3-Flash · reasoning off · chat minus Gemma 4 E4B · default reasoning · chat                         ⠒⠒⠒⠒⠒⠒⠒⣿⠒⠒⠒⠒⠒⠒⠒                         +0.2
                                                              Gemma 4 E4B · default reasoning · chat minus Jev 1.13                         ⠒⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒⠂                         +0.0
