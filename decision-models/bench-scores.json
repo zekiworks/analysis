@@ -4,7 +4,7 @@
    "bench": "reading-text",
    "title": "Reading · Turkish",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-15T13:18:15Z",
+   "updated": "2026-11-15T14:51:41Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
@@ -501,6 +501,31 @@
      "notes": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16"
     },
     {
+     "repo": "turion-ai/turion-jev-31b",
+     "commit": "866c0fc6e040cba23fcc72113a80e5c99d5ebab1",
+     "name": "Turion Jev 31B",
+     "tag": "",
+     "model_key": "turion-jev-31b",
+     "maker": "Turion.AI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "FP8 at load",
+     "score_0_100": 75.14786169244766,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8011828935395814,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.1111902520473159,
+     "improvement_points": null,
+     "runs": [
+      "text:1273"
+     ],
+     "notes": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load"
+    },
+    {
      "repo": null,
      "commit": null,
      "name": "Inkling-Small",
@@ -728,6 +753,31 @@
       "text:314"
      ],
      "notes": "OpenRouter chat API, Fireworks endpoint, fallbacks off"
+    },
+    {
+     "repo": "sthanika-ai/Sieve-31B-v3",
+     "commit": "8fcee858f7f20a50bfa3c8f984c22adb3cbb46a2",
+     "name": "Sieve 31B v3",
+     "tag": "",
+     "model_key": "sieve-31b-v3",
+     "maker": "Sthānika AI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "BF16",
+     "score_0_100": 67.69790718835306,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7415832575068244,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.028719244767970685,
+     "improvement_points": null,
+     "runs": [
+      "text:1241"
+     ],
+     "notes": "Sieve server (sieve-serve, the maker's release code), self-hosted, BF16"
     },
     {
      "repo": "google/gemma-4-31B-it",
@@ -1782,6 +1832,31 @@
      "notes": "GLiDE server (Fastino's release code), self-hosted"
     },
     {
+     "repo": "Patrick-18/Dexy-Decision-9B-V2",
+     "commit": "4f434e2",
+     "name": "Dexy-Decision-9B-V2",
+     "tag": "",
+     "model_key": "dexy-decision-9b-v2",
+     "maker": "Patrick-18",
+     "kind": "decision",
+     "params_total": 8.39,
+     "params_active": 8.39,
+     "quantization": "BF16",
+     "score_0_100": 39.49044585987261,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5159235668789809,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.09143110474276758,
+     "improvement_points": null,
+     "runs": [
+      "text:1255"
+     ],
+     "notes": "Dexy server (the card's Transformers d3_server.py, in its requirements.txt pins: torch 2.14.0, transformers 5.19.0), self-hosted, BF16"
+    },
+    {
      "repo": "perplexity-ai/pplx-decider-flash-v1.3",
      "commit": "d06fb3f",
      "name": "Perplexity Decider Flash v1.3",
@@ -1805,6 +1880,31 @@
       "text:1123"
      ],
      "notes": "Perplexity Decider server, self-hosted"
+    },
+    {
+     "repo": "scar-ai/vera-medium-omni",
+     "commit": "1f23a6c",
+     "name": "vera-medium-omni",
+     "tag": "",
+     "model_key": "vera-medium-omni",
+     "maker": "scar-ai",
+     "kind": "decision",
+     "params_total": 4.21,
+     "params_active": 4.21,
+     "quantization": "BF16",
+     "score_0_100": 36.36260236578707,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4909008189262966,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.03696510464058235,
+     "improvement_points": null,
+     "runs": [
+      "text:1264"
+     ],
+     "notes": "vera server (the card's own vera-serve from vera-s1 0.1.8, PyTorch engine), self-hosted, BF16"
     },
     {
      "repo": "PelaAI/KnowLine-4B-Gen5.5",
@@ -1832,6 +1932,31 @@
      "notes": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, FP8 at load"
     },
     {
+     "repo": "startlux-models/StartLux-Decision-v1.1-4B-Instant",
+     "commit": "416088f77cfce09633906a3675c7cd2e5dabcf10",
+     "name": "StartLux-Decision-v1.1-4B-Instant",
+     "tag": "",
+     "model_key": "startlux-decision-v1.1-4b",
+     "maker": "StartLux",
+     "kind": "decision",
+     "params_total": 4.66,
+     "params_active": 4.66,
+     "quantization": "BF16",
+     "score_0_100": 34.82711555959963,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4786169244767971,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.07067359984943818,
+     "improvement_points": null,
+     "runs": [
+      "text:1236"
+     ],
+     "notes": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16"
+    },
+    {
      "repo": "perplexity-ai/pplx-decider-flash-v1.2",
      "commit": "6d771ad",
      "name": "Perplexity Decider Flash v1.2",
@@ -1855,6 +1980,56 @@
       "text:223"
      ],
      "notes": "Perplexity Decider server, self-hosted"
+    },
+    {
+     "repo": "Valen-Team/Valen-Decision-1.5-9B",
+     "commit": "5a51211",
+     "name": "Valen-Decision-1.5-9B",
+     "tag": "",
+     "model_key": "valen-decision-1.5-9b",
+     "maker": "Valen-Team",
+     "kind": "decision",
+     "params_total": 8.4,
+     "params_active": 8.4,
+     "quantization": "BF16",
+     "score_0_100": 33.68971792538671,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4695177434030937,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.03768682194780701,
+     "improvement_points": null,
+     "runs": [
+      "text:1275"
+     ],
+     "notes": "Valen server (the card's valen-vllm plugin, Valen-Team/Valen at 773d3a6, in vllm/vllm-openai v0.33.0), self-hosted, BF16"
+    },
+    {
+     "repo": "victorbennett/Verdin-4B-v1.1",
+     "commit": "45830d2",
+     "name": "Verdin-4B-v1.1",
+     "tag": "",
+     "model_key": "verdin-4b-v1.1",
+     "maker": "victorbennett",
+     "kind": "decision",
+     "params_total": 4.21,
+     "params_active": 4.21,
+     "quantization": "BF16",
+     "score_0_100": 33.46223839854412,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.467697907188353,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.09842375238368434,
+     "improvement_points": null,
+     "runs": [
+      "text:1244"
+     ],
+     "notes": "Verdin server (the card's own python -m verdin.server, in the package versions its card lists), self-hosted, BF16"
     },
     {
      "repo": "quincyqiang/chinese-decision-pointer-4b",
@@ -2537,7 +2712,7 @@
    "bench": "turkish-reading",
    "title": "Turkish Reading",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-15T13:18:15Z",
+   "updated": "2026-11-15T14:51:41Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 656 Turkish reading questions (units 1 to 6) right (accuracy 100%)"
@@ -2982,6 +3157,31 @@
      "notes": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16"
     },
     {
+     "repo": "turion-ai/turion-jev-31b",
+     "commit": "866c0fc6e040cba23fcc72113a80e5c99d5ebab1",
+     "name": "Turion Jev 31B",
+     "tag": "",
+     "model_key": "turion-jev-31b",
+     "maker": "Turion.AI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "FP8 at load",
+     "score_0_100": 90.85365853658536,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.926829268292683,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.09529341615853668,
+     "improvement_points": null,
+     "runs": [
+      "text:1273"
+     ],
+     "notes": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load"
+    },
+    {
      "repo": "decisionmodels/REAX-1.3",
      "commit": "fa4bf7e",
      "name": "REAX 1.3",
@@ -3080,6 +3280,31 @@
       "text:1221"
      ],
      "notes": "Decision Index engine (compactor's di_serve.py around the engine its card ships), self-hosted, BF16"
+    },
+    {
+     "repo": "sthanika-ai/Sieve-31B-v3",
+     "commit": "8fcee858f7f20a50bfa3c8f984c22adb3cbb46a2",
+     "name": "Sieve 31B v3",
+     "tag": "",
+     "model_key": "sieve-31b-v3",
+     "maker": "Sthānika AI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "BF16",
+     "score_0_100": 89.71036585365854,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9176829268292683,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.035043140243901774,
+     "improvement_points": null,
+     "runs": [
+      "text:1241"
+     ],
+     "notes": "Sieve server (sieve-serve, the maker's release code), self-hosted, BF16"
     },
     {
      "repo": null,
@@ -4265,6 +4490,31 @@
      "notes": "Cerno server (a thin System One server around the card's CernoEngine, transformers: logic's for its English runs, compactor's di_serve.py for its Turkish runs), self-hosted, BF16"
     },
     {
+     "repo": "Patrick-18/Dexy-Decision-9B-V2",
+     "commit": "4f434e2",
+     "name": "Dexy-Decision-9B-V2",
+     "tag": "",
+     "model_key": "dexy-decision-9b-v2",
+     "maker": "Patrick-18",
+     "kind": "decision",
+     "params_total": 8.39,
+     "params_active": 8.39,
+     "quantization": "BF16",
+     "score_0_100": 74.46646341463415,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7957317073170732,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.032350203055034936,
+     "improvement_points": null,
+     "runs": [
+      "text:1255"
+     ],
+     "notes": "Dexy server (the card's Transformers d3_server.py, in its requirements.txt pins: torch 2.14.0, transformers 5.19.0), self-hosted, BF16"
+    },
+    {
      "repo": "Qwen/Qwen3.5-4B",
      "commit": "851bf6e",
      "name": "Qwen3.5-4B",
@@ -4315,6 +4565,56 @@
      "notes": "our GPU (logic's server, vLLM v0.30.0 BF16, revision google/gemma-4-E4B-it@4ecc2ba), one question per request, plain answer line CEVAP: X (no answer schema); sampling temperature 0.0; output cap 8,192"
     },
     {
+     "repo": "scar-ai/vera-medium-omni",
+     "commit": "1f23a6c",
+     "name": "vera-medium-omni",
+     "tag": "",
+     "model_key": "vera-medium-omni",
+     "maker": "scar-ai",
+     "kind": "decision",
+     "params_total": 4.21,
+     "params_active": 4.21,
+     "quantization": "BF16",
+     "score_0_100": 69.32164634146339,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7545731707317073,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.09082240853658538,
+     "improvement_points": null,
+     "runs": [
+      "text:1264"
+     ],
+     "notes": "vera server (the card's own vera-serve from vera-s1 0.1.8, PyTorch engine), self-hosted, BF16"
+    },
+    {
+     "repo": "Valen-Team/Valen-Decision-1.5-9B",
+     "commit": "5a51211",
+     "name": "Valen-Decision-1.5-9B",
+     "tag": "",
+     "model_key": "valen-decision-1.5-9b",
+     "maker": "Valen-Team",
+     "kind": "decision",
+     "params_total": 8.4,
+     "params_active": 8.4,
+     "quantization": "BF16",
+     "score_0_100": 68.75,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.75,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.09656381527866759,
+     "improvement_points": null,
+     "runs": [
+      "text:1275"
+     ],
+     "notes": "Valen server (the card's valen-vllm plugin, Valen-Team/Valen at 773d3a6, in vllm/vllm-openai v0.33.0), self-hosted, BF16"
+    },
+    {
      "repo": "PelaAI/KnowLine-4B-Gen5.5",
      "commit": "779944d2cc8ffa19cef386aee83c83bcb967ade2",
      "name": "KnowLine 4B Gen5.5",
@@ -4363,6 +4663,31 @@
       "text:1123"
      ],
      "notes": "Perplexity Decider server, self-hosted"
+    },
+    {
+     "repo": "startlux-models/StartLux-Decision-v1.1-4B-Instant",
+     "commit": "416088f77cfce09633906a3675c7cd2e5dabcf10",
+     "name": "StartLux-Decision-v1.1-4B-Instant",
+     "tag": "",
+     "model_key": "startlux-decision-v1.1-4b",
+     "maker": "StartLux",
+     "kind": "decision",
+     "params_total": 4.66,
+     "params_active": 4.66,
+     "quantization": "BF16",
+     "score_0_100": 67.60670731707316,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7408536585365854,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.025668962084869594,
+     "improvement_points": null,
+     "runs": [
+      "text:1236"
+     ],
+     "notes": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16"
     },
     {
      "repo": null,
@@ -4488,6 +4813,31 @@
       "text:131"
      ],
      "notes": "vLLM, self-hosted, BF16"
+    },
+    {
+     "repo": "victorbennett/Verdin-4B-v1.1",
+     "commit": "45830d2",
+     "name": "Verdin-4B-v1.1",
+     "tag": "",
+     "model_key": "verdin-4b-v1.1",
+     "maker": "victorbennett",
+     "kind": "decision",
+     "params_total": 4.21,
+     "params_active": 4.21,
+     "quantization": "BF16",
+     "score_0_100": 63.98628048780488,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.711890243902439,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.038603305707376225,
+     "improvement_points": null,
+     "runs": [
+      "text:1244"
+     ],
+     "notes": "Verdin server (the card's own python -m verdin.server, in the package versions its card lists), self-hosted, BF16"
     },
     {
      "repo": "quincyqiang/chinese-decision-pointer-4b",
@@ -5070,7 +5420,7 @@
    "bench": "turkish-grammar",
    "title": "Turkish Grammar",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-15T13:18:15Z",
+   "updated": "2026-11-15T14:51:41Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 1,542 Turkish grammar questions (units 7 to 20) right (accuracy 100%)"
@@ -5592,6 +5942,31 @@
      "notes": "OpenRouter chat API, DeepInfra's endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included; no response format (the endpoint has no structured outputs), so the prompt adds a paragraph stating the answer layout"
     },
     {
+     "repo": "turion-ai/turion-jev-31b",
+     "commit": "866c0fc6e040cba23fcc72113a80e5c99d5ebab1",
+     "name": "Turion Jev 31B",
+     "tag": "",
+     "model_key": "turion-jev-31b",
+     "maker": "Turion.AI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "FP8 at load",
+     "score_0_100": 68.46627756160831,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7477302204928664,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.12005543904020738,
+     "improvement_points": null,
+     "runs": [
+      "text:1273"
+     ],
+     "notes": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load"
+    },
+    {
      "repo": null,
      "commit": null,
      "name": "GLM-5.3-Flash",
@@ -5794,6 +6169,31 @@
       "text:1221"
      ],
      "notes": "Decision Index engine (compactor's di_serve.py around the engine its card ships), self-hosted, BF16"
+    },
+    {
+     "repo": "sthanika-ai/Sieve-31B-v3",
+     "commit": "8fcee858f7f20a50bfa3c8f984c22adb3cbb46a2",
+     "name": "Sieve 31B v3",
+     "tag": "",
+     "model_key": "sieve-31b-v3",
+     "maker": "Sthānika AI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "BF16",
+     "score_0_100": 58.33333333333333,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6666666666666666,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.033395719844357886,
+     "improvement_points": null,
+     "runs": [
+      "text:1241"
+     ],
+     "notes": "Sieve server (sieve-serve, the maker's release code), self-hosted, BF16"
     },
     {
      "repo": null,
@@ -6848,6 +7248,31 @@
      "notes": "GLiDE server (Fastino's release code), self-hosted"
     },
     {
+     "repo": "Patrick-18/Dexy-Decision-9B-V2",
+     "commit": "4f434e2",
+     "name": "Dexy-Decision-9B-V2",
+     "tag": "",
+     "model_key": "dexy-decision-9b-v2",
+     "maker": "Patrick-18",
+     "kind": "decision",
+     "params_total": 8.39,
+     "params_active": 8.39,
+     "quantization": "BF16",
+     "score_0_100": 24.610894941634236,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.3968871595330739,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.1272381252256,
+     "improvement_points": null,
+     "runs": [
+      "text:1255"
+     ],
+     "notes": "Dexy server (the card's Transformers d3_server.py, in its requirements.txt pins: torch 2.14.0, transformers 5.19.0), self-hosted, BF16"
+    },
+    {
      "repo": "perplexity-ai/pplx-decider-flash-v1.3",
      "commit": "d06fb3f",
      "name": "Perplexity Decider Flash v1.3",
@@ -6871,6 +7296,31 @@
       "text:1123"
      ],
      "notes": "Perplexity Decider server, self-hosted"
+    },
+    {
+     "repo": "scar-ai/vera-medium-omni",
+     "commit": "1f23a6c",
+     "name": "vera-medium-omni",
+     "tag": "",
+     "model_key": "vera-medium-omni",
+     "maker": "scar-ai",
+     "kind": "decision",
+     "params_total": 4.21,
+     "params_active": 4.21,
+     "quantization": "BF16",
+     "score_0_100": 22.341115434500644,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.3787289234760052,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.07954954604409842,
+     "improvement_points": null,
+     "runs": [
+      "text:1264"
+     ],
+     "notes": "vera server (the card's own vera-serve from vera-s1 0.1.8, PyTorch engine), self-hosted, BF16"
     },
     {
      "repo": "PelaAI/KnowLine-4B-Gen5.5",
@@ -6923,6 +7373,31 @@
      "notes": "Perplexity Decider server, self-hosted"
     },
     {
+     "repo": "startlux-models/StartLux-Decision-v1.1-4B-Instant",
+     "commit": "416088f77cfce09633906a3675c7cd2e5dabcf10",
+     "name": "StartLux-Decision-v1.1-4B-Instant",
+     "tag": "",
+     "model_key": "startlux-decision-v1.1-4b",
+     "maker": "StartLux",
+     "kind": "decision",
+     "params_total": 4.66,
+     "params_active": 4.66,
+     "quantization": "BF16",
+     "score_0_100": 20.88197146562905,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.3670557717250324,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.10274788153319536,
+     "improvement_points": null,
+     "runs": [
+      "text:1236"
+     ],
+     "notes": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16"
+    },
+    {
      "repo": "Qwen/Qwen3.5-4B",
      "commit": "851bf6e",
      "name": "Qwen3.5-4B",
@@ -6948,6 +7423,31 @@
      "notes": "our GPU (logic's server, vLLM v0.30.0 BF16, revision Qwen/Qwen3.5-4B@851bf6e), one question per request, plain answer line CEVAP: X (no answer schema); sampling min_p 0.0, presence_penalty 1.5, repetition_penalty 1.0, seed 0, temperature 1.0, top_k 20, top_p 0.95, thinking off; output cap 32,768"
     },
     {
+     "repo": "victorbennett/Verdin-4B-v1.1",
+     "commit": "45830d2",
+     "name": "Verdin-4B-v1.1",
+     "tag": "",
+     "model_key": "verdin-4b-v1.1",
+     "maker": "victorbennett",
+     "kind": "decision",
+     "params_total": 4.21,
+     "params_active": 4.21,
+     "quantization": "BF16",
+     "score_0_100": 20.47665369649805,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.3638132295719844,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.12760401020475481,
+     "improvement_points": null,
+     "runs": [
+      "text:1244"
+     ],
+     "notes": "Verdin server (the card's own python -m verdin.server, in the package versions its card lists), self-hosted, BF16"
+    },
+    {
      "repo": "quincyqiang/chinese-decision-pointer-4b",
      "commit": "889f23e",
      "name": "Chinese Decision Pointer 4B",
@@ -6971,6 +7471,31 @@
       "text:1206"
      ],
      "notes": "Decision Index engine (compactor's di_serve.py around the engine its card ships), self-hosted, BF16"
+    },
+    {
+     "repo": "Valen-Team/Valen-Decision-1.5-9B",
+     "commit": "5a51211",
+     "name": "Valen-Decision-1.5-9B",
+     "tag": "",
+     "model_key": "valen-decision-1.5-9b",
+     "maker": "Valen-Team",
+     "kind": "decision",
+     "params_total": 8.4,
+     "params_active": 8.4,
+     "quantization": "BF16",
+     "score_0_100": 18.774319066147854,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.35019455252918286,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.06866481370102538,
+     "improvement_points": null,
+     "runs": [
+      "text:1275"
+     ],
+     "notes": "Valen server (the card's valen-vllm plugin, Valen-Team/Valen at 773d3a6, in vllm/vllm-openai v0.33.0), self-hosted, BF16"
     },
     {
      "repo": null,
@@ -7603,7 +8128,7 @@
    "bench": "reading-english",
    "title": "Reading · English",
    "url": "https://zekiworks.github.io/analysis/decision-models/english/",
-   "updated": "2026-11-15T13:18:15Z",
+   "updated": "2026-11-15T14:51:41Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 547 kept reading questions, translated into English, right (accuracy 100%)"
@@ -8160,6 +8685,31 @@
      "notes": "GLiDE server (Fastino's release code), self-hosted; the kept reading questions in English"
     },
     {
+     "repo": "turion-ai/turion-jev-31b",
+     "commit": "866c0fc6e040cba23fcc72113a80e5c99d5ebab1",
+     "name": "Turion Jev 31B",
+     "tag": "",
+     "model_key": "turion-jev-31b",
+     "maker": "Turion.AI",
+     "kind": "decision",
+     "params_total": 31.27,
+     "params_active": 31.27,
+     "quantization": "FP8 at load",
+     "score_0_100": 88.345521023766,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.906764168190128,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.11628131444241334,
+     "improvement_points": null,
+     "runs": [
+      "english:1075"
+     ],
+     "notes": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load; the kept reading questions in English"
+    },
+    {
      "repo": null,
      "commit": null,
      "name": "d1-ultra",
@@ -8212,31 +8762,6 @@
       "english:1064"
      ],
      "notes": "Sieve server (sieve-serve, the maker's release code), self-hosted, BF16; the kept reading questions in English"
-    },
-    {
-     "repo": "turion-ai/turion-jev-31b",
-     "commit": "866c0fc6e040cba23fcc72113a80e5c99d5ebab1",
-     "name": "Turion Jev 31B",
-     "tag": "",
-     "model_key": "turion-jev-31b",
-     "maker": "Turion.AI",
-     "kind": "decision",
-     "params_total": 31.27,
-     "params_active": 31.27,
-     "quantization": "FP8 at load",
-     "score_0_100": 88.345521023766,
-     "raw": {
-      "metric": "accuracy",
-      "value": 0.906764168190128,
-      "questions": 547,
-      "options": 5
-     },
-     "calibration_error": 0.11628131444241334,
-     "improvement_points": null,
-     "runs": [
-      "english:1075"
-     ],
-     "notes": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load; the kept reading questions in English"
     },
     {
      "repo": "google/gemma-4-31B-it",
@@ -9425,6 +9950,31 @@
      "notes": "Perplexity Decider server, self-hosted; the kept reading questions in English"
     },
     {
+     "repo": "Valen-Team/Valen-Decision-1.5-9B",
+     "commit": "5a51211",
+     "name": "Valen-Decision-1.5-9B",
+     "tag": "",
+     "model_key": "valen-decision-1.5-9b",
+     "maker": "Valen-Team",
+     "kind": "decision",
+     "params_total": 8.4,
+     "params_active": 8.4,
+     "quantization": "BF16",
+     "score_0_100": 79.6617915904936,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8372943327239488,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.08429313076698099,
+     "improvement_points": null,
+     "runs": [
+      "english:1278"
+     ],
+     "notes": "Valen server (the card's valen-vllm plugin, Valen-Team/Valen at 773d3a6, in vllm/vllm-openai v0.33.0), self-hosted, BF16; the kept reading questions in English"
+    },
+    {
      "repo": null,
      "commit": null,
      "name": "celeris-1.1-decision",
@@ -9448,6 +9998,56 @@
       "english:882"
      ],
      "notes": "Celeris System One API; the kept reading questions in English"
+    },
+    {
+     "repo": "Patrick-18/Dexy-Decision-9B-V2",
+     "commit": "4f434e2",
+     "name": "Dexy-Decision-9B-V2",
+     "tag": "",
+     "model_key": "dexy-decision-9b-v2",
+     "maker": "Patrick-18",
+     "kind": "decision",
+     "params_total": 8.39,
+     "params_active": 8.39,
+     "quantization": "BF16",
+     "score_0_100": 79.43327239488114,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8354661791590493,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.04177158883254661,
+     "improvement_points": null,
+     "runs": [
+      "english:1258"
+     ],
+     "notes": "Dexy server (the card's Transformers d3_server.py, in its requirements.txt pins: torch 2.14.0, transformers 5.19.0), self-hosted, BF16; the kept reading questions in English"
+    },
+    {
+     "repo": "scar-ai/vera-medium-omni",
+     "commit": "1f23a6c",
+     "name": "vera-medium-omni",
+     "tag": "",
+     "model_key": "vera-medium-omni",
+     "maker": "scar-ai",
+     "kind": "decision",
+     "params_total": 4.21,
+     "params_active": 4.21,
+     "quantization": "BF16",
+     "score_0_100": 79.43327239488114,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8354661791590493,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.09859981718464357,
+     "improvement_points": null,
+     "runs": [
+      "english:1267"
+     ],
+     "notes": "vera server (the card's own vera-serve from vera-s1 0.1.8, PyTorch engine), self-hosted, BF16; the kept reading questions in English"
     },
     {
      "repo": "startlux-models/StartLux-Decision-v1.1-4B-Instant",
@@ -9523,6 +10123,31 @@
       "english:889"
      ],
      "notes": "our GPU (logic's server, vLLM v0.30.0 BF16, revision google/gemma-4-E4B-it@4ecc2ba), one question per request, plain answer line CEVAP: X (no answer schema); sampling temperature 0.0; output cap 8,192; the kept reading questions in English"
+    },
+    {
+     "repo": "victorbennett/Verdin-4B-v1.1",
+     "commit": "45830d2",
+     "name": "Verdin-4B-v1.1",
+     "tag": "",
+     "model_key": "verdin-4b-v1.1",
+     "maker": "victorbennett",
+     "kind": "decision",
+     "params_total": 4.21,
+     "params_active": 4.21,
+     "quantization": "BF16",
+     "score_0_100": 77.83363802559414,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8226691042047533,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.03527083042969597,
+     "improvement_points": null,
+     "runs": [
+      "english:1247"
+     ],
+     "notes": "Verdin server (the card's own python -m verdin.server, in the package versions its card lists), self-hosted, BF16; the kept reading questions in English"
     },
     {
      "repo": "Cloudflare/clef-flash",
@@ -10384,7 +11009,7 @@
    "bench": "reading-vision",
    "title": "Reading · Vision",
    "url": "https://zekiworks.github.io/analysis/decision-models/vision/",
-   "updated": "2026-11-15T12:58:32Z",
+   "updated": "2026-11-15T14:37:36Z",
    "score": {
     "zero": "chance: 1 of each question's options right on every question (accuracy 20% with 5 options)",
     "hundred": "every one of the 763 questions that depend on the printed page right, read from the page image alone (accuracy 100%)"

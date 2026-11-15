@@ -120,6 +120,8 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "copernicus": {"access": "Copernicus server (the card's copernicus_server.py, Transformers), self-hosted, BF16", "scoring": True, "billing": "local"},
     # Decision Index engines compactor serves on GPU 0 behind its shared adapter di_serve.py (logic #8320).
     "di-serve": {"access": "Decision Index engine (compactor's di_serve.py around the engine its card ships), self-hosted, BF16", "scoring": True, "billing": "local"},
+    # Valen 9B behind its card's valen-vllm deployment, which needs the model field (logic #8775).
+    "valen": {"access": "Valen server (the card's valen-vllm plugin, Valen-Team/Valen at 773d3a6, in vllm/vllm-openai v0.33.0), self-hosted, BF16", "scoring": True, "billing": "local"},
     # Ümit's tiny batch (#4578): the two providers it adds; its other models run through knowline, startlux, onejev and
     # baselabs.
     "meteor": {"access": "PKU-KCL-Meteor server (serving/server.py, the maker's release code, transformers), self-hosted, BF16", "scoring": True, "billing": "local"},
@@ -373,6 +375,42 @@ MODELS: dict[str, dict[str, Any]] = {
         "gcc, libc6-dev and python3-dev, which its Triton kernels need) behind compactor's di_serve.py, text only; the "
         "engine took its own Triton FP8 kernel on this GPU.",
         "hardware": f"1 × {GPU}; FP8",
+    },
+    # The last four index models compactor served on bariton GPU 2, each through its card's own server, reached by the
+    # generic di-serve provider (no model field) or, for Valen, its own (compactor #8576, #8676, #8697, #8773).
+    "Verdin-4B-v1.1": {
+        "name": "Verdin-4B-v1.1",
+        "access": "Verdin server (the card's own python -m verdin.server, in the package versions its card lists), self-hosted, BF16",
+        "note": "victorbennett's released Verdin-4B-v1.1 (victorbennett/Verdin-4B-v1.1 at 45830d2): Qwen3.5-4B with a "
+        "LoRA fine-tune merged into its weights (the mean of three seeds' LoRA runs) and a pointer head that reads the "
+        "option-boundary tokens, 4.21B parameters served. It ran on our hardware through its card's own server, without "
+        "causal-conv1d (its torch convolution path), text only. Weights CC-BY-NC-4.0 (research use).",
+        "hardware": f"1 × {GPU}; BF16",
+    },
+    "vera-medium-omni": {
+        "name": "vera-medium-omni",
+        "access": "vera server (the card's own vera-serve from vera-s1 0.1.8, PyTorch engine), self-hosted, BF16",
+        "note": "scar-ai's released vera-medium-omni (scar-ai/vera-medium-omni at 1f23a6c), a decision model on Qwen3.5-4B "
+        "(about 4.2B parameters for text, plus the stock 0.33B vision tower, unused here) that reads each question in one "
+        "forward pass. It ran on our hardware through its card's own server, text only; that server rounds each option's "
+        "probability to 4 decimals (vera/schema.py line 110), so they sum to one only within rounding.",
+        "hardware": f"1 × {GPU}; BF16",
+    },
+    "Dexy-Decision-9B-V2": {
+        "name": "Dexy-Decision-9B-V2",
+        "access": "Dexy server (the card's Transformers d3_server.py, in its requirements.txt pins: torch 2.14.0, transformers 5.19.0), self-hosted, BF16",
+        "note": "Patrick-18's released Dexy-Decision-9B-V2 (Patrick-18/Dexy-Decision-9B-V2 at 4f434e2), a fine-tune of "
+        "vLLM-SR's d3-flash (8.394B parameters with its 0.456B vision encoder, as its card says). It ran on our hardware "
+        "through its card's own server, text only.",
+        "hardware": f"1 × {GPU}; BF16",
+    },
+    "valen": {
+        "name": "Valen-Decision-1.5-9B",
+        "note": "Valen-Team's released Valen-Decision-1.5-9B (Valen-Team/Valen-Decision-1.5-9B at 5a51211), a decision "
+        "model on Qwen3.5-9B. It ran on our hardware through its card's vLLM deployment, the valen-vllm plugin installed "
+        "without its dependencies into the official vLLM v0.33.0 image, which answers only to the model name 'valen', the "
+        "key its runs carry; text only.",
+        "hardware": f"1 × {GPU}; BF16",
     },
     # It ran on a DGX Spark (GB10).
     "glide-v1.2": {
@@ -973,6 +1011,20 @@ SIZES: dict[str, dict[str, Any]] = {
                            "scope": "both members: KnowLine-31B-Gen1 with Logits' LoRA merged, and d3-ultra",
                            "sources": ["the Jev Decision Index's served_params for logitshq/Logits-Sigma-1-Duo@a0c1b6e8",
                                        "https://huggingface.co/logitshq/Logits-Sigma-1-Duo"], "read": "2026-11-15"},
+    # The four GPU 2 index models: every parameter in each pinned checkpoint's safetensors (the Hub's safetensors index
+    # sums them; read 15 November 2026). Each is classed by its maker's stated size (page_config.json stated_sizes).
+    **{key: {"total": total, "repo": repo, "commit": commit, "scope": scope,
+             "sources": [f"counted from the checkpoint's safetensors, {repo}@{commit}", f"https://huggingface.co/{repo}"],
+             "read": "2026-11-15"}
+       for key, total, repo, commit, scope in (
+           ("Verdin-4B-v1.1", 4_205_751_296, "victorbennett/Verdin-4B-v1.1", "45830d2",
+            "language model with the merged LoRA and its pointer head; its card says 4.21B served"),
+           ("vera-medium-omni", 4_207_714_822, "scar-ai/vera-medium-omni", "1f23a6c",
+            "the whole checkpoint, its vision tower included (text only here)"),
+           ("Dexy-Decision-9B-V2", 8_392_695_024, "Patrick-18/Dexy-Decision-9B-V2", "4f434e2",
+            "the whole checkpoint with its 0.456B vision encoder (text only here); its card says 8.394B"),
+           ("valen", 8_404_269_597, "Valen-Team/Valen-Decision-1.5-9B", "5a51211",
+            "the whole checkpoint"))},
     # Fastino's post: "serves 57.36B parameters versus GLiDE's 26.09B".
     "glide-v1.2": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
                    "repo": "fastino/GLiDE", "commit": "a7e4589",
@@ -2541,7 +2593,14 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
        "after the option-word check; not asked with “I don't know” yet." for provider, model in (
         ("copernicus", "Copernicus-31B"), ("knowline", "PelaAI/KnowLine-9B-Gen1"), ("pplx-decider", "jev-latest"),
         ("di-serve", "Jeffan-9B-1211"), ("cerno", "apertixai/cerno-9b-v1.2"),
-        ("di-serve", "Chinese-Decision-Pointer-4B"), ("di-serve", "Logits-Sigma-1-Duo"))},
+        ("di-serve", "Chinese-Decision-Pointer-4B"), ("di-serve", "Logits-Sigma-1-Duo"),
+        ("di-serve", "Verdin-4B-v1.1"), ("di-serve", "vera-medium-omni"), ("di-serve", "Dexy-Decision-9B-V2"),
+        ("valen", "valen"))},
+    # Their Turkish side in the Turkish phase (Zeki #5213), on logic's DGX Spark loads of each (logic #8460, #8474, #8818).
+    **{(provider, model, None): "added to the Hallucination tab on 15 November 2026 (run on our DGX Spark), after the "
+       "option-word check; not asked with “I don't know” yet." for provider, model in (
+        ("sieve", "sthanika-ai/Sieve-31B-v3"), ("turion-jev", "turion-ai/turion-jev-31b"),
+        ("startlux", "startlux-models/StartLux-Decision-v1.1-4B-Instant"))},
     **{(provider, model, None): "added to the Hallucination tab on 10 November 2026 (run on our GPU), after the "
        "option-word check; not asked with “I don't know” yet." for provider, model in (
         ("glide", "glide-27b"), ("glide", "glide-9b"), ("glide", "glide-2b"), ("glide", "glide-0.8b"), ("glide", "glide-0.4b"),

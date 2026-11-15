@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-15T13:44:07Z",
+ "updated": "2026-11-15T15:19:31Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -825,6 +825,34 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "StartLux-Decision-v1.1-9B-Instant",
+   "display_name": "StartLux-Decision-v1.1-9B-Instant",
+   "tag": "",
+   "model_key": "startlux-decision-v1.1-9b",
+   "maker": "StartLux",
+   "kind": "decision",
+   "repo": "startlux-models/StartLux-Decision-v1.1-9B-Instant",
+   "commit": "18a17f734966b213b2f00fa9c915e8b9af2a9b20",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 78.83035282745286,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8588690188496858,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.0823722971203353,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-startlux-decision-v1.1-9b-v1"
+   ],
+   "notes": "startlux-models/StartLux-Decision-v1.1-9B-Instant@18a17f73, its package's own server (startlux-decide serve --launch-vllm, StartLux-Decision@a99977d, vLLM 0.31.0), BF16, on one DGX Spark (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.15375955299852695,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "Chinese Decision Pointer 4B",
    "display_name": "Chinese Decision Pointer 4B",
    "tag": "",
@@ -1389,6 +1417,34 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "StartLux-Decision-v1.1-2B-Instant",
+   "display_name": "StartLux-Decision-v1.1-2B-Instant",
+   "tag": "",
+   "model_key": "startlux-decision-v1.1-2b",
+   "maker": "StartLux",
+   "kind": "decision",
+   "repo": "startlux-models/StartLux-Decision-v1.1-2B-Instant",
+   "commit": "f1e6cd147dda82c9ffa3e8e725d5c1f175566fb1",
+   "params_total": 2.0,
+   "params_active": 2.0,
+   "quantization": "BF16",
+   "score_0_100": 65.99806669888835,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7733204446592556,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.07203038917648069,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-startlux-decision-v1.1-2b-v1"
+   ],
+   "notes": "startlux-models/StartLux-Decision-v1.1-2B-Instant@f1e6cd14, the server its Logic & Math runs use, BF16, on one DGX Spark (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.04491619354242643,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "GLiDE 2B",
    "display_name": "GLiDE 2B",
    "tag": "",
@@ -1473,6 +1529,62 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "KnowLine-2B-Gen1",
+   "display_name": "KnowLine-2B-Gen1",
+   "tag": "",
+   "model_key": "knowline-2b-gen1",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "repo": "PelaAI/KnowLine-2B-Gen1",
+   "commit": "53245d470a4ce316e32fd0d18c24e142c697f40b",
+   "params_total": 2.0,
+   "params_active": 2.0,
+   "quantization": "BF16",
+   "score_0_100": 61.06814886418559,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7404543257612373,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.026506755692241563,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-knowline-2b-gen1-v1"
+   ],
+   "notes": "PelaAI/KnowLine-2B-Gen1@53245d47, the server its Logic & Math runs use, BF16, on one DGX Spark (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.07461765998593127,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "GLiDE 0.8B",
+   "display_name": "GLiDE 0.8B",
+   "tag": "",
+   "model_key": "glide-0.8b",
+   "maker": "Fastino",
+   "kind": "decision",
+   "repo": "fastino/GLiDE-0.8B",
+   "commit": "9eacdeec79fa48ec52a8d6f54b331376b4bbfaf0",
+   "params_total": 0.75,
+   "params_active": 0.75,
+   "quantization": "BF16",
+   "score_0_100": 60.77815369743836,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7385210246495891,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.03848586578633559,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-glide-0.8b-v1"
+   ],
+   "notes": "fastino/GLiDE-0.8B@9eacdeec, the server its Logic & Math runs use, BF16, on one DGX Spark (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.036354799436418,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "Strands Decider 2B",
    "display_name": "Strands Decider 2B",
    "tag": "",
@@ -1501,6 +1613,34 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "LFM2.5-8B-A1B",
+   "display_name": "LFM2.5-8B-A1B",
+   "tag": "thinking on (no off mode) · chat",
+   "model_key": "lfm2.5-8b-a1b-think",
+   "maker": "Liquid AI",
+   "kind": "chat",
+   "repo": "LiquidAI/LFM2.5-8B-A1B",
+   "commit": "dd83f5cb02aa2938b66bba9a9998d38d0517c1f3",
+   "params_total": 8.3,
+   "params_active": 1.5,
+   "quantization": "BF16",
+   "score_0_100": 57.733204446592545,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7182213629772837,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-lfm2.5-8b-a1b-think-v1"
+   ],
+   "notes": "LiquidAI/LFM2.5-8B-A1B@dd83f5cb, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time (latency not comparable across different concurrency); thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 0 of 2069 replies (0%) had no answer marker and count wrong; every reply kept; an earlier attempt of this same run stopped part-way (45 recorded pairs and an unknown number of further requests possibly answered but not recorded) and is kept apart, not merged; this attempt started again from the first pair, so its outcomes are this attempt's recorded outputs, not guaranteed to be the model's first outputs on those pairs",
+   "gpu_hours": 0.2022492439606659,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "Gemma 4 E2B",
    "display_name": "Gemma 4 E2B",
    "tag": "thinking off · chat",
@@ -1526,6 +1666,34 @@
    ],
    "notes": "google/gemma-4-E2B-it@4adf1574, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 0 of 2069 replies (0%) had no answer marker and count wrong; a fresh run (14-15 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the run it replaces and a server from the same launcher (the earlier run's own server flags were not recorded); the earlier run stays in history",
    "gpu_hours": 0.010497344808671188,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "OneJev1.6-0.8B",
+   "display_name": "OneJev1.6-0.8B",
+   "tag": "",
+   "model_key": "onejev1.6-0.8b",
+   "maker": "OmniJev",
+   "kind": "decision",
+   "repo": "OmniJev/OneJev1.6-0.8B",
+   "commit": "bcd88a382f314b26cb7b1b7f369c1ed3502ee7a0",
+   "params_total": 0.8,
+   "params_active": 0.8,
+   "quantization": "BF16",
+   "score_0_100": 50.0483325277912,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6669888835186081,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.040721618656355756,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-onejev1.6-0.8b-v1"
+   ],
+   "notes": "OmniJev/OneJev1.6-0.8B@bcd88a38, the server its Logic & Math runs use, BF16, on one DGX Spark (ours), self-hosted; server probabilities are rounded to six decimal places and retained without renormalization; ECE uses the reported maximum probability; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.024637469203680373,
    "gpu_cost_usd": null
   },
   {
@@ -1585,6 +1753,90 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "StartLux-Decision-v1.1-0.8B-Instant",
+   "display_name": "StartLux-Decision-v1.1-0.8B-Instant",
+   "tag": "",
+   "model_key": "startlux-decision-v1.1-0.8b-instant",
+   "maker": "StartLux",
+   "kind": "decision",
+   "repo": "startlux-models/StartLux-Decision-v1.1-0.8B-Instant",
+   "commit": "6496ae641cc71b149ce9dad69bd97f2a44e7bf11",
+   "params_total": 0.8,
+   "params_active": 0.8,
+   "quantization": "BF16",
+   "score_0_100": 48.88835186080232,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6592556790720154,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.056035763218873734,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-startlux-decision-v1.1-0.8b-instant-v1"
+   ],
+   "notes": "startlux-models/StartLux-Decision-v1.1-0.8B-Instant@6496ae64, the server its Logic & Math runs use, BF16, on one DGX Spark (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.030659771969914984,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "GLiDE 0.4B",
+   "display_name": "GLiDE 0.4B",
+   "tag": "",
+   "model_key": "glide-0.4b",
+   "maker": "Fastino",
+   "kind": "decision",
+   "repo": "fastino/GLiDE-0.4B",
+   "commit": "6bda7ab91aeb36dcad6d27828a8871e548c7fc71",
+   "params_total": 0.4,
+   "params_active": 0.4,
+   "quantization": "BF16",
+   "score_0_100": 44.393426776220394,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6292895118414693,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.07677301660636211,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-glide-0.4b-v1"
+   ],
+   "notes": "fastino/GLiDE-0.4B@6bda7ab9, the server its Logic & Math runs use, BF16, on one DGX Spark (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.023397810828577028,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "GLiClass v4 Edge",
+   "display_name": "GLiClass v4 Edge",
+   "tag": "",
+   "model_key": "gliclass-v4-edge",
+   "maker": "Knowledgator",
+   "kind": "decision",
+   "repo": "knowledgator/gliclass-v4-edge",
+   "commit": "885af1af8a07edf4ed34df83ca0d995ed8201283",
+   "params_total": 0.4,
+   "params_active": 0.4,
+   "quantization": "BF16",
+   "score_0_100": 44.32092798453359,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6288061865635572,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.09842112173409612,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-gliclass-v4-edge-v1"
+   ],
+   "notes": "knowledgator/gliclass-v4-edge@885af1af, the server its Logic & Math runs use, BF16, on one DGX Spark (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.07387427885198607,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "Decider 1",
    "display_name": "Decider 1",
    "tag": "",
@@ -1638,6 +1890,34 @@
    ],
    "notes": "KRAFTON/Raon-1-nano@fcf2d1d5, BF16, KRAFTON vLLM fork krafton-ai/vllm@13a5dd87 (not a vLLM release) on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 0 of 2069 replies (0%) had no answer marker and count wrong; every reply kept",
    "gpu_hours": 0.10276738377885526,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "KnowLine-0.8B-Gen1",
+   "display_name": "KnowLine-0.8B-Gen1",
+   "tag": "",
+   "model_key": "knowline-0.8b-gen1",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "repo": "PelaAI/KnowLine-0.8B-Gen1",
+   "commit": "6b27831f7b783c03278bd946d4d8f4f7a98a3798",
+   "params_total": 0.8,
+   "params_active": 0.8,
+   "quantization": "BF16",
+   "score_0_100": 38.52102464958917,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5901401643305945,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.14642663407717668,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-knowline-0.8b-gen1-v1"
+   ],
+   "notes": "PelaAI/KnowLine-0.8B-Gen1@6b27831f, the server its Logic & Math runs use, BF16, on one DGX Spark (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.04669099587283346,
    "gpu_cost_usd": null
   }
  ]

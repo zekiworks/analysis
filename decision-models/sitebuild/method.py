@@ -91,6 +91,18 @@ SETUP_TEXTS = (
     "Chinese and English.",
     "Logits' released Sigma-1 Duo, KnowLine-31B-Gen1 with Logits' LoRA and d3-ultra averaged 50/50, in FP8 on one GPU, its "
     "card's engine and image behind the same wrapper, text only; its card names no language and no total size.",
+    "victorbennett's released Verdin-4B-v1.1, Qwen3.5-4B with a merged LoRA fine-tune and a pointer head, its card's own "
+    "server in BF16, text only; non-commercial weights, used for evaluation; its card lists English, Chinese and Japanese.",
+    "scar-ai's released vera-medium-omni, on Qwen3.5-4B, its card's own server (vera-serve) in BF16, text only, "
+    "probabilities rounded to 4 decimals; its card lists English only.",
+    "Patrick-18's released Dexy-Decision-9B-V2, a fine-tune of d3-flash, its card's own server (d3_server.py) in BF16, "
+    "text only; its card names no language.",
+    "Valen-Team's released Valen-Decision-1.5-9B, on Qwen3.5-9B, its card's vLLM deployment (valen-vllm on vLLM v0.33.0) "
+    "in BF16, text only; its card names no language.",
+    "Turion.AI's released Turion Jev 31B, a merged LoRA fine-tune of Gemma-4-31B-it, on a DGX Spark through its "
+    "package's server, FP8 at load, text only; its card names no language.",
+    "Sthānika AI's released Sieve 31B v3, a full fine-tune of Gemma-4-31B-it, on a DGX Spark in BF16 behind sieve-serve, "
+    "text only; its card lists English only.",
     "Apertix AI's released Cerno 9B v1.2, a full fine-tune of Qwen3.5-9B, its card's in-process engine behind a thin "
     "System One wrapper in BF16, text only: Turkish runs on an RTX PRO 6000, English runs on a DGX Spark; its card names "
     "no language.",
