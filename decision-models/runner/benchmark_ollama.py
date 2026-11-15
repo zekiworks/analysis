@@ -857,6 +857,8 @@ GPU_TIME: dict[tuple[str, str], int] = {
     # (SPARK_RUNS), which this rate does not fit.
     ("di-serve", "Chinese-Decision-Pointer-4B"): 1,
     ("cerno", "apertixai/cerno-9b-v1.2"): 1,
+    # Logits Sigma-1 Duo (logitshq/Logits-Sigma-1-Duo at a0c1b6e8, FP8) behind di_serve.py on one GPU (compactor #8409).
+    ("di-serve", "Logits-Sigma-1-Duo"): 1,
 }
 # Runs of a GPU_TIME setup that ran on a DGX Spark, by run id: no GPU-time estimate, as for the setups that ran only on a
 # Spark (the RTX PRO 6000's rate does not fit a Spark's request time; #4055). Cerno 9B v1.2's English runs on spark2.
