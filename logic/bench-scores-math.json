@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-15T12:39:01Z",
+ "updated": "2026-11-15T12:49:30Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2342,6 +2342,37 @@
    "notes": "hosted API (the maker's service)",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "Valen-Team/Valen-Decision-1.5-9B",
+   "commit": "5a512117ebc0f2b69f311becfcf47cdef8abf568",
+   "model_key": "valen-decision-1.5-9b",
+   "name": "Valen-Decision-1.5-9B",
+   "display_name": "Valen-Decision-1.5-9B",
+   "tag": "",
+   "class_label": "Open · 9.0B",
+   "base_model": "Qwen3.5-9B",
+   "setup_label": "Valen-Decision-1.5-9B",
+   "maker": "Valen-Team",
+   "kind": "decision",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 44.17475728155339,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5533980582524272,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": 0.040623399081564475,
+   "improvement_points": null,
+   "runs": [
+    "math:valen-9b_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 0.035555555555555556,
+   "gpu_cost_usd": 0.08853333333333334
   },
   {
    "repo": "perplexity-ai/pplx-decider-flash-v1.2",

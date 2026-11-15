@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-15T12:39:01Z",
+ "updated": "2026-11-15T12:49:30Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -2351,6 +2351,38 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.16722222222222222,
    "gpu_cost_usd": 0.03558786980637629
+  },
+  {
+   "repo": "Valen-Team/Valen-Decision-1.5-9B",
+   "commit": "5a512117ebc0f2b69f311becfcf47cdef8abf568",
+   "model_key": "valen-decision-1.5-9b",
+   "name": "Valen-Decision-1.5-9B",
+   "display_name": "Valen-Decision-1.5-9B",
+   "tag": "",
+   "class_label": "Open · 9.0B",
+   "base_model": "Qwen3.5-9B",
+   "setup_label": "Valen-Decision-1.5-9B",
+   "maker": "Valen-Team",
+   "kind": "decision",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 39.476885644768856,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5158150851581509,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.045180792918975296,
+   "improvement_points": null,
+   "runs": [
+    "logic:valen-9b_en",
+    "math:valen-9b_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 0.05472222222222222,
+   "gpu_cost_usd": 0.13625833333333334
   },
   {
    "repo": "PelaAI/KnowLine-4B-Gen5.5",
