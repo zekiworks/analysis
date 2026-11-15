@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-15T12:13:00Z",
+ "updated": "2026-11-15T12:21:36Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2150,6 +2150,38 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.10666666666666667,
    "gpu_cost_usd": 0.022700568115695176
+  },
+  {
+   "repo": "scar-ai/vera-medium-omni",
+   "commit": "1f23a6cf5304e8e53b7ded53980765d5f8f4047c",
+   "model_key": "vera-medium-omni",
+   "name": "vera-medium-omni",
+   "display_name": "vera-medium-omni",
+   "tag": "",
+   "class_label": "Open · 4.2B",
+   "base_model": "Qwen3.5-4B",
+   "setup_label": "vera-medium-omni",
+   "maker": "scar-ai",
+   "kind": "decision",
+   "params_total": 4.2,
+   "params_active": 4.2,
+   "quantization": "BF16",
+   "score_0_100": 46.024040684234855,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5681923254738789,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": 0.029700739713361058,
+   "improvement_points": null,
+   "runs": [
+    "math:vera-medium-omni_en",
+    "math:vera-medium-omni_en_dontknow"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+   "gpu_hours": 0.020277777777777777,
+   "gpu_cost_usd": 0.05049166666666667
   },
   {
    "repo": "apertixai/cerno-9b-v1.2",
