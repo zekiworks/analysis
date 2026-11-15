@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-15T07:20:02Z",
+ "updated": "2026-11-15T07:25:32Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -891,6 +891,38 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
    "gpu_hours": 1.108888888888889,
    "gpu_cost_usd": 2.7611333333333334
+  },
+  {
+   "repo": "Qwen/Qwen3.5-2B",
+   "commit": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+   "model_key": "qwen3.5-2b",
+   "name": "Qwen3.5-2B",
+   "display_name": "Qwen3.5-2B",
+   "tag": "off · chat",
+   "class_label": "Open · 2.0B",
+   "base_model": null,
+   "setup_label": "Qwen3.5-2B (chat, thinking off, on our GPU)",
+   "maker": "Alibaba",
+   "kind": "chat",
+   "params_total": 2.0,
+   "params_active": 2.0,
+   "quantization": "BF16",
+   "score_0_100": 80.5352798053528,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8442822384428224,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:qwen3.5-2b-nothink_en",
+    "math:qwen3.5-2b-nothink_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 1.0405555555555555,
+   "gpu_cost_usd": 2.590983333333334
   },
   {
    "repo": "LiquidAI/LFM2.5-8B-A1B",
