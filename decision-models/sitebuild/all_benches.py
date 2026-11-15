@@ -1159,7 +1159,9 @@ class GradingBench(ui.Bench):
                                                                       if value in used)], default="all", any="all", hide_empty=True)]
 
     def measure_keys(self) -> ui.KeyRow:
-        return ui.KeyRow(ui.MEASURE, "Measure", [ui.Key(key, label) for key, label, *_ in GRADING_MEASURES], default="score")
+        # Each key explains its measure on hover and keyboard focus in its head's words (Ümit #9113, zw-ui v2.7).
+        return ui.KeyRow(ui.MEASURE, "Measure", [ui.Key(key, label, help=self.column(key).tip) for key, label, *_ in GRADING_MEASURES],
+                         default="score")
 
     def views(self, part: str | None, measure: str | None) -> tuple[str, ...]:
         return ("chart", "table")

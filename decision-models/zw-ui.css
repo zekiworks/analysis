@@ -203,6 +203,12 @@ html:not(.zw-js) .zw-view + .zw-view, html:not(.zw-js) .zw-list + .zw-list { mar
   box-shadow: var(--zw-shadow); font-size: .78rem; font-weight: 400; line-height: 1.4; text-align: left; white-space: normal; }
 .zw-tip:not([data-zw-quiet]):hover .zw-tip-body, .zw-tip:not([data-zw-quiet]) .zw-tip-key:focus-visible + .zw-tip-body,
 .zw-tip-key[aria-expanded="true"] + .zw-tip-body, html:not(.zw-js) .zw-tip:focus-within .zw-tip-body { display: block; }
+/* A key's own tip (Key.help: a Measure key's explanation, v2.7): shown while a mouse is over it (zw-ui.js sets
+   data-zw-hover on a mouse pointer only, so a touch screen's tap, which leaves :hover behind, never shows it over the
+   page) and by keyboard focus; a tap only chooses the key. */
+.zw-tip.zw-key-tip:not([data-zw-quiet]):hover .zw-tip-body { display: none; }
+.zw-tip.zw-key-tip[data-zw-hover]:not([data-zw-quiet]) .zw-tip-body,
+.zw-tip.zw-key-tip:not([data-zw-quiet]) .zw-key:focus-visible + .zw-tip-body { display: block; }
 /* A head's tip right of the rank (a measure or helper column, v2.6) opens leftwards, so it stays inside the page; on a
    phone every tip opens in a box fixed at the bottom of the screen, whatever its head's place, never past its edge. */
 .zw-table th.zw-num .zw-tip-body, .zw-table th.zw-help .zw-tip-body, .zw-table th.zw-measure .zw-tip-body { left: auto; right: 0; }

@@ -60,6 +60,9 @@ class Key:
     value: str  # its URL value
     label: str  # its text
     summary: str | None = None  # its words in the phone's scope summary; None: the label, '': nothing (Class: All)
+    # Its explanation (html), shown as a tip by hover and keyboard focus (v2.7, Ümit #9113): what a Measure key's measure
+    # is, in the bench's own words. A tap still only chooses the key; on touch the same words are the column head's tip.
+    help: str | None = None
 
 
 @dataclass(frozen=True)
@@ -395,10 +398,15 @@ def key_row(row: KeyRow, *, hidden_keys: Iterable[str] = (), label_id: str | Non
     label_id = label_id or f"zw-label-{row.param}"
     hidden = set(hidden_keys)
     pressed = row.chosen_values
-    keys = "".join(f'<button type="button" class="zw-key" data-zw-value="{esc(key.value)}"'
-                   f'{attrs({"data-zw-summary": key.summary if key.summary is not None else None, "hidden": key.value in hidden})}'
-                   f' aria-pressed="{"true" if key.value in pressed else "false"}">{esc(key.label)}</button>'
-                   for key in row.keys)
+    def button(key: Key) -> str:
+        tip_id = f"{label_id}-{key.value}-help"
+        html = (f'<button type="button" class="zw-key" data-zw-value="{esc(key.value)}"'
+                f'{attrs({"data-zw-summary": key.summary if key.summary is not None else None, "hidden": key.value in hidden, "aria-describedby": tip_id if key.help else None})}'
+                f' aria-pressed="{"true" if key.value in pressed else "false"}">{esc(key.label)}</button>')
+        if not key.help:
+            return html
+        return f'<span class="zw-tip zw-key-tip">{html}<span class="zw-tip-body" id="{esc(tip_id)}" role="tooltip">{key.help}</span></span>'
+    keys = "".join(button(key) for key in row.keys)
     row_cls = classes("zw-row", "zw-measures" if row.param == MEASURE else None, cls)
     return (f'<div{attrs({"class": row_cls, "data-zw-param": row.param, "data-zw-default": row.chosen, "data-zw-any": row.any, "data-zw-hide-empty": row.hide_empty})}'
             f' role="group" aria-labelledby="{esc(label_id)}"><span class="zw-row-label" id="{esc(label_id)}">{esc(row.label)}</span>'

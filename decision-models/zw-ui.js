@@ -3,7 +3,8 @@
    completed by turkce against the kit contract (Ümit #4862); v2 with the three ports' asks (#4918, #4923, Reading's),
    v2.1 with shared cost calculations and panels loaded on first show (logic #4931); v2.7: a details box on a raised
    background, up to 560 px wide, opened by the mouse from its model cell only, and its cell above the later rows'
-   sticky cells, which covered a box that opened downward (Ümit #9111, grading #9115).
+   sticky cells, which covered a box that opened downward (Ümit #9111, grading #9115); a key may carry its own tip
+   (zw_ui.Key.help: a Measure key's explanation), shown while a mouse is over it and on keyboard focus (Ümit #9113).
    Modules, each a no-op when its markup is absent: keys (filter rows, Measure keys and Chart / Table keys: the URL
    state), lists (tier/rank, Top N with its Show all button, pinned reference rows, sub-rows, empty lines, legends),
    panels (a panel outside the default view fetched from its fragment file on first show), filter bar (the phone's
@@ -639,15 +640,24 @@
       if (tip && !tip.contains(event.relatedTarget)) tip.removeAttribute('data-zw-quiet');
     });
     host.addEventListener('focusout', event => event.target.closest?.('.zw-tip')?.removeAttribute('data-zw-quiet'));
+    // A key's own tip (Key.help) shows while a mouse is over the key's tip (zw-ui.css), never after a touch.
+    host.addEventListener('pointerover', event => {
+      if (event.pointerType === 'mouse') event.target.closest?.('.zw-key-tip')?.setAttribute('data-zw-hover', '');
+    });
+    host.addEventListener('pointerout', event => {
+      const tip = event.target.closest?.('.zw-key-tip');
+      if (tip && !tip.contains(event.relatedTarget)) tip.removeAttribute('data-zw-hover');
+    });
     document.addEventListener('click', event => host.querySelectorAll('.zw-tip-key[aria-expanded="true"]').forEach(key => {
       if (!key.closest('.zw-tip').contains(event.target)) key.setAttribute('aria-expanded', 'false');
     }));
     document.addEventListener('keydown', event => {
       if (event.key !== 'Escape') return;
       host.querySelectorAll('.zw-tip').forEach(tip => {
-        const key = tip.querySelector('.zw-tip-key');
+        // A head's key (.zw-tip-key), or a key's own tip (Key.help: the key itself, no aria-expanded).
+        const key = tip.querySelector('.zw-tip-key, .zw-key');
         if (key.getAttribute('aria-expanded') === 'true' || tip.matches(':hover') || key.matches(':focus-visible')) {
-          key.setAttribute('aria-expanded', 'false');
+          if (key.hasAttribute('aria-expanded')) key.setAttribute('aria-expanded', 'false');
           tip.setAttribute('data-zw-quiet', '');
         }
       });
