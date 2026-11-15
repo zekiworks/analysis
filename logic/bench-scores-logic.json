@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-15T06:47:44Z",
+ "updated": "2026-11-15T06:55:42Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1767,6 +1767,38 @@
    "notes": "hosted API (the maker's service)",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "newsbang/adjudex-9b-v5",
+   "commit": "ffdcb8254d1b22e40b2bbbf569f143e0b357aeca",
+   "model_key": "adjudex-9b-v5",
+   "name": "Adjudex 9B v5",
+   "display_name": "Adjudex 9B v5",
+   "tag": "",
+   "class_label": "Open · 9.0B",
+   "base_model": "Qwen3.5-9B",
+   "setup_label": "Adjudex 9B v5",
+   "maker": "newsbang",
+   "kind": "decision",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 33.0,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.464,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": 0.07197307821973589,
+   "improvement_points": null,
+   "runs": [
+    "logic:adjudex-9b_en",
+    "logic:adjudex-9b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+   "gpu_hours": 0.014166666666666666,
+   "gpu_cost_usd": 0.035275
   },
   {
    "repo": "baselabs/elephant-1",

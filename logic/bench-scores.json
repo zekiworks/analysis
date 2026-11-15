@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-15T06:47:44Z",
+ "updated": "2026-11-15T06:55:42Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -1809,6 +1809,40 @@
    "notes": "hosted API (the maker's service)",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "newsbang/adjudex-9b-v5",
+   "commit": "ffdcb8254d1b22e40b2bbbf569f143e0b357aeca",
+   "model_key": "adjudex-9b-v5",
+   "name": "Adjudex 9B v5",
+   "display_name": "Adjudex 9B v5",
+   "tag": "",
+   "class_label": "Open · 9.0B",
+   "base_model": "Qwen3.5-9B",
+   "setup_label": "Adjudex 9B v5",
+   "maker": "newsbang",
+   "kind": "decision",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 45.90176399026763,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5672141119221411,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.05615898820458099,
+   "improvement_points": null,
+   "runs": [
+    "logic:adjudex-9b_en",
+    "math:adjudex-9b_en",
+    "logic:adjudex-9b_en_dontknow",
+    "math:adjudex-9b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+   "gpu_hours": 0.03722222222222222,
+   "gpu_cost_usd": 0.09268333333333334
   },
   {
    "repo": "baselabs/elephant-1",
