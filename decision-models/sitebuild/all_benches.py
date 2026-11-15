@@ -1072,9 +1072,12 @@ GRADING_HARDWARE = (("DGX Spark", "DGX Spark", "one NVIDIA DGX Spark (GB10)"),
 
 
 def grading_hardware(row: dict[str, Any]) -> tuple[str, str] | None:
-    """A Grading row's hardware (GRADING_HARDWARE): its short name and its words, or None (a maker's API)."""
+    """A Grading row's hardware (GRADING_HARDWARE): its short name and its words, or None (a maker's API). The notes'
+    first named hardware is the run's: a later one describes other runs (KnowLine 4B Gen5.5's notes: 'on one RTX PRO 6000
+    (ours) ... its published runs were on a DGX Spark')."""
     notes = row.get("notes") or ""
-    return next(((short, words) for needle, short, words in GRADING_HARDWARE if needle in notes), None)
+    found = [(notes.index(needle), short, words) for needle, short, words in GRADING_HARDWARE if needle in notes]
+    return min(found)[1:] if found else None
 
 
 # Grading's measures on its own page (GradingBench), in their column order: key, head, its unit line (every head two
