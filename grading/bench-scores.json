@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-15T01:07:33Z",
+ "updated": "2026-11-15T01:48:37Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -598,6 +598,34 @@
    ],
    "notes": "perplexity-ai/pplx-decider-flash-v1.3@d06fb3f2, the runner's pplx_decider_server.py with the checkpoint's own pplx_decider package (as for its published v1.2 runs), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
    "gpu_hours": 0.035180532006086604,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Perplexity Decider Flash v1.2",
+   "display_name": "Perplexity Decider Flash v1.2",
+   "tag": "",
+   "model_key": "perplexity-decider-flash-v1.2",
+   "maker": "Perplexity",
+   "kind": "decision",
+   "repo": "perplexity-ai/pplx-decider-flash-v1.2",
+   "commit": "6d771ad7b5ecff5e93b8fc7b90d4c5ccc341954d",
+   "params_total": 4.0,
+   "params_active": 4.0,
+   "quantization": "BF16",
+   "score_0_100": 77.16288061865636,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8477525374577091,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.02793073152029759,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-perplexity-decider-flash-v1.2-v1"
+   ],
+   "notes": "perplexity-ai/pplx-decider-flash-v1.2@6d771ad7, the runner's pplx_decider_server.py with the checkpoint's own pplx_decider package (as for its published v1.2 runs), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.037100849536345196,
    "gpu_cost_usd": null
   },
   {
