@@ -2,6 +2,14 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 25dbf233 (15 November 2026)
+
+- Two thinking-off setups from logic's GPU 1 queue (Ümit #8343 items 1 and 2), each on logic's server for the model right after its Logic & Math runs, at the request settings of logic's own thinking-off runs, one question per request with a plain answer line, 32 in flight; cost from GPU time. All four runs of each are in, so both leave the In progress table.
+  - Qwen3.5-2B with thinking off, the first Qwen3.5-2B setup on Reading (`Qwen/Qwen3.5-2B` at `15852e8`, vLLM v0.30.0, BF16; `enable_thinking` false, temperature 1.0, top_p 0.95, top_k 20, presence penalty 1.5, seed 0, up to 32,768 output tokens): Text run 1218, 558 of 2,198 right (25.4%; reading 225 of 656, grammar 333 of 1,542), 154 replies without a readable letter counted wrong; 114th of 120 Text tab setups. English run 1215: 368 of 547 (67.3%). "I don't know": English 1216, 371 right and 18; Turkish 1219, 460 right, 315 "Bilmiyorum" and 221 without a readable letter. Size 2B as its card states (our count of the checkpoint 2,274,069,824). Its thinking-on setup is running on the same GPU now.
+  - LFM3-1.7B with thinking off (`LiquidAI/LFM3-1.7B` at `0dc4268`, the vLLM nightly of its thinking-on runs; `enable_thinking` false, temperature 0.1, top_k 50, top_p 1.0, repetition penalty 1.1, seed 0, up to 32,768 output tokens): Text run 1227, 623 right (28.3%; reading 244, grammar 379), 21 without a readable letter; 110th; thinking on has 712. English run 1223: 399 of 547 (72.9%). "I don't know": English 1225, 392 right and 18; Turkish 1234, 270 right and 1,433 "Bilmiyorum".
+  - On the 547 kept questions both get far more right in English than in Turkish (Qwen3.5-2B: 207 right only in English, 40 only in Turkish; LFM3-1.7B: 221 and 42), significant after the Holm correction.
+- The paired test now counts 120 comparisons (118 before), 6 passing as before.
+
 ## Results e2eabb7d (15 November 2026)
 
 - Added the last two Decision Index models compactor served on bariton GPU 0 for Reading, each alone on its load after its Answer Check and logic's Logic & Math runs (compactor #8387, #8409; Ümit #7616, #8157), both behind compactor's `di_serve.py` around the engine each card ships, one question per request, text only; local weights only, nothing billed, cost from GPU time. Every run passed the probability check, and each repeat Text run changed none of its 2,198 answers, so each keeps one run.

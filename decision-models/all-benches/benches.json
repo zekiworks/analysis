@@ -10419,7 +10419,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-15T09:08:36Z",
+    "updated": "2026-11-15T10:43:51Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -10983,6 +10983,34 @@
       ],
       "notes": "apertixai/cerno-9b-v1.2@f02a632f, its card's Decision Index engine (CernoEngine, transformers 5.17.0, flash-linear-attention 0.5.2, kit decision-index@9eb2dbe2, the checkpoint's decider_config.json settings, loaded by Hub id and that revision as its card runs it, from the local copy; causal-conv1d not installed, so its PyTorch reference convolution) behind di_serve.py, our System One wrapper of the engine, BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
       "gpu_hours": 0.07257821582541932,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "StartLux-Decision-v1.1-4B-Instant",
+      "display_name": "StartLux-Decision-v1.1-4B-Instant",
+      "tag": "",
+      "model_key": "startlux-decision-v1.1-4b",
+      "maker": "StartLux",
+      "kind": "decision",
+      "repo": "startlux-models/StartLux-Decision-v1.1-4B-Instant",
+      "commit": "416088f77cfce09633906a3675c7cd2e5dabcf10",
+      "params_total": 4.0,
+      "params_active": 4.0,
+      "quantization": "BF16",
+      "score_0_100": 81.65780570323827,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8777187046882552,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.08316936790980808,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-startlux-decision-v1.1-4b-v1"
+      ],
+      "notes": "startlux-models/StartLux-Decision-v1.1-4B-Instant@416088f7, its package's own server (startlux-decide serve --launch-vllm, StartLux-Decision@a99977d, vLLM 0.31.0) as for its published Reading and Logic & Math runs, BF16, on one DGX Spark (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.08060698456742366,
       "gpu_cost_usd": null
      },
      {
@@ -11779,7 +11807,7 @@
      }
     ]
    },
-   "sha256": "a444165f5a73a88abbcb085a4b2ff539d21506a3051fc92488f1408c99a8f0af"
+   "sha256": "475325a7aef0a28e8a0403eea0b23f3dea8af61f9c856aba3679c1b069ae5fcc"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -11787,10 +11815,10 @@
    "seen": "2026-11-15",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-15T09:08:41Z",
+    "updated": "2026-11-15T10:44:01Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "a444165f5a73a88abbcb085a4b2ff539d21506a3051fc92488f1408c99a8f0af"
+     "sha256": "475325a7aef0a28e8a0403eea0b23f3dea8af61f9c856aba3679c1b069ae5fcc"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -12453,6 +12481,26 @@
       "probabilities": true
      },
      {
+      "run": "grading:site-startlux-decision-v1.1-4b-v1",
+      "model_key": "startlux-decision-v1.1-4b",
+      "latency_s_median": 0.121,
+      "latency_s_p90": 0.186,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 140.3,
+      "recall_reference": 0.9023,
+      "recall_other": 0.8936,
+      "recall_none": 0.8421,
+      "wrong_answer_recall": 0.8936,
+      "false_alarm_rate": 0.0828,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
       "run": "grading:chat-qwen3.5-4b-nothink-v1",
       "model_key": "qwen3.5-4b-nothink",
       "latency_s_median": 3.274,
@@ -12756,7 +12804,7 @@
      }
     ]
    },
-   "sha256": "51296445aee8e50c5a17a40515e64d71772cfc8f790cf8ad2f170ca4c7c07dec"
+   "sha256": "0315ddeacc51377c8d30e8fece25ebe5a64dd16e62ccc0d9af094d2010d543d8"
   }
  }
 }

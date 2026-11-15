@@ -777,6 +777,7 @@ MODELS: dict[str, dict[str, Any]] = {
            ("ministral-3-8b-reasoning", "Ministral 3 8B Reasoning", "vLLM v0.30.0",
             "mistralai/Ministral-3-8B-Reasoning-2512@81eaece"),
            ("qwen3.5-4b", "Qwen3.5-4B", "vLLM v0.30.0", "Qwen/Qwen3.5-4B@851bf6e"),
+           ("qwen3.5-2b", "Qwen3.5-2B", "vLLM v0.30.0", "Qwen/Qwen3.5-2B@15852e8"),
            # LFM3-1.7B's Reading runs (logic #5682) are on a vLLM nightly, as no released vLLM has Lfm3ForCausalLM
            # (logic #5446): the server reports 0.34.0rc1.dev302+gbe47189f3; logic's first Logic answers were on llama.cpp.
            ("lfm3-1.7b", "LFM3-1.7B", "vLLM nightly 0.34.0rc1.dev302 (commit be47189f; no released vLLM serves LFM3)",
@@ -1287,6 +1288,11 @@ SIZES: dict[str, dict[str, Any]] = {
                    "repo": "Qwen/Qwen3.5-4B", "commit": "851bf6e",
                    "sources": ["counted from the checkpoint's safetensors, Qwen/Qwen3.5-4B@851bf6e",
                                "https://huggingface.co/Qwen/Qwen3.5-4B"], "read": READ},
+    "qwen3.5-2b": {"total": 2_274_069_824, "scope": "language model (tied embeddings) + multi-token prediction layer + "
+                                                    "0.33B vision encoder",
+                   "repo": "Qwen/Qwen3.5-2B", "commit": "15852e8",
+                   "sources": ["counted from the checkpoint's safetensors, Qwen/Qwen3.5-2B@15852e8",
+                               "https://huggingface.co/Qwen/Qwen3.5-2B"], "read": "2026-11-15"},
     "qwen3.5-9b": {"total": 9_653_104_368, "scope": "language model with its LM head + multi-token prediction layer + "
                                                     "0.46B vision encoder",
                    "repo": "Qwen/Qwen3.5-9B", "commit": "c202236",
@@ -1350,6 +1356,7 @@ SETUP_OF: dict[str, str] = {
     "lfm3-1.7b-vllm-nothink": "lfm3-1.7b",
     "granite-4.2-3b-nothink": "granite-4.2-3b",
     "qwen3.5-4b-nothink": "qwen3.5-4b",
+    "qwen3.5-2b-nothink": "qwen3.5-2b",
     "raon-1-nano-nothink": "raon-1-nano",
     "gemma-4-e2b-it-think-32k": "gemma-4-e2b-it",
     "gemma-4-e4b-it-think-32k": "gemma-4-e4b-it",

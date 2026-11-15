@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-15T09:08:36Z",
+ "updated": "2026-11-15T10:43:51Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -566,6 +566,34 @@
    ],
    "notes": "apertixai/cerno-9b-v1.2@f02a632f, its card's Decision Index engine (CernoEngine, transformers 5.17.0, flash-linear-attention 0.5.2, kit decision-index@9eb2dbe2, the checkpoint's decider_config.json settings, loaded by Hub id and that revision as its card runs it, from the local copy; causal-conv1d not installed, so its PyTorch reference convolution) behind di_serve.py, our System One wrapper of the engine, BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
    "gpu_hours": 0.07257821582541932,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "StartLux-Decision-v1.1-4B-Instant",
+   "display_name": "StartLux-Decision-v1.1-4B-Instant",
+   "tag": "",
+   "model_key": "startlux-decision-v1.1-4b",
+   "maker": "StartLux",
+   "kind": "decision",
+   "repo": "startlux-models/StartLux-Decision-v1.1-4B-Instant",
+   "commit": "416088f77cfce09633906a3675c7cd2e5dabcf10",
+   "params_total": 4.0,
+   "params_active": 4.0,
+   "quantization": "BF16",
+   "score_0_100": 81.65780570323827,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8777187046882552,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.08316936790980808,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-startlux-decision-v1.1-4b-v1"
+   ],
+   "notes": "startlux-models/StartLux-Decision-v1.1-4B-Instant@416088f7, its package's own server (startlux-decide serve --launch-vllm, StartLux-Decision@a99977d, vLLM 0.31.0) as for its published Reading and Logic & Math runs, BF16, on one DGX Spark (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.08060698456742366,
    "gpu_cost_usd": null
   },
   {
