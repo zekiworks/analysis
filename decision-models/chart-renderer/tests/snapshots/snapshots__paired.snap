@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 128 comparisons (6 pass).
-━━ passes the Holm adjustment across these 128 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 130 comparisons (6 pass).
+━━ passes the Holm adjustment across these 130 comparisons   ━━ does not pass
 
                                                  Gemini 4 Carbon · high · chat minus Claude Fable 5.2 · max · chat                               ⠠⣷⠤⠄                              +0.3
                                                 Claude Fable 5.2 · max · chat minus Gemini 3.8 Flash · high · chat                              ⠠⠤⡧⠤                               +0.0
@@ -71,7 +71,7 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                                     SubQ Snap 1.1 minus GPT-6 Luna · Decisions API                          ⠤⠤⠤⠤⠤⠤⣿⠤⠤⠤⠤⠤⠤⠄                         +0.3
                                               GPT-6 Luna · Decisions API minus Qwen3.8 Flash · no reasoning · chat                           ⠤⠤⠤⠤⠤⡧⢼⠤⠤⠤⠤⠤⠤                         +0.5
                                                                     Qwen3.8 Flash · no reasoning · chat minus d1.1                              ⠤⠤⡧⠤⠤⠤⢼⠤⠤⠤⠤⠤⠤⠄                     +1.5
-                                                                         d1.1 minus Claude Sonnet 5.5 · low · chat                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒⠂                         +0.1
+                                                                         d1.1 minus Claude Sonnet 5.5 · low · chat                         ⠠⠤⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤⠤⠄                         +0.1
                                                            Claude Sonnet 5.5 · low · chat minus celeris-1-decision                            ⠒⠒⠒⠒⡗⠒⢺⠒⠒⠒⠒⠒⠒⠂                       +0.9
                                                                 celeris-1-decision minus Perplexity Decider 27B v1                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒                          +0.1
                                                                         Perplexity Decider 27B v1 minus OneJev-27B                             ⠐⠒⠒⡗⠒⡗⠒⠒⠒⠒                          +0.8
@@ -96,12 +96,13 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                                               KnowLine-9B-Gen1 minus Cerno 9B v1.2                          ⠐⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒                           +0.1
                                                Cerno 9B v1.2 minus Qwen3.8-27B · vote share · reasoning off · chat                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒                          +0.1
       Qwen3.8-27B · vote share · reasoning off · chat minus Qwen3.8-27B · stated confidence · reasoning off · chat                            ⠐⠒⠒⠒⡗⠒⠒⠒⠂                            +0.1
-                                        Qwen3.8-27B · stated confidence · reasoning off · chat minus Adjudex 9B v5                            ⠐⠒⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒⠒                       +1.0
-                                                                                    Adjudex 9B v5 minus Elephant-1                             ⠒⠒⠒⡗⠒⠗⠒⠒⠒⠒⠂                         +0.8
+                                        Qwen3.8-27B · stated confidence · reasoning off · chat minus Adjudex 9B v5                            ⠐⠒⠒⠒⡗⠒⠒⡗⠒⠒⠒⠒⠒⠒                       +1.0
+                                                                                    Adjudex 9B v5 minus Elephant-1                             ⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠂                         +0.8
                                                                                          Elephant-1 minus GLiDE 9B                           ⠐⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒⠂                          +0.3
                                                                        GLiDE 9B minus Qwen3.8-27B · yes/no scoring                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠒⠂                         +0.1
                                                             Qwen3.8-27B · yes/no scoring minus Dexy-Decision-9B-V2                          ⠒⠒⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒⠒⠒                         +0.3
-                                                           Dexy-Decision-9B-V2 minus Perplexity Decider Flash v1.3                               ⠒⡗⠒⠒⠒⠒⠺⠒⠒⠒⠒⠒⠒                     +1.9
+                                                       Dexy-Decision-9B-V2 minus StartLux-Decision-v1.1-9B-Instant                           ⠐⠒⠒⠒⠒⡗⠗⠒⠒⠒⠒⠂                          +0.4
+                                             StartLux-Decision-v1.1-9B-Instant minus Perplexity Decider Flash v1.3                              ⠒⠒⡗⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒                      +1.5
                                                               Perplexity Decider Flash v1.3 minus vera-medium-omni                            ⠐⠒⠒⠒⡗⠺⠒⠒⠒⠒⠒⠂                         +0.6
                                                                          vera-medium-omni minus KnowLine 4B Gen5.5                            ⠒⠒⠒⠒⡗⠺⠒⠒⠒⠒⠒⠒                         +0.6
                                                         KnowLine 4B Gen5.5 minus StartLux-Decision-v1.1-4B-Instant                            ⠒⠒⠒⠒⡗⠺⠒⠒⠒⠒⠒⠂                         +0.6
@@ -131,7 +132,8 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                         KnowLine-0.8B-Gen1 minus Qwen3.5-2B · reasoning off · chat                              ⠒⠒⡗⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠂                    +1.7
                                                           Qwen3.5-2B · reasoning off · chat minus GLiClass v4 Edge                              ⠐⠒⡗⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒⠂                   +2.0
                                                                                  GLiClass v4 Edge minus GLiDE 0.4B                            ⠒⠒⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒⠒⠂                      +1.1
-                                                                           GLiDE 0.4B minus GLiNER2.5-multi-Decide                               ⠒⡗⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠒                    +2.0
+                                                         GLiDE 0.4B minus LFM2.5-8B-A1B · default reasoning · chat                            ⠐⠒⠒⠒⡗⠒⠒⠺⠒⠒⠒⠒⠒⠒⠒                      +1.3
+                                             LFM2.5-8B-A1B · default reasoning · chat minus GLiNER2.5-multi-Decide                           ⠒⠒⠒⠒⠒⡗⠒⠗⠒⠒⠒⠒⠒⠒⠂                       +0.8
                                                                                  GLiNER2.5-multi-Decide minus Laya                            ⠐⠒⠒⠒⡗⠒⠒⠺⠒⠒⠒⠒⠒⠒⠂                      +1.2
                                                                                       Laya minus Laya Multilingual                             ⠒⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒⠒                       +1.1
                                                                            Laya Multilingual minus GLiNER2.5 Multi                           ⠐⠒⠒⠒⠒⡗⠗⠒⠒⠒⠒⠒                          +0.4

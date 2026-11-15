@@ -4,7 +4,7 @@
    "bench": "reading-text",
    "title": "Reading · Turkish",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-15T14:51:41Z",
+   "updated": "2026-11-15T16:00:17Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
@@ -1857,6 +1857,31 @@
      "notes": "Dexy server (the card's Transformers d3_server.py, in its requirements.txt pins: torch 2.14.0, transformers 5.19.0), self-hosted, BF16"
     },
     {
+     "repo": "startlux-models/StartLux-Decision-v1.1-9B-Instant",
+     "commit": "18a17f734966b213b2f00fa9c915e8b9af2a9b20",
+     "name": "StartLux-Decision-v1.1-9B-Instant",
+     "tag": "",
+     "model_key": "startlux-decision-v1.1-9b",
+     "maker": "StartLux",
+     "kind": "decision",
+     "params_total": 9.65,
+     "params_active": 9.65,
+     "quantization": "BF16",
+     "score_0_100": 39.035486806187436,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5122838944494995,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.07621217831446238,
+     "improvement_points": null,
+     "runs": [
+      "text:1290"
+     ],
+     "notes": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16"
+    },
+    {
      "repo": "perplexity-ai/pplx-decider-flash-v1.3",
      "commit": "d06fb3f",
      "name": "Perplexity Decider Flash v1.3",
@@ -2607,6 +2632,31 @@
      "notes": "GLiDE server (Fastino's release code), self-hosted"
     },
     {
+     "repo": "LiquidAI/LFM2.5-8B-A1B",
+     "commit": "dd83f5c",
+     "name": "LFM2.5-8B-A1B",
+     "tag": "default reasoning · chat",
+     "model_key": "lfm2.5-8b-a1b",
+     "maker": "Liquid AI",
+     "kind": "chat",
+     "params_total": 8.47,
+     "params_active": 1.69,
+     "quantization": "BF16",
+     "score_0_100": 1.2170154686078245,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.2097361237488626,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": null,
+     "improvement_points": null,
+     "runs": [
+      "text:1288"
+     ],
+     "notes": "our GPU (logic's server, vLLM v0.30.0 BF16, revision LiquidAI/LFM2.5-8B-A1B@dd83f5c), one question per request, plain answer line CEVAP: X (no answer schema); sampling repetition_penalty 1.05, seed 0, temperature 0.2, top_k 80; output cap 32,768"
+    },
+    {
      "repo": "fastino/GLiNER2.5-multi-Decide",
      "commit": "a35a0cd",
      "name": "GLiNER2.5-multi-Decide",
@@ -2712,7 +2762,7 @@
    "bench": "turkish-reading",
    "title": "Turkish Reading",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-15T14:51:41Z",
+   "updated": "2026-11-15T16:00:17Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 656 Turkish reading questions (units 1 to 6) right (accuracy 100%)"
@@ -4540,6 +4590,31 @@
      "notes": "our GPU (logic's server, vLLM v0.30.0 BF16, revision Qwen/Qwen3.5-4B@851bf6e), one question per request, plain answer line CEVAP: X (no answer schema); sampling min_p 0.0, presence_penalty 1.5, repetition_penalty 1.0, seed 0, temperature 1.0, top_k 20, top_p 0.95, thinking on; output cap 32,768"
     },
     {
+     "repo": "startlux-models/StartLux-Decision-v1.1-9B-Instant",
+     "commit": "18a17f734966b213b2f00fa9c915e8b9af2a9b20",
+     "name": "StartLux-Decision-v1.1-9B-Instant",
+     "tag": "",
+     "model_key": "startlux-decision-v1.1-9b",
+     "maker": "StartLux",
+     "kind": "decision",
+     "params_total": 9.65,
+     "params_active": 9.65,
+     "quantization": "BF16",
+     "score_0_100": 73.51371951219512,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.788109756097561,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.03587679412996808,
+     "improvement_points": null,
+     "runs": [
+      "text:1290"
+     ],
+     "notes": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16"
+    },
+    {
      "repo": "google/gemma-4-E4B-it",
      "commit": "4ecc2ba",
      "name": "Gemma 4 E4B",
@@ -5290,6 +5365,31 @@
      "notes": "GLiClass server (our servers/gliclass_server.py: the card's gliclass pipeline and its System One mapping), self-hosted, BF16"
     },
     {
+     "repo": "LiquidAI/LFM2.5-8B-A1B",
+     "commit": "dd83f5c",
+     "name": "LFM2.5-8B-A1B",
+     "tag": "default reasoning · chat",
+     "model_key": "lfm2.5-8b-a1b",
+     "maker": "Liquid AI",
+     "kind": "chat",
+     "params_total": 8.47,
+     "params_active": 1.69,
+     "quantization": "BF16",
+     "score_0_100": 7.012195121951219,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.25609756097560976,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": null,
+     "improvement_points": null,
+     "runs": [
+      "text:1288"
+     ],
+     "notes": "our GPU (logic's server, vLLM v0.30.0 BF16, revision LiquidAI/LFM2.5-8B-A1B@dd83f5c), one question per request, plain answer line CEVAP: X (no answer schema); sampling repetition_penalty 1.05, seed 0, temperature 0.2, top_k 80; output cap 32,768"
+    },
+    {
      "repo": "fastino/GLiDE-0.4B",
      "commit": "6bda7ab",
      "name": "GLiDE 0.4B",
@@ -5420,7 +5520,7 @@
    "bench": "turkish-grammar",
    "title": "Turkish Grammar",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-15T14:51:41Z",
+   "updated": "2026-11-15T16:00:17Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 1,542 Turkish grammar questions (units 7 to 20) right (accuracy 100%)"
@@ -7273,6 +7373,31 @@
      "notes": "Dexy server (the card's Transformers d3_server.py, in its requirements.txt pins: torch 2.14.0, transformers 5.19.0), self-hosted, BF16"
     },
     {
+     "repo": "startlux-models/StartLux-Decision-v1.1-9B-Instant",
+     "commit": "18a17f734966b213b2f00fa9c915e8b9af2a9b20",
+     "name": "StartLux-Decision-v1.1-9B-Instant",
+     "tag": "",
+     "model_key": "startlux-decision-v1.1-9b",
+     "maker": "StartLux",
+     "kind": "decision",
+     "params_total": 9.65,
+     "params_active": 9.65,
+     "quantization": "BF16",
+     "score_0_100": 24.36770428015564,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.3949416342412451,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.11323279756488182,
+     "improvement_points": null,
+     "runs": [
+      "text:1290"
+     ],
+     "notes": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16"
+    },
+    {
      "repo": "perplexity-ai/pplx-decider-flash-v1.3",
      "commit": "d06fb3f",
      "name": "Perplexity Decider Flash v1.3",
@@ -8048,6 +8173,31 @@
      "notes": "GLiNER2 server, self-hosted"
     },
     {
+     "repo": "LiquidAI/LFM2.5-8B-A1B",
+     "commit": "dd83f5c",
+     "name": "LFM2.5-8B-A1B",
+     "tag": "default reasoning · chat",
+     "model_key": "lfm2.5-8b-a1b",
+     "maker": "Liquid AI",
+     "kind": "chat",
+     "params_total": 8.47,
+     "params_active": 1.69,
+     "quantization": "BF16",
+     "score_0_100": -1.2483787289234785,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.19001297016861218,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": null,
+     "improvement_points": null,
+     "runs": [
+      "text:1288"
+     ],
+     "notes": "our GPU (logic's server, vLLM v0.30.0 BF16, revision LiquidAI/LFM2.5-8B-A1B@dd83f5c), one question per request, plain answer line CEVAP: X (no answer schema); sampling repetition_penalty 1.05, seed 0, temperature 0.2, top_k 80; output cap 32,768"
+    },
+    {
      "repo": "convaiinnovations/laya",
      "commit": "c5d7873",
      "name": "Laya",
@@ -8128,7 +8278,7 @@
    "bench": "reading-english",
    "title": "Reading · English",
    "url": "https://zekiworks.github.io/analysis/decision-models/english/",
-   "updated": "2026-11-15T14:51:41Z",
+   "updated": "2026-11-15T16:00:17Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 547 kept reading questions, translated into English, right (accuracy 100%)"
@@ -9324,6 +9474,31 @@
       "english:435"
      ],
      "notes": "Liquid AI decisions API; the kept reading questions in English"
+    },
+    {
+     "repo": "startlux-models/StartLux-Decision-v1.1-9B-Instant",
+     "commit": "18a17f734966b213b2f00fa9c915e8b9af2a9b20",
+     "name": "StartLux-Decision-v1.1-9B-Instant",
+     "tag": "",
+     "model_key": "startlux-decision-v1.1-9b",
+     "maker": "StartLux",
+     "kind": "decision",
+     "params_total": 9.65,
+     "params_active": 9.65,
+     "quantization": "BF16",
+     "score_0_100": 83.54661791590492,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8683729433272395,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.0658049895185053,
+     "improvement_points": null,
+     "runs": [
+      "english:1293"
+     ],
+     "notes": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16; the kept reading questions in English"
     },
     {
      "repo": "google/gemma-4-12B-it",
@@ -10551,7 +10726,7 @@
      "runs": [
       "english:886"
      ],
-     "notes": "our GPU (logic's server, vLLM v0.30.0 BF16, revision LiquidAI/LFM2.5-8B-A1B@dd83f5c), one question per request, plain answer line ANSWER: X (no answer schema); sampling repetition_penalty 1.05, seed 0, temperature 0.2, top_k 80; output cap 32,768; the kept reading questions in English"
+     "notes": "our GPU (logic's server, vLLM v0.30.0 BF16, revision LiquidAI/LFM2.5-8B-A1B@dd83f5c), one question per request, plain answer line CEVAP: X (no answer schema); sampling repetition_penalty 1.05, seed 0, temperature 0.2, top_k 80; output cap 32,768; the kept reading questions in English"
     },
     {
      "repo": "fastino/GLiDE-2B",
@@ -11009,7 +11184,7 @@
    "bench": "reading-vision",
    "title": "Reading · Vision",
    "url": "https://zekiworks.github.io/analysis/decision-models/vision/",
-   "updated": "2026-11-15T14:37:36Z",
+   "updated": "2026-11-15T15:46:28Z",
    "score": {
     "zero": "chance: 1 of each question's options right on every question (accuracy 20% with 5 options)",
     "hundred": "every one of the 763 questions that depend on the printed page right, read from the page image alone (accuracy 100%)"

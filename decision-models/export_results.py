@@ -612,6 +612,16 @@ MODELS: dict[str, dict[str, Any]] = {
         "non-commercially, for evaluation. Its card lists English only.",
         "hardware": f"1 × {SPARK}; BF16",
     },
+    # StartLux 9B on logic's spark2 load of it, the same package and command as the 4B (logic #8964).
+    "startlux-models/StartLux-Decision-v1.1-9B-Instant": {
+        "name": "StartLux-Decision v1.1 9B",
+        "note": "StartLux Labs' released StartLux-Decision-v1.1-9B-Instant (at 18a17f7), a fine-tune of Qwen3.5-9B that reads "
+        "the prompt bidirectionally and also reads images. It ran on our hardware (one DGX Spark), one request at a time, "
+        "through the server of its package (startlux-decide serve --launch-vllm, StartLux-Decision at a99977d) on vLLM "
+        "0.31.0, with vision on, as its 4B sibling. Its weights are licensed for non-commercial use only (CC BY-NC 4.0); we "
+        "use them non-commercially, for evaluation. Its card lists English only.",
+        "hardware": f"1 × {SPARK}; BF16",
+    },
     "OmniJev/OneJev1.6-0.8B": {
         "name": "OneJev1.6-0.8B",
         "note": "OmniJev's released OneJev1.6-0.8B (OmniJev/OneJev1.6-0.8B at bcd88a3, whose files but its README are those "
@@ -1116,6 +1126,8 @@ SIZES: dict[str, dict[str, Any]] = {
            ("startlux-models/StartLux-Decision-v1.1-4B-Instant", 4_659_865_088, "language model (tied embeddings) + "
             "multi-token prediction layer + 0.33B vision encoder", "startlux-models/StartLux-Decision-v1.1-4B-Instant",
             "416088f77cfce09633906a3675c7cd2e5dabcf10"),
+           ("startlux-models/StartLux-Decision-v1.1-9B-Instant", 9_653_104_368, "the whole checkpoint, its vision encoder "
+            "included", "startlux-models/StartLux-Decision-v1.1-9B-Instant", "18a17f734966b213b2f00fa9c915e8b9af2a9b20"),
        )},
     # Ümit's tiny batch (#4578), counted the same way (read 11 November 2026); OneJev1.6-0.8B recounted at bcd88a3, the
     # commit its repository's main moved to on 10 November with only README.md changed (the same 852,985,920 as at
@@ -2600,7 +2612,8 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
     **{(provider, model, None): "added to the Hallucination tab on 15 November 2026 (run on our DGX Spark), after the "
        "option-word check; not asked with “I don't know” yet." for provider, model in (
         ("sieve", "sthanika-ai/Sieve-31B-v3"), ("turion-jev", "turion-ai/turion-jev-31b"),
-        ("startlux", "startlux-models/StartLux-Decision-v1.1-4B-Instant"))},
+        ("startlux", "startlux-models/StartLux-Decision-v1.1-4B-Instant"),
+        ("startlux", "startlux-models/StartLux-Decision-v1.1-9B-Instant"))},
     **{(provider, model, None): "added to the Hallucination tab on 10 November 2026 (run on our GPU), after the "
        "option-word check; not asked with “I don't know” yet." for provider, model in (
         ("glide", "glide-27b"), ("glide", "glide-9b"), ("glide", "glide-2b"), ("glide", "glide-0.8b"), ("glide", "glide-0.4b"),

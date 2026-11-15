@@ -120,19 +120,23 @@ def holding_back(site: Site) -> str:
 
 
 def kinds_holding_back(site: Site) -> str:
-    """Decision models against chat model setups with “I don't know” in English: the median non-hallucination rate of
-    each kind, and how many decision models are above the best chat setup."""
+    """Decision models against chat model setups with “I don't know” in English: how many decision models are above the
+    best chat setup, and the median non-hallucination rate of each kind, which no longer separates them (results
+    242935ed: the median decision model is level with the median chat setup)."""
     decision, chat = idk_entries(site, "decision"), idk_entries(site, "chat")
     finding(bool(decision and chat), "decision and chat setups with an English “I don't know” run")
     rate = lambda entry: entry[0]["non_hallucination"]  # noqa: E731
     middle = {kind: statistics.median(rate(entry) for entry in entries) for kind, entries in (("decision", decision), ("chat", chat))}
-    finding(middle["decision"] > middle["chat"], "the decision models' median rate is above the chat setups'")
     above = sum(rate(entry) > rate(chat[0]) for entry in decision)
-    return card("In English, decision models choose “I don't know” over a wrong answer more often than chat models",
-                [f"The median non-hallucination rate is {pct(middle['decision'])} for the {len(decision)} decision models "
-                 f"and {pct(middle['chat'])} for the {len(chat)} chat model setups with an “I don't know” option in English.",
-                 f"The best chat setup, {site.shown(chat[0][1])}, reaches {pct(rate(chat[0]))}; {above} decision models are "
-                 "above it."],
+    finding(above > 0, "some decision models are above the best chat setup")
+    finding(abs(middle["decision"] - middle["chat"]) < 0.01, "the two kinds' median rates are within a point of each other")
+    return card("In English, a few decision models choose “I don't know” over a wrong answer far more often than any chat "
+                "model; the typical one does not",
+                [f"The best chat setup, {site.shown(chat[0][1])}, reaches {pct(rate(chat[0]))}; {above} of the "
+                 f"{len(decision)} decision models with an “I don't know” option in English are above it, led by "
+                 f"{site.shown(decision[0][1])} at {pct(rate(decision[0]))}.",
+                 f"The median non-hallucination rate is {pct(middle['decision'])} for the decision models and "
+                 f"{pct(middle['chat'])} for the {len(chat)} chat model setups."],
                 "english/#non-hallucination", "English reading: non-hallucination")
 
 
