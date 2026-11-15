@@ -2,6 +2,14 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 15ba8089 (15 November 2026)
+
+- Gemini 4 Carbon's Turkish side and Gemini 4 Hydrogen's English "I don't know" run, held since 14 November: in each run one request of 16 questions came back empty, and empty again when the runner asked it once more, during the subscription bridge's outage (14 November, about 01:54 to 02:45 UTC). At the owner's decision (Can, through Zeki) each was asked a third time on 15 November with the same settings and route (runner `--rescue --again`, 88e48d7), and both came back with 16 answers, 15 of them right. Both earlier empty replies stay in the runs' records, and each row's note says so.
+  - Gemini 4 Carbon (Google Antigravity through Can's agbench bridge, thinking high, 16 questions per request): Text run 1108, 2,164 of 2,198 right (98.5%), first of 121 Text tab setups, ahead of Claude Fable 5.2 (2,157), Gemini 3.8 Flash and Gemini 4 Hydrogen (2,156 each). "Bilmiyorum" run 1121: 2,159 right, 7 "Bilmiyorum". On the 547 kept questions Carbon gets more right in Turkish than in English (21 right only in Turkish, 3 only in English).
+  - Gemini 4 Hydrogen, English "I don't know" run 1109: 527 of 547 right, 4 "I don't know".
+- In progress: Gemini 4 Carbon leaves it. MiniCPM5-2B thinking off's Turkish side, LFM3-VL-2B's Page images and LFM2.5-8B-A1B's Turkish side are Queued, each asked whichever way its smoke came out (Ümit via Zeki; LFM2.5-8B-A1B's Turkish smoke, run 1286 on 15 November, had 4 of 20 replies without an answer letter); MiniCPM5-2B thinking on's Turkish side reads Skipped, Ümit's choice, not a technical block (a new state).
+- The paired test counts 121 comparisons (120 before).
+
 ## Results 25dbf233 (15 November 2026)
 
 - Two thinking-off setups from logic's GPU 1 queue (Ümit #8343 items 1 and 2), each on logic's server for the model right after its Logic & Math runs, at the request settings of logic's own thinking-off runs, one question per request with a plain answer line, 32 in flight; cost from GPU time. All four runs of each are in, so both leave the In progress table.

@@ -661,15 +661,17 @@ def class_line(site: Site, runs: list[dict[str, Any]]) -> str:
             + (f" Left out here: the setups only this site ran ({bp.and_list(left_out)}); they show under Class: All."
                if left_out else ""))
 
-# The In progress table's states (page_config.json in_progress) and its columns, by side.
-PROGRESS_STATES = {"queued": "Queued", "running": "Running", "blocked": "Blocked", "done": "Done", "none": "–"}
+# The In progress table's states (page_config.json in_progress) and its columns, by side. skipped: a side the owner chose
+# not to run (MiniCPM5-2B thinking on's Turkish side, Ümit via Zeki #7178, #8830), not a technical block.
+PROGRESS_STATES = {"queued": "Queued", "running": "Running", "blocked": "Blocked", "skipped": "Skipped", "done": "Done",
+                   "none": "–"}
 PROGRESS_SIDES = (("english", "English"), ("turkish", "Turkish"), ("page_images", "Page images"))
 
 
 def in_progress(site: Site, board: Board) -> str:
     """The In progress table under the Leaderboard (the project lead via Zeki #5064, #5065, #5071; Ümit #5067): the
     models joining Reading, each with the state of its English, Turkish and Page images sides from page_config.json
-    `in_progress` (queued, running, blocked, done, or none where a side does not apply, each with an optional note),
+    `in_progress` (queued, running, blocked, skipped, done, or none where a side does not apply, each with an optional note),
     so a model shows before its results do, never as a 0. A side is done exactly when the model (provider and model
     id) has a published run of it, a Page images side when vision.json holds every one of its cells (none missing; a
     model publishes each cell as it completes, Zeki #5177): the build stops otherwise (mark it done, or take the model off

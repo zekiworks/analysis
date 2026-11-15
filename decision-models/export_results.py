@@ -1463,6 +1463,15 @@ RUN_NOTES: dict[int, str] = {
          "times (706 and 12,236 seconds; the first after one retry, when SubQ had closed the connection), so the run's total "
          "request time and questions per minute include them. Without them, its median request time stays 0.378 s and its "
          "90th percentile moves from 0.388 s to 0.387 s.",
+    # The bridge outage of 14 November 2026 (01:54 to about 02:45 UTC): one 16-question request in each of these runs
+    # came back empty, and empty again when the runner asked it once more. The owner chose to ask it a third time (Can
+    # #8772, Zeki #8774); runner --rescue --again (88e48d7) did, on 15 November 2026, keeping both empty replies.
+    1108: "One request of 16 questions came back empty twice during the subscription bridge's outage on 14 November "
+          "2026; it was asked a third time on 15 November 2026 at the owner's decision, with the same settings, and "
+          "answered (15 of the 16 right). Both empty replies are kept in the run's record.",
+    1114: "Its English “I don't know” run (1109): one request of 16 questions came back empty twice during the "
+          "subscription bridge's outage on 14 November 2026; it was asked a third time on 15 November 2026 at the "
+          "owner's decision, with the same settings, and answered (15 of the 16 right). Both empty replies are kept.",
 }
 # Each unit's plain English label; results.json keeps the printed Turkish title next to it.
 UNITS_EN = {
