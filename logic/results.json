@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-15T05:27:06Z",
+ "generated_at": "2026-11-15T05:30:08Z",
  "tests": {
   "logic": {
    "name": "Logic",
@@ -1143,6 +1143,34 @@
      "cost_basis": "estimate: NVIDIA DGX Spark (GB10) time while the run was running, first to last answer × $0.213/h",
      "gpu_hours": 0.32472222222222225,
      "median_latency_ms": 983.2182690151967,
+     "mixed_concurrency": false
+    },
+    {
+     "name": "Copernicus-31B",
+     "display_name": "Copernicus-31B",
+     "tag": "",
+     "class_label": "Open · Undisclosed",
+     "base_model": null,
+     "setup_label": "Copernicus-31B",
+     "group": "decision",
+     "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+     "accuracy": 0.5866666666666667,
+     "wilson_low": 0.5576435307418581,
+     "wilson_high": 0.6150999259131766,
+     "right": 660,
+     "n": 1125,
+     "decision_score": 70.47599827939513,
+     "chosen_answer_brier": 0.1771467010787643,
+     "n_scored": 1125,
+     "decision_score_lacking": 0,
+     "auroc": 0.801326164874552,
+     "non_hallucination": null,
+     "cost_per_1000": 0.1358740740740741,
+     "cost_usd": 0.15285833333333335,
+     "cost_unit": "USD",
+     "cost_basis": "estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h",
+     "gpu_hours": 0.06138888888888889,
+     "median_latency_ms": 184.7244579985272,
      "mixed_concurrency": false
     },
     {
@@ -5200,7 +5228,7 @@
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
-     "non_hallucination": null,
+     "non_hallucination": 0.6619718309859155,
      "cost_per_1000": 0.0,
      "cost_usd": 0.0,
      "cost_unit": "USD",
