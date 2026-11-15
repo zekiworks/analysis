@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-14T19:46:52Z",
+ "updated": "2026-11-15T00:06:46Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -429,6 +429,66 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "MiniCPM5-2B",
+   "display_name": "MiniCPM5-2B",
+   "tag": "thinking on · chat",
+   "model_key": "minicpm5-2b",
+   "maker": "OpenBMB",
+   "kind": "chat",
+   "repo": "openbmb/MiniCPM5-2B",
+   "commit": "42433e90dad95123ab87729fd7011e7110629556",
+   "params_total": 2.52,
+   "params_active": 2.52,
+   "quantization": "BF16",
+   "score_0_100": 79.2411793136781,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8616078620911873,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-minicpm5-2b-seed0-r2-v1",
+    "grading:chat-minicpm5-2b-seed1-r2-v1",
+    "grading:chat-minicpm5-2b-seed2-r2-v1"
+   ],
+   "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; replies without an answer marker count wrong: mean rate 0.06% (per seed in seed_runs; cut off at the token limit per seed: 0, 0, 0); the three runs are fresh runs (14 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the runs they replace and the server settings recorded for them; the earlier runs stay in history; gpu_hours is the mean of the three runs",
+   "gpu_hours": 0.11305822975990755,
+   "gpu_cost_usd": null,
+   "accuracy_basis": "mean of 3 seeds",
+   "seed_min": 0.8598356694055099,
+   "seed_max": 0.8637022716288062,
+   "seed_runs": [
+    {
+     "run": "grading:chat-minicpm5-2b-seed0-r2-v1",
+     "seed": 0,
+     "accuracy": 0.8598356694055099,
+     "invalid": 3,
+     "cutoff": 0,
+     "wrong_answers_caught": 250
+    },
+    {
+     "run": "grading:chat-minicpm5-2b-seed1-r2-v1",
+     "seed": 1,
+     "accuracy": 0.861285645239246,
+     "invalid": 0,
+     "cutoff": 0,
+     "wrong_answers_caught": 258
+    },
+    {
+     "run": "grading:chat-minicpm5-2b-seed2-r2-v1",
+     "seed": 2,
+     "accuracy": 0.8637022716288062,
+     "invalid": 1,
+     "cutoff": 0,
+     "wrong_answers_caught": 256
+    }
+   ],
+   "invalid_rate_mean": 0.000644433703882713
+  },
+  {
    "name": "d1",
    "display_name": "d1",
    "tag": "",
@@ -455,66 +515,6 @@
    "notes": "Liquid AI decisions API (api.liquid.ai/decisions, model d1); billed 'd1' route, the site's 'd1:free' was withdrawn (HTTP 404, 13 Nov); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
    "gpu_hours": null,
    "gpu_cost_usd": null
-  },
-  {
-   "name": "MiniCPM5-2B",
-   "display_name": "MiniCPM5-2B",
-   "tag": "thinking on · chat",
-   "model_key": "minicpm5-2b",
-   "maker": "OpenBMB",
-   "kind": "chat",
-   "repo": "openbmb/MiniCPM5-2B",
-   "commit": "42433e90dad95123ab87729fd7011e7110629556",
-   "params_total": 2.52,
-   "params_active": 2.52,
-   "quantization": "BF16",
-   "score_0_100": 79.09618173030448,
-   "raw": {
-    "metric": "accuracy",
-    "value": 0.8606412115353633,
-    "questions": 2069,
-    "options": 3
-   },
-   "calibration_error": null,
-   "improvement_points": null,
-   "runs": [
-    "grading:chat-minicpm5-2b-seed0-v1",
-    "grading:chat-minicpm5-2b-seed1-v1",
-    "grading:chat-minicpm5-2b-seed2-v1"
-   ],
-   "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); replies without a final 'ANSWER: X' line, counted wrong: mean rate 0.03% (per seed in seed_runs); gpu_hours is the mean of the three runs",
-   "gpu_hours": 0.1157823629882952,
-   "gpu_cost_usd": null,
-   "accuracy_basis": "mean of 3 seeds",
-   "seed_min": 0.8550024166263895,
-   "seed_max": 0.8641855969067183,
-   "seed_runs": [
-    {
-     "run": "grading:chat-minicpm5-2b-seed0-v1",
-     "seed": 0,
-     "accuracy": 0.8550024166263895,
-     "invalid": 2,
-     "cutoff": 0,
-     "wrong_answers_caught": 255
-    },
-    {
-     "run": "grading:chat-minicpm5-2b-seed1-v1",
-     "seed": 1,
-     "accuracy": 0.8641855969067183,
-     "invalid": 0,
-     "cutoff": 0,
-     "wrong_answers_caught": 245
-    },
-    {
-     "run": "grading:chat-minicpm5-2b-seed2-v1",
-     "seed": 2,
-     "accuracy": 0.8627356210729821,
-     "invalid": 0,
-     "cutoff": 0,
-     "wrong_answers_caught": 250
-    }
-   ],
-   "invalid_rate_mean": 0.0003222168519413565
   },
   {
    "name": "Perplexity Decider Flash v1.3",
@@ -545,31 +545,31 @@
    "gpu_cost_usd": null
   },
   {
-   "name": "Gemma 4 12B Unified",
-   "display_name": "Gemma 4 12B Unified",
-   "tag": "thinking off · chat",
-   "model_key": "gemma-4-12b",
+   "name": "Gemma 4 E4B",
+   "display_name": "Gemma 4 E4B",
+   "tag": "thinking on · chat",
+   "model_key": "gemma-4-e4b-think",
    "maker": "Google",
    "kind": "chat",
-   "repo": "google/gemma-4-12B-it",
-   "commit": "43c9d014b231474fa7212dbb48a762566c2b255d",
-   "params_total": 11.95,
-   "params_active": 11.95,
+   "repo": "google/gemma-4-E4B-it",
+   "commit": "4ecc2ba63bcac23ba4a767fc87025b1450f84c9c",
+   "params_total": 8.0,
+   "params_active": 8.0,
    "quantization": "BF16",
-   "score_0_100": 77.38037699371677,
+   "score_0_100": 77.16288061865636,
    "raw": {
     "metric": "accuracy",
-    "value": 0.8492025132914451,
+    "value": 0.8477525374577091,
     "questions": 2069,
     "options": 3
    },
    "calibration_error": null,
    "improvement_points": null,
    "runs": [
-    "grading:chat-gemma-4-12b-v1"
+    "grading:chat-gemma-4-e4b-think-v1"
    ],
-   "notes": "google/gemma-4-12B-it@43c9d014, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; 0 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run)",
-   "gpu_hours": 0.0853734442797598,
+   "notes": "google/gemma-4-E4B-it@4ecc2ba6, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time (latency not comparable across different concurrency); thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 2 of 2069 replies (0.10%) had no answer marker and count wrong (0 of them cut off at the 32,768-token limit); every reply kept; an earlier attempt of this same run stopped part-way (510 recorded pairs and an unknown number of further requests possibly answered but not recorded) and is kept apart, not merged; this attempt started again from the first pair, so its outcomes are this attempt's recorded outputs, not guaranteed to be the model's first outputs on those pairs",
+   "gpu_hours": 0.18707697313942698,
    "gpu_cost_usd": null
   },
   {
@@ -598,6 +598,34 @@
    ],
    "notes": "Google Decisions API (generativelanguage.googleapis.com, model gemini-decision-1); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
    "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Gemma 4 12B Unified",
+   "display_name": "Gemma 4 12B Unified",
+   "tag": "thinking off · chat",
+   "model_key": "gemma-4-12b",
+   "maker": "Google",
+   "kind": "chat",
+   "repo": "google/gemma-4-12B-it",
+   "commit": "43c9d014b231474fa7212dbb48a762566c2b255d",
+   "params_total": 11.95,
+   "params_active": 11.95,
+   "quantization": "BF16",
+   "score_0_100": 77.01788303528274,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8467858869018849,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-gemma-4-12b-r2-v1"
+   ],
+   "notes": "google/gemma-4-12B-it@43c9d014, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 0 of 2069 replies (0%) had no answer marker and count wrong; a fresh run (14-15 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the run it replaces and a server from the same launcher (the earlier run's own server flags were not recorded); the earlier run stays in history",
+   "gpu_hours": 0.06945622949589676,
    "gpu_cost_usd": null
   },
   {
@@ -631,6 +659,66 @@
   {
    "name": "LFM3-1.7B",
    "display_name": "LFM3-1.7B",
+   "tag": "thinking on · chat",
+   "model_key": "lfm3-1.7b",
+   "maker": "Liquid AI",
+   "kind": "chat",
+   "repo": "LiquidAI/LFM3-1.7B",
+   "commit": "0dc4268b561499c648c7ba7c9466bf3d8d01517a",
+   "params_total": 1.73,
+   "params_active": 1.73,
+   "quantization": "BF16",
+   "score_0_100": 75.78540357660704,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8385693571773803,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-lfm3-1.7b-seed0-replay-v1",
+    "grading:chat-lfm3-1.7b-seed1-r2-v1",
+    "grading:chat-lfm3-1.7b-seed2-r2-v1"
+   ],
+   "notes": "LiquidAI/LFM3-1.7B@0dc4268b, BF16, cu135-nightly-be47189f37f6162991366ff6b91539f6e9d1f432 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; replies without an answer marker count wrong: mean rate 0.06% (per seed in seed_runs; cut off at the token limit per seed: 2, 1, 1); the three runs are fresh runs (14 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the runs they replace and the server settings recorded for them; seed 0 is the rerun made to diagnose the missing answer lines; the earlier runs stay in history; gpu_hours is the mean of the three runs",
+   "gpu_hours": 0.15417772855343545,
+   "gpu_cost_usd": null,
+   "accuracy_basis": "mean of 3 seeds",
+   "seed_min": 0.832769453842436,
+   "seed_max": 0.8434026099565007,
+   "seed_runs": [
+    {
+     "run": "grading:chat-lfm3-1.7b-seed0-replay-v1",
+     "seed": 0,
+     "accuracy": 0.8395360077332045,
+     "invalid": 2,
+     "cutoff": 2,
+     "wrong_answers_caught": 215
+    },
+    {
+     "run": "grading:chat-lfm3-1.7b-seed1-r2-v1",
+     "seed": 1,
+     "accuracy": 0.832769453842436,
+     "invalid": 1,
+     "cutoff": 1,
+     "wrong_answers_caught": 194
+    },
+    {
+     "run": "grading:chat-lfm3-1.7b-seed2-r2-v1",
+     "seed": 2,
+     "accuracy": 0.8434026099565007,
+     "invalid": 1,
+     "cutoff": 1,
+     "wrong_answers_caught": 216
+    }
+   ],
+   "invalid_rate_mean": 0.000644433703882713
+  },
+  {
+   "name": "LFM3-1.7B",
+   "display_name": "LFM3-1.7B",
    "tag": "thinking off · chat",
    "model_key": "lfm3-1.7b-nothink",
    "maker": "Liquid AI",
@@ -650,10 +738,10 @@
    "calibration_error": null,
    "improvement_points": null,
    "runs": [
-    "grading:chat-lfm3-1.7b-nothink-v1"
+    "grading:chat-lfm3-1.7b-nothink-r2-v1"
    ],
-   "notes": "LiquidAI/LFM3-1.7B@0dc4268b, BF16, cu135-nightly-be47189f37f6162991366ff6b91539f6e9d1f432 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; 7 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
-   "gpu_hours": 0.09572078474699319,
+   "notes": "LiquidAI/LFM3-1.7B@0dc4268b, BF16, cu135-nightly-be47189f37f6162991366ff6b91539f6e9d1f432 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 2 of 2069 replies (0.10%) had no answer marker and count wrong (2 of them cut off at the 32,768-token limit); a fresh run (14-15 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the run it replaces and a server from the same launcher (the earlier run's own server flags were not recorded); the earlier run stays in history",
+   "gpu_hours": 0.09035722619891497,
    "gpu_cost_usd": null
   },
   {
@@ -668,20 +756,20 @@
    "params_total": 5.1,
    "params_active": 5.1,
    "quantization": "BF16",
-   "score_0_100": 70.56549057515707,
+   "score_0_100": 71.14548090865152,
    "raw": {
     "metric": "accuracy",
-    "value": 0.8037699371677138,
+    "value": 0.8076365393910101,
     "questions": 2069,
     "options": 3
    },
    "calibration_error": null,
    "improvement_points": null,
    "runs": [
-    "grading:chat-gemma-4-e2b-think-v1"
+    "grading:chat-gemma-4-e2b-think-r2-v1"
    ],
-   "notes": "google/gemma-4-E2B-it@4adf1574, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 1 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
-   "gpu_hours": 0.07629477478691463,
+   "notes": "google/gemma-4-E2B-it@4adf1574, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 0 of 2069 replies (0%) had no answer marker and count wrong; a fresh run (14-15 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the run it replaces and a server from the same launcher (the earlier run's own server flags were not recorded); the earlier run stays in history",
+   "gpu_hours": 0.039903491282575095,
    "gpu_cost_usd": null
   },
   {
@@ -696,48 +784,20 @@
    "params_total": 2.27,
    "params_active": 2.27,
    "quantization": "BF16",
-   "score_0_100": 67.52054132431125,
+   "score_0_100": 70.34799420009666,
    "raw": {
     "metric": "accuracy",
-    "value": 0.7834702754954084,
+    "value": 0.8023199613339778,
     "questions": 2069,
     "options": 3
    },
    "calibration_error": null,
    "improvement_points": null,
    "runs": [
-    "grading:chat-qwen3.5-2b-v1"
+    "grading:chat-qwen3.5-2b-r2-v1"
    ],
-   "notes": "Qwen/Qwen3.5-2B@15852e8c, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 94 of 2069 replies (5%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
-   "gpu_hours": 0.38449188006265794,
-   "gpu_cost_usd": null
-  },
-  {
-   "name": "MiniCPM5-2B",
-   "display_name": "MiniCPM5-2B",
-   "tag": "thinking off · chat",
-   "model_key": "minicpm5-2b-nothink",
-   "maker": "OpenBMB",
-   "kind": "chat",
-   "repo": "openbmb/MiniCPM5-2B",
-   "commit": "42433e90dad95123ab87729fd7011e7110629556",
-   "params_total": 2.52,
-   "params_active": 2.52,
-   "quantization": "BF16",
-   "score_0_100": 66.79555340744321,
-   "raw": {
-    "metric": "accuracy",
-    "value": 0.7786370227162881,
-    "questions": 2069,
-    "options": 3
-   },
-   "calibration_error": null,
-   "improvement_points": null,
-   "runs": [
-    "grading:chat-minicpm5-2b-nothink-v1"
-   ],
-   "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; 10 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
-   "gpu_hours": 0.05406686166060087,
+   "notes": "Qwen/Qwen3.5-2B@15852e8c, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 78 of 2069 replies (4%) had no answer marker and count wrong (5 of them cut off at the 32,768-token limit); a fresh run (14-15 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the run it replaces and a server from the same launcher (the earlier run's own server flags were not recorded); the earlier run stays in history; an earlier attempt of this same run stopped part-way (1,210 recorded pairs and 64 further requests possibly answered but not recorded) and is kept apart, not merged; this attempt started again from the first pair, so its outcomes are this attempt's recorded outputs, not guaranteed to be the model's first outputs on those pairs",
+   "gpu_hours": 0.3654148079916184,
    "gpu_cost_usd": null
   },
   {
@@ -752,20 +812,76 @@
    "params_total": 11.95,
    "params_active": 11.95,
    "quantization": "BF16",
-   "score_0_100": 66.57805703238279,
+   "score_0_100": 67.66553890768488,
    "raw": {
     "metric": "accuracy",
-    "value": 0.7771870468825519,
+    "value": 0.7844369260512325,
     "questions": 2069,
     "options": 3
    },
    "calibration_error": null,
    "improvement_points": null,
    "runs": [
-    "grading:chat-gemma-4-12b-think-v1"
+    "grading:chat-gemma-4-12b-think-r2-v1"
    ],
-   "notes": "google/gemma-4-12B-it@43c9d014, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 284 of 2069 replies (14%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established; the run was interrupted by a host restart after 2272 of 2412 recorded pairs and resumed for the remaining 140 on the same server settings: no recorded answer replaced; outputs possibly answered but lost before a durable write are unavailable and may have been requested again after the restart (replay count unknown), so these are the recorded outcomes, not guaranteed first outputs; its GPU time and latency are not published: the part before the restart has no measured time, and the resumed pairs ran with fewer requests in flight",
-   "gpu_hours": null,
+   "notes": "google/gemma-4-12B-it@43c9d014, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 296 of 2069 replies (14%) had no answer marker and count wrong (295 of them cut off at the 32,768-token limit); a fresh run (14-15 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the run it replaces and a server from the same launcher (the earlier run's own server flags were not recorded); the earlier run stays in history",
+   "gpu_hours": 2.486874496019143,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "MiniCPM5-2B",
+   "display_name": "MiniCPM5-2B",
+   "tag": "thinking off · chat",
+   "model_key": "minicpm5-2b-nothink",
+   "maker": "OpenBMB",
+   "kind": "chat",
+   "repo": "openbmb/MiniCPM5-2B",
+   "commit": "42433e90dad95123ab87729fd7011e7110629556",
+   "params_total": 2.52,
+   "params_active": 2.52,
+   "quantization": "BF16",
+   "score_0_100": 67.01304978250361,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7800869985500242,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-minicpm5-2b-nothink-r2-v1"
+   ],
+   "notes": "openbmb/MiniCPM5-2B@42433e90, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 6 of 2069 replies (0.29%) had no answer marker and count wrong (1 of them cut off at the 32,768-token limit); a fresh run (14-15 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the run it replaces and a server from the same launcher (the earlier run's own server flags were not recorded); the earlier run stays in history",
+   "gpu_hours": 0.0521098961670831,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Qwen3.5-4B",
+   "display_name": "Qwen3.5-4B",
+   "tag": "thinking on · chat",
+   "model_key": "qwen3.5-4b",
+   "maker": "Alibaba",
+   "kind": "chat",
+   "repo": "Qwen/Qwen3.5-4B",
+   "commit": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+   "params_total": 4.66,
+   "params_active": 4.66,
+   "quantization": "BF16",
+   "score_0_100": 66.21556307394877,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.7747704204929918,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-qwen3.5-4b-r2-v1"
+   ],
+   "notes": "Qwen/Qwen3.5-4B@851bf6e8, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 179 of 2069 replies (9%) had no answer marker and count wrong (0 of them cut off at the 32,768-token limit); a fresh run (14-15 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the run it replaces and a server from the same launcher (the earlier run's own server flags were not recorded); the earlier run stays in history",
+   "gpu_hours": 0.4258198070850944,
    "gpu_cost_usd": null
   },
   {
@@ -799,8 +915,8 @@
   {
    "name": "Qwen3.5-4B",
    "display_name": "Qwen3.5-4B",
-   "tag": "thinking on · chat",
-   "model_key": "qwen3.5-4b",
+   "tag": "thinking off · chat",
+   "model_key": "qwen3.5-4b-nothink",
    "maker": "Alibaba",
    "kind": "chat",
    "repo": "Qwen/Qwen3.5-4B",
@@ -808,20 +924,20 @@
    "params_total": 4.66,
    "params_active": 4.66,
    "quantization": "BF16",
-   "score_0_100": 65.56307394876752,
+   "score_0_100": 64.54809086515225,
    "raw": {
     "metric": "accuracy",
-    "value": 0.7704204929917835,
+    "value": 0.763653939101015,
     "questions": 2069,
     "options": 3
    },
    "calibration_error": null,
    "improvement_points": null,
    "runs": [
-    "grading:chat-qwen3.5-4b-v1"
+    "grading:chat-qwen3.5-4b-nothink-v1"
    ],
-   "notes": "Qwen/Qwen3.5-4B@851bf6e8, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking on; 164 of 2069 replies (8%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run); whether from reply format or the reasoning parser is not established",
-   "gpu_hours": 0.4371316994510293,
+   "notes": "Qwen/Qwen3.5-4B@851bf6e8, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 20 of 2069 replies (0.97%) had no answer marker and count wrong (0 of them cut off at the 32,768-token limit); every reply kept",
+   "gpu_hours": 0.0711113679488379,
    "gpu_cost_usd": null
   },
   {
@@ -836,20 +952,20 @@
    "params_total": 5.1,
    "params_active": 5.1,
    "quantization": "BF16",
-   "score_0_100": 54.54325761237313,
+   "score_0_100": 54.76075398743354,
    "raw": {
     "metric": "accuracy",
-    "value": 0.6969550507491542,
+    "value": 0.6984050265828903,
     "questions": 2069,
     "options": 3
    },
    "calibration_error": null,
    "improvement_points": null,
    "runs": [
-    "grading:chat-gemma-4-e2b-v1"
+    "grading:chat-gemma-4-e2b-r2-v1"
    ],
-   "notes": "google/gemma-4-E2B-it@4adf1574, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; 0 of 2069 replies (0%) had no final 'ANSWER: X' line and count wrong (rule fixed before the run)",
-   "gpu_hours": 0.013768695861743657,
+   "notes": "google/gemma-4-E2B-it@4adf1574, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 0 of 2069 replies (0%) had no answer marker and count wrong; a fresh run (14-15 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the run it replaces and a server from the same launcher (the earlier run's own server flags were not recorded); the earlier run stays in history",
+   "gpu_hours": 0.010497344808671188,
    "gpu_cost_usd": null
   },
   {
@@ -881,6 +997,34 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "Qwen3.5-2B",
+   "display_name": "Qwen3.5-2B",
+   "tag": "thinking off · chat",
+   "model_key": "qwen3.5-2b-nothink",
+   "maker": "Alibaba",
+   "kind": "chat",
+   "repo": "Qwen/Qwen3.5-2B",
+   "commit": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+   "params_total": 2.27,
+   "params_active": 2.27,
+   "quantization": "BF16",
+   "score_0_100": 49.32334461092315,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6621556307394877,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-qwen3.5-2b-nothink-v1"
+   ],
+   "notes": "Qwen/Qwen3.5-2B@15852e8c, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 37 of 2069 replies (2%) had no answer marker and count wrong (0 of them cut off at the 32,768-token limit); every reply kept",
+   "gpu_hours": 0.05510343013642593,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "Decider 1",
    "display_name": "Decider 1",
    "tag": "",
@@ -907,66 +1051,6 @@
    "notes": "meraGPT decisions API (meragpt.com, model decider-1); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
    "gpu_hours": null,
    "gpu_cost_usd": null
-  },
-  {
-   "name": "LFM3-1.7B",
-   "display_name": "LFM3-1.7B",
-   "tag": "thinking on · chat",
-   "model_key": "lfm3-1.7b",
-   "maker": "Liquid AI",
-   "kind": "chat",
-   "repo": "LiquidAI/LFM3-1.7B",
-   "commit": "0dc4268b561499c648c7ba7c9466bf3d8d01517a",
-   "params_total": 1.73,
-   "params_active": 1.73,
-   "quantization": "BF16",
-   "score_0_100": 28.806186563557272,
-   "raw": {
-    "metric": "accuracy",
-    "value": 0.5253745770903818,
-    "questions": 2069,
-    "options": 3
-   },
-   "calibration_error": null,
-   "improvement_points": null,
-   "runs": [
-    "grading:chat-lfm3-1.7b-seed0-v1",
-    "grading:chat-lfm3-1.7b-seed1-v1",
-    "grading:chat-lfm3-1.7b-seed2-v1"
-   ],
-   "notes": "LiquidAI/LFM3-1.7B@0dc4268b, BF16, cu135-nightly-be47189f37f6162991366ff6b91539f6e9d1f432 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); replies without a final 'ANSWER: X' line, counted wrong: mean rate 39% (per seed in seed_runs); gpu_hours is the mean of the three runs",
-   "gpu_hours": 0.14709279863440347,
-   "gpu_cost_usd": null,
-   "accuracy_basis": "mean of 3 seeds",
-   "seed_min": 0.5229579507008216,
-   "seed_max": 0.52730787820203,
-   "seed_runs": [
-    {
-     "run": "grading:chat-lfm3-1.7b-seed0-v1",
-     "seed": 0,
-     "accuracy": 0.52730787820203,
-     "invalid": 810,
-     "cutoff": 1,
-     "wrong_answers_caught": 116
-    },
-    {
-     "run": "grading:chat-lfm3-1.7b-seed1-v1",
-     "seed": 1,
-     "accuracy": 0.5258579023682939,
-     "invalid": 813,
-     "cutoff": 0,
-     "wrong_answers_caught": 108
-    },
-    {
-     "run": "grading:chat-lfm3-1.7b-seed2-v1",
-     "seed": 2,
-     "accuracy": 0.5229579507008216,
-     "invalid": 827,
-     "cutoff": 2,
-     "wrong_answers_caught": 106
-    }
-   ],
-   "invalid_rate_mean": 0.39471564362816175
   }
  ]
 }

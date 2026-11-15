@@ -129,11 +129,36 @@ GRADING_COPY = (
     "their makers' APIs and {local} on our own GPUs (open decision models and chat models; a chat model's thinking "
     "setting is its row's tag). These numbers apply only to this cohort and request setting. Additional models receive "
     "rows only after completion on the same frozen cohort.",
-    "Requests contain one question each. A chat model's reply without a final 'ANSWER: X' line counts wrong (the rule was "
-    "fixed before the runs); each row's notes say how many replies that was. The full reply texts of these runs were not "
-    "kept (only the last 140 pairs of one resumed run were), so whether such a reply came from the reply format, the "
-    "reasoning parser or an answer that was genuinely absent cannot be established afterwards. {runs}; no diagnostic run "
-    "was made.",
+    "Requests contain one question each. {runs}.",
+    # Answer rule v2 and the fresh chat runs: grading's reviewed Method text, its four sections as given (Zeki #8088;
+    # Ümit #7486), code spans in quotes. A section is (heading, text); 'the history' links the file that still holds
+    # the replaced runs (page_config.json all_benches history).
+    ("How a chat model's answer is read (answer rule v2, from 15 Nov).",
+     "A chat model writes its reasoning and then its choice. The label is the last marker 'ANSWER: X' in the visible "
+     "reply. The word ANSWER may be in any letter case; X must be an uppercase A, B or C. The marker does not need to be "
+     "on the final line. The model's separate reasoning text is never read. A reply with no such marker counts wrong. "
+     "Each chat row's notes give how many of its replies had no marker and how many of those were cut off at the token "
+     "limit."),
+    ("Why the rule changed.",
+     "The first rule (v1) accepted the word only in uppercase, 'ANSWER:'. LFM3-1.7B with thinking on writes "
+     "'Answer: X', so v1 counted about 40% of its replies wrong although they named an option. That was found by "
+     "rerunning the model and keeping every reply. Rule v2 differs from v1 only in the letter case of the word ANSWER. "
+     "On every kept reply, v2 changed none of the labels v1 had read; it only reads replies v1 missed. A reply with "
+     "'ANSWER: A' followed by a later 'Answer: C' would now read C."),
+    ("Fresh runs, not rescoring.",
+     "The earlier chat runs did not keep their replies, so they could not be read again. The 10 existing chat rows were "
+     "therefore replaced by fresh runs with the same model, sampling settings and number of requests at a time, keeping "
+     "every reply. Three thinking modes not run before were added the same way. The seed trios' servers follow the "
+     "settings recorded for the earlier runs. For single runs the earlier runs' own server flags were not recorded, so "
+     "the fresh runs use a server from the same launcher. The earlier runs and their scores stay in the history. A "
+     "replaced row's change has two parts: the fresh run itself (a new sample from the model; under 2 points for every "
+     "row) and the new rule (a large gain for LFM3-1.7B thinking on; small gains for LFM3-1.7B thinking off and for "
+     "Qwen3.5-2B thinking on and off; none for the others)."),
+    ("Interrupted attempts.",
+     "Two runs had an earlier attempt that stopped part-way: Qwen3.5-2B thinking on and Gemma 4 E4B thinking on. Those "
+     "attempts are kept apart and never merged. Their rows note how many pairs they recorded and how many further "
+     "requests may have been answered but not recorded. Each published run started again from the first pair, so its "
+     "outcomes are that run's recorded outputs, not guaranteed to be the model's first outputs."),
     "{name} is a separate benchmark tab. Combined scoring is unchanged.",
 )
 # What a bench's table counts per model, where not questions.
@@ -236,10 +261,12 @@ def grading_section(data: "Data") -> str:
     named = lambda row: (row.get("display_name") or row["name"]) + (  # noqa: E731
         f" ({mode})" if (mode := (row.get("tag") or "").split(" · ")[0]).startswith("thinking") else "")
     seeded = [named(row) for row in rows if len(row["runs"]) > 1]
-    runs = ("The scores are first runs" if not seeded else
-            "The scores are first runs, except " + bp.and_list([f"{name}'s" for name in seeded]) + ", the mean of "
-            "three full runs with seeds 0, 1 and 2, with their lowest and highest beside it (a range, not a confidence "
-            "interval)")
+    # Since answer rule v2 a chat row is the fresh run that replaced its first (Zeki #8088), so only decision rows are
+    # first runs.
+    runs = ("Each score is one full run's: a decision model's first run, a chat model's run under answer rule v2 (below)"
+            + ("" if not seeded else
+               ", except " + bp.and_list([f"{name}'s" for name in seeded]) + ", the mean of three full runs with seeds "
+               "0, 1 and 2, with their lowest and highest beside it (a range, not a confidence interval)"))
     # A run a restart interrupted and resumed (metrics.json measurement_gap): its scores are its recorded outcomes, not
     # guaranteed first outputs (grading #7325, #7327; compactor #7326).
     by_run = grading_metrics(data) or {}
@@ -251,8 +278,18 @@ def grading_section(data: "Data") -> str:
                  "lost before they were written are unavailable and may have been asked again (how many is not known)")
     facts = {"models": bp.count(len(rows)), "api": bp.count(len(rows) - local), "local": bp.count(local),
              "decision": bp.count(decision), "chat": bp.count(chat), "name": name, "runs": runs}
-    out = (f'<h2 id="grading">{esc(name)}: does the text give this answer?</h2>'
-           + "".join(f"<p>{esc(text.format_map(facts))}</p>" for text in GRADING_COPY))
+    history = data.by_key[GRADING].get("history")
+
+    def paragraph(item: str | tuple[str, str]) -> str:
+        if isinstance(item, str):
+            return f"<p>{esc(item.format_map(facts))}</p>"
+        head, text = item
+        body = esc(text)
+        if history:
+            body = body.replace("the history", f'<a href="{esc(history)}">the history</a>', 1)
+        return f"<p><strong>{esc(head)}</strong> {body}</p>"
+
+    out = f'<h2 id="grading">{esc(name)}: does the text give this answer?</h2>' + "".join(map(paragraph, GRADING_COPY))
     if grading_metrics(data) is None:
         return out
     file = data.by_key[GRADING]["metrics"]
@@ -423,7 +460,7 @@ def external(site: Site) -> tuple[list[dict[str, Any]], str]:
             metrics = found["file"] if found["published"] else None
         out.append({"key": spec["key"], "label": spec["label"], "short": spec["label"], "parts": spec.get("parts"),
                     "bench": bench, "feed": spec["url"], "feed_sha256": entry.get("sha256"), "seen": entry["seen"],
-                    "metrics": metrics, "metrics_url": spec.get("metrics")})
+                    "metrics": metrics, "metrics_url": spec.get("metrics"), "history": spec.get("history")})
         print(f"all-benches: {spec['label']}: " + (f"published, {len(bench['models'])} rows" if bench else NOT_PUBLISHED)
               + ("" if not spec.get("metrics") else f"; metrics {'published' if metrics else NOT_PUBLISHED}"))
     snapshot = {"about": "The other benches' bench-scores.json (and a bench's metrics file, as <key>-metrics) as this "
