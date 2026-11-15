@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-15T10:29:55Z",
+ "updated": "2026-11-15T11:29:08Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -2406,6 +2406,38 @@
    "notes": "hosted API via OpenRouter",
    "gpu_hours": null,
    "gpu_cost_usd": null
+  },
+  {
+   "repo": "victorbennett/Verdin-4B-v1.1",
+   "commit": "45830d216bb7e45f43f0a482c131a7cafa6d189f",
+   "model_key": "verdin-4b-v1.1",
+   "name": "Verdin-4B-v1.1",
+   "display_name": "Verdin-4B-v1.1",
+   "tag": "",
+   "class_label": "Open · 4.0B",
+   "base_model": "Qwen3.5-4B",
+   "setup_label": "Verdin-4B-v1.1",
+   "maker": "victorbennett",
+   "kind": "decision",
+   "params_total": 4.0,
+   "params_active": 4.0,
+   "quantization": "BF16",
+   "score_0_100": 39.37817845584835,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5150254276467868,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": 0.056776592633318794,
+   "improvement_points": null,
+   "runs": [
+    "math:verdin-4b_en",
+    "math:verdin-4b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+   "gpu_hours": 0.029166666666666667,
+   "gpu_cost_usd": 0.07262500000000001
   },
   {
    "repo": "Cloudflare/clef",
