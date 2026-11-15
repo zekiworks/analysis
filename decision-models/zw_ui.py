@@ -309,9 +309,11 @@ class Bench:
         {'cost': {'measure': 'cost'}, 'calibration': {'measure': 'confidence'}}."""
         return {}
 
-    def shortcuts(self) -> tuple[str, Sequence[tuple[str, str]]] | None:
-        """A line of links under the scope line to views of this page, as a label and (text, query) pairs:
-        ('Small models, up to 15B', [('Chat', 'models=chat&class=tiny,small'), ...]). None: no such line."""
+    def shortcuts(self) -> tuple[str, Sequence[tuple[str, Mapping[str, str]]]] | None:
+        """Preset keys under the scope line, outside the Filters (so the phone shows them closed): a row label and
+        (text, {param: value}) pairs, each setting those filter values at once: ('Up to 15B', [('Small chat models',
+        {'models': 'chat', 'class': 'tiny,small'}), ...]). A preset is pressed while the view is exactly it (zw-ui.js).
+        None: no such row."""
         return None
 
     def empty_text(self, part: str | None, measure: str | None) -> str:
@@ -1210,10 +1212,14 @@ def results(bench: Bench, *, block_id: str = "zw", box_prefix: str | None = None
                           f"{esc(bench.scope(part))}</span>" for part in parts if bench.scope(part)) if parts != [None] else esc(bench.scope(None))
     shortcut = bench.shortcuts()
     head = (f'<header class="zw-pagehead"><h1 class="zw-title" id="{esc(block_id)}-title">{esc(bench.title())}</h1>'
-            + (f'<p class="zw-scope">{scope_lines}</p>' if scope_lines else "")
-            + (f'<p class="zw-scope zw-shortcuts">{esc(shortcut[0])}: '
-               + " · ".join(f'<a href="?{esc(query)}">{esc(text)}</a>' for text, query in shortcut[1]) + "</p>"
-               if shortcut else "") + "</header>")
+            + (f'<p class="zw-scope">{scope_lines}</p>' if scope_lines else "") + "</header>")
+    if shortcut:  # the preset keys: links without the script, keys pressed from the view with it
+        presets_id = f"{block_id}-label-presets"
+        head += (f'<div class="zw-row zw-presets" role="group" aria-labelledby="{esc(presets_id)}">'
+                 f'<span class="zw-row-label" id="{esc(presets_id)}">{esc(shortcut[0])}</span><div class="zw-keys">'
+                 + "".join(f'<a class="zw-key" role="button" href="?{esc("&".join(f"{k}={v}" for k, v in values.items()))}"'
+                           f' data-zw-preset="{esc(json.dumps(dict(values), separators=(",", ":")))}" aria-pressed="false">{esc(text)}</a>'
+                           for text, values in shortcut[1]) + "</div></div>")
     filters_id = f"{block_id}-filters"
     anchors = bench.anchors()
     main_calcs: set[str] = set()

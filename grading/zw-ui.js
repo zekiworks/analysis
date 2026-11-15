@@ -105,6 +105,16 @@
       return true;
     };
     const scoped = scopedNames.length ? scopedNames.map(n => `[data-${n}]`).join(',') : null;
+    // Preset keys (zw_ui Bench.shortcuts, data-zw-preset: {param: value}): pressed while every listed parameter holds
+    // exactly its value, whatever the order of a two-value state. A tap sets them all at once, or, pressed, puts them
+    // back to their defaults; it takes a history entry of its own, so Back and Forward bring view and key back together.
+    const sameValues = (a, b) => { const x = parts(a).sort().join(','); return x === parts(b).sort().join(','); };
+    const presets = [...host.querySelectorAll('[data-zw-preset]')].map(key => {
+      let values = {};
+      try { values = JSON.parse(key.dataset.zwPreset); } catch (e) { values = {}; }
+      return [key, Object.entries(values).filter(([n, v]) => params[n] && offered(n, v))];
+    }).filter(([, values]) => values.length);
+    const presetOn = values => values.every(([n, v]) => sameValues(state[n], v));
 
     // The links that keep the view (data-zw-keep: every parameter, or the listed ones), site.js:56-59 keepGroup. Each
     // carries every kept value explicitly, so another page with other defaults opens the same view; the link's own path,
@@ -140,6 +150,7 @@
 
     const apply = write => {
       names.forEach(name => params[name].keys.forEach(k => k.setAttribute('aria-pressed', String(parts(state[name]).includes(k.dataset.zwValue)))));
+      presets.forEach(([key, values]) => key.setAttribute('aria-pressed', String(presetOn(values))));
       if (scoped) host.querySelectorAll(scoped).forEach(el => {
         if (el.closest('.zw-row')) return;
         el.classList.toggle('zw-away', !scopedNames.every(n => matches(el, n, state[n])));
@@ -182,6 +193,13 @@
       state[name] = state[name] === v ? (params[name].any ?? params[name].def) : v;
       apply(true);
     })));
+    presets.forEach(([key, values]) => key.addEventListener('click', event => {
+      event.preventDefault();
+      const on = presetOn(values);
+      values.forEach(([n, v]) => { state[n] = on ? params[n].def : v; });
+      try { history.pushState(history.state, '', window.location.href); } catch (e) { /* file:// */ }
+      apply(true);
+    }));
     // The Show all button: every long list's rows, and back to the Top N. On closing the button stays where it was on
     // screen while the rows above it fold away, so the page does not jump under the finger (v2.5; Ümit #6070, jevgammon
     // #6168); opening leaves the page where it is, the new rows below the top N. A row's 'N other settings' key

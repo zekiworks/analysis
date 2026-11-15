@@ -1141,11 +1141,13 @@ class GradingBench(ui.Bench):
         return (f"{bp.count(GRADING_PAIRS)} pairs of a machine-written English summary, a question and its reference "
                 f"answer · 3 labels · {UNIT}")
 
-    def shortcuts(self) -> tuple[str, list[tuple[str, str]]]:
-        # The small models' views one tap away (Ümit via Zeki #8198): the page opens on Decision, and the small chat
-        # models sit under Chat, Tiny and Small. The Models and Size keys as they are; no class renamed.
-        return ("Small models, up to 15B", [("Chat", "models=chat&class=tiny,small"),
-                                            ("Decision", "models=decision&class=tiny,small")])
+    def shortcuts(self) -> tuple[str, list[tuple[str, dict[str, str]]]]:
+        # The small models as two tabs in the kit's key style, outside the Filters (Ümit via Zeki #8335; labels grading
+        # #8337): each sets the Models and Class keys at once (Tiny and Small, up to 15B). The keys as they are; no class
+        # renamed; the page still opens on Decision.
+        small = "tiny,small"
+        return ("Up to 15B", [("Small chat models", {"models": "chat", "class": small}),
+                              ("Small decision models", {"models": "decision", "class": small})])
 
     def filter_rows(self) -> list[ui.KeyRow]:
         used = {model["class"] for model in self.models}
