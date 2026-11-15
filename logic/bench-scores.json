@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-15T14:47:02Z",
+ "updated": "2026-11-15T15:55:52Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -857,6 +857,38 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Gemma 4 E2B (on · chat), Gemma 4 E2B (on · chat · 32k cap); 2.3B effective parameters",
    "gpu_hours": 0.4127777777777778,
    "gpu_cost_usd": 1.0278166666666668
+  },
+  {
+   "repo": "KRAFTON/Raon-1-nano",
+   "commit": "fcf2d1d55e84e2f9fbe7b5d724dcfc4d861cfcee",
+   "model_key": "raon-1-nano",
+   "name": "Raon-1 nano",
+   "display_name": "Raon-1 nano",
+   "tag": "on · chat",
+   "class_label": "Open · 3.1B",
+   "base_model": "Raon-1 mini preview (MoE-to-Dense pruning and distillation)",
+   "setup_label": "Raon-1 nano (chat, thinking on, KRAFTON vLLM fork, on our GPU)",
+   "maker": "KRAFTON",
+   "kind": "chat",
+   "params_total": 3.1,
+   "params_active": 3.1,
+   "quantization": null,
+   "score_0_100": 85.09732360097324,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8807785888077859,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:raon-1-nano_en",
+    "math:raon-1-nano_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); 1.5B effective parameters; no complete 'I don't know' run",
+   "gpu_hours": 8.377222222222223,
+   "gpu_cost_usd": 20.859283333333334
   },
   {
    "repo": "LiquidAI/LFM2.5-2.6B",
