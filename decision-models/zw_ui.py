@@ -309,6 +309,11 @@ class Bench:
         {'cost': {'measure': 'cost'}, 'calibration': {'measure': 'confidence'}}."""
         return {}
 
+    def shortcuts(self) -> tuple[str, Sequence[tuple[str, str]]] | None:
+        """A line of links under the scope line to views of this page, as a label and (text, query) pairs:
+        ('Small models, up to 15B', [('Chat', 'models=chat&class=tiny,small'), ...]). None: no such line."""
+        return None
+
     def empty_text(self, part: str | None, measure: str | None) -> str:
         return self.labels.empty
 
@@ -1203,8 +1208,12 @@ def results(bench: Bench, *, block_id: str = "zw", box_prefix: str | None = None
                    for param, found in present.items() if base[param]}
     scope_lines = "".join(f'<span{attrs({"class": classes("zw-scope-part", None if part == default.get("part") else "zw-away"), "data-part": part})}>'
                           f"{esc(bench.scope(part))}</span>" for part in parts if bench.scope(part)) if parts != [None] else esc(bench.scope(None))
+    shortcut = bench.shortcuts()
     head = (f'<header class="zw-pagehead"><h1 class="zw-title" id="{esc(block_id)}-title">{esc(bench.title())}</h1>'
-            + (f'<p class="zw-scope">{scope_lines}</p>' if scope_lines else "") + "</header>")
+            + (f'<p class="zw-scope">{scope_lines}</p>' if scope_lines else "")
+            + (f'<p class="zw-scope zw-shortcuts">{esc(shortcut[0])}: '
+               + " · ".join(f'<a href="?{esc(query)}">{esc(text)}</a>' for text, query in shortcut[1]) + "</p>"
+               if shortcut else "") + "</header>")
     filters_id = f"{block_id}-filters"
     anchors = bench.anchors()
     main_calcs: set[str] = set()
