@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-15T11:51:27Z",
+    "updated": "2026-11-15T12:00:08Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -939,7 +939,7 @@
        "logic:qwen3.5-2b-nothink_en",
        "logic:qwen3.5-2b-nothink_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Qwen3.5-2B (on · chat)",
       "gpu_hours": 0.725,
       "gpu_cost_usd": 1.8052500000000002
      },
@@ -2032,6 +2032,37 @@
       "gpu_cost_usd": 0.005202213526513478
      },
      {
+      "repo": "Patrick-18/Dexy-Decision-9B-V2",
+      "commit": "4f434e2b5fd9f0addfe3233489571c2dc8ce7a19",
+      "model_key": "dexy-decision-9b-v2",
+      "name": "Dexy-Decision-9B-V2",
+      "display_name": "Dexy-Decision-9B-V2",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "vllm-sr/d3-flash",
+      "setup_label": "Dexy-Decision-9B-V2",
+      "maker": "Patrick-18",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 31.66666666666666,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.4533333333333333,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.14941316223793505,
+      "improvement_points": null,
+      "runs": [
+       "logic:dexy-9b_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 0.015277777777777777,
+      "gpu_cost_usd": 0.03804166666666667
+     },
+     {
       "repo": null,
       "commit": null,
       "model_key": "inception-mercury-decide",
@@ -2961,7 +2992,7 @@
      }
     ]
    },
-   "sha256": "669ffc078e851744dedd2aec2d3c32592c928d3498dc6f719ca7ca083f428e50"
+   "sha256": "736a6c933fda1cd767b9429cc8322eaf2885bb49cf7b384ab6a7368c525d3eb0"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -2971,7 +3002,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-15T11:51:27Z",
+    "updated": "2026-11-15T12:00:08Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -5057,6 +5088,37 @@
       "gpu_cost_usd": null
      },
      {
+      "repo": "Patrick-18/Dexy-Decision-9B-V2",
+      "commit": "4f434e2b5fd9f0addfe3233489571c2dc8ce7a19",
+      "model_key": "dexy-decision-9b-v2",
+      "name": "Dexy-Decision-9B-V2",
+      "display_name": "Dexy-Decision-9B-V2",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "vllm-sr/d3-flash",
+      "setup_label": "Dexy-Decision-9B-V2",
+      "maker": "Patrick-18",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 48.509015256588064,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5880721220527045,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.12131842805076583,
+      "improvement_points": null,
+      "runs": [
+       "math:dexy-9b_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 0.027777777777777776,
+      "gpu_cost_usd": 0.06916666666666667
+     },
+     {
       "repo": "fastino/GLiDE-9B",
       "commit": "ab54df5acba0eebf7df45560ffdaacd64e32df3b",
       "model_key": "glide-9b",
@@ -5954,7 +6016,7 @@
      }
     ]
    },
-   "sha256": "1a50f262056a494f065e40984705df8e36cd7ccc81050e548f084c042b8bd127"
+   "sha256": "dbed6271a78677f3ada01da7cb44c936879ad3937cac64537f897cafc788d12f"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -5964,7 +6026,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-15T11:51:27Z",
+    "updated": "2026-11-15T12:00:08Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -8111,6 +8173,38 @@
       "gpu_cost_usd": null
      },
      {
+      "repo": "Patrick-18/Dexy-Decision-9B-V2",
+      "commit": "4f434e2b5fd9f0addfe3233489571c2dc8ce7a19",
+      "model_key": "dexy-decision-9b-v2",
+      "name": "Dexy-Decision-9B-V2",
+      "display_name": "Dexy-Decision-9B-V2",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "vllm-sr/d3-flash",
+      "setup_label": "Dexy-Decision-9B-V2",
+      "maker": "Patrick-18",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 42.7463503649635,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.541970802919708,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.13093113363487935,
+      "improvement_points": null,
+      "runs": [
+       "logic:dexy-9b_en",
+       "math:dexy-9b_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 0.043055555555555555,
+      "gpu_cost_usd": 0.10720833333333334
+     },
+     {
       "repo": null,
       "commit": null,
       "model_key": "drex-2.0",
@@ -9064,7 +9158,7 @@
      }
     ]
    },
-   "sha256": "8fb6ed44e3d2ffef1282eb1ae957d062e9cb2578d971d4e00da8340ab1b1b424"
+   "sha256": "d937082320aa115648ae4e44f45ac48beed51ce8501fbc7a2d572e7704c592da"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -10517,7 +10611,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-15T11:32:29Z",
+    "updated": "2026-11-15T11:57:10Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -10913,6 +11007,34 @@
       ],
       "notes": "OpenRouter decisions API (openrouter.ai/api, model microsoft/microsoft-decision-1); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
       "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "vera-medium-omni",
+      "display_name": "vera-medium-omni",
+      "tag": "",
+      "model_key": "vera-medium-omni",
+      "maker": "scar-ai",
+      "kind": "decision",
+      "repo": "scar-ai/vera-medium-omni",
+      "commit": "1f23a6cf5304e8e53b7ded53980765d5f8f4047c",
+      "params_total": 4.2,
+      "params_active": 4.2,
+      "quantization": "BF16",
+      "score_0_100": 83.68777187046882,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8912518124697921,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.12360604156597389,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-vera-medium-omni-v1"
+      ],
+      "notes": "scar-ai/vera-medium-omni@1f23a6cf, its card's own server (vera-serve from vera-s1 0.1.8, PyTorch engine), BF16, on one RTX PRO 6000 (ours), self-hosted; server probabilities are rounded to four decimal places and retained without renormalization; ECE uses the reported maximum probability; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.03423223886573668,
       "gpu_cost_usd": null
      },
      {
@@ -11933,7 +12055,7 @@
      }
     ]
    },
-   "sha256": "80fb5953d80b7e92bcb7a96a4cafe6ee78256cf2e353bebed4829c1abb274e20"
+   "sha256": "833fccd7b067131a6cf57a73ea9939526c796730a1c99f01f85adf65769ff213"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -11941,10 +12063,10 @@
    "seen": "2026-11-15",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-15T11:32:38Z",
+    "updated": "2026-11-15T11:57:18Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "80fb5953d80b7e92bcb7a96a4cafe6ee78256cf2e353bebed4829c1abb274e20"
+     "sha256": "833fccd7b067131a6cf57a73ea9939526c796730a1c99f01f85adf65769ff213"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -12647,6 +12769,26 @@
       "probabilities": true
      },
      {
+      "run": "grading:site-vera-medium-omni-v1",
+      "model_key": "vera-medium-omni",
+      "latency_s_median": 0.057,
+      "latency_s_p90": 0.063,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 59.6,
+      "recall_reference": 0.9278,
+      "recall_other": 0.7599,
+      "recall_none": 0.9023,
+      "wrong_answer_recall": 0.7599,
+      "false_alarm_rate": 0.0569,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
       "run": "grading:chat-qwen3.5-4b-nothink-v1",
       "model_key": "qwen3.5-4b-nothink",
       "latency_s_median": 3.274,
@@ -12950,7 +13092,7 @@
      }
     ]
    },
-   "sha256": "78dcd55a586281daa416e874cc0a85a1ca0fd331a84cb0acb3f44e3eab43957f"
+   "sha256": "4cf0e53757424072875566d2d997f45985626dae5c488474714284b6a6dbe62e"
   }
  }
 }
