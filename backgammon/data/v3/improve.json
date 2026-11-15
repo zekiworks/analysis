@@ -613,10 +613,10 @@
    },
    {
     "reason": null,
-    "series_done": 3,
+    "series_done": 4,
     "setup": "LFM2.5-24B-A2B (on)",
     "status": "running",
-    "updated_at": "2026-11-15T05:34:47+00:00"
+    "updated_at": "2026-11-15T08:37:08+00:00"
    },
    {
     "reason": null,
@@ -654,7 +654,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-15T05:35:08+00:00"
+  "updated_at": "2026-11-15T08:37:08+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -6099,20 +6099,20 @@
    },
    {
     "after": {
-     "error_rate": 74.00475276013215,
-     "right_safety": 79.33333333333333,
-     "risks_found": 20.666666666666668
+     "error_rate": 72.95150289312005,
+     "right_safety": 79.0,
+     "risks_found": 21.25
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 600,
-     "expected": 600,
+     "answered": 800,
+     "expected": 800,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 300,
-     "safety_pays": 300,
-     "tests": 3,
-     "valid": 600
+     "risk_pays": 400,
+     "safety_pays": 400,
+     "tests": 4,
+     "valid": 800
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -6131,9 +6131,9 @@
      "risks_found": 32.5
     },
     "change": {
-     "error_rate": 4.02515274782975,
-     "right_safety": 1.8333333333333286,
-     "risks_found": -11.833333333333332
+     "error_rate": 2.9719028808176517,
+     "right_safety": 1.5,
+     "risks_found": -11.25
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -6178,9 +6178,9 @@
     "key": "lfm2.5-24b-a2b-on",
     "progress": {
      "reason": null,
-     "series_done": 3,
+     "series_done": 4,
      "status": "running",
-     "updated_at": "2026-11-15T05:34:47+00:00"
+     "updated_at": "2026-11-15T08:37:08+00:00"
     },
     "range": null,
     "reason": null,
@@ -6391,18 +6391,88 @@
        "wall_seconds": 11121.5
       },
       "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 218,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- At Turn 6 and Turn 42 I missed clear risk calls: entering aggressively when a safer move existed cost roughly 0.11–0.22 equity; always honor the engine's risk indication when safety is borderline (+ risk calibration).\n- Turn 42's big blunder shows that saving a point can tempt wrong sacrifices; check whether a quick hit saves more than the saved point before committing.\n- Consistently matching GNUBG's bar/20 and block placements (turns 8, 10, 12, 16, 40) kept the game on a positive path; trust 2‑ply equity under moderate pressure.\n- When my checkers reach the opponent's home board, prefer active hits over defensive retreats; the only losses trace back to that tradeoff.\n- When in doubt between two close options, use a conservative play that doesn't leave weak runners; this avoided the small errors on turns 40 and 44."
+       },
+       {
+        "game": 2,
+        "text": "- When the opponent advances fast, resist slow conservative moves; build primes or enter the board sooner.\n- In open games prefer connecting your own checkers quickly rather than settling in crowded spots.\n- Avoid leaving inner checkers stranded in front of the opponent's developed structure; keep speed out.\n- A single missed risk (the 0.78 loss at turn 13) destroys value; evaluate all risk/reward before deciding.\n- Add the board safely when contact helps the race, and retreat when the gap still hurts."
+       },
+       {
+        "game": 3,
+        "text": "- When gnubg flags a risk call, take it immediately — unresolved risks (turns 14, 18, 24, 40, 56, 76) turned recoverable losses into big equity holes.\n- Don't enter the bar for no gain; most of your big losses (turns 12, 14, 18, 26, 56, 76) stem from advancing to the bar without sufficient anchoring.\n- At close game the gammon is everything – check your safe spots before giving your opponent a chance to hit/run a blot (turn 70's 1.44 loss).\n- Avoid leaving clusters of loose points on your board after the mid-game; keep checkers connected in the outer board to preserve running bear-off threats.\n- Practice identifying double-point/blocker situations earlier; some errors (turns 40, 26) were avoidable with correct 5-point play."
+       },
+       {
+        "game": 4,
+        "text": "- Avoid taking unnecessary risks in late-game situations where the prize is small and the probability of success is low; many of your missed risk calls (t.15, t.7, t.29) leaked 0.13–0.27 equity.\n- Don't refuse a risk when the math clearly favors the gamble — declining a correct risk call cost 0.154 at turn 15 and 0.133 at turn 3.\n- Keep a tight leash on long-distance shots: your 13/8 vs 24/23 blunder at turn 1 left a vulnerable blot that compounded through the end.\n- Trust the engine's risk call indicator as a reality check; most flagged decisions were wrong, and acting on them usually avoids leaving 0.1–0.5 pt gaps.\n- In close-endgames, prefer bearing in over holding — the equity loss at turn 55 (0.55) came from a speculative 10/4 move when the safe double was available."
+       },
+       {
+        "game": 5,
+        "text": "- Trust the engine's risk-call recommendations — intuitively, risk decisions dominate the equity gap and wrong choices pile up quickly.\n- When the opponent threatens hitting your primes, keep two or more separated rather than gambling on a single quick-run payoff.\n- Avoid risky double-blocks or bold swings toward the home board; consistency beats one lucky break every time.\n- If a move loses even 0.01 in equity versus the best line, treat it as a mistake and fix it early.\n- In race or set-up positions, run a 2-ply (or lighter) simulation before diverging from the engine's direction."
+       },
+       {
+        "game": 6,
+        "text": "- Stop dodging risky shots in the middle game; the biggest equity losses (e.g., -0.454) came from passing up correct risk calls. Commit to the aggressive move.\n- Trust the engine's 2-ply recommendation (the recommended play is usually right because the position is close); secondary judgment rarely beats the search.\n- When the opponent has a back-row threat or your safe exit looks narrow, take the hit-or-break decision immediately — safety calls are often the right call.\n- In endgame positions heading toward gammon, take calculated risks rather than concede; the small-equity misses throughout added up.\n- Review turn sequence before each decision: many errors repeated the same move type against the same layouts, suggesting a mental block on that board shape."
+       },
+       {
+        "game": 7,
+        "text": "- Be wary of risk calls in tight decisions: most small equity losses (0.000–0.080) came from deviating from a safer play when the margin was fragile.\n- Don't take high-variance actions when safety is on the table — four \"wrong/missed risk\" notes flag this pattern.\n- Avoid big swings before a gammon: half of the >0.4 losses occurred in late-game positions approaching gammon; consolidate before overcommitting.\n- Double-check bar/off decisions early; bar/20 moves were correct in some spots but ignored elsewhere, turning a neutral board into a loss.\n- Trust the engine's best plays on micro-equity boards (0.000 equity loss) — you were mostly right, but don't rewrite otherwise."
+       },
+       {
+        "game": 8,
+        "text": "- Heed every risk call: ignore aggressive moves that the engine rates as \"missed risk,\" and only take double‑return options that preserve two‑digit equity.\n- Avoid needless risk in prime shots — speculative doubling beyond a direct capture easily wipes out a hard‑won lead.\n- Trust the endgame: when the engine marks a move as best play (near‑zero equity lost), execute it without hesitation and don't second‑guess proven bear‑off strategy.\n- Check safety before aggressive strikes: aggressive compactions often let the opponent rebound, so prefer safety calls over risky double‑crosses.\n- Don't let small, repeated misses drive the result; consistently weighing risk versus reward keeps the session's score from collapsing."
+       },
+       {
+        "game": 9,
+        "text": "- Follow the engine's best moves: in most recorded turns your play equaled the engine, yet equity still dropped — meaning hesitation after the right call cost points.\n- Re-evaluate risky contacts: multiple \"missed risk\" and \"needless risk\" losses indicate you avoided correct gambles when the odds favored bold play; recalculate risk/reward each exchange.\n- Balance caution with offense: \"'right safety call' errors lost nearly 0.3 points; safety should be chosen by scoring and match context, not by fear.\"\n- Preserve early equity: the largest losses came when you gave up opponents' back checkers and allowed early hits; keep a clear head in the opening phase.\n- Verify assumptions behind every risk call: \"no risk trade-off\" deficits mean the safer option offered no real gain, so double-check when pressure rises."
+       },
+       {
+        "game": 10,
+        "text": "- Take every offered risk call (shoot a blot or pressure when the odds favor you) instead of passing — missed calls cost 0.13–0.36 equity across the game.\n- When your opponent exposes a blot, don't hesitate to put the shot on the table — five such misses were among the largest losses.\n- Double-check endgame bearer-runs before committing checkers; two large errors (~0.20 each) turned a draw into a deficit.\n- When the engine's best line matches your move, trust it — in several turns the optimal equity aligned with your choice.\n- Even in low-value points, resist needless risks that create avoidable variance."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 4,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 69.79175329208374,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 78.0,
+       "risk_pays": 100,
+       "risks_found": 23.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 10940.7
+      },
+      "wins": 1
      }
     ],
-    "series_finished": 3,
+    "series_finished": 4,
     "setup": "LFM2.5-24B-A2B (on)",
     "state": "running",
-    "status": "running on our GPU, 3 of 5 series",
+    "status": "running on our GPU, 4 of 5 series",
     "steps_done": [
      "E1",
      "S1",
      "S2",
      "E2",
-     "S3"
+     "S3",
+     "S4"
     ],
     "threshold": null,
     "verdict": false
@@ -7409,11 +7479,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-15T05:35:08+00:00"
+  "updated_at": "2026-11-15T08:37:08+00:00"
  },
- "source_sha256": "176a854c35401de9667f4b8554514130f553482ca31ef300db8a20d9e672a0bf",
+ "source_sha256": "5e915ad69d7aa5cee91d5f7233cfc6dccaaf658694a3d3bc5887799c55bb6450",
  "status": {
-  "last_update": "2026-11-15T05:35:08+00:00",
+  "last_update": "2026-11-15T08:37:08+00:00",
   "line": "12 of 20 models with a verdict · 1 running · 5 paused · 0 incomplete or stopped",
   "models": 20,
   "paused": 5,
