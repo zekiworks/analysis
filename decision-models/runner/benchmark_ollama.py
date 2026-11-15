@@ -861,6 +861,13 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("di-serve", "Logits-Sigma-1-Duo"): 1,
     # Qwen3.5-2B (Qwen/Qwen3.5-2B at 15852e8c) on logic's GPU 1 vLLM v0.30.0 server (Ümit #6515, #8343).
     ("vllm-plain", "qwen3.5-2b"): 1,
+    # Verdin 4B (victorbennett/Verdin-4B-v1.1 at 45830d21), the card's own verdin.server on bariton GPU 2 (compactor #8630).
+    ("di-serve", "Verdin-4B-v1.1"): 1,
+    # vera-medium-omni (scar-ai/vera-medium-omni at 1f23a6cf), the card's own vera-serve on bariton GPU 2 (compactor #8676).
+    ("di-serve", "vera-medium-omni"): 1,
+    # Dexy 9B v2 and Valen 9B on the same card, each through its card's own server (compactor #8690); keyed by the shared
+    # names table's names.
+    ("di-serve", "Dexy-Decision-9B-V2"): 1, ("di-serve", "Valen-Decision-1.5-9B"): 1,
 }
 # Runs of a GPU_TIME setup that ran on a DGX Spark, by run id: no GPU-time estimate, as for the setups that ran only on a
 # Spark (the RTX PRO 6000's rate does not fit a Spark's request time; #4055). Cerno 9B v1.2's English runs on spark2.
@@ -4211,6 +4218,9 @@ ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
     # joey-1 (Ümit #4578) through the loader of elephant-1 and mammoth-1, whose answers round to 6 places (qev/answers.py
     # _round at OneJev 81ce62f with the checkpoint's serve.patch, which joey-1 ships unchanged).
     ("baselabs", "baselabs/joey-1"): 6,
+    # vera-medium-omni through its card's vera-serve (vera-s1 0.1.8, vera/schema.py line 110: each option's probability
+    # rounded to 4 places; logic #8686), the rule of #1152 (Ümit #4057).
+    ("di-serve", "vera-medium-omni"): 4,
 }
 # Models whose output reports each option's probability as a 32-bit float, so that the probabilities sum to 1 only
 # within 32-bit rounding: SubQ Snap 1.1 (smoke run 345, 1 November 2026; every value an exact 32-bit float; the user's
