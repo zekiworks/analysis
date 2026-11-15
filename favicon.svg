@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f8f7f5">
+<title>Hilde Benchmarks</title>
+<meta name="description" content="Explore Hilde benchmark records by model, experiment, method and source version.">
+<script>try{const theme=localStorage.getItem('hilde.atlas.theme');document.documentElement.dataset.theme=theme==='light'||theme==='dark'?theme:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}catch{document.documentElement.dataset.theme='light'}</script>
+<link rel="icon" href="hilde-leaf.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css">
+<script src="locales/tr.js" defer></script>
+<script src="locales/interface.js" defer></script>
+<script src="atlas.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#workspace">Skip to results</a>
+<header><div class="shell mast">
+<a class="brand" href="?" aria-label="Hilde Research home"><img src="hilde-leaf.svg" width="31" height="36" alt=""><strong>Hilde</strong><span class="brandSub">Research</span></a>
+<nav aria-label="Workspace"><button data-view="results">Results</button><button data-view="compare">Compare <span class="navCount"></span></button><button data-view="drafts">Drafts</button></nav>
+<div class="headerPrefs"><div class="langTabs" role="group" aria-label="Interface language"><button data-ui="en" lang="en" aria-label="English" aria-pressed="true">EN</button><button data-ui="tr" lang="tr" aria-label="Türkçe" aria-pressed="false">TR</button></div>
+<div class="themeTabs" role="group" aria-label="Color theme"><button data-theme-choice data-theme="light">Light</button><button data-theme-choice data-theme="dark">Dark</button></div></div>
+<button id="sourcesBtn"  class="sourceBtn"><i data-icon="library"></i> Sources</button></div></header>
+<main class="shell">
+<h1 class="visuallyHidden">Hilde Benchmarks</h1>
+<nav class="sectionTabs" id="sectionTabs" aria-label="Benchmarks"></nav>
+<div id="publicationTabs"></div>
+<section id="workspace" tabindex="-1"><p class="loading">Loading published records…</p></section>
+</main>
+<footer class="shell"><span>Hilde Research</span><span>Hilde Benchmarks</span></footer>
+<dialog id="modal"><div class="dialogBody"></div></dialog>
+<div role="status" id="toast" hidden></div>
+</body></html>
