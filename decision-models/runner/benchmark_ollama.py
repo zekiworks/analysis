@@ -307,6 +307,13 @@ SYSTEM_ONE = {
     # over the calibrated label logits), text only, unrounded; the model field, when sent, must name the checkpoint, and
     # a request over 16,384 tokens (the card's limit) is refused with 422, never cut.
     "gliclass": SystemOneService("GLiClass", server_url("GLICLASS_URL")),
+    # karpo-decision-31B (MachinePulseAI/karpo-decision-31B at d69cdd57) behind the System One server of its card's
+    # karpo-decision package (machinepulse-ai/karpo-decision at ac40d399), and Copernicus-31B (Poindexter-Labs/
+    # Copernicus-31B at be715259) behind its card's copernicus_server.py (Transformers, the card's defaults): both take
+    # the same request at the default path with their model field ('karpo-decision', 'Copernicus-31B'), text only here;
+    # on compactor's GPU 0 loads (compactor #8155, #8167).
+    "karpo": SystemOneService("karpo-decision", server_url("KARPO_URL")),
+    "copernicus": SystemOneService("Copernicus", server_url("COPERNICUS_URL")),
 }
 SYSTEM_ONE_PROVIDERS = tuple(SYSTEM_ONE)
 # Token totals a run's cost is computed from: every prompt token (input_tokens), of which cache reads
@@ -829,6 +836,8 @@ GPU_TIME: dict[tuple[str, str], int] = {
     # No list price for v1.3 (Perplexity's announcement offers it only free on OpenRouter for a week), so GPU time.
     ("pplx-decider", "pplx-decider-flash-v1.3"): 1,
     ("pplx-decider", "pplx-decider-v1.3"): 1,
+    ("karpo", "karpo-decision"): 1,
+    ("copernicus", "Copernicus-31B"): 1,
 }
 # Setups that differ from another setup of the same served model only in their requests (thinking off or on, the output
 # cap), on the same checkpoint, server image and flags (Ümit #6516, #6924; logic #6770, #6955), by (provider, model):
