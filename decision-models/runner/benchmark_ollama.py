@@ -845,6 +845,13 @@ GPU_TIME: dict[tuple[str, str], int] = {
     # Raon-1 nano (KRAFTON/Raon-1-nano at fcf2d1d5) on KRAFTON's vLLM fork (krafton-ai/vllm at 13a5dd87), logic's
     # server on our GPU (logic #8180); no API sells it.
     ("vllm-plain", "raon-1-nano"): 1,
+    # The Decision Index models compactor serves on GPU 0, each as its card serves it (compactor #8282, #8317, #8330):
+    # KnowLine-9B-Gen1 (PelaAI/KnowLine-9B-Gen1 at 325378d1) behind its card's serve_knowline.sh; Adjudex 9B v5
+    # (newsbang/adjudex-9b-v5 at ffdcb825) behind its card's autojev server, which answers only to 'jev-latest' or
+    # 'autojev-qwen3.5-9b'; Jeffan-9B-1211 (tattrongvu/Jeffan-9B-1211 at 862d1a7a) behind di_serve.py.
+    ("knowline", "PelaAI/KnowLine-9B-Gen1"): 1,
+    ("pplx-decider", "jev-latest"): 1,
+    ("di-serve", "Jeffan-9B-1211"): 1,
 }
 # Setups that differ from another setup of the same served model only in their requests (thinking off or on, the output
 # cap), on the same checkpoint, server image and flags (Ümit #6516, #6924; logic #6770, #6955), by (provider, model):
