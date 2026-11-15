@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-15T12:34:23Z",
+    "updated": "2026-11-15T12:39:01Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -3025,7 +3025,7 @@
      }
     ]
    },
-   "sha256": "305bd026a62bce2146ceafebc2f1461c6cffea7ce4b8e441ae3ab8a591baab7a"
+   "sha256": "1bbba2bfedcc5aa75f311572a6392f774d68ec96ace9d87bb573c4593e4bd8f6"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3035,7 +3035,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-15T12:34:23Z",
+    "updated": "2026-11-15T12:39:01Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -6082,7 +6082,7 @@
      }
     ]
    },
-   "sha256": "d6f6cf4a5194d94f86932e47e70be678b0ada02c7ad0e4d5ce3bb1d4ba422ed3"
+   "sha256": "ad8dd948abca856f81b47fe973af76e9988dcbfc7a80937eb33565652044a7dc"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -6092,7 +6092,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-15T12:34:23Z",
+    "updated": "2026-11-15T12:39:01Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -9260,7 +9260,7 @@
      }
     ]
    },
-   "sha256": "4fee634a810871a1e103b9c33a998b57d87a9fa13ea920d740e3a1c9356e9948"
+   "sha256": "9353a6c63354df01769d95ede5bc4aa72dab8ed7df466e3a970807b7ff03e99e"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -10713,7 +10713,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-15T12:11:39Z",
+    "updated": "2026-11-15T12:41:30Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -11848,6 +11848,34 @@
       "gpu_cost_usd": null
      },
      {
+      "name": "Valen-Decision-1.5-9B",
+      "display_name": "Valen-Decision-1.5-9B",
+      "tag": "",
+      "model_key": "valen-decision-1.5-9b",
+      "maker": "Valen-Team",
+      "kind": "decision",
+      "repo": "Valen-Team/Valen-Decision-1.5-9B",
+      "commit": "5a512117ebc0f2b69f311becfcf47cdef8abf568",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 74.26292895118414,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8284195263412276,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.03150234591802053,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-valen-decision-1.5-9b-v1"
+      ],
+      "notes": "Valen-Team/Valen-Decision-1.5-9B@5a512117, its card's vLLM deployment (valen-vllm, the Valen plugin at Valen-Team/Valen@773d3a64 in the official vllm/vllm-openai:v0.33.0 image), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.04507349295907858,
+      "gpu_cost_usd": null
+     },
+     {
       "name": "Gemma 4 E2B",
       "display_name": "Gemma 4 E2B",
       "tag": "thinking on · chat",
@@ -12185,7 +12213,7 @@
      }
     ]
    },
-   "sha256": "34aed9fc7a6049846f72db940027235ab4aec7732ee979aae66530f4143ec771"
+   "sha256": "cd76af43228ed4e65685e0fb54be29a51102a0ce91eecccaa54fc5007c3b772c"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -12193,10 +12221,10 @@
    "seen": "2026-11-15",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-15T12:11:44Z",
+    "updated": "2026-11-15T12:41:39Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "34aed9fc7a6049846f72db940027235ab4aec7732ee979aae66530f4143ec771"
+     "sha256": "cd76af43228ed4e65685e0fb54be29a51102a0ce91eecccaa54fc5007c3b772c"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -12899,6 +12927,26 @@
       "probabilities": true
      },
      {
+      "run": "grading:site-valen-decision-1.5-9b-v1",
+      "model_key": "valen-decision-1.5-9b",
+      "latency_s_median": 0.071,
+      "latency_s_p90": 0.095,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 78.4,
+      "recall_reference": 0.9342,
+      "recall_other": 0.3982,
+      "recall_none": 0.881,
+      "wrong_answer_recall": 0.3982,
+      "false_alarm_rate": 0.0276,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
       "run": "grading:site-vera-medium-omni-v1",
       "model_key": "vera-medium-omni",
       "latency_s_median": 0.057,
@@ -13242,7 +13290,7 @@
      }
     ]
    },
-   "sha256": "e58fdbed0bba8e6ed295d6e3037e4b42bedc30961ca8ace0d08e69b2b59ecda3"
+   "sha256": "bad4041aeae346dd32b878642d7ca39bace3b56244e8499c17b9e39a7d463ee5"
   }
  }
 }

@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-15T12:11:39Z",
+ "updated": "2026-11-15T12:41:30Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -1134,6 +1134,34 @@
    ],
    "notes": "victorbennett/Verdin-4B-v1.1@45830d21, its card's own server (python -m verdin.server, in the package versions its card lists: torch 2.8.0 cu128, transformers 5.17.0, flash-linear-attention 0.5.2, triton 3.8.0; no causal-conv1d, so its own torch conv path), BF16, on one RTX PRO 6000 (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
    "gpu_hours": 0.031078735832046005,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Valen-Decision-1.5-9B",
+   "display_name": "Valen-Decision-1.5-9B",
+   "tag": "",
+   "model_key": "valen-decision-1.5-9b",
+   "maker": "Valen-Team",
+   "kind": "decision",
+   "repo": "Valen-Team/Valen-Decision-1.5-9B",
+   "commit": "5a512117ebc0f2b69f311becfcf47cdef8abf568",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 74.26292895118414,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8284195263412276,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.03150234591802053,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-valen-decision-1.5-9b-v1"
+   ],
+   "notes": "Valen-Team/Valen-Decision-1.5-9B@5a512117, its card's vLLM deployment (valen-vllm, the Valen plugin at Valen-Team/Valen@773d3a64 in the official vllm/vllm-openai:v0.33.0 image), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.04507349295907858,
    "gpu_cost_usd": null
   },
   {
