@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-15T12:00:08Z",
+    "updated": "2026-11-15T12:09:19Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -2056,9 +2056,10 @@
       "calibration_error": 0.14941316223793505,
       "improvement_points": null,
       "runs": [
-       "logic:dexy-9b_en"
+       "logic:dexy-9b_en",
+       "logic:dexy-9b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.015277777777777777,
       "gpu_cost_usd": 0.03804166666666667
      },
@@ -2992,7 +2993,7 @@
      }
     ]
    },
-   "sha256": "736a6c933fda1cd767b9429cc8322eaf2885bb49cf7b384ab6a7368c525d3eb0"
+   "sha256": "f6ff3975f8aefe53dd5707369a7b025b3e76bacc70b2682b788ccad95f6f2168"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3002,7 +3003,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-15T12:00:08Z",
+    "updated": "2026-11-15T12:09:19Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -5112,9 +5113,10 @@
       "calibration_error": 0.12131842805076583,
       "improvement_points": null,
       "runs": [
-       "math:dexy-9b_en"
+       "math:dexy-9b_en",
+       "math:dexy-9b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.027777777777777776,
       "gpu_cost_usd": 0.06916666666666667
      },
@@ -6016,7 +6018,7 @@
      }
     ]
    },
-   "sha256": "dbed6271a78677f3ada01da7cb44c936879ad3937cac64537f897cafc788d12f"
+   "sha256": "a15bb19740f62034ce3c0bc729c2b9e3d57ac0db76441dab5ddfbe1c01ae606b"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -6026,7 +6028,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-15T12:00:08Z",
+    "updated": "2026-11-15T12:09:19Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -8198,9 +8200,11 @@
       "improvement_points": null,
       "runs": [
        "logic:dexy-9b_en",
-       "math:dexy-9b_en"
+       "math:dexy-9b_en",
+       "logic:dexy-9b_en_dontknow",
+       "math:dexy-9b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.043055555555555555,
       "gpu_cost_usd": 0.10720833333333334
      },
@@ -9158,7 +9162,7 @@
      }
     ]
    },
-   "sha256": "d937082320aa115648ae4e44f45ac48beed51ce8501fbc7a2d572e7704c592da"
+   "sha256": "5ed2b2d7add5e8abd907d736e9c2e1d7f2a299698675183df768e4cda458e092"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -10598,10 +10602,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-15T11:50Z",
+    "updated": "2026-11-15T12:05Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "9036fbd31f4f3cb5a3fbd94651e6693e13cfaccbc9911cd54ffb21ee78ddaacf"
+   "sha256": "095b66e63ef11534a12c6f4f2c517a804fcf9e465b4922adab6a6e5f639fe045"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
@@ -10611,7 +10615,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-15T11:57:10Z",
+    "updated": "2026-11-15T12:11:39Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -11231,6 +11235,34 @@
       ],
       "notes": "startlux-models/StartLux-Decision-v1.1-4B-Instant@416088f7, its package's own server (startlux-decide serve --launch-vllm, StartLux-Decision@a99977d, vLLM 0.31.0) as for its published Reading and Logic & Math runs, BF16, on one DGX Spark (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
       "gpu_hours": 0.08060698456742366,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "Dexy-Decision-9B-V2",
+      "display_name": "Dexy-Decision-9B-V2",
+      "tag": "",
+      "model_key": "dexy-decision-9b-v2",
+      "maker": "Patrick-18",
+      "kind": "decision",
+      "repo": "Patrick-18/Dexy-Decision-9B-V2",
+      "commit": "4f434e2b5fd9f0addfe3233489571c2dc8ce7a19",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 81.07781536974382,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8738521024649589,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.025398751062972964,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-dexy-decision-9b-v2-v1"
+      ],
+      "notes": "Patrick-18/Dexy-Decision-9B-V2@4f434e2b, its card's Transformers service (d3_server.py, in the environment its requirements.txt pins: torch 2.14.0, transformers 5.19.0), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.04106403172565293,
       "gpu_cost_usd": null
      },
      {
@@ -12055,7 +12087,7 @@
      }
     ]
    },
-   "sha256": "833fccd7b067131a6cf57a73ea9939526c796730a1c99f01f85adf65769ff213"
+   "sha256": "34aed9fc7a6049846f72db940027235ab4aec7732ee979aae66530f4143ec771"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -12063,10 +12095,10 @@
    "seen": "2026-11-15",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-15T11:57:18Z",
+    "updated": "2026-11-15T12:11:44Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "833fccd7b067131a6cf57a73ea9939526c796730a1c99f01f85adf65769ff213"
+     "sha256": "34aed9fc7a6049846f72db940027235ab4aec7732ee979aae66530f4143ec771"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -12789,6 +12821,26 @@
       "probabilities": true
      },
      {
+      "run": "grading:site-dexy-decision-9b-v2-v1",
+      "model_key": "dexy-decision-9b-v2",
+      "latency_s_median": 0.063,
+      "latency_s_p90": 0.088,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 71.5,
+      "recall_reference": 0.9268,
+      "recall_other": 0.6474,
+      "recall_none": 0.9048,
+      "wrong_answer_recall": 0.6474,
+      "false_alarm_rate": 0.0391,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
       "run": "grading:chat-qwen3.5-4b-nothink-v1",
       "model_key": "qwen3.5-4b-nothink",
       "latency_s_median": 3.274,
@@ -13092,7 +13144,7 @@
      }
     ]
    },
-   "sha256": "4cf0e53757424072875566d2d997f45985626dae5c488474714284b6a6dbe62e"
+   "sha256": "e58fdbed0bba8e6ed295d6e3037e4b42bedc30961ca8ace0d08e69b2b59ecda3"
   }
  }
 }

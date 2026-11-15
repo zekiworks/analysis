@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-15T11:57:10Z",
+ "updated": "2026-11-15T12:11:39Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -622,6 +622,34 @@
    ],
    "notes": "startlux-models/StartLux-Decision-v1.1-4B-Instant@416088f7, its package's own server (startlux-decide serve --launch-vllm, StartLux-Decision@a99977d, vLLM 0.31.0) as for its published Reading and Logic & Math runs, BF16, on one DGX Spark (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
    "gpu_hours": 0.08060698456742366,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Dexy-Decision-9B-V2",
+   "display_name": "Dexy-Decision-9B-V2",
+   "tag": "",
+   "model_key": "dexy-decision-9b-v2",
+   "maker": "Patrick-18",
+   "kind": "decision",
+   "repo": "Patrick-18/Dexy-Decision-9B-V2",
+   "commit": "4f434e2b5fd9f0addfe3233489571c2dc8ce7a19",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 81.07781536974382,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8738521024649589,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.025398751062972964,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-dexy-decision-9b-v2-v1"
+   ],
+   "notes": "Patrick-18/Dexy-Decision-9B-V2@4f434e2b, its card's Transformers service (d3_server.py, in the environment its requirements.txt pins: torch 2.14.0, transformers 5.19.0), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.04106403172565293,
    "gpu_cost_usd": null
   },
   {
