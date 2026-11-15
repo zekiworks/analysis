@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 110 comparisons (6 pass).
-━━ passes the Holm adjustment across these 110 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 111 comparisons (6 pass).
+━━ passes the Holm adjustment across these 111 comparisons   ━━ does not pass
 
                                                 Claude Fable 5.2 · max · chat minus Gemini 3.8 Flash · high · chat                              ⠠⠤⡧⠤                               +0.0
                                               Gemini 3.8 Flash · high · chat minus Gemini 4 Hydrogen · high · chat                              ⠠⠤⡧⠄                               +0.0
@@ -32,7 +32,8 @@ shows a related but separate test, adjusted across these 110 comparisons (6 pass
                                                   KnowLine-31B-Gen1.5 minus Inkling-Small · high · chat · Jul 2026                               ⠠⡧⠤⠤⠤⠤⡦⠤⠤⠤⠤⠤⠄                     +1.8
                                   Inkling-Small · high · chat · Jul 2026 minus GLM-5.3-Flash · reasoning on · chat                              ⠤⠤⡧⠤⠤⢴⠤⠤⠤⠤⠤                        +1.2
                                                                 GLM-5.3-Flash · reasoning on · chat minus REAX 1.3                            ⠠⠤⠤⠤⡧⠤⢴⠤⠤⠤⠤⠤⠄                        +0.9
-                                                                       REAX 1.3 minus Gemini Decision 1 · 20261111                           ⠠⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤⠄                          +0.4
+                                                                                 REAX 1.3 minus karpo-decision-31B                           ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠤                            +0.1
+                                                             karpo-decision-31B minus Gemini Decision 1 · 20261111                           ⠤⠤⠤⠤⠤⣷⠤⠤⠤⠤⠤⠄                          +0.3
                                                                        Gemini Decision 1 · 20261111 minus d1-ultra                           ⠠⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤⠤⠄                         +0.5
                                                                            d1-ultra minus Qwen3.8-27B · low · chat                                ⡇⠤⠤⠤⠤⠤⠤⡦⠤⠤⠤⠤⠤⠄                   +2.4
                                                                Qwen3.8-27B · low · chat minus GLM-5.3 · low · chat                          ⠤⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤⠤                          +0.1
@@ -83,7 +84,7 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                                                                  d1 minus Drex 2.0                              ⠒⠒⡗⠒⠒⢺⠒⠒⠒⠒⠒⠂                       +1.3
                                                                                   Drex 2.0 minus Open-Jev-27B-v1.1                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠂                          +0.0
                                                                                     Open-Jev-27B-v1.1 minus Cygnet                         ⠐⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠂                          +0.0
-                                                              Open-Jev-27B-v1.1 minus Qwen3.8-27B · yes/no scoring                                ⡇    ⠒⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒⠂               +3.8
+                                                              Open-Jev-27B-v1.1 minus Qwen3.8-27B · yes/no scoring                                ⡇    ⠒⠒⠒⠒⠒⠒⠗⠒⠒⠒⠒⠒⠂               +3.8
                                                                                            Cygnet minus Winnow-12B                           ⠐⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒                           +0.2
                                                   Winnow-12B minus Qwen3.8-27B · vote share · reasoning off · chat                            ⠐⠒⠒⠒⡗⠒⠒⠗⠒⠒⠒⠒⠒⠒                       +1.1
       Qwen3.8-27B · vote share · reasoning off · chat minus Qwen3.8-27B · stated confidence · reasoning off · chat                            ⠐⠒⠒⠒⡗⠒⠒⠒⠂                            +0.1

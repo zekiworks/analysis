@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-15T05:14:36Z",
+    "updated": "2026-11-15T06:31:55Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -918,13 +918,13 @@
       "name": "Karpo Decision 31B",
       "display_name": "Karpo Decision 31B",
       "tag": "",
-      "class_label": "Open · Undisclosed",
+      "class_label": "Open · 31B",
       "base_model": null,
       "setup_label": "karpo-decision-31B",
       "maker": "MachinePulse",
       "kind": "decision",
-      "params_total": null,
-      "params_active": null,
+      "params_total": 31.0,
+      "params_active": 31.0,
       "quantization": "BF16",
       "score_0_100": 50.88888888888889,
       "raw": {
@@ -1038,6 +1038,38 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.32472222222222225,
       "gpu_cost_usd": 0.06910667741470745
+     },
+     {
+      "repo": "Poindexter-Labs/Copernicus-31B",
+      "commit": "be715259e97a743341f2d7a3e6a6298dab23ca0e",
+      "model_key": "copernicus-31b",
+      "name": "Copernicus-31B",
+      "display_name": "Copernicus-31B",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": null,
+      "setup_label": "Copernicus-31B",
+      "maker": "Poindexter Labs",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 48.33333333333333,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5866666666666667,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.038529006250350314,
+      "improvement_points": null,
+      "runs": [
+       "logic:copernicus-31b_en",
+       "logic:copernicus-31b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.06138888888888889,
+      "gpu_cost_usd": 0.15285833333333335
      },
      {
       "repo": "fastino/GLiDE-27B",
@@ -1936,6 +1968,38 @@
       "gpu_cost_usd": null
      },
      {
+      "repo": "PelaAI/KnowLine-9B-Gen1",
+      "commit": "325378d128e9f5eb5088196668f5874c5682b6c0",
+      "model_key": "knowline-9b-gen1",
+      "name": "KnowLine-9B-Gen1",
+      "display_name": "KnowLine-9B-Gen1",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "Qwen3.5-9B",
+      "setup_label": "KnowLine-9B-Gen1",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 30.33333333333333,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.44266666666666665,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.03528201672992203,
+      "improvement_points": null,
+      "runs": [
+       "logic:knowline-9b_en",
+       "logic:knowline-9b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.01638888888888889,
+      "gpu_cost_usd": 0.04080833333333334
+     },
+     {
       "repo": "apertixai/cerno-9b-v1.2",
       "commit": "f02a632fbe3a4698cd1ff5c0b929ea240e2b8eda",
       "model_key": "cerno-9b-v1.2",
@@ -2673,7 +2737,7 @@
      }
     ]
    },
-   "sha256": "88faf547790d6a45d06c4a14f6fe810bae3821938627ef9bd2c34934a794fe2c"
+   "sha256": "be8acc03d8b1fdc9f740e50ac51dfd27739cb5249c2f03b9d988eac62606423b"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -2683,7 +2747,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-15T05:14:36Z",
+    "updated": "2026-11-15T06:31:55Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -3655,13 +3719,13 @@
       "name": "Karpo Decision 31B",
       "display_name": "Karpo Decision 31B",
       "tag": "",
-      "class_label": "Open · Undisclosed",
+      "class_label": "Open · 31B",
       "base_model": null,
       "setup_label": "karpo-decision-31B",
       "maker": "MachinePulse",
       "kind": "decision",
-      "params_total": null,
-      "params_active": null,
+      "params_total": 31.0,
+      "params_active": 31.0,
       "quantization": "BF16",
       "score_0_100": 76.94174757281552,
       "raw": {
@@ -3673,9 +3737,10 @@
       "calibration_error": 0.012315314621813527,
       "improvement_points": null,
       "runs": [
-       "math:karpo-decision-31b_en"
+       "math:karpo-decision-31b_en",
+       "math:karpo-decision-31b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.09777777777777778,
       "gpu_cost_usd": 0.24346666666666666
      },
@@ -3742,6 +3807,38 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.47638888888888886,
       "gpu_cost_usd": 0.10138404770421153
+     },
+     {
+      "repo": "Poindexter-Labs/Copernicus-31B",
+      "commit": "be715259e97a743341f2d7a3e6a6298dab23ca0e",
+      "model_key": "copernicus-31b",
+      "name": "Copernicus-31B",
+      "display_name": "Copernicus-31B",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": null,
+      "setup_label": "Copernicus-31B",
+      "maker": "Poindexter Labs",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 71.68284789644014,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7734627831715211,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.06453940462900969,
+      "improvement_points": null,
+      "runs": [
+       "math:copernicus-31b_en",
+       "math:copernicus-31b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.07333333333333333,
+      "gpu_cost_usd": 0.1826
      },
      {
       "repo": "sthanika-ai/Sieve-31B-v3",
@@ -4446,6 +4543,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.050555555555555555,
       "gpu_cost_usd": 0.12588333333333335
+     },
+     {
+      "repo": "PelaAI/KnowLine-9B-Gen1",
+      "commit": "325378d128e9f5eb5088196668f5874c5682b6c0",
+      "model_key": "knowline-9b-gen1",
+      "name": "KnowLine-9B-Gen1",
+      "display_name": "KnowLine-9B-Gen1",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "Qwen3.5-9B",
+      "setup_label": "KnowLine-9B-Gen1",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 49.72260748959777,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5977808599167822,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.030535655418292937,
+      "improvement_points": null,
+      "runs": [
+       "math:knowline-9b_en",
+       "math:knowline-9b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.023055555555555555,
+      "gpu_cost_usd": 0.05740833333333334
      },
      {
       "repo": null,
@@ -5345,7 +5474,7 @@
      }
     ]
    },
-   "sha256": "d602b96804bcb6927ef3f2045d07508d7d779d05d58825affa0625c1de378d8e"
+   "sha256": "386062ac033598f805a269826a1be6b8376d0d0afd1833d09396582ff6d34602"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -5355,7 +5484,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-15T05:14:36Z",
+    "updated": "2026-11-15T06:31:55Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -5421,9 +5550,11 @@
       "improvement_points": null,
       "runs": [
        "logic:gpt-6.1-sol-sub_en",
-       "math:gpt-6.1-sol-sub_en"
+       "math:gpt-6.1-sol-sub_en",
+       "logic:gpt-6.1-sol-sub_en_dontknow",
+       "math:gpt-6.1-sol-sub_en_dontknow"
       ],
-      "notes": "hosted API (the maker's service); no complete 'I don't know' run",
+      "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -6318,13 +6449,13 @@
       "name": "Karpo Decision 31B",
       "display_name": "Karpo Decision 31B",
       "tag": "",
-      "class_label": "Open · Undisclosed",
+      "class_label": "Open · 31B",
       "base_model": null,
       "setup_label": "karpo-decision-31B",
       "maker": "MachinePulse",
       "kind": "decision",
-      "params_total": null,
-      "params_active": null,
+      "params_total": 31.0,
+      "params_active": 31.0,
       "quantization": "BF16",
       "score_0_100": 68.02767639902676,
       "raw": {
@@ -6337,9 +6468,11 @@
       "improvement_points": null,
       "runs": [
        "logic:karpo-decision-31b_en",
-       "math:karpo-decision-31b_en"
+       "math:karpo-decision-31b_en",
+       "logic:karpo-decision-31b_en_dontknow",
+       "math:karpo-decision-31b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.15583333333333332,
       "gpu_cost_usd": 0.388025
      },
@@ -6410,6 +6543,40 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.8011111111111111,
       "gpu_cost_usd": 0.170490725118919
+     },
+     {
+      "repo": "Poindexter-Labs/Copernicus-31B",
+      "commit": "be715259e97a743341f2d7a3e6a6298dab23ca0e",
+      "model_key": "copernicus-31b",
+      "name": "Copernicus-31B",
+      "display_name": "Copernicus-31B",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": null,
+      "setup_label": "Copernicus-31B",
+      "maker": "Poindexter Labs",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 63.69373479318735,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7095498783454988,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.050027622239130536,
+      "improvement_points": null,
+      "runs": [
+       "logic:copernicus-31b_en",
+       "math:copernicus-31b_en",
+       "logic:copernicus-31b_en_dontknow",
+       "math:copernicus-31b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.13472222222222222,
+      "gpu_cost_usd": 0.33545833333333336
      },
      {
       "repo": "sthanika-ai/Sieve-31B-v3",
@@ -7192,6 +7359,40 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.17694444444444446,
       "gpu_cost_usd": 0.037656932004421426
+     },
+     {
+      "repo": "PelaAI/KnowLine-9B-Gen1",
+      "commit": "325378d128e9f5eb5088196668f5874c5682b6c0",
+      "model_key": "knowline-9b-gen1",
+      "name": "KnowLine-9B-Gen1",
+      "display_name": "KnowLine-9B-Gen1",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "Qwen3.5-9B",
+      "setup_label": "KnowLine-9B-Gen1",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 43.08850364963503,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5447080291970803,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.021630261863242076,
+      "improvement_points": null,
+      "runs": [
+       "logic:knowline-9b_en",
+       "math:knowline-9b_en",
+       "logic:knowline-9b_en_dontknow",
+       "math:knowline-9b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.03944444444444445,
+      "gpu_cost_usd": 0.09821666666666667
      },
      {
       "repo": null,
@@ -8113,7 +8314,7 @@
      }
     ]
    },
-   "sha256": "bc43a75f1940c782fe3395668555be6340528a6653067df73f96a508285f61c1"
+   "sha256": "26066121a9878139573d32309ef82c144cb8cba1cc9b8a73366518cd982ddd98"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -9553,10 +9754,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-15T05:05Z",
+    "updated": "2026-11-15T05:35Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "224e47640fd8f083edc020f4cfe48cead20df919eaeb4783596b97fcc08bda08"
+   "sha256": "341cde826a83346ddf000de390cb44a9c5f5670f92db05886f080d9720ea8b11"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",

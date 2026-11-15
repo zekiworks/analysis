@@ -115,6 +115,9 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "turion-jev": {"access": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load", "scoring": True, "billing": "local"},
     "startlux": {"access": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16", "scoring": True, "billing": "local"},
     "cerno": {"access": "Cerno server (logic's thin server around the card's CernoEngine, transformers), self-hosted, BF16", "scoring": True, "billing": "local"},
+    # The Answer Check leaders compactor serves on GPU 0 (compactor #8155, #8167), each as its model card serves it.
+    "karpo": {"access": "karpo-decision server (the System One server of the card's karpo-decision package, machinepulse-ai/karpo-decision at ac40d39), self-hosted, BF16", "scoring": True, "billing": "local"},
+    "copernicus": {"access": "Copernicus server (the card's copernicus_server.py, Transformers), self-hosted, BF16", "scoring": True, "billing": "local"},
     # Ümit's tiny batch (#4578): the two providers it adds; its other models run through knowline, startlux, onejev and
     # baselabs.
     "meteor": {"access": "PKU-KCL-Meteor server (serving/server.py, the maker's release code, transformers), self-hosted, BF16", "scoring": True, "billing": "local"},
@@ -311,6 +314,14 @@ MODELS: dict[str, dict[str, Any]] = {
         "name": "Perplexity Decider 27B v1.3",
         "note": "Perplexity's released v1.3 checkpoint, the next version of Decider 27B v1.2 on Qwen3.8-27B, run on our "
         "hardware through the package it ships.",
+        "hardware": f"1 × {GPU}; BF16",
+    },
+    "karpo-decision": {
+        "name": "karpo-decision-31B",
+        "note": "MachinePulse's released checkpoint, a fine-tune of Gemma-4-31B-it with a 255-way readout that also reads "
+        "images, run on our hardware through the System One server of the package its card ships (karpo-decision at "
+        "ac40d39). Its Reading runs shared the server with the Logic & Math site's runs from 05:00 UTC on 15 November "
+        "2026, so its latency and GPU-time cost were measured under that load.",
         "hardware": f"1 × {GPU}; BF16",
     },
     # It ran on a DGX Spark (GB10).
@@ -882,6 +893,12 @@ SIZES: dict[str, dict[str, Any]] = {
                                    "and head (0.47B), used only by its locate task, not counted",
                           "sources": ["counted from the checkpoint's safetensors, perplexity-ai/pplx-decider-v1.3@9c2ebb2",
                                       "https://huggingface.co/perplexity-ai/pplx-decider-v1.3"], "read": READ},
+    "karpo-decision": {"total": 31_274_459_756,
+                       "repo": "MachinePulseAI/karpo-decision-31B", "commit": "d69cdd5",
+                       "scope": "language model + vision encoder (575,743,536) + 255-way readout (1,370,880); the card says "
+                                "31.3B in bf16 plus the readout",
+                       "sources": ["counted from the checkpoint's safetensors, MachinePulseAI/karpo-decision-31B@d69cdd5",
+                                   "https://huggingface.co/MachinePulseAI/karpo-decision-31B"], "read": "2026-11-15"},
     # Fastino's post: "serves 57.36B parameters versus GLiDE's 26.09B".
     "glide-v1.2": {"total": 26_086_635_760, "scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
                    "repo": "fastino/GLiDE", "commit": "a7e4589",
@@ -2429,6 +2446,8 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
     "Ümit #7470), after the option-word check; not asked with “I don't know” yet.",
     ("pplx-decider", "pplx-decider-v1.3", None): "added to the Hallucination tab on 14 November 2026 (run on our GPU; "
     "Ümit #7470), after the option-word check; not asked with “I don't know” yet.",
+    ("karpo", "karpo-decision", None): "added to the Hallucination tab on 15 November 2026 (run on our GPU; Ümit #7616), "
+    "after the option-word check; not asked with “I don't know” yet.",
     **{(provider, model, None): "added to the Hallucination tab on 10 November 2026 (run on our GPU), after the "
        "option-word check; not asked with “I don't know” yet." for provider, model in (
         ("glide", "glide-27b"), ("glide", "glide-9b"), ("glide", "glide-2b"), ("glide", "glide-0.8b"), ("glide", "glide-0.4b"),

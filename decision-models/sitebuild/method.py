@@ -76,6 +76,9 @@ SETUP_TEXTS = (
     "PelaAI's released KnowLine 31B Gen1.5 and 0.8B Gen1 (BF16) and KnowLine 4B Gen5.5 (FP8 at load, as its card's code "
     "does) on a DGX Spark, through their repository's own server (SGLang; it reads a request of up to 3,000 tokens twice); "
     "the 31B and 4B are open decision models of the Jev Decision Index; their cards list English and Chinese.",
+    "MachinePulse's released karpo-decision-31B, a fine-tune of Gemma-4-31B-it with a 255-way readout, on our hardware "
+    "in BF16, through the server of the package its card ships, text only; its runs shared the server with the Logic & "
+    "Math site's, so its timing is not of a server of its own; its card names no language.",
     "StartLux Labs' released StartLux-Decision-v1.1-2B-Instant and -0.8B-Instant on a DGX Spark in BF16, through their "
     "package's own server (vLLM 0.31.0, not the card's 0.19.1, which has no build for that processor); non-commercial "
     "weights, used for evaluation; their cards list English only.",
