@@ -2,6 +2,17 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 35f5c23a (16 November 2026)
+
+- PelaAI's KnowLine-31B-Gen2 (`fd99a9e`), KnowLine-12B-Gen1 (`f26fbc2`) and KnowLine-9B-Gen2 (`8ec8eb6`) (Ümit #9814, #9815): fine-tunes of Gemma-4-31B-it, Gemma-4-12B-it and Qwen3.5-9B behind their cards' serve_knowline.sh (SGLang 0.5.23, BF16), each alone on one of our RTX PRO 6000 GPUs after compactor's Answer Check and logic's Logic & Math, one question per request. They are separate setups: the earlier KnowLine-31B-Gen1.5 and KnowLine-9B-Gen1 rows are unchanged.
+  - Turkish Text: KnowLine-31B-Gen2 1,785 of 2,198 (81.2%; run 1314; its repeat 1319 changed no answer), KnowLine-12B-Gen1 1,373 (62.5%; run 1309; repeat 1310 changed 24 answers), KnowLine-9B-Gen2 1,171 (53.3%; run 1306; repeat 1307 changed none).
+  - English (547): 505 (92.3%), 474 (86.7%) and 466 (85.2%). "Bilmiyorum": 1,790, 1,393 and 1,141 right, with 0, 1 and 27 "Bilmiyorum".
+  - A GPU fault on our machine (16 November, about 10:35 UTC) stopped KnowLine-9B-Gen2's and KnowLine-12B-Gen1's runs partway. Each run resumed from its stored answers on the same checkpoint and server after the restart. KnowLine-9B-Gen2's runs before the fault were on one GPU and the rest on another of the same model; the Method page says so.
+  - Their cards list English and Chinese, so the Turkish tables mark them as not officially supporting Turkish.
+  - Summary: KnowLine-31B-Gen2 (81.2%) comes third among decision models, after Copernicus-31B and KnowLine-31B-Gen1.5 (tied at 81.8%) and ahead of Turion Jev 31B (80.1%); it shares a tie letter with both leaders, as Turion Jev 31B does.
+- The Text tab's tie groups now need 69 letters. The runner's alphabet gained the Greek capitals that look like no Latin letter.
+- The paired test now counts 134 comparisons (131 before), 7 passing.
+
 ## Results 296d5aea (16 November 2026)
 
 - MiniCPM5-2B with thinking off gets its Turkish side, at the request settings of its English runs, on logic's loads of 15 November (Text run 1299 on GPU 2; its "Bilmiyorum" run 1304 on GPU 2, then on a reload on GPU 1 after the GPU 2 server stopped at 145 answers, same image, weights and settings; logic #9547). Its Turkish smoke test had failed, and Ümit asked for the runs anyway (via Zeki #8830): every reply is kept and a reply without a readable answer counts wrong. Text: 123 of 2,198 right (5.6%; reading 43, grammar 80), 1,654 replies without a readable answer; last of 131 setups. "Bilmiyorum": 109 right, 113 "Bilmiyorum", 332 wrong, 1,644 unreadable. It leaves the In progress table.

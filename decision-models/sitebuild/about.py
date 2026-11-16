@@ -22,7 +22,7 @@ NOTES_ORDER = ("", "english/", "turkish-vs-english/", "dont-know/", "web-groundi
 SUMMARY = """<div class="summary">
         <p class="summary-lead">No decision model led on every measure:</p>
         <ul class="summary-list">
-          <li><a href="../?tab=accuracy#board">Accuracy</a>: Copernicus-31B and KnowLine-31B-Gen1.5 tied at 81.8%, Turion Jev 31B at 80.1%, tied with them and with the next four; REAX 1.3, Karpo Decision 31B, Gemini Decision 1 and d1-ultra, tied at 77.1% to 77.9%; Logits Sigma-1 Duo and Sieve 31B v3 at 75.0% and 74.2%; GLiDE 27B at 71.1%; then eleven setups at 66.9% to 68.7%.</li>
+          <li><a href="../?tab=accuracy#board">Accuracy</a>: Copernicus-31B and KnowLine-31B-Gen1.5 tied at 81.8%, KnowLine-31B-Gen2 at 81.2% and Turion Jev 31B at 80.1%, tied with them; REAX 1.3, Karpo Decision 31B, Gemini Decision 1 and d1-ultra, tied at 77.1% to 77.9%; Logits Sigma-1 Duo and Sieve 31B v3 at 75.0% and 74.2%; GLiDE 27B at 71.1%; then eleven setups at 66.9% to 68.7%.</li>
           <li><a href="../?tab=confidence#board">Calibration gap, as shipped</a>: d1.1 had the smallest among decision models.</li>
           <li><a href="../?tab=confidence#board">Better than a flat guess, after refit</a>: Sieve 31B v3 at 34.9%, then Karpo Decision 31B (33.8%) and hosted Perplexity Decider 27B v1.2 (32.1%); the gaps are untested.</li>
           <li><a href="../?tab=routing#board">Estimated saving</a>: d1-ultra, the biggest in 7 of 16 LLM setups; Gemini Decision 1 in 5; REAX 1.3 in 2; GLiDE 27B in 2.</li>

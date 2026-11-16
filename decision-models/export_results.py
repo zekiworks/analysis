@@ -349,6 +349,14 @@ MODELS: dict[str, dict[str, Any]] = {
         "knowline_server.py), text only.",
         "hardware": f"1 × {GPU}; BF16",
     },
+    **{repo: {
+        "name": repo.split("/")[1],
+        "note": f"PelaAI's released checkpoint (13 November 2026), a fine-tune of {base}, run on our hardware through its "
+        "card's serve_knowline.sh (SGLang 0.5.23 in the lmsysorg/sglang image; the card's launcher names 0.5.21, then "
+        "knowline_server.py), text only.",
+        "hardware": f"1 × {GPU}; BF16",
+    } for repo, base in (("PelaAI/KnowLine-31B-Gen2", "Gemma-4-31B-it"), ("PelaAI/KnowLine-9B-Gen2", "Qwen3.5-9B"),
+                         ("PelaAI/KnowLine-12B-Gen1", "Gemma-4-12B-it"))},
     "jev-latest": {
         "name": "Adjudex 9B v5",
         "note": "newsbang's released Adjudex 9B v5 (newsbang/adjudex-9b-v5 at ffdcb82), a fine-tune of Qwen3.5-9B with a "
@@ -1015,6 +1023,12 @@ SIZES: dict[str, dict[str, Any]] = {
             "the whole checkpoint, its vision encoder included (text only here); the card says approximately 31 billion"),
            ("PelaAI/KnowLine-9B-Gen1", 9_653_104_368, "PelaAI/KnowLine-9B-Gen1", "325378d",
             "language model + the base's vision components (model-extra-from-base.safetensors; text only here)"),
+           ("PelaAI/KnowLine-31B-Gen2", 31_273_088_876, "PelaAI/KnowLine-31B-Gen2", "fd99a9e",
+            "the whole checkpoint, its vision encoder included (text only here); the card says 31B parameters"),
+           ("PelaAI/KnowLine-9B-Gen2", 9_653_104_368, "PelaAI/KnowLine-9B-Gen2", "8ec8eb6",
+            "language model + the base's vision components (model-extra-from-base.safetensors; text only here)"),
+           ("PelaAI/KnowLine-12B-Gen1", 11_959_730_224, "PelaAI/KnowLine-12B-Gen1", "f26fbc2",
+            "the whole checkpoint, its vision encoder included (text only here); the card says 12B parameters"),
            ("jev-latest", 8_392_695_024, "newsbang/adjudex-9b-v5", "ffdcb82",
             "language model + 255-way decision head (readout.safetensors)"),
            ("Jeffan-9B-1211", 8_953_803_264, "tattrongvu/Jeffan-9B-1211", "862d1a7",
@@ -2620,6 +2634,10 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
         ("sieve", "sthanika-ai/Sieve-31B-v3"), ("turion-jev", "turion-ai/turion-jev-31b"),
         ("startlux", "startlux-models/StartLux-Decision-v1.1-4B-Instant"),
         ("startlux", "startlux-models/StartLux-Decision-v1.1-9B-Instant"))},
+    **{(provider, model, None): "added to the Hallucination tab on 16 November 2026 (run on our GPU; Ümit #9814), after "
+       "the option-word check; not asked with “I don't know” yet." for provider, model in (
+        ("knowline", "PelaAI/KnowLine-31B-Gen2"), ("knowline", "PelaAI/KnowLine-9B-Gen2"),
+        ("knowline", "PelaAI/KnowLine-12B-Gen1"))},
     **{(provider, model, None): "added to the Hallucination tab on 10 November 2026 (run on our GPU), after the "
        "option-word check; not asked with “I don't know” yet." for provider, model in (
         ("glide", "glide-27b"), ("glide", "glide-9b"), ("glide", "glide-2b"), ("glide", "glide-0.8b"), ("glide", "glide-0.4b"),

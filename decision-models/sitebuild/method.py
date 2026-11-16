@@ -74,7 +74,8 @@ SETUP_TEXTS = (
     "REAX's released REAX 1.3 on our hardware in FP8, through the maker's own engine: the 50/50 mean of two parts' "
     "option probabilities (Gemma and Qwen lines), text only; its card lists English only.",
     "PelaAI's released KnowLine 31B Gen1.5 and 0.8B Gen1 (BF16) and KnowLine 4B Gen5.5 (FP8 at load, as its card's code "
-    "does) on a DGX Spark, and KnowLine-9B-Gen1 (BF16) on an RTX PRO 6000, through their repository's own server (SGLang; "
+    "does) on a DGX Spark, and KnowLine-9B-Gen1, KnowLine-31B-Gen2, KnowLine-12B-Gen1 and KnowLine-9B-Gen2 (BF16) each "
+    "on an RTX PRO 6000, through their repository's own server (SGLang; "
     "it reads a request of up to 3,000 tokens twice); the 31B and 4B are open decision models of the Jev Decision Index; "
     "their cards list English and Chinese.",
     "MachinePulse's released karpo-decision-31B, a fine-tune of Gemma-4-31B-it with a 255-way readout, on our hardware "
