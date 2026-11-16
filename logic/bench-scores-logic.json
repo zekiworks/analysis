@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-16T10:40:49Z",
+ "updated": "2026-11-16T10:45:55Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1095,6 +1095,37 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.32472222222222225,
    "gpu_cost_usd": 0.06910667741470745
+  },
+  {
+   "repo": "PelaAI/KnowLine-31B-Gen2",
+   "commit": "fd99a9ed2255d8a67dd47a44cc429e638f611593",
+   "model_key": "knowline-31b-gen2",
+   "name": "KnowLine-31B-Gen2",
+   "display_name": "KnowLine-31B-Gen2",
+   "tag": "",
+   "class_label": "Open · 31B",
+   "base_model": "Gemma 4 31B",
+   "setup_label": "KnowLine-31B-Gen2",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "params_total": 31.0,
+   "params_active": 31.0,
+   "quantization": "BF16",
+   "score_0_100": 48.66666666666667,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.5893333333333334,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": 0.03712864961929971,
+   "improvement_points": null,
+   "runs": [
+    "logic:knowline-31b-gen2_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 0.050555555555555555,
+   "gpu_cost_usd": 0.12588333333333335
   },
   {
    "repo": "Poindexter-Labs/Copernicus-31B",
