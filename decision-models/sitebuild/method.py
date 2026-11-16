@@ -77,7 +77,9 @@ SETUP_TEXTS = (
     "does) on a DGX Spark, and KnowLine-9B-Gen1, KnowLine-31B-Gen2, KnowLine-12B-Gen1 and KnowLine-9B-Gen2 (BF16) each "
     "on an RTX PRO 6000, through their repository's own server (SGLang; "
     "it reads a request of up to 3,000 tokens twice); the 31B and 4B are open decision models of the Jev Decision Index; "
-    "their cards list English and Chinese.",
+    "their cards list English and Chinese. A GPU fault on our machine (16 November 2026) stopped KnowLine-9B-Gen2's and "
+    "KnowLine-12B-Gen1's runs partway; each resumed from its stored answers on the same checkpoint and server after a "
+    "restart, KnowLine-9B-Gen2's on another of our RTX PRO 6000 GPUs.",
     "MachinePulse's released karpo-decision-31B, a fine-tune of Gemma-4-31B-it with a 255-way readout, on our hardware "
     "in BF16, through the server of the package its card ships, text only; its runs shared the server with the Logic & "
     "Math site's, so its timing is not of a server of its own; its card names no language.",
