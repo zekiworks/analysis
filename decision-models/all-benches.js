@@ -9,7 +9,7 @@
    site's Leaderboard: site.js); and the score (Combined, then each bench), which picks what the chart ranks by and the
    table sorts by. A head of the table sorts by its column (again: the other way); a score column's head picks that
    score for the chart too. The address keeps the choice: ?models=all|chat (the Reading site's form), class=<class>,
-   view=, sort= (Model or Size), order= (the other way), a=, b=, tab=, so Back from a model's page returns to the same
+   view= (or score=; index = the Decision Index), sort= (Model or Size), order= (the other way), a=, b=, tab=, so Back from a model's page returns to the same
    view; the earlier ?board=vision opens Vision. ?model=<name> (or its slug or repo) shows that model's page instead.
    "tied" on the chart and in Head to head follows the page's one rule (Methodology #tied): apart only by at least
    100 / sqrt(n) points, n the smaller question count; on the combined score sqrt(sum of the three margins squared) / 3.
@@ -59,7 +59,7 @@
   const types = $$('[data-ab-type]').map(key => key.dataset.abType);
   const classes = $$('[data-ab-class]').map(key => key.dataset.abClass);
   const askedType = (params.get('models') ?? '').replace(/[^a-z]+$/i, '');
-  const askedView = params.get('view') || (params.get('board') === 'vision' ? 'reading-vision' : DATA.default);
+  const askedView = params.get('view') || params.get('score') || (params.get('board') === 'vision' ? 'reading-vision' : DATA.default);
   const state = {
     type: types.includes(askedType) ? askedType : DATA.type,
     class: classes.includes(params.get('class')) ? params.get('class') : 'all',
@@ -85,9 +85,10 @@
 
   const fits = item => (state.type === 'all' || item.kind === state.type) && (state.class === 'all' || item.class === state.class);
   const inView = element => fits({ kind: element.dataset.kind, class: element.dataset.class });
-  const score = (model, view) => (view === 'combined' ? model.combined : (model.scores[view] || [null])[0]);
+  const PARTS = { combined: DATA.combined, index: DATA.index };
+  const score = (model, view) => (view in PARTS ? model[view] : (model.scores[view] || [null])[0]);
   function margin(view, a, b) {
-    if (view === 'combined') return Math.sqrt(DATA.combined.reduce((sum, key) => sum + margin(key, a, b) ** 2, 0)) / 3;
+    if (view in PARTS) return Math.sqrt(PARTS[view].reduce((sum, key) => sum + margin(key, a, b) ** 2, 0)) / PARTS[view].length;
     return 100 / Math.sqrt(Math.min(a.scores[view][1], b.scores[view][1]));
   }
   const tied = (view, a, b) => Math.abs(score(a, view) - score(b, view)) < margin(view, a, b);
@@ -191,21 +192,21 @@
     if (!a || !b) return;
     document.querySelector('[data-ab-name="a"]').textContent = a.label;
     document.querySelector('[data-ab-name="b"]').textContent = b.label;
-    const rows = [['combined', 'Combined'], ...DATA.benches.map(bench => [bench.key, bench.label])].map(([key, label]) => {
+    const rows = [['combined', 'Combined'], ['index', 'Decision Index'], ...DATA.benches.map(bench => [bench.key, bench.label])].map(([key, label]) => {
       const first = score(a, key);
       const second = score(b, key);
-      const open = key === 'combined' || published[key];
+      const open = key in PARTS || published[key];
       let verdict;
       if (!open) verdict = '<span class="nm">not published yet</span>';
-      else if (key === 'combined' && (a.nc || b.nc)) {
-        verdict = `<span class="nm">no combined score for ${esc((a.nc ? a : b).label)}: one model did not answer every bench</span>`;
+      else if (key in PARTS && (a.nc || b.nc)) {
+        verdict = `<span class="nm">no ${key === 'combined' ? 'combined score' : 'Decision Index'} for ${esc((a.nc ? a : b).label)}: one model did not answer every bench</span>`;
       } else if (first === null && second === null) verdict = '<span class="nm">neither ran it</span>';
       else if (first === null || second === null) verdict = `<span class="nm">only ${esc((second === null ? a : b).label)} ran it</span>`;
       else if (tied(key, a, b)) verdict = `tied (${number(first - second)})`;
       else verdict = `${esc((first > second ? a : b).label)} ahead by ${number(Math.abs(first - second))}`;
       const cell = (model, value) => {
         if (value !== null) return number(value);
-        if (key === 'combined') return status('Not applicable', model.na);
+        if (key in PARTS) return status('Not applicable', key === 'combined' ? model.na : model.nai);
         return open ? status('Not run', `No ${label} run for this model: it is not in that bench's file`)
           : status('Not applicable', `${label}: not published yet`);
       };

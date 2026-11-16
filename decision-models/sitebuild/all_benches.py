@@ -103,6 +103,15 @@ COMBINED_SHORT = {"reading": "TR", "logic-math": "L&M", "backgammon": "BG"}
 # on our own GPUs (grading #6569: 17 models). The copy states its cohort's count, so the build stops when a row's differs.
 GRADING = "grading"
 GRADING_PAIRS = 2_069
+# The Decision Index (Ümit #10906): the plain mean, equal weights, of English Reading, Logic, Math and Answer Check,
+# chance = 0 on each, only for a model on all four, and none where one model did not answer every bench
+# (page_config.json all_benches.not_combined), as for Combined. "Decision Index" is its label until Ümit names it. Its
+# "tied" margin adds the four benches' margins as noise does: sqrt(m1² + m2² + m3² + m4²) / 4.
+INDEX = ("reading-english", "logic", "math", GRADING)
+INDEX_SHORT = {"reading-english": "EN", "logic": "Logic", "math": "Math", GRADING: "AC"}
+INDEX_LABEL = "Decision Index"
+# The two scores that average benches, by view: their benches.
+PARTS = {"combined": COMBINED, "index": INDEX}
 # Grading's own page (grading_page): its folder in the build, its address on the mirror (beside its file, which the
 # publishing step never touches) and the suite strip's mark.
 GRADING_OUT = "_suite/grading/"
@@ -587,6 +596,8 @@ class Data:
         for model in self.models.values():
             model["combined"] = (statistics.fmean(model["scores"][key]["score_0_100"] for key in COMBINED)
                                  if all(key in model["scores"] for key in COMBINED) else None)
+            model["index"] = (statistics.fmean(model["scores"][key]["score_0_100"] for key in INDEX)
+                              if all(key in model["scores"] for key in INDEX) else None)
             model["class"] = self.model_class(model)
             model["setups"] = self.setups(model)
         # Rows whose benches one model did not answer (page_config.json all_benches.not_combined): their per-bench
@@ -599,7 +610,7 @@ class Data:
                               else match["model_key"] in model["keys"] and model["kind"] == match["kind"])), None)
             if found is None:
                 raise SystemExit(f"page_config.json all_benches.not_combined: no row matches {match}")
-            found["combined"] = None
+            found["combined"] = found["index"] = None
             found["not_combined"] = entry["reason"]
             self.not_combined.append(found)
         self.latency_runs(config["latency_runs"])
@@ -726,27 +737,27 @@ class Data:
     # ------------------------------------------------------------------------------------------------------- views
 
     def published(self, key: str) -> bool:
-        return key == "combined" or self.by_key[key]["bench"] is not None
+        return key in PARTS or self.by_key[key]["bench"] is not None
 
     def views(self) -> list[str]:
         """The score selector's views in its order: Combined, then each bench shown."""
-        return ["combined", *(bench["key"] for bench in self.benches)]
+        return ["combined", "index", *(bench["key"] for bench in self.benches)]
 
     def view_label(self, view: str) -> str:
-        return "Combined" if view == "combined" else self.by_key[view]["label"]
+        return {"combined": "Combined", "index": INDEX_LABEL}.get(view) or self.by_key[view]["label"]
 
     def score(self, model: dict[str, Any], view: str) -> float | None:
-        if view == "combined":
-            return model["combined"]
+        if view in PARTS:
+            return model[view]
         row = model["scores"].get(view)
         return None if row is None else row["score_0_100"]
 
     def margin(self, view: str, first: dict[str, Any], second: dict[str, Any]) -> float:
         """How far apart two models' scores must be to read as apart (#tied): on one bench 100 / sqrt(n), n the smaller
         of the two question counts; on the combined score sqrt(sum of the three benches' margins squared) / 3, as the
-        noise of a mean of three adds up."""
-        if view == "combined":
-            return math.sqrt(sum(self.margin(key, first, second) ** 2 for key in COMBINED)) / 3
+        noise of a mean of three adds up; on the Decision Index the same over its four benches, / 4."""
+        if view in PARTS:
+            return math.sqrt(sum(self.margin(key, first, second) ** 2 for key in PARTS[view])) / len(PARTS[view])
         count = min(first["scores"][view]["raw"]["questions"], second["scores"][view]["raw"]["questions"])
         return 100 / math.sqrt(count)
 
@@ -899,6 +910,11 @@ def missing(data: Data, model: dict[str, Any], key: str) -> tuple[str, str]:
             return NOT_APPLICABLE, f"No combined score: {model['not_combined']}"
         lacking = [data.by_key[group]["label"] for group in COMBINED if group not in model["scores"]]
         return NOT_APPLICABLE, f"Combined needs all {GROUPS}; not run on {bp.and_list(lacking)}"
+    if key == "index":
+        if model["not_combined"]:
+            return NOT_APPLICABLE, f"No {INDEX_LABEL}: {model['not_combined']}"
+        lacking = [data.by_key[bench]["label"] for bench in INDEX if bench not in model["scores"]]
+        return NOT_APPLICABLE, f"The {INDEX_LABEL} needs all four of {INDEX_BENCHES}; not run on {bp.and_list(lacking)}"
     if not data.published(key):
         return NOT_APPLICABLE, f"{data.by_key[key]['label']}: {NOT_PUBLISHED}"
     return NOT_RUN, f"No {data.by_key[key]['label']} run for this model: it is not in that bench's file"
@@ -922,6 +938,32 @@ def groups_label(data: Data) -> str:
     return f'<span class="ab-groups hint" tabindex="0" data-tip="{esc(tip)}">{GROUPS}</span>'
 
 
+INDEX_BENCHES = "English Reading, Logic, Math and Answer Check"
+
+
+def index_label(data: Data) -> str:
+    """The label beside the Decision Index, what it averages on hover and focus."""
+    tip = "The mean, equal weights, of " + "; ".join(f"{INDEX_SHORT[key]} = {data.by_key[key]['label']}" for key in INDEX)
+    return f'<span class="ab-groups hint" tabindex="0" data-tip="{esc(tip)}">4 benches</span>'
+
+
+def view_groups(data: Data, view: str) -> str:
+    """The label beside a score that averages benches (Combined, the Decision Index); empty for a bench."""
+    return {"combined": groups_label, "index": index_label}[view](data) if view in PARTS else ""
+
+
+def parts_of(data: Data, model: dict[str, Any], view: str) -> str:
+    """Under a score that averages benches, its benches' scores (combined_parts; the Decision Index's four); empty for a
+    bench."""
+    if view == "combined":
+        return combined_parts(data, model)
+    if view != "index" or model["index"] is None:
+        return ""
+    return ('<span class="small ab-parts">' + " ".join(
+        f'<span><abbr title="{esc(data.by_key[key]["label"])}">{esc(INDEX_SHORT[key])}</abbr>\u00a0{number(model["scores"][key]["score_0_100"])}</span>'
+        for key in INDEX) + "</span>")
+
+
 def combined_parts(data: Data, model: dict[str, Any]) -> str:
     """Under a combined score, its three groups' scores: "TR 61.2 L&M 55.0 BG 70.1", each name spelt out on hover."""
     if model["combined"] is None:
@@ -933,7 +975,7 @@ def combined_parts(data: Data, model: dict[str, Any]) -> str:
 
 def chart_title(data: Data, view: str) -> str:
     """A ranking chart's own head: the score it ranks by (Combined with its groups' label) and the scale's unit."""
-    return (f'<h3 class="ab-chart-title">{esc(data.view_label(view))}{" " + groups_label(data) if view == "combined" else ""}'
+    return (f'<h3 class="ab-chart-title">{esc(data.view_label(view))}{" " + view_groups(data, view) if view in PARTS else ""}'
             f' <span class="small">{UNIT} · higher is better {UP}</span></h3>')
 
 
@@ -980,14 +1022,18 @@ def bars(data: Data, view: str) -> str:
 
 
 def not_combined_note(data: Data, view: str) -> str:
-    """Under the combined board: the rows left out of it, each with its reason (Methodology #combined)."""
-    if view != "combined" or not data.not_combined:
+    """Under the combined board and the Decision Index's: the rows left out of it, each with its reason (Methodology
+    #combined)."""
+    if view not in PARTS or not data.not_combined:
         return ""
-    return "".join(f'<p class="note ab-not-combined">No combined score for <a href="{model_href(model)}">{esc(plain_name(model))}</a>: '
+    what = "combined score" if view == "combined" else INDEX_LABEL
+    return "".join(f'<p class="note ab-not-combined">No {what} for <a href="{model_href(model)}">{esc(plain_name(model))}</a>: '
                    f'{esc(model["not_combined"])} (<a href="method/#combined">the rule</a>)</p>' for model in data.not_combined)
 
 
 def empty_note(data: Data, view: str) -> str:
+    if view == "index":
+        return f"No model has a score on all four of {INDEX_BENCHES} yet."
     if view == "combined":
         missing = [data.by_key[key]["label"] for key in COMBINED if not data.published(key)]
         if missing:
@@ -1024,7 +1070,7 @@ def main_table(data: Data) -> str:
     tiers."""
     view = data.default_view()
     # The heads name their columns only; the unit (UNIT) is said once, in the caption (Ümit #6400: crowded heads).
-    columns = [("combined", "Combined", ""), *((bench["key"], bench["short"], "") for bench in data.benches)]
+    columns = [("combined", "Combined", ""), ("index", INDEX_LABEL, ""), *((bench["key"], bench["short"], "") for bench in data.benches)]
     models = data.ordered(None)
     numbers = dict(zip((id(model) for model in models if model["kind"] == DEFAULT_TYPE),
                        ranks([data.score(model, view) for model in models if model["kind"] == DEFAULT_TYPE])))
@@ -1034,7 +1080,7 @@ def main_table(data: Data) -> str:
         f'<button type="button" class="ab-sort" data-ab-sort="{key}">{esc(label)}</button>'
         + (f'<span class="small">{sub}</span>' if sub else "") + "</th>")
     head = ('<th scope="col" class="num ab-rank">Rank</th>' + sort("model", "Model", "model") + sort("size", "Size")
-            + "".join(sort(key, label, "num" + (" ab-combined" if key == "combined" else ""), sub) for key, label, sub in columns))
+            + "".join(sort(key, label, "num" + (" ab-combined" if key in PARTS else ""), sub) for key, label, sub in columns))
     body = []
     for model in models:
         cells = []
@@ -1042,7 +1088,7 @@ def main_table(data: Data) -> str:
             value = data.score(model, key)
             cells.append(f'<td class="num">{missing_cell(data, model, key)}</td>' if value is None else
                          f'<td class="num" data-v="{value:.4f}">{number(value)}'
-                         f'{combined_parts(data, model) if key == "combined" else ""}</td>')
+                         f'{parts_of(data, model, key)}</td>')
         body.append(f'<tr{filters(model)} data-name="{esc(plain_name(model).casefold())}" '
                     f'data-size="{"" if model["size"] is None else model["size"]}">'
                     f'<td class="num ab-rank">{numbers.get(id(model), "")}</td>{model_cell(model)}'
@@ -1419,6 +1465,7 @@ def scoring(data: Data) -> str:
         <li><strong>Turkish Reading</strong> ({count("turkish-reading")} questions) and <strong>Turkish Grammar</strong> ({count("turkish-grammar")}), 5 options each, <strong>English Reading</strong> ({count("reading-english")} of the reading questions translated into English, 5 options) and {logic}: accuracy corrected for chance, (accuracy − 1/k) / (1 − 1/k) × 100, k the number of options. <strong>Vision</strong>: the same on Reading's {count("reading-vision")} questions that depend on the printed page, read from the page image alone.</li>
         <li><strong>Backgammon</strong>: 0 = the error rate of a player that picks a random legal move, 100 = no error.</li>{grading}
         <li><strong>Combined</strong> = the plain mean of Reading · Turkish (all {count("reading")} Turkish questions), Logic &amp; Math (pooled) and Backgammon, equal weights, as before the splits, only for a model that ran all three, one model on every bench (<a href="method/#combined">the rule</a>).</li>
+        <li><strong>{INDEX_LABEL}</strong> = the plain mean of English Reading, Logic, Math and Answer Check, equal weights, only for a model on all four, one model on every bench, as for Combined (<a href="method/#index">the rule</a>).</li>
         <li>Each bar is a model's score in its maker's colour, the maker's mark before its name; the small tag beside the name says how the setup ran where its file gives one (setting · route · snapshot), then the training method where our records state it. A bar, like a dot on the charts, opens the model's page. {esc(data.their["reference"]["name"])} is the reference bar: {esc(data.their["reference"]["note"])}.</li>
         <li>Class: the Reading site's Leaderboard's, by total parameters, else by list price (<a href="method/#filters">the classes</a>).</li>
         <li><strong>Learning from experience</strong> ("did it improve?", points gained, higher is better {UP}) is a column of its own, outside the combined score.</li>
@@ -1432,12 +1479,12 @@ def scoring(data: Data) -> str:
 
 def h2h_rows(data: Data, first: dict[str, Any], second: dict[str, Any]) -> str:
     rows = []
-    for key, label in [("combined", "Combined"), *((bench["key"], bench["label"]) for bench in data.benches)]:
+    for key, label in [("combined", "Combined"), ("index", INDEX_LABEL), *((bench["key"], bench["label"]) for bench in data.benches)]:
         a, b = data.score(first, key), data.score(second, key)
         if not data.published(key):
             verdict = f'<span class="nm">{NOT_PUBLISHED}</span>'
-        elif key == "combined" and (first["not_combined"] or second["not_combined"]):
-            verdict = (f'<span class="nm">no combined score for {esc(plain_name(first if first["not_combined"] else second))}: '
+        elif key in PARTS and (first["not_combined"] or second["not_combined"]):
+            verdict = (f'<span class="nm">no {"combined score" if key == "combined" else INDEX_LABEL} for {esc(plain_name(first if first["not_combined"] else second))}: '
                        f'one model did not answer every bench</span>')
         elif a is None and b is None:
             verdict = '<span class="nm">neither ran it</span>'
@@ -1487,7 +1534,7 @@ def results_table(data: Data, kind: str, caption: str) -> str:
     if not models:
         return ""
     head = ['<th scope="col">Model</th>', '<th scope="col" class="num">Size</th>',
-            f'<th scope="col" class="num ab-combined">Combined {UP}</th>']
+            f'<th scope="col" class="num ab-combined">Combined {UP}</th>', f'<th scope="col" class="num ab-combined">{INDEX_LABEL} {UP}</th>']
     for bench in data.benches:
         sub = "" if bench["bench"] else f'<span class="small">{NOT_PUBLISHED}</span>'
         head.append(f'<th scope="col" class="num">{esc(bench["label"])} {UP}{sub}</th>')
@@ -1497,7 +1544,8 @@ def results_table(data: Data, kind: str, caption: str) -> str:
     for model in models:
         cells = [name_cell(model), f'<td class="num">{size_text(model)}</td>',
                  f'<td class="num">{missing_cell(data, model, "combined") if model["combined"] is None else number(model["combined"]) + combined_parts(data, model)}'
-                 f'{"<span class=\"small\">not one model</span>" if model["not_combined"] else ""}</td>']
+                 f'{"<span class=\"small\">not one model</span>" if model["not_combined"] else ""}</td>',
+                 f'<td class="num">{missing_cell(data, model, "index") if model["index"] is None else number(model["index"]) + parts_of(data, model, "index")}</td>']
         for bench in data.benches:
             row = model["scores"].get(bench["key"])
             cells.append(f'<td class="num">{missing_cell(data, model, bench["key"]) if row is None else number(row["score_0_100"]) + ece_text(row)}</td>')
@@ -1585,10 +1633,10 @@ def scatter(points: list[tuple[dict[str, Any], float, float]], x_title: str, lab
             f'preserveAspectRatio="xMidYMid meet">{"".join(parts)}{"".join(dots)}{"".join(names_drawn)}</svg>')
 
 
-def combined_ece(model: dict[str, Any]) -> float | None:
-    """The calibration error on the Combined view (Ümit #4270): the mean of the calibration errors of the benches in
-    Combined that give one for the model; none with fewer than two."""
-    values = [model["scores"][key]["calibration_error"] for key in COMBINED
+def combined_ece(model: dict[str, Any], parts: tuple[str, ...] = COMBINED) -> float | None:
+    """The calibration error on the Combined view (Ümit #4270), and on the Decision Index's (parts: INDEX): the mean of
+    the calibration errors of the benches in it that give one for the model; none with fewer than two."""
+    values = [model["scores"][key]["calibration_error"] for key in parts
               if model["scores"].get(key, {}).get("calibration_error") is not None]
     return statistics.fmean(values) if len(values) >= 2 else None
 
@@ -1598,14 +1646,14 @@ def charts_for(data: Data, view: str) -> str:
     if not ranked:
         return f'<p class="note">{empty_note(data, view)}</p>'
     title = data.view_label(view)
-    if view == "combined":
-        ece = combined_ece
+    if view in PARTS:
+        ece = lambda model: combined_ece(model, PARTS[view])  # noqa: E731
     else:
         ece = lambda model: model["scores"][view].get("calibration_error")  # noqa: E731
     specs = [
         ("size", "Size against score", "Parameters, billions (log scale)", lambda model: model["size"], True,
          "models whose maker discloses no size are left out"),
-        ("calibration", f"Calibration error {DOWN} against score", "Calibration error, ECE in points" + (": mean of the benches' calibration errors" if view == "combined" else ""),
+        ("calibration", f"Calibration error {DOWN} against score", "Calibration error, ECE in points" + (": mean of the benches' calibration errors" if view in PARTS else ""),
          lambda model: None if ece(model) is None else 100 * ece(model), False, "models without a calibration error are left out"),
         ("latency", f"Latency {DOWN} against score", "Median time per request, ms (log scale)",
          lambda model: (model["latency"] or {}).get("median"), True, f"latency: Reading · Turkish requests on {PINNED}"),
@@ -1646,7 +1694,7 @@ def their_for(data: Data, view: str) -> str:
     lines = []
     for index, (item, model, value) in enumerate(ours, start=1):
         colour = model["colour"] if model else data.colour(item["maker"], "decision")
-        commit = (model["scores"].get(view) or {}).get("commit") if model and view != "combined" else None
+        commit = (model["scores"].get(view) or {}).get("commit") if model and view not in PARTS else None
         ours_cell = (f'<span class="ab-pair-bar ab-ours" style="--h:{max(0.0, min(100.0, value)):.2f}%;--c:{colour}"></span>'
                      f'<span class="ab-pair-value">{number(value)}</span>' if value is not None else
                      f'<span class="nm">{NOT_PUBLISHED if not data.published(view) else "not on this bench yet"}</span>')
@@ -1782,13 +1830,13 @@ def rank_text(data: Data, model: dict[str, Any], view: str) -> str:
 def model_page(data: Data, model: dict[str, Any]) -> str:
     rows = []
     # Every bench, the ones only the Combined score uses (not shown elsewhere on the page) named so.
-    for key, label in [("combined", "Combined"), *((bench["key"], bench["label"] + ("" if bench["shown"] else " (in Combined)"))
+    for key, label in [("combined", "Combined"), ("index", INDEX_LABEL), *((bench["key"], bench["label"] + ("" if bench["shown"] else " (in Combined)"))
                                                    for bench in data.all_benches if bench["shown"] or bench["bench"])]:
         if not data.published(key):
             rows.append(f'<tr><th scope="row">{esc(label)}</th><td colspan="5"><span class="nm">{NOT_PUBLISHED}</span></td></tr>')
             continue
         value = data.score(model, key)
-        head = f'<th scope="row">{esc(label)}{"<span class=\"small\">" + groups_label(data) + "</span>" if key == "combined" else ""}</th>'
+        head = f'<th scope="row">{esc(label)}{"<span class=\"small\">" + view_groups(data, key) + "</span>" if key in PARTS else ""}</th>'
         if value is None:
             word, reason = missing(data, model, key)
             rows.append(f'<tr>{head}<td colspan="5"><span class="nm">{word}</span><span class="small">{esc(reason)}</span></td></tr>')
@@ -1799,7 +1847,7 @@ def model_page(data: Data, model: dict[str, Any]) -> str:
         # The bench file's own notes on the row (how and where it ran, a provisional status), as the file words them
         # (row_notes: a three-seed row's mean invalid rate as its flag writes it).
         notes = f'<span class="small ab-row-notes">{esc(row_notes(row))}</span>' if row.get("notes") else ""
-        rows.append(f'<tr>{head}<td class="num">{number(value)}{combined_parts(data, model) if key == "combined" else ""}</td><td class="num">{rank_text(data, model, key)}</td>'
+        rows.append(f'<tr>{head}<td class="num">{number(value)}{parts_of(data, model, key)}</td><td class="num">{rank_text(data, model, key)}</td>'
                     f'<td class="num">{"–" if row.get("calibration_error") is None else number(100 * row["calibration_error"])}</td>'
                     f'<td>{f"<code title=\"{esc(commit)}\">{esc(commit[:7])}</code>" if commit else "–"}</td><td><span class="small">{esc(runs)}</span>{notes}</td></tr>')
     points = improvement(data, model)
@@ -1834,6 +1882,7 @@ def script_data(data: Data, models: Any = None, view: str | None = None) -> str:
         "benches": [{"key": bench["key"], "label": bench["label"], "published": bench["bench"] is not None}
                     for bench in data.benches if view is None or bench["key"] == view],
         "combined": list(COMBINED),
+        "index": list(INDEX),
         "default": view or data.default_view(),
         "type": DEFAULT_TYPE,
         "types": {value: label for value, label in TYPES},
@@ -1842,7 +1891,8 @@ def script_data(data: Data, models: Any = None, view: str | None = None) -> str:
                     "kind": model["kind"], "class": model["class"],
                     "scores": {key: [row["score_0_100"], row["raw"]["questions"]] for key, row in model["scores"].items()},
                     "combined": model["combined"], "nc": bool(model["not_combined"]),
-                    "na": None if model["combined"] is not None else missing(data, model, "combined")[1]}
+                    "na": None if model["combined"] is not None else missing(data, model, "combined")[1],
+                    "index": model["index"], "nai": None if model["index"] is not None else missing(data, model, "index")[1]}
                    for model in (data.models.values() if models is None else models)],
     }
     return f'<script type="application/json" id="ab-data">{json.dumps(payload, ensure_ascii=False, separators=(",", ":"))}</script>'
@@ -1987,6 +2037,8 @@ def method_page(data: Data, image: str) -> str:
       <p>A row gets a combined score only if one model answered every bench: the same checkpoint (one repo, one set of weights) or the same served version of a hosted model. A hosted service that changed its model between the benches' runs keeps its score on each bench, but gets no combined score{":" if data.not_combined else "."}</p>
       {"<ul>" + "".join(f"<li>{esc(model['name'])}: {esc(model['not_combined'])}</li>" for model in data.not_combined) + "</ul>" if data.not_combined else ""}
       <p>The page labels Combined "{GROUPS}" and shows under each combined score its three parts: {"; ".join(f"{esc(short)}, {esc(full)}" for _, short, full in group_names(data))}.</p>
+      <h2 id="index">{INDEX_LABEL}</h2>
+      <p>The plain mean, equal weights, of English Reading, Logic, Math and {name}, each on its own 0 to 100 scale with chance = 0 (Ümit #10906). Only a model with a score on all four gets one, and none where one model did not answer every bench, as for Combined. The page labels it "4 benches" and shows under each score its four parts: {"; ".join(f"{esc(INDEX_SHORT[key])}, {esc(data.by_key[key]['label'])}" for key in INDEX)}. The address ?view=index (or ?score=index) opens the page on it. "{INDEX_LABEL}" is a working name.</p>
       {grading_section(data)}
       <h2 id="missing">A cell without a score</h2>
       <p>Each says why, the reason on hover and on keyboard focus: <strong>{NOT_RUN}</strong>, the model is not on that bench; <strong>{NOT_APPLICABLE}</strong>, the score does not apply: Combined for a model without all {GROUPS}, or where one model did not answer every bench, and a bench whose file is not published yet. Sorting by a column puts such cells last.</p>
@@ -1996,7 +2048,7 @@ def method_page(data: Data, image: str) -> str:
       <p>No interval bars and no ranges: where two scores are too close to tell apart, the page says <strong>tied</strong>. The rule, the same everywhere on the page:</p>
       <ul>
         <li>On one bench, two models are tied when their scores differ by less than <strong>100 ÷ √n points</strong>, n being the smaller of their two question counts on that bench (Backgammon: scored decisions; {name}: pairs). On Turkish Reading's {bp.count(n_reading)} questions that is {number(100 / math.sqrt(n_reading), 2)} points; on Turkish Grammar's {bp.count(n_grammar)} {number(100 / math.sqrt(n_grammar), 2)}; on English Reading's {bp.count(n_english)} {number(100 / math.sqrt(n_english), 2)}; on Vision's {bp.count(n_vision)} {number(100 / math.sqrt(n_vision), 2)}; on Reading · Turkish's {bp.count(n_text)}, in the Combined score, {number(100 / math.sqrt(n_text), 2)}{f"; on {name}'s {bp.count(GRADING_PAIRS)} pairs {number(100 / math.sqrt(GRADING_PAIRS), 2)}" if grading_rows(data) else ""}. The margin is about the size of the noise a score on n questions carries, so a smaller bench needs a larger gap.</li>
-        <li>On the combined score, a mean of three, the three benches' margins add up as noise does: √(m₁² + m₂² + m₃²) ÷ 3.</li>
+        <li>On the combined score, a mean of three, the three benches' margins add up as noise does: √(m₁² + m₂² + m₃²) ÷ 3. On the {INDEX_LABEL}, a mean of four, the same: √(m₁² + m₂² + m₃² + m₄²) ÷ 4 ({number(math.sqrt(sum(100 ** 2 / n for n in (n_english, *(data.by_key[key]["bench"]["models"][0]["raw"]["questions"] for key in INDEX[1:])))) / 4, 2)} points at the full question counts).</li>
         <li>The ranking marks a bar "tied" when it is within the margin of the bar in view before it; Head to head says "tied" for a bench where the two are within it; each bench's table writes "tied with" the row above. Ties are not chained: A tied with B and B with C does not tie A with C.</li>
         <li>The table under the chart numbers its rows in a Rank column: the place by the score chosen among the models in view, 1, 2, 3 without repeats; models with the same score keep the table's order, which claims no difference. Each bench's table numbers its rows the same way, and "tied with" there marks the margin above. No bench's file carries the all-pairs test the Reading site's Leaderboard draws its tiers from, so there are no tiers here.</li>
       </ul>
@@ -2060,7 +2112,7 @@ def share_page(data: Data, theme: str) -> str:
                     f'<span class="val">{number(data.score(model, view))}</span>' for model in ranked[:bp.IMAGE_TOP])
     fulls = [full for _, _, full in group_names(data)]
     what = (f"Combined: the mean of {GROUPS}, {', '.join(fulls[:-1])} and {fulls[-1]}" if view == "combined"
-            else data.by_key[view]["label"])
+            else f"{INDEX_LABEL}: the mean of {INDEX_BENCHES}" if view == "index" else data.by_key[view]["label"])
     body = (f"<h1>{TITLE}: the {min(bp.IMAGE_TOP, len(ranked))} highest {esc(label)} scores</h1>"
             f'<p class="sub">{dict(KINDS)[DEFAULT_TYPE]} · {UNIT}, 100 = perfect · {esc(what)}.</p>'
             f'<div class="chart">{marks}</div><p class="more">Every model on all {len(data.benches)} benches: the {TITLE} '
