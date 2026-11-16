@@ -9,7 +9,7 @@
      opened to their full height, in parts of at most 16,000 pixels.
    No library: the page is read box by box (background, borders, rounding, inset rules) and line by line (each line of
    text where the browser placed it, in its font and colour); SVG charts and images are drawn as images. Pages add
-   their filters through window.pngView() ({ league, filters }) when they have any (bg.js, decisions.js). */
+   their filters through window.pngView() ({ league, filters }) when they have any (bg.js). */
 
 (function png() {
   const LIMIT = 16000;

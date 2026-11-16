@@ -126,13 +126,10 @@ main > details.about { max-width: 1100px; margin: 1rem auto 0; padding: 0 .25rem
 /* The four questions of the findings on one line under the waiting note. */
 .hero .summary-lead { margin: 0 0 .15rem; }
 
-/* --- The home page's first card: the heading and the links; the showcase board sits under the leaderboard. ------- */
+/* --- The home page's first card: the heading and the links. -------------------------------------------------- */
 .hero-links { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 .6rem; }
 .hero-links .key { text-decoration: none; padding: .3rem .8rem; border: 1px solid var(--control-edge); color: var(--text); font-size: .85rem; }
 .hero-links .key:hover { border-color: var(--accent); color: var(--accent); }
-.hero-board { margin: 0; }
-.hero-board svg.hero-bd { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
-.hero-board figcaption { color: var(--text-2); font-size: .82rem; margin-top: .4rem; }
 #findings { margin: 0 0 1rem; }
 #findings .summary-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .5rem; }
 #findings .summary-list li { padding: .55rem .7rem; border: 1px solid var(--edge); border-radius: 8px; background: var(--panel); }
@@ -322,7 +319,6 @@ td.badges .small { display: block; white-space: normal; }
 /* Highlights and Experiments (Ümit #2901). */
 .experiment-cards { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
 .highlight-slots { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr)); }
-.highlight-slot[data-slot="filled"] { grid-column: 1 / -1; }
 .highlight-finding .status { margin-bottom: .3rem; }
 .hc-line { color: var(--text-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .hc-num { color: var(--text); font-weight: 600; }
@@ -560,10 +556,6 @@ i.swatch-ts-safety, i.swatch-ts-found { background-color: var(--text-2); }
 .finding .lp-chart { margin: 0; }
 .footer-links { margin: .25rem 0 .4rem; }
 .decisions-links, .about-links { margin: 0 0 1rem; }
-/* Highlights: a filled slot shows its board beside the plays. */
-.highlight-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 1.5rem; align-items: start; }
-.highlight-body svg.hl-board { width: 100%; max-width: 460px; height: auto; display: block; }
-@media (max-width: 760px) { .highlight-body { grid-template-columns: minmax(0, 1fr); } }
 /* The compact filter row (home.filters; Ümit, bus #2570 item 1; on the Leagues page since #2938): league, models,
    More filters, the setup count and Reset on one line where they fit, in a compact key size. The row is
    always open: its body's selector outranks site.css's `.filters:not(.is-open) .filters-body { display: none }`
