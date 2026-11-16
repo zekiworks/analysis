@@ -23,7 +23,9 @@ from sitebuild import names
 ROOT = Path(__file__).resolve().parent.parent
 # The site's name in the top bar, after the Hilde leaf (LEAF, a file of the site), as on the Backgammon site.
 SITE_NAME = "Reading bench"
-LEAF = "hilde-leaf.svg"
+# Hilde's copper leaf as zekiworks/hilde ships it (assets/hilde-leaf-transparent.png at dd56ed2f, unchanged bytes, its full
+# square canvas contained in the mark's box; Ümit #10097, #10114). hilde-leaf.svg, the older drawing, stays served.
+LEAF = "hilde-leaf-transparent.png"
 ISSUE_URL = "https://github.com/zekiworks/analysis/issues/new?template="
 REPO_URL = "https://github.com/zekiworks/analysis"
 esc = html.escape
