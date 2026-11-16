@@ -3,7 +3,7 @@
   "full_cohort_approved": false,
   "not_qualified": [
     {
-      "finding": "Qualification failed on public task single-01: after a correct get_price call and its mock result, the model's next token was <|tool_response> (an end-of-generation id), so the reply was empty. With thinking off, neither the maker's chat template nor vLLM's example template adds a continuation cue after a tool result. One observation; cause not proven.",
+      "finding": "Qualification failed on public task single-01 with the maker's chat template: after a correct get_price call and its mock result, the model's next token was <|tool_response> (the opening tag of a new tool result, which Gemma's generation_config lists as a stop token), so the reply was empty. One observation. A matching template gap is reported in https://github.com/google-deepmind/gemma/issues/829: with thinking off, Gemma 4's template adds no empty thought after a tool result, although it does at the start of a turn (the issue's measurements use the 26B model). In a separate test with that issue's suggested two-line fix, this model passed qualification and a full run; that result is pending publication.",
       "qualification_evidence_sha256": "11b2effa6e9f1f57d2fd1a76001d65b3f2a5f497ee815666bc2a8b6e8d41a18a",
       "requested_name": "Gemma 4 E2B",
       "thinking_mode": "off"
@@ -28,5 +28,5 @@
   "stage": "pilot_results",
   "tiered": true,
   "unscored": 0,
-  "updated": "2026-11-16T12:39:43+01:00"
+  "updated": "2026-11-16T15:13:58+01:00"
 }
