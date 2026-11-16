@@ -11387,7 +11387,7 @@
   &quot;top_p&quot;: 0.95
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
 
-{question}</pre></dd></dl></section><section class="run-record" id="run-logic-raon-1-nano-nothink_en_dontknow"><h3>Logic · raon-1-nano-nothink_en_dontknow</h3><dl class="facts"><dt>Name</dt><dd>Raon-1 nano <span class="name-tag">off · chat</span></dd><dt>Setup</dt><dd>Raon-1 nano (chat, thinking off, KRAFTON vLLM fork, on our GPU) · chat model · with the I don't know option F</dd><dt>Model</dt><dd><code>raon-1-nano-nothink</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$2.919 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 1.17 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $2.919. GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano-nothink_en_dontknow" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>GPU time</dt><dd>run raon-1-nano-nothink_en_dontknow · first answer 2026-11-16 17:59:34 UTC · last answer 2026-11-16 19:09:54 UTC · span 4220.0 s, pauses included (not charged) · charged 4220.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $2.9188 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano-nothink_en_dontknow" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>Requests in flight</dt><dd>≈ 30.3 in flight (sum of request latencies / active time)<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano-nothink_en_dontknow" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>Output limit</dt><dd>32,768 tokens · 15 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 3.1B dense · 1.5B effective · source <a href="https://huggingface.co/KRAFTON/Raon-1-nano">https://huggingface.co/KRAFTON/Raon-1-nano</a> · read 2026-11-13 · the card states 1.5B effective parameters (3.1B total, including a 1.5B per-layer embedding table) (the maker&#x27;s figure is shown); checkpoint count 3.13B (3,130,797,328: per-layer embedding table 1.60B, token embeddings 0.40B tied, layers 1.12B; plus a materialised copy of the tied lm_head 0.40B and the MTP module 0.05B in separate files; dense)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:18637/v1/chat/completions</code></dd><dt>Started</dt><dd>16 Nov 2026 17:59 UTC; last answer 16 Nov 2026 19:09 UTC</dd><dt>Progress</dt><dd>332 answered of 1,125 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Raon-1 nano, served with KRAFTON&#x27;s vLLM fork krafton-ai/vllm@13a5dd87 (branch raon-1-nano, precompiled; not a vLLM release) from KRAFTON/Raon-1-nano@fcf2d1d55e84e2f9fbe7b5d724dcfc4d861cfcee, vLLM reasoning parser raon_1 (the card lists Korean and English only; cost and speed are on another engine than the stock-vLLM rows), one RTX PRO 6000 on our GPU host alone; thinking off (enable_thinking false; the card: &#x27;designed for thinking mode; disabling it is not recommended&#x27;); sampling temperature 0.1, presence_penalty 1.5, sampling from the model card, generation_config has none (&#x27;General&#x27; row); seed 0; max_tokens 32,768; one question per request, standard chat prompt with ANSWER: X on the last line, no JSON schema; parameters 1.5B / 3.1B active / total (card: 1.5B effective, 3.1B total incl. a 1.5B per-layer embedding table; MTP module 55M not loaded). English translations (DeepSeek + review).</dd><dt>Parameters</dt><dd><pre class="input-text">{
+{question}</pre></dd></dl></section><section class="run-record" id="run-logic-raon-1-nano-nothink_en_dontknow"><h3>Logic · raon-1-nano-nothink_en_dontknow</h3><dl class="facts"><dt>Name</dt><dd>Raon-1 nano <span class="name-tag">off · chat</span></dd><dt>Setup</dt><dd>Raon-1 nano (chat, thinking off, KRAFTON vLLM fork, on our GPU) · chat model · with the I don't know option F</dd><dt>Model</dt><dd><code>raon-1-nano-nothink</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$3.133 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 1.26 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $3.133. GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano-nothink_en_dontknow" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>GPU time</dt><dd>run raon-1-nano-nothink_en_dontknow · first answer 2026-11-16 17:59:34 UTC · last answer 2026-11-16 19:15:04 UTC · span 4530.0 s, pauses included (not charged) · charged 4530.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $3.1333 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano-nothink_en_dontknow" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>Requests in flight</dt><dd>≈ 30.5 in flight (sum of request latencies / active time)<sup class="mixed-mark"><a href="../method/#run-logic-raon-1-nano-nothink_en_dontknow" title="served on KRAFTON&#x27;s vLLM fork 13a5dd87, not stock vLLM: cost and speed not comparable; see its record on Method" aria-label="other engine">†</a></sup></dd><dt>Output limit</dt><dd>32,768 tokens · 16 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 3.1B dense · 1.5B effective · source <a href="https://huggingface.co/KRAFTON/Raon-1-nano">https://huggingface.co/KRAFTON/Raon-1-nano</a> · read 2026-11-13 · the card states 1.5B effective parameters (3.1B total, including a 1.5B per-layer embedding table) (the maker&#x27;s figure is shown); checkpoint count 3.13B (3,130,797,328: per-layer embedding table 1.60B, token embeddings 0.40B tied, layers 1.12B; plus a materialised copy of the tied lm_head 0.40B and the MTP module 0.05B in separate files; dense)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:18637/v1/chat/completions</code></dd><dt>Started</dt><dd>16 Nov 2026 17:59 UTC; last answer 16 Nov 2026 19:15 UTC</dd><dt>Progress</dt><dd>358 answered of 1,125 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Raon-1 nano, served with KRAFTON&#x27;s vLLM fork krafton-ai/vllm@13a5dd87 (branch raon-1-nano, precompiled; not a vLLM release) from KRAFTON/Raon-1-nano@fcf2d1d55e84e2f9fbe7b5d724dcfc4d861cfcee, vLLM reasoning parser raon_1 (the card lists Korean and English only; cost and speed are on another engine than the stock-vLLM rows), one RTX PRO 6000 on our GPU host alone; thinking off (enable_thinking false; the card: &#x27;designed for thinking mode; disabling it is not recommended&#x27;); sampling temperature 0.1, presence_penalty 1.5, sampling from the model card, generation_config has none (&#x27;General&#x27; row); seed 0; max_tokens 32,768; one question per request, standard chat prompt with ANSWER: X on the last line, no JSON schema; parameters 1.5B / 3.1B active / total (card: 1.5B effective, 3.1B total incl. a 1.5B per-layer embedding table; MTP module 55M not loaded). English translations (DeepSeek + review).</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;chat_template_kwargs&quot;: {
     &quot;enable_thinking&quot;: false,
     &quot;truncate_history_thinking&quot;: false
@@ -11398,7 +11398,7 @@
   &quot;temperature&quot;: 0.1
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D, E or F). If you do not know the answer, choose I don&#x27;t know.
 
-{question}</pre></dd></dl></section><section class="run-record" id="run-logic-gemma-4-e4b-it-think-32k-sampled-seed2_en"><h3>Logic · gemma-4-e4b-it-think-32k-sampled-seed2_en</h3><dl class="facts"><dt>Name</dt><dd>Gemma 4 E4B <span class="name-tag">on · chat · 32k cap · sampled</span></dd><dt>Setup</dt><dd>Gemma 4 E4B (chat, thinking on, 32k, sampled, on our GPU) · chat model</dd><dt>Model</dt><dd><code>gemma-4-e4b-it-think-32k-sampled-seed2</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$1.066 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 0.428 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $1.066. GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run gemma-4-e4b-it-think-32k-sampled-seed2_en · first answer 2026-11-16 18:44:28 UTC · last answer 2026-11-16 19:10:09 UTC · span 1541.0 s, pauses included (not charged) · charged 1541.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $1.0659 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 28.5 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>32,768 tokens · 0 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 8B dense · 4.5B effective · source <a href="https://huggingface.co/google/gemma-4-E4B-it">https://huggingface.co/google/gemma-4-E4B-it</a> · read 2026-11-10 · the card states 4.5B effective (8B with embeddings) (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 8.00B (counted from the checkpoint (7,996,157,418: language model 7.52B with per-layer embeddings, vision tower 0.17B, audio tower 0.31B); the card: 8B with embeddings, 4.5B effective; not a mixture of experts)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:18671/v1/chat/completions</code></dd><dt>Started</dt><dd>16 Nov 2026 18:44 UTC; last answer 16 Nov 2026 19:10 UTC</dd><dt>Progress</dt><dd>1,057 answered of 1,125 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>Gemma 4 E4B, served with vLLM v0.30.0 (docker vllm/vllm-openai:v0.30.0), BF16 from google/gemma-4-E4B-it@4ecc2ba63bcac23ba4a767fc87025b1450f84c9c, vLLM reasoning parser gemma4 (seed 2 of three at the maker&#x27;s sampling (Umit #10533, logic #10541); the published temperature-0 run is not one of them), one RTX PRO 6000 on our GPU host alone; thinking on (chat_template_kwargs enable_thinking true, the template&#x27;s own switch: it opens a system turn with &lt;|think|&gt;; the template default is off; on/off only, no levels); sampling temperature 1, top_p 0.95, top_k 64, from generation_config.json (temperature 1.0, top_p 0.95, top_k 64); seed 2; max_tokens 32,768; one question per request (32 requests in flight), standard chat prompt with ANSWER: X on the last line, no JSON schema; parameters 8.00B / 8.00B active / total (dense; checkpoint 7,996,157,418 incl. vision 0.17B and audio 0.31B towers; card: 8B with per-layer embeddings, 4.5B effective). English translations (DeepSeek + review).</dd><dt>Parameters</dt><dd><pre class="input-text">{
+{question}</pre></dd></dl></section><section class="run-record" id="run-logic-gemma-4-e4b-it-think-32k-sampled-seed2_en"><h3>Logic · gemma-4-e4b-it-think-32k-sampled-seed2_en</h3><dl class="facts"><dt>Name</dt><dd>Gemma 4 E4B <span class="name-tag">on · chat · 32k cap · sampled</span></dd><dt>Setup</dt><dd>Gemma 4 E4B (chat, thinking on, 32k, sampled, on our GPU) · chat model</dd><dt>Model</dt><dd><code>gemma-4-e4b-it-think-32k-sampled-seed2</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$1.167 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 0.469 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $1.167. GPU time = first to last stored answer, less gaps of more than 10 minutes; no pauses over 10 minutes</dd><dt>GPU time</dt><dd>run gemma-4-e4b-it-think-32k-sampled-seed2_en · first answer 2026-11-16 18:44:28 UTC · last answer 2026-11-16 19:12:35 UTC · span 1687.0 s, pauses included (not charged) · charged 1687.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $1.1668 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 27.8 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>32,768 tokens · 0 answers cut off at it with no letter (counted wrong) · 0 empty replies asked once more</dd><dt>Model size</dt><dd>Parameters: 8B dense · 4.5B effective · source <a href="https://huggingface.co/google/gemma-4-E4B-it">https://huggingface.co/google/gemma-4-E4B-it</a> · read 2026-11-10 · the card states 4.5B effective (8B with embeddings) (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 8.00B (counted from the checkpoint (7,996,157,418: language model 7.52B with per-layer embeddings, vision tower 0.17B, audio tower 0.31B); the card: 8B with embeddings, 4.5B effective; not a mixture of experts)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:18671/v1/chat/completions</code></dd><dt>Started</dt><dd>16 Nov 2026 18:44 UTC; last answer 16 Nov 2026 19:12 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Gemma 4 E4B, served with vLLM v0.30.0 (docker vllm/vllm-openai:v0.30.0), BF16 from google/gemma-4-E4B-it@4ecc2ba63bcac23ba4a767fc87025b1450f84c9c, vLLM reasoning parser gemma4 (seed 2 of three at the maker&#x27;s sampling (Umit #10533, logic #10541); the published temperature-0 run is not one of them), one RTX PRO 6000 on our GPU host alone; thinking on (chat_template_kwargs enable_thinking true, the template&#x27;s own switch: it opens a system turn with &lt;|think|&gt;; the template default is off; on/off only, no levels); sampling temperature 1, top_p 0.95, top_k 64, from generation_config.json (temperature 1.0, top_p 0.95, top_k 64); seed 2; max_tokens 32,768; one question per request (32 requests in flight), standard chat prompt with ANSWER: X on the last line, no JSON schema; parameters 8.00B / 8.00B active / total (dense; checkpoint 7,996,157,418 incl. vision 0.17B and audio 0.31B towers; card: 8B with per-layer embeddings, 4.5B effective). English translations (DeepSeek + review).</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;chat_template_kwargs&quot;: {
     &quot;enable_thinking&quot;: true
   },
@@ -22725,13 +22725,91 @@
   &quot;top_p&quot;: 0.95
 }</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
 
-{question}</pre></dd></dl></section>
+{question}</pre></dd></dl></section><section class="run-record" id="run-math-d1.2-ultra_en"><h3>Math · d1.2-ultra_en</h3><dl class="facts"><dt>Name</dt><dd>d1.2-ultra</dd><dt>Setup</dt><dd>Liquid d1.2-ultra · decision model</dd><dt>Model</dt><dd><code>d1.2-ultra</code> · provider liquid</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01328 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run d1.2-ultra_en · first answer 2026-11-16 19:03:15 UTC · last answer 2026-11-16 19:12:40 UTC · span 565.0 s, pauses included (not charged) · charged 565.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not disclosed by maker · source <a href="https://www.liquid.ai/blog/d1-2">https://www.liquid.ai/blog/d1-2</a> · read 2026-11-16</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://api.liquid.ai/decisions</code></dd><dt>Started</dt><dd>16 Nov 2026 19:03 UTC; last answer 16 Nov 2026 19:12 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Liquid d1.2-ultra (site run None); runner 1cc2ce5d9; Liquid&#x27;s hosted decision API, released 16 November 2026 (liquid.ai/blog/d1-2); run at once on Umit&#x27;s word, whatever the cost (#10926, zeki #10928), one request at a time as d1-ultra ran</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;d1.2-ultra&quot;,
+    &quot;--provider&quot;,
+    &quot;liquid&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;0f7123a347725d64b71f99d55f89d66f32fa9eb0&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;d1.2-ultra&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;Liquid AI&#x27;s d1.2-ultra price&quot;,
+    &quot;date&quot;: &quot;2026-11-16&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.042,
+      &quot;cache_write_input_tokens&quot;: 0.042,
+      &quot;cached_input_tokens&quot;: 0.042,
+      &quot;input_tokens&quot;: 0.042,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://www.liquid.ai/blog/d1-2&quot;,
+    &quot;text&quot;: &quot;$0.042 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;liquid&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 559.7850853279342,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;482ab74707f80ad934c37e834dfdae5c7a8c62ef07fb96c31c1fd1e0d74735db&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;1cc2ce5d9e9148092d004abf953cbbbffa12110a&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 316269,
+    &quot;output_tokens&quot;: 0
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://api.liquid.ai/decisions/v1/systemone
+{
+ &quot;model&quot;: &quot;d1.2-ultra&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <nav class="footer-links" aria-label="About this site"><a href="../about/">About</a><a href="../method/">Method</a><a href="../about/#data">Data</a></nav>
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 16 Nov 2026 19:10 UTC from the logic and math benchmark.db files (792,312 graded answers in 504 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 16 Nov 2026 19:15 UTC from the logic and math benchmark.db files (794,569 graded answers in 505 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
