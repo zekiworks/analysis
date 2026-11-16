@@ -11592,7 +11592,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-16T11:26:00Z",
+    "updated": "2026-11-16T18:40:51Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -12839,6 +12839,66 @@
       "gpu_cost_usd": null
      },
      {
+      "name": "Gemma 4 E4B",
+      "display_name": "Gemma 4 E4B",
+      "tag": "thinking on · sampled (temperature 1.0) · chat",
+      "model_key": "gemma-4-e4b-think-sampled",
+      "maker": "Google",
+      "kind": "chat",
+      "repo": "google/gemma-4-E4B-it",
+      "commit": "4ecc2ba63bcac23ba4a767fc87025b1450f84c9c",
+      "params_total": 8.0,
+      "params_active": 8.0,
+      "quantization": "BF16",
+      "score_0_100": 75.1087481875302,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8340583212502014,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-gemma-4-e4b-think-sampled-seed0-v1",
+       "grading:chat-gemma-4-e4b-think-sampled-seed1-v1",
+       "grading:chat-gemma-4-e4b-think-sampled-seed2-v1"
+      ],
+      "notes": "google/gemma-4-E4B-it@4ecc2ba6, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; replies without an answer marker count wrong: mean rate 2% (per seed in seed_runs; cut off at the token limit per seed: 0, 0, 0); three new runs (16 Nov, every reply kept), seeds 0, 1, 2 at Gemma's own sampling (its generation_config.json: temperature 1.0, top_p 0.95, top_k 64; Ümit #10554), with the weights, template and token limit of the temperature-0 row, which stays as its own row; their server settings recorded; gpu_hours is the mean of the three runs",
+      "gpu_hours": 0.13427235311653798,
+      "gpu_cost_usd": null,
+      "accuracy_basis": "mean of 3 seeds",
+      "seed_min": 0.8274528757854036,
+      "seed_max": 0.8395360077332045,
+      "seed_runs": [
+       {
+        "run": "grading:chat-gemma-4-e4b-think-sampled-seed0-v1",
+        "seed": 0,
+        "accuracy": 0.8395360077332045,
+        "invalid": 34,
+        "cutoff": 0,
+        "wrong_answers_caught": 216
+       },
+       {
+        "run": "grading:chat-gemma-4-e4b-think-sampled-seed1-v1",
+        "seed": 1,
+        "accuracy": 0.8274528757854036,
+        "invalid": 31,
+        "cutoff": 0,
+        "wrong_answers_caught": 208
+       },
+       {
+        "run": "grading:chat-gemma-4-e4b-think-sampled-seed2-v1",
+        "seed": 2,
+        "accuracy": 0.8351860802319961,
+        "invalid": 30,
+        "cutoff": 0,
+        "wrong_answers_caught": 211
+       }
+      ],
+      "invalid_rate_mean": 0.015305300467214436
+     },
+     {
       "name": "LFM3-1.7B",
       "display_name": "LFM3-1.7B",
       "tag": "thinking off · chat",
@@ -13222,21 +13282,53 @@
       "params_total": 4.66,
       "params_active": 4.66,
       "quantization": "BF16",
-      "score_0_100": 64.54809086515225,
+      "score_0_100": 64.62058965683906,
       "raw": {
        "metric": "accuracy",
-       "value": 0.763653939101015,
+       "value": 0.764137264378927,
        "questions": 2069,
        "options": 3
       },
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "grading:chat-qwen3.5-4b-nothink-v1"
+       "grading:chat-qwen3.5-4b-nothink-v1",
+       "grading:chat-qwen3.5-4b-nothink-seed1-v1",
+       "grading:chat-qwen3.5-4b-nothink-seed2-v1"
       ],
-      "notes": "Qwen/Qwen3.5-4B@851bf6e8, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 20 of 2069 replies (0.97%) had no answer marker and count wrong (0 of them cut off at the 32,768-token limit); every reply kept",
-      "gpu_hours": 0.0711113679488379,
-      "gpu_cost_usd": null
+      "notes": "Qwen/Qwen3.5-4B@851bf6e8, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; replies without an answer marker count wrong: mean rate 0.97% (per seed in seed_runs; cut off at the token limit per seed: 0, 1, 0); seed 0 is the published single run (every reply kept); seeds 1 and 2 are new runs (16 Nov, every reply kept) with the same model, sampling settings, requests at a time and server launcher, only the seed changed, their server settings recorded; gpu_hours is the mean of the three runs",
+      "gpu_hours": 0.0852996435253031,
+      "gpu_cost_usd": null,
+      "accuracy_basis": "mean of 3 seeds",
+      "seed_min": 0.7631706138231029,
+      "seed_max": 0.7655872402126631,
+      "seed_runs": [
+       {
+        "run": "grading:chat-qwen3.5-4b-nothink-v1",
+        "seed": 0,
+        "accuracy": 0.763653939101015,
+        "invalid": 20,
+        "cutoff": 0,
+        "wrong_answers_caught": 196
+       },
+       {
+        "run": "grading:chat-qwen3.5-4b-nothink-seed1-v1",
+        "seed": 1,
+        "accuracy": 0.7631706138231029,
+        "invalid": 25,
+        "cutoff": 1,
+        "wrong_answers_caught": 202
+       },
+       {
+        "run": "grading:chat-qwen3.5-4b-nothink-seed2-v1",
+        "seed": 2,
+        "accuracy": 0.7655872402126631,
+        "invalid": 15,
+        "cutoff": 0,
+        "wrong_answers_caught": 206
+       }
+      ],
+      "invalid_rate_mean": 0.009666505558240696
      },
      {
       "name": "Metask-Jev-4B",
@@ -13381,6 +13473,66 @@
      {
       "name": "Gemma 4 E2B",
       "display_name": "Gemma 4 E2B",
+      "tag": "thinking off · sampled (temperature 1.0) · chat",
+      "model_key": "gemma-4-e2b-sampled",
+      "maker": "Google",
+      "kind": "chat",
+      "repo": "google/gemma-4-E2B-it",
+      "commit": "4adf15748de9e1a0097b6274cee9c15836c41c37",
+      "params_total": 5.1,
+      "params_active": 5.1,
+      "quantization": "BF16",
+      "score_0_100": 55.171580473658764,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7011438698243918,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-gemma-4-e2b-sampled-seed0-v1",
+       "grading:chat-gemma-4-e2b-sampled-seed1-v1",
+       "grading:chat-gemma-4-e2b-sampled-seed2-v1"
+      ],
+      "notes": "google/gemma-4-E2B-it@4adf1574, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; replies without an answer marker count wrong: mean rate 0.03% (per seed in seed_runs; cut off at the token limit per seed: 0, 0, 0); three new runs (16 Nov, every reply kept), seeds 0, 1, 2 at Gemma's own sampling (its generation_config.json: temperature 1.0, top_p 0.95, top_k 64; Ümit #10554), with the weights, template and token limit of the temperature-0 row, which stays as its own row; their server settings recorded; gpu_hours is the mean of the three runs",
+      "gpu_hours": 0.018991241379863,
+      "gpu_cost_usd": null,
+      "accuracy_basis": "mean of 3 seeds",
+      "seed_min": 0.6969550507491542,
+      "seed_max": 0.7056549057515709,
+      "seed_runs": [
+       {
+        "run": "grading:chat-gemma-4-e2b-sampled-seed0-v1",
+        "seed": 0,
+        "accuracy": 0.6969550507491542,
+        "invalid": 1,
+        "cutoff": 0,
+        "wrong_answers_caught": 22
+       },
+       {
+        "run": "grading:chat-gemma-4-e2b-sampled-seed1-v1",
+        "seed": 1,
+        "accuracy": 0.7056549057515709,
+        "invalid": 0,
+        "cutoff": 0,
+        "wrong_answers_caught": 29
+       },
+       {
+        "run": "grading:chat-gemma-4-e2b-sampled-seed2-v1",
+        "seed": 2,
+        "accuracy": 0.7008216529724505,
+        "invalid": 1,
+        "cutoff": 0,
+        "wrong_answers_caught": 25
+       }
+      ],
+      "invalid_rate_mean": 0.0003222168519413565
+     },
+     {
+      "name": "Gemma 4 E2B",
+      "display_name": "Gemma 4 E2B",
       "tag": "thinking off · chat",
       "model_key": "gemma-4-e2b",
       "maker": "Google",
@@ -13405,6 +13557,66 @@
       "notes": "google/gemma-4-E2B-it@4adf1574, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 0 of 2069 replies (0%) had no answer marker and count wrong; a fresh run (14-15 Nov) with every reply kept, with the same model, sampling settings and requests at a time as the run it replaces and a server from the same launcher (the earlier run's own server flags were not recorded); the earlier run stays in history",
       "gpu_hours": 0.010497344808671188,
       "gpu_cost_usd": null
+     },
+     {
+      "name": "Qwen3.5-2B",
+      "display_name": "Qwen3.5-2B",
+      "tag": "thinking off · chat",
+      "model_key": "qwen3.5-2b-nothink",
+      "maker": "Alibaba",
+      "kind": "chat",
+      "repo": "Qwen/Qwen3.5-2B",
+      "commit": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+      "params_total": 2.0,
+      "params_active": 2.0,
+      "quantization": "BF16",
+      "score_0_100": 50.24166263895601,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6682777509263734,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-qwen3.5-2b-nothink-v1",
+       "grading:chat-qwen3.5-2b-nothink-seed1-v1",
+       "grading:chat-qwen3.5-2b-nothink-seed2-v1"
+      ],
+      "notes": "Qwen/Qwen3.5-2B@15852e8c, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; replies without an answer marker count wrong: mean rate 2% (per seed in seed_runs; cut off at the token limit per seed: 1, 0, 0); seed 0 is the published single run (every reply kept); seeds 1 and 2 are new runs (16 Nov, every reply kept) with the same model, sampling settings, requests at a time and server launcher, only the seed changed, their server settings recorded; gpu_hours is the mean of the three runs",
+      "gpu_hours": 0.052665647040142136,
+      "gpu_cost_usd": null,
+      "accuracy_basis": "mean of 3 seeds",
+      "seed_min": 0.6621556307394877,
+      "seed_max": 0.6718221362977284,
+      "seed_runs": [
+       {
+        "run": "grading:chat-qwen3.5-2b-nothink-v1",
+        "seed": 0,
+        "accuracy": 0.6621556307394877,
+        "invalid": 37,
+        "cutoff": 1,
+        "wrong_answers_caught": 108
+       },
+       {
+        "run": "grading:chat-qwen3.5-2b-nothink-seed1-v1",
+        "seed": 1,
+        "accuracy": 0.6708554857419043,
+        "invalid": 45,
+        "cutoff": 0,
+        "wrong_answers_caught": 116
+       },
+       {
+        "run": "grading:chat-qwen3.5-2b-nothink-seed2-v1",
+        "seed": 2,
+        "accuracy": 0.6718221362977284,
+        "invalid": 43,
+        "cutoff": 0,
+        "wrong_answers_caught": 116
+       }
+      ],
+      "invalid_rate_mean": 0.020138553246334782
      },
      {
       "name": "OneJev1.6-0.8B",
@@ -13460,34 +13672,6 @@
       ],
       "notes": "LiquidAI/d1-2B@10e7671d, d1_server (Liquid's model code) on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
       "gpu_hours": 0.014600491343951257,
-      "gpu_cost_usd": null
-     },
-     {
-      "name": "Qwen3.5-2B",
-      "display_name": "Qwen3.5-2B",
-      "tag": "thinking off · chat",
-      "model_key": "qwen3.5-2b-nothink",
-      "maker": "Alibaba",
-      "kind": "chat",
-      "repo": "Qwen/Qwen3.5-2B",
-      "commit": "15852e8c16360a2fea060d615a32b45270f8a8fc",
-      "params_total": 2.27,
-      "params_active": 2.27,
-      "quantization": "BF16",
-      "score_0_100": 49.32334461092315,
-      "raw": {
-       "metric": "accuracy",
-       "value": 0.6621556307394877,
-       "questions": 2069,
-       "options": 3
-      },
-      "calibration_error": null,
-      "improvement_points": null,
-      "runs": [
-       "grading:chat-qwen3.5-2b-nothink-v1"
-      ],
-      "notes": "Qwen/Qwen3.5-2B@15852e8c, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 64 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 37 of 2069 replies (2%) had no answer marker and count wrong (0 of them cut off at the 32,768-token limit); every reply kept",
-      "gpu_hours": 0.05510343013642593,
       "gpu_cost_usd": null
      },
      {
@@ -13614,21 +13798,53 @@
       "params_total": 3.1,
       "params_active": 1.5,
       "quantization": "BF16",
-      "score_0_100": 40.76848719188014,
+      "score_0_100": 40.647655872402126,
       "raw": {
        "metric": "accuracy",
-       "value": 0.6051232479458676,
+       "value": 0.6043177058160142,
        "questions": 2069,
        "options": 3
       },
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "grading:chat-raon-1-nano-nothink-v1"
+       "grading:chat-raon-1-nano-nothink-v1",
+       "grading:chat-raon-1-nano-nothink-seed1-v1",
+       "grading:chat-raon-1-nano-nothink-seed2-v1"
       ],
-      "notes": "KRAFTON/Raon-1-nano@fcf2d1d5, BF16, KRAFTON vLLM fork krafton-ai/vllm@13a5dd87 (not a vLLM release) on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time (latency not comparable across different concurrency); thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 0 of 2069 replies (0%) had no answer marker and count wrong; every reply kept",
-      "gpu_hours": 0.10276738377885526,
-      "gpu_cost_usd": null
+      "notes": "KRAFTON/Raon-1-nano@fcf2d1d5, BF16, KRAFTON vLLM fork krafton-ai/vllm@13a5dd87 (not a vLLM release) on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; replies without an answer marker count wrong: mean rate 0.03% (per seed in seed_runs; cut off at the token limit per seed: 0, 1, 0); seed 0 is the published single run (every reply kept); seeds 1 and 2 are new runs (16 Nov, every reply kept) with the same model, sampling settings, requests at a time and server launcher, only the seed changed, their server settings recorded; gpu_hours is the mean of the three runs",
+      "gpu_hours": 0.11989139371652192,
+      "gpu_cost_usd": null,
+      "accuracy_basis": "mean of 3 seeds",
+      "seed_min": 0.6036732721121315,
+      "seed_max": 0.6051232479458676,
+      "seed_runs": [
+       {
+        "run": "grading:chat-raon-1-nano-nothink-v1",
+        "seed": 0,
+        "accuracy": 0.6051232479458676,
+        "invalid": 0,
+        "cutoff": 0,
+        "wrong_answers_caught": 65
+       },
+       {
+        "run": "grading:chat-raon-1-nano-nothink-seed1-v1",
+        "seed": 1,
+        "accuracy": 0.6041565973900435,
+        "invalid": 1,
+        "cutoff": 1,
+        "wrong_answers_caught": 68
+       },
+       {
+        "run": "grading:chat-raon-1-nano-nothink-seed2-v1",
+        "seed": 2,
+        "accuracy": 0.6036732721121315,
+        "invalid": 1,
+        "cutoff": 0,
+        "wrong_answers_caught": 63
+       }
+      ],
+      "invalid_rate_mean": 0.0003222168519413565
      },
      {
       "name": "KnowLine-0.8B-Gen1",
@@ -13660,7 +13876,7 @@
      }
     ]
    },
-   "sha256": "98ded68e10b2c2b2eb4e3ef1e9a7f17cedb6fd1090fb4835618c86cc9dfb4ba4"
+   "sha256": "efedfe757da93bc3a071ff50e3c8ee30d64f5e49aff54d9aca23d0b246a5dd58"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -13668,10 +13884,10 @@
    "seen": "2026-11-16",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-16T11:26:06Z",
+    "updated": "2026-11-16T18:40:58Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "98ded68e10b2c2b2eb4e3ef1e9a7f17cedb6fd1090fb4835618c86cc9dfb4ba4"
+     "sha256": "efedfe757da93bc3a071ff50e3c8ee30d64f5e49aff54d9aca23d0b246a5dd58"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -14776,41 +14992,63 @@
      {
       "run": "grading:chat-qwen3.5-4b-nothink-v1",
       "model_key": "qwen3.5-4b-nothink",
-      "latency_s_median": 3.274,
-      "latency_s_p90": 19.486,
+      "runs": [
+       "grading:chat-qwen3.5-4b-nothink-v1",
+       "grading:chat-qwen3.5-4b-nothink-seed1-v1",
+       "grading:chat-qwen3.5-4b-nothink-seed2-v1"
+      ],
+      "aggregation": "mean of 3 seeds; latency over all requests of the three runs",
+      "latency_s_median": 3.487,
+      "latency_s_p90": 20.434,
       "requests_in_flight": 64,
-      "requests_measured": 2069,
+      "requests_measured": 6207,
       "api_cost_per_1000_usd_list_price": null,
       "price_usd_per_million_input": null,
       "price_source": null,
       "price_date": null,
-      "gpu_seconds_per_1000": 123.7,
-      "recall_reference": 0.9374,
-      "recall_other": 0.5957,
-      "recall_none": 0.6278,
-      "wrong_answer_recall": 0.5957,
-      "false_alarm_rate": 0.0713,
-      "invalid": 20,
+      "gpu_seconds_per_1000": 148.4,
+      "recall_reference": 0.9441,
+      "recall_other": 0.612,
+      "recall_none": 0.6145,
+      "wrong_answer_recall": 0.612,
+      "false_alarm_rate": 0.0764,
+      "invalid": null,
+      "invalid_per_seed": [
+       20,
+       25,
+       15
+      ],
       "probabilities": false
      },
      {
       "run": "grading:chat-qwen3.5-2b-nothink-v1",
       "model_key": "qwen3.5-2b-nothink",
-      "latency_s_median": 1.556,
-      "latency_s_p90": 13.999,
+      "runs": [
+       "grading:chat-qwen3.5-2b-nothink-v1",
+       "grading:chat-qwen3.5-2b-nothink-seed1-v1",
+       "grading:chat-qwen3.5-2b-nothink-seed2-v1"
+      ],
+      "aggregation": "mean of 3 seeds; latency over all requests of the three runs",
+      "latency_s_median": 1.53,
+      "latency_s_p90": 13.725,
       "requests_in_flight": 64,
-      "requests_measured": 2069,
+      "requests_measured": 6207,
       "api_cost_per_1000_usd_list_price": null,
       "price_usd_per_million_input": null,
       "price_source": null,
       "price_date": null,
-      "gpu_seconds_per_1000": 95.9,
-      "recall_reference": 0.7951,
-      "recall_other": 0.3283,
-      "recall_none": 0.6429,
-      "wrong_answer_recall": 0.3283,
-      "false_alarm_rate": 0.0753,
-      "invalid": 37,
+      "gpu_seconds_per_1000": 91.6,
+      "recall_reference": 0.804,
+      "recall_other": 0.3445,
+      "recall_none": 0.6416,
+      "wrong_answer_recall": 0.3445,
+      "false_alarm_rate": 0.0776,
+      "invalid": null,
+      "invalid_per_seed": [
+       37,
+       45,
+       43
+      ],
       "probabilities": false
      },
      {
@@ -14836,21 +15074,32 @@
      {
       "run": "grading:chat-raon-1-nano-nothink-v1",
       "model_key": "raon-1-nano-nothink",
-      "latency_s_median": 3.155,
-      "latency_s_p90": 8.94,
+      "runs": [
+       "grading:chat-raon-1-nano-nothink-v1",
+       "grading:chat-raon-1-nano-nothink-seed1-v1",
+       "grading:chat-raon-1-nano-nothink-seed2-v1"
+      ],
+      "aggregation": "mean of 3 seeds; latency over all requests of the three runs",
+      "latency_s_median": 3.029,
+      "latency_s_p90": 7.765,
       "requests_in_flight": 30,
-      "requests_measured": 2069,
+      "requests_measured": 6207,
       "api_cost_per_1000_usd_list_price": null,
       "price_usd_per_million_input": null,
       "price_source": null,
       "price_date": null,
-      "gpu_seconds_per_1000": 178.8,
-      "recall_reference": 0.6465,
-      "recall_other": 0.1976,
-      "recall_none": 0.7243,
-      "wrong_answer_recall": 0.1976,
-      "false_alarm_rate": 0.023,
-      "invalid": 0,
+      "gpu_seconds_per_1000": 208.6,
+      "recall_reference": 0.649,
+      "recall_other": 0.1986,
+      "recall_none": 0.7189,
+      "wrong_answer_recall": 0.1986,
+      "false_alarm_rate": 0.0203,
+      "invalid": null,
+      "invalid_per_seed": [
+       0,
+       1,
+       1
+      ],
       "probabilities": false
      },
      {
@@ -15116,10 +15365,72 @@
       "false_alarm_rate": 0.0132,
       "invalid": 0,
       "probabilities": false
+     },
+     {
+      "run": "grading:chat-gemma-4-e2b-sampled-seed0-v1",
+      "model_key": "gemma-4-e2b-sampled",
+      "runs": [
+       "grading:chat-gemma-4-e2b-sampled-seed0-v1",
+       "grading:chat-gemma-4-e2b-sampled-seed1-v1",
+       "grading:chat-gemma-4-e2b-sampled-seed2-v1"
+      ],
+      "aggregation": "mean of 3 seeds; latency over all requests of the three runs",
+      "latency_s_median": 0.176,
+      "latency_s_p90": 5.421,
+      "requests_in_flight": 64,
+      "requests_measured": 6207,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 33.0,
+      "recall_reference": 0.9427,
+      "recall_other": 0.077,
+      "recall_none": 0.6734,
+      "wrong_answer_recall": 0.077,
+      "false_alarm_rate": 0.0155,
+      "invalid": null,
+      "invalid_per_seed": [
+       1,
+       0,
+       1
+      ],
+      "probabilities": false
+     },
+     {
+      "run": "grading:chat-gemma-4-e4b-think-sampled-seed0-v1",
+      "model_key": "gemma-4-e4b-think-sampled",
+      "runs": [
+       "grading:chat-gemma-4-e4b-think-sampled-seed0-v1",
+       "grading:chat-gemma-4-e4b-think-sampled-seed1-v1",
+       "grading:chat-gemma-4-e4b-think-sampled-seed2-v1"
+      ],
+      "aggregation": "mean of 3 seeds; latency over all requests of the three runs",
+      "latency_s_median": 6.135,
+      "latency_s_p90": 9.7,
+      "requests_in_flight": 30,
+      "requests_measured": 6207,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 233.6,
+      "recall_reference": 0.9105,
+      "recall_other": 0.6434,
+      "recall_none": 0.8225,
+      "wrong_answer_recall": 0.6434,
+      "false_alarm_rate": 0.0427,
+      "invalid": null,
+      "invalid_per_seed": [
+       34,
+       31,
+       30
+      ],
+      "probabilities": false
      }
     ]
    },
-   "sha256": "152d80115049135bf7c36c6d8315e5516ab1deeb9d5fdbd1897a65549d9b9072"
+   "sha256": "e676d8c63a5147c8ef8c000cde8efc26c7eaef7e0554850daa2c0c676a836a49"
   }
  }
 }
