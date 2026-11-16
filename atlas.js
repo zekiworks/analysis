@@ -426,7 +426,7 @@ document.addEventListener('click',e=>{
  const d=b.dataset;
  if(d.view||d.goto)return openView(d.view||d.goto);
  if(d.panel){s.panel=d.panel;s.track='';s.page=1;openView('results');return}
- if(has(d.section)){s.panel='Results';s.section=sections[+d.section];s.track=initialTracks[+d.section];s.page=1;openView('results');return}
+ if(has(d.section)){s.panel='Results';s.section=sections[+d.section];s.track=initialTracks[+d.section];s.models='all';s.size='all';s.page=1;openView('results');return} // a type or class chosen on another bench need not exist here
  if(d.ui){
   if(d.ui===s.ui)return;
   s.ui=d.ui==='tr'?'tr':'en';
