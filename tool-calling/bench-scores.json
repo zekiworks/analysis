@@ -1,11 +1,111 @@
 {
   "bench": "tool-calling",
-  "models": [],
+  "models": [
+    {
+      "base_model": null,
+      "calibration_error": null,
+      "class_label": "Class not verified",
+      "commit": "0dc4268b561499c648c7ba7c9466bf3d8d01517a",
+      "display_name": "LFM3-1.7B",
+      "gpu_cost_usd": null,
+      "gpu_hours": null,
+      "improvement_points": null,
+      "kind": "chat",
+      "maker": null,
+      "model_key": "toolbench-5e65142ae9cfa7bb",
+      "name": "LFM3-1.7B",
+      "notes": "Pilot; original/renamed paired, no chance correction; provider local vLLM served by @logic on bariton (#9528)",
+      "params_active": null,
+      "params_total": null,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 0.8452380952380952
+      },
+      "repo": "LiquidAI/LFM3-1.7B",
+      "runs": [
+        "report:5e65142ae9cfa7bb6cf0ca3c53bd63a502a255d13ee66aea80faeb782411f5e6"
+      ],
+      "score_0_100": 84.52380952380952,
+      "setup_label": "off",
+      "tag": "chat"
+    },
+    {
+      "base_model": null,
+      "calibration_error": null,
+      "class_label": "Class not verified",
+      "commit": "0dc4268b561499c648c7ba7c9466bf3d8d01517a",
+      "display_name": "LFM3-1.7B",
+      "gpu_cost_usd": null,
+      "gpu_hours": null,
+      "improvement_points": null,
+      "kind": "chat",
+      "maker": null,
+      "model_key": "toolbench-27023f16baa4af5f",
+      "name": "LFM3-1.7B",
+      "notes": "Pilot; original/renamed paired, no chance correction; provider local vLLM served by @logic on bariton (#9528)",
+      "params_active": null,
+      "params_total": null,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 0.9166666666666666
+      },
+      "repo": "LiquidAI/LFM3-1.7B",
+      "runs": [
+        "report:27023f16baa4af5f5d659c2e14bc79406f064a356825f8e5ca094385cd6cd726"
+      ],
+      "score_0_100": 91.66666666666666,
+      "setup_label": "on",
+      "tag": "chat"
+    },
+    {
+      "base_model": null,
+      "calibration_error": null,
+      "class_label": "Class not verified",
+      "commit": "4adf15748de9e1a0097b6274cee9c15836c41c37",
+      "display_name": "Gemma 4 E2B",
+      "gpu_cost_usd": null,
+      "gpu_hours": null,
+      "improvement_points": null,
+      "kind": "chat",
+      "maker": null,
+      "model_key": "toolbench-140f843536d8fa04",
+      "name": "Gemma 4 E2B",
+      "notes": "Pilot; original/renamed paired, no chance correction; provider local vLLM served by @logic on bariton (#9534)",
+      "params_active": null,
+      "params_total": null,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 0.9404761904761905
+      },
+      "repo": "google/gemma-4-E2B-it",
+      "runs": [
+        "report:140f843536d8fa04928edaa53d3bc8ad5a9e8e0d5fe47b5a7ee4345377f94fbf"
+      ],
+      "score_0_100": 94.04761904761905,
+      "setup_label": "on",
+      "tag": "chat"
+    }
+  ],
   "score": {
     "hundred": "Every task passed",
     "zero": "No tasks passed"
   },
   "title": "Can a small model use tools?",
-  "updated": "2026-11-13T19:33:20.084914+00:00",
+  "updated": "2026-11-16T01:13:30+00:00",
   "url": "https://zekiworks.github.io/analysis/tool-calling/"
 }
