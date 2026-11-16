@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-16T10:24:26Z",
+ "updated": "2026-11-16T10:28:41Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -1875,6 +1875,38 @@
    "gpu_cost_usd": null
   },
   {
+   "repo": "PelaAI/KnowLine-12B-Gen1",
+   "commit": "f26fbc2d64092bb2f8caaedbec243172bb3e908f",
+   "model_key": "knowline-12b-gen1",
+   "name": "KnowLine-12B-Gen1",
+   "display_name": "KnowLine-12B-Gen1",
+   "tag": "",
+   "class_label": "Open · 12B",
+   "base_model": "Gemma 4 12B",
+   "setup_label": "KnowLine-12B-Gen1",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "params_total": 12.0,
+   "params_active": 12.0,
+   "quantization": "BF16",
+   "score_0_100": 51.11009732360097,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.6088807785888077,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": 0.029121863781880038,
+   "improvement_points": null,
+   "runs": [
+    "logic:knowline-12b-gen1_en",
+    "math:knowline-12b-gen1_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 0.05472222222222223,
+   "gpu_cost_usd": 0.13625833333333334
+  },
+  {
    "repo": null,
    "commit": null,
    "model_key": "jev-1.14.0",
@@ -2104,9 +2136,11 @@
    "improvement_points": null,
    "runs": [
     "logic:knowline-9b-gen2_en",
-    "math:knowline-9b-gen2_en"
+    "math:knowline-9b-gen2_en",
+    "logic:knowline-9b-gen2_en_dontknow",
+    "math:knowline-9b-gen2_en_dontknow"
    ],
-   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
    "gpu_hours": 0.045,
    "gpu_cost_usd": 0.11205000000000001
   },
