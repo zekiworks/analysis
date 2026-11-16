@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-16T16:13:39Z",
+ "generated_at": "2026-11-16T16:23:48Z",
  "tests": {
   "logic": {
    "name": "Logic",
@@ -988,7 +988,7 @@
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
-     "non_hallucination": null,
+     "non_hallucination": 0.3815789473684211,
      "cost_per_1000": 0.571162962962963,
      "cost_usd": 0.6425583333333333,
      "cost_unit": "USD",
@@ -4245,6 +4245,43 @@
      "mixed_concurrency": false
     },
     {
+     "name": "Gemma 4 E2B",
+     "display_name": "Gemma 4 E2B",
+     "tag": "on · chat · 32k cap · sampled",
+     "class_label": "Open · 5.1B",
+     "base_model": null,
+     "setup_label": "Gemma 4 E2B (chat, thinking on, 32k, sampled, on our GPU)",
+     "group": "chat",
+     "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+     "accuracy": 0.9759593157651411,
+     "wilson_low": 0.9686109343619139,
+     "wilson_high": 0.9816200377589833,
+     "right": 2111,
+     "n": 2163,
+     "decision_score": null,
+     "chosen_answer_brier": null,
+     "n_scored": null,
+     "decision_score_lacking": null,
+     "auroc": null,
+     "non_hallucination": null,
+     "cost_per_1000": 0.1950608722453383,
+     "cost_usd": 0.4219166666666667,
+     "cost_unit": "USD",
+     "cost_basis": "estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h",
+     "gpu_hours": 0.16944444444444445,
+     "median_latency_ms": 7130.0,
+     "mixed_concurrency": false,
+     "seed_runs": [
+      {
+       "seed": 0,
+       "run_id": "gemma-4-e2b-it-think-32k-sampled-seed0_en",
+       "right": 2111,
+       "n": 2163
+      }
+     ],
+     "seeds_complete": "1/3"
+    },
+    {
      "name": "Raon-1 nano",
      "display_name": "Raon-1 nano",
      "tag": "on · chat",
@@ -7369,6 +7406,43 @@
      "gpu_hours": 0.8947222222222222,
      "median_latency_ms": 19100.0,
      "mixed_concurrency": false
+    },
+    {
+     "name": "Gemma 4 E2B",
+     "display_name": "Gemma 4 E2B",
+     "tag": "on · chat · 32k cap · sampled",
+     "class_label": "Open · 5.1B",
+     "base_model": null,
+     "setup_label": "Gemma 4 E2B (chat, thinking on, 32k, sampled, on our GPU)",
+     "group": "chat",
+     "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+     "accuracy": 0.9020681265206812,
+     "wilson_low": 0.891434515310188,
+     "wilson_high": 0.9117633056299205,
+     "right": 2966,
+     "n": 3288,
+     "decision_score": null,
+     "chosen_answer_brier": null,
+     "n_scored": null,
+     "decision_score_lacking": null,
+     "auroc": null,
+     "non_hallucination": null,
+     "cost_per_1000": 0.3237454379562044,
+     "cost_usd": 1.064475,
+     "cost_unit": "USD",
+     "cost_basis": "estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h",
+     "gpu_hours": 0.4275,
+     "median_latency_ms": 8890.0,
+     "mixed_concurrency": false,
+     "seed_runs": [
+      {
+       "seed": 0,
+       "run_id": "gemma-4-e2b-it-think-32k-sampled-seed0_en+gemma-4-e2b-it-think-32k-sampled-seed0_en",
+       "right": 2966,
+       "n": 3288
+      }
+     ],
+     "seeds_complete": "1/3"
     },
     {
      "name": "Gemma 4 E2B",
