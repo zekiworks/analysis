@@ -597,6 +597,16 @@ PRICES: dict[tuple[str, str], Price] = {
         "OpenRouter's price for DeepInfra's endpoint (fp8)", "https://openrouter.ai/thinkingmachines/inkling-small",
         "2026-11-08", 0.45, 1.20, cached_input=0.10,
     ),
+    # Inkling 2 Small and Qwen4-Max (Ümit #9817, #10509: through the API), each pinned to one endpoint as Logic & Math's
+    # runs of them are: Nebius's (nebius/fp4) and Alibaba's, the maker's (their endpoints API, read 16 November 2026).
+    ("openrouter-chat", "thinkingmachines/inkling-2-small"): Price(
+        "OpenRouter's price for Nebius's endpoint (fp4)", "https://openrouter.ai/thinkingmachines/inkling-2-small",
+        "2026-11-16", 0.30, 1.00,
+    ),
+    ("openrouter-chat", "qwen/qwen4-max"): Price(
+        "OpenRouter's price for Alibaba's endpoint (the maker's)", "https://openrouter.ai/qwen/qwen4-max", "2026-11-16",
+        1.50, 4.50,
+    ),
     # Qwen 3.5 397B-A17B at OpenRouter's price for DeepInfra's endpoint (deepinfra/fp8; its endpoints API, read 8
     # November 2026).
     ("openrouter-chat", "qwen/qwen3.5-397b-a17b"): Price(
