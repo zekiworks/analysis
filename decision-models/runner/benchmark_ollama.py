@@ -469,6 +469,10 @@ PRICES: dict[tuple[str, str], Price] = {
     # d1 itself (the name Liquid's API serves the d1:free model under since): the English runs were billed, and the API's
     # per-request cost (usage.cost) bills their input tokens at this rate (run 430: $0.00364126 for 182,063 tokens).
     ("liquid", "d1"): Price("Liquid's price for d1, as its API bills it", "https://www.liquid.ai/pricing", "2026-11-02", 0.02),
+    # d1.2 and d1.2-ultra, released 16 November 2026 on the Liquid API (liquid.ai/blog/d1-2; Ümit #10915): input tokens only,
+    # output free.
+    ("liquid", "d1.2"): Price("Liquid AI's d1.2 price", "https://www.liquid.ai/blog/d1-2", "2026-11-16", 0.02),
+    ("liquid", "d1.2-ultra"): Price("Liquid AI's d1.2-ultra price", "https://www.liquid.ai/blog/d1-2", "2026-11-16", 0.042),
     # Microsoft-Decision-1 and Inception's Mercury Decide (its paid listing, not inception/mercury-decide:free) via
     # OpenRouter: input tokens only; the one output token each answer reports is not charged.
     ("openrouter", "microsoft/microsoft-decision-1"): Price(
