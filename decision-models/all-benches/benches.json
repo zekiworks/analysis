@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-16T21:03:26Z",
+    "updated": "2026-11-16T22:07:58Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -3345,7 +3345,7 @@
      }
     ]
    },
-   "sha256": "f090d59d41ff121e812b383cc9dbda6963e06618c65627ab7c64308441f0edb0"
+   "sha256": "d4eb3238d72eadad7b036e088e69d9a392e496fddce12c29ff91c1d69e19fe12"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3355,7 +3355,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-16T21:03:26Z",
+    "updated": "2026-11-16T22:07:58Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -4505,9 +4505,10 @@
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "math:raon-1-nano-nothink_en"
+       "math:raon-1-nano-nothink_en",
+       "math:raon-1-nano-nothink_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Raon-1 nano (on · chat); 1.5B effective parameters; no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Raon-1 nano (on · chat); 1.5B effective parameters",
       "gpu_hours": 1.6511111111111112,
       "gpu_cost_usd": 4.111266666666667
      },
@@ -6721,7 +6722,7 @@
      }
     ]
    },
-   "sha256": "df54b81601a42a7d369107d650ac797724c8c33165a649caff50433ee19ea11c"
+   "sha256": "528c261a6e602ee723b4ecd210034a3fd672e248d0a1072228925b0756ed1242"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -6731,7 +6732,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-16T21:03:26Z",
+    "updated": "2026-11-16T22:07:58Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -7849,9 +7850,11 @@
       "improvement_points": null,
       "runs": [
        "logic:raon-1-nano-nothink_en",
-       "math:raon-1-nano-nothink_en"
+       "math:raon-1-nano-nothink_en",
+       "logic:raon-1-nano-nothink_en_dontknow",
+       "math:raon-1-nano-nothink_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Raon-1 nano (on · chat); 1.5B effective parameters; no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Raon-1 nano (on · chat); 1.5B effective parameters",
       "gpu_hours": 5.839444444444444,
       "gpu_cost_usd": 14.540216666666668
      },
@@ -10237,7 +10240,7 @@
      }
     ]
    },
-   "sha256": "628fd0ac978643e88c49ccb9cfd3288b85234915a723a4195ae17d9f0529d565"
+   "sha256": "9515fe8f7e460ebb9aabb74de4b54df9610d783d53a0f3e6e9f8b22704ae1423"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -11677,10 +11680,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-16T21:14Z",
+    "updated": "2026-11-16T22:35Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "b3a42ca9b2ccefb4d058acc06cd0dc3e16f6ab5ba8ab89ec9953a49148bd32d2"
+   "sha256": "44c5543a4e6d8500253e1cf1fa6503a1d51d6c39c19a24f1ad7838e49857a51c"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
@@ -11690,7 +11693,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-16T19:44:15Z",
+    "updated": "2026-11-16T22:25:50Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -12422,6 +12425,34 @@
       ],
       "notes": "startlux-models/StartLux-Decision-v1.1-4B-Instant@416088f7, its package's own server (startlux-decide serve --launch-vllm, StartLux-Decision@a99977d, vLLM 0.31.0) as for its published Reading and Logic & Math runs, BF16, on one DGX Spark (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
       "gpu_hours": 0.08060698456742366,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "d1.2",
+      "display_name": "d1.2",
+      "tag": "",
+      "model_key": "liquid-d1.2",
+      "maker": "Liquid AI",
+      "kind": "decision",
+      "repo": null,
+      "commit": null,
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 81.51280811986467,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8767520541324312,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.08549183503104757,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-liquid-d1.2-v1"
+      ],
+      "notes": "Liquid AI decisions API (api.liquid.ai/decisions, model d1.2); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+      "gpu_hours": null,
       "gpu_cost_usd": null
      },
      {
@@ -13541,6 +13572,34 @@
       "invalid_rate_mean": 0.009666505558240696
      },
      {
+      "name": "Raon-1 nano",
+      "display_name": "Raon-1 nano",
+      "tag": "thinking on · chat",
+      "model_key": "raon-1-nano-think",
+      "maker": "KRAFTON",
+      "kind": "chat",
+      "repo": "KRAFTON/Raon-1-nano",
+      "commit": "fcf2d1d55e84e2f9fbe7b5d724dcfc4d861cfcee",
+      "params_total": 3.1,
+      "params_active": 1.5,
+      "quantization": "BF16",
+      "score_0_100": 63.82310294828418,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7588206863218946,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-raon-1-nano-think-v1"
+      ],
+      "notes": "KRAFTON/Raon-1-nano@fcf2d1d5, BF16, KRAFTON vLLM fork krafton-ai/vllm@13a5dd87 (not a vLLM release) on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time (latency not comparable across different concurrency); the server also answered another benchmark's requests (Reading) for part of the run, so its latency and GPU time are shared-load figures; thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 7 of 2069 replies (0.34%) had no answer marker and count wrong (7 of them cut off at the 32,768-token limit); every reply kept",
+      "gpu_hours": 2.921258690274287,
+      "gpu_cost_usd": null
+     },
+     {
       "name": "Metask-Jev-4B",
       "display_name": "Metask-Jev-4B",
       "tag": "",
@@ -14086,7 +14145,7 @@
      }
     ]
    },
-   "sha256": "f2ebb5ed58d87c33daff7cf166553c5f6a70a4b176d6ba4802078b1d75ba82a5"
+   "sha256": "a66942e691c7f11bdcf5958809614b0f7a2fd04f72c9261e7c31695b7476dff9"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -14094,10 +14153,10 @@
    "seen": "2026-11-16",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-16T19:44:24Z",
+    "updated": "2026-11-16T22:25:56Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "f2ebb5ed58d87c33daff7cf166553c5f6a70a4b176d6ba4802078b1d75ba82a5"
+     "sha256": "a66942e691c7f11bdcf5958809614b0f7a2fd04f72c9261e7c31695b7476dff9"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -14196,6 +14255,26 @@
       "recall_none": 0.9085,
       "wrong_answer_recall": 0.7052,
       "false_alarm_rate": 0.0414,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
+      "run": "grading:site-liquid-d1.2-v1",
+      "model_key": "liquid-d1.2",
+      "latency_s_median": 0.228,
+      "latency_s_p90": 0.349,
+      "requests_in_flight": 8,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": 0.0167,
+      "price_usd_per_million_input": 0.02,
+      "price_source": "https://www.liquid.ai/blog/d1-2",
+      "price_date": "2026-11-16",
+      "gpu_seconds_per_1000": null,
+      "recall_reference": 0.8896,
+      "recall_other": 0.8176,
+      "recall_none": 0.886,
+      "wrong_answer_recall": 0.8176,
+      "false_alarm_rate": 0.0649,
       "invalid": 0,
       "probabilities": true
      },
@@ -15302,6 +15381,26 @@
       "probabilities": false
      },
      {
+      "run": "grading:chat-raon-1-nano-think-v1",
+      "model_key": "raon-1-nano-think",
+      "latency_s_median": 115.588,
+      "latency_s_p90": 303.841,
+      "requests_in_flight": 30,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 5082.9,
+      "recall_reference": 0.9512,
+      "recall_other": 0.5714,
+      "recall_none": 0.609,
+      "wrong_answer_recall": 0.5714,
+      "false_alarm_rate": 0.0644,
+      "invalid": 7,
+      "probabilities": false
+     },
+     {
       "run": "grading:chat-raon-1-nano-nothink-v1",
       "model_key": "raon-1-nano-nothink",
       "runs": [
@@ -15720,7 +15819,7 @@
      }
     ]
    },
-   "sha256": "7c77b40233aac20f19a91807abc3578a31a010247979bca0711b260cdb87391e"
+   "sha256": "4ba1350b0b70f7a2cf11611cb6517acb0633d911fcb78839900673537f01a427"
   }
  }
 }
