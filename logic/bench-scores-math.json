@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-16T10:45:55Z",
+ "updated": "2026-11-16T10:50:28Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -1125,6 +1125,37 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
    "gpu_hours": 0.09777777777777778,
    "gpu_cost_usd": 0.24346666666666666
+  },
+  {
+   "repo": "PelaAI/KnowLine-31B-Gen2",
+   "commit": "fd99a9ed2255d8a67dd47a44cc429e638f611593",
+   "model_key": "knowline-31b-gen2",
+   "name": "KnowLine-31B-Gen2",
+   "display_name": "KnowLine-31B-Gen2",
+   "tag": "",
+   "class_label": "Open · 31B",
+   "base_model": "Gemma 4 31B",
+   "setup_label": "KnowLine-31B-Gen2",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "params_total": 31.0,
+   "params_active": 31.0,
+   "quantization": "BF16",
+   "score_0_100": 75.32362459546927,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8025889967637541,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": 0.03631832690906286,
+   "improvement_points": null,
+   "runs": [
+    "math:knowline-31b-gen2_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 0.07222222222222222,
+   "gpu_cost_usd": 0.17983333333333335
   },
   {
    "repo": "decisionmodels/REAX-1.3",
