@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-15T19:16:34Z",
+ "updated": "2026-11-16T11:26:00Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -118,6 +118,34 @@
    ],
    "notes": "sthanika-ai/Sieve-31B-v3@8fcee858, sieve-serve 0.5.1 (text only, design 'letters'), BF16, on one DGX Spark (ours) as for its published runs, self-hosted; the server reports no input-token count; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 2 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
    "gpu_hours": 1.6228648508469032,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "KnowLine-31B-Gen2",
+   "display_name": "KnowLine-31B-Gen2",
+   "tag": "",
+   "model_key": "knowline-31b-gen2",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "repo": "PelaAI/KnowLine-31B-Gen2",
+   "commit": "fd99a9ed2255d8a67dd47a44cc429e638f611593",
+   "params_total": 31.0,
+   "params_active": 31.0,
+   "quantization": "BF16",
+   "score_0_100": 87.6752054132431,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.917834702754954,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.07166560874597089,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-knowline-31b-gen2-v1"
+   ],
+   "notes": "PelaAI/KnowLine-31B-Gen2@fd99a9ed, its card's serve_knowline.sh (SGLang, then knowline_server.py, card defaults) in the lmsysorg/sglang image with SGLang 0.5.23 (the card names 0.5.21, which we do not have), BF16, SHA256SUMS checked, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); the run overlapped a host GPU recovery warning; its serving process continued, and the run completed without interruption or resume (producer report)",
+   "gpu_hours": 0.2582788412532403,
    "gpu_cost_usd": null
   },
   {
@@ -653,6 +681,34 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "KnowLine-12B-Gen1",
+   "display_name": "KnowLine-12B-Gen1",
+   "tag": "",
+   "model_key": "knowline-12b-gen1",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "repo": "PelaAI/KnowLine-12B-Gen1",
+   "commit": "f26fbc2d64092bb2f8caaedbec243172bb3e908f",
+   "params_total": 12.0,
+   "params_active": 12.0,
+   "quantization": "BF16",
+   "score_0_100": 80.86031899468341,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8724021266312229,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.06837137729635548,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-knowline-12b-gen1-v1"
+   ],
+   "notes": "PelaAI/KnowLine-12B-Gen1@f26fbc2d, its card's serve_knowline.sh (SGLang, then knowline_server.py, card defaults) in the lmsysorg/sglang image with SGLang 0.5.23 (the card names 0.5.21, which we do not have), BF16, SHA256SUMS checked, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.11182212392749963,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "KnowLine 4B Gen5.5",
    "display_name": "KnowLine 4B Gen5.5",
    "tag": "",
@@ -1162,6 +1218,34 @@
    ],
    "notes": "victorbennett/Verdin-4B-v1.1@45830d21, its card's own server (python -m verdin.server, in the package versions its card lists: torch 2.8.0 cu128, transformers 5.17.0, flash-linear-attention 0.5.2, triton 3.8.0; no causal-conv1d, so its own torch conv path), BF16, on one RTX PRO 6000 (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
    "gpu_hours": 0.031078735832046005,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "KnowLine-9B-Gen2",
+   "display_name": "KnowLine-9B-Gen2",
+   "tag": "",
+   "model_key": "knowline-9b-gen2",
+   "maker": "PelaAI",
+   "kind": "decision",
+   "repo": "PelaAI/KnowLine-9B-Gen2",
+   "commit": "8ec8eb609bc10aa6050ae3754aee419d458fae42",
+   "params_total": 9.0,
+   "params_active": 9.0,
+   "quantization": "BF16",
+   "score_0_100": 75.27791203479943,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8351860802319961,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": 0.04495010483366471,
+   "improvement_points": null,
+   "runs": [
+    "grading:site-knowline-9b-gen2-v1"
+   ],
+   "notes": "PelaAI/KnowLine-9B-Gen2@8ec8eb60, its card's serve_knowline.sh (SGLang, then knowline_server.py, card defaults) in the lmsysorg/sglang image with SGLang 0.5.23 (the card names 0.5.21, which we do not have), BF16, SHA256SUMS checked, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+   "gpu_hours": 0.07386159999956078,
    "gpu_cost_usd": null
   },
   {

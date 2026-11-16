@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-16T10:45:55Z",
+    "updated": "2026-11-16T11:12:04Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1128,9 +1128,10 @@
       "calibration_error": 0.03712864961929971,
       "improvement_points": null,
       "runs": [
-       "logic:knowline-31b-gen2_en"
+       "logic:knowline-31b-gen2_en",
+       "logic:knowline-31b-gen2_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.050555555555555555,
       "gpu_cost_usd": 0.12588333333333335
      },
@@ -3216,7 +3217,7 @@
      }
     ]
    },
-   "sha256": "4175626f1bd9dda7890c14c8d6f175c76ad58a6419981071ac114bcadeb08e17"
+   "sha256": "badcb0eea235be763a96489ec9ecfad4590647918c8eb7dea1d577647a338419"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3226,7 +3227,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-16T10:45:55Z",
+    "updated": "2026-11-16T11:12:04Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -4349,6 +4350,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.09777777777777778,
       "gpu_cost_usd": 0.24346666666666666
+     },
+     {
+      "repo": "PelaAI/KnowLine-31B-Gen2",
+      "commit": "fd99a9ed2255d8a67dd47a44cc429e638f611593",
+      "model_key": "knowline-31b-gen2",
+      "name": "KnowLine-31B-Gen2",
+      "display_name": "KnowLine-31B-Gen2",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": "Gemma 4 31B",
+      "setup_label": "KnowLine-31B-Gen2",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 75.32362459546927,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8025889967637541,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.03631832690906286,
+      "improvement_points": null,
+      "runs": [
+       "math:knowline-31b-gen2_en",
+       "math:knowline-31b-gen2_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.07222222222222222,
+      "gpu_cost_usd": 0.17983333333333335
      },
      {
       "repo": "decisionmodels/REAX-1.3",
@@ -6432,7 +6465,7 @@
      }
     ]
    },
-   "sha256": "bdfa50351031d7a94641a573c196d224dfe9998a2c7b4185c7dfe4b69afd941f"
+   "sha256": "4848951af991879b7ebcd4b0056e60c7b90acc386d231a3404b60e67836748a4"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -6442,7 +6475,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-16T10:45:55Z",
+    "updated": "2026-11-16T11:12:04Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -7565,6 +7598,40 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.15583333333333332,
       "gpu_cost_usd": 0.388025
+     },
+     {
+      "repo": "PelaAI/KnowLine-31B-Gen2",
+      "commit": "fd99a9ed2255d8a67dd47a44cc429e638f611593",
+      "model_key": "knowline-31b-gen2",
+      "name": "KnowLine-31B-Gen2",
+      "display_name": "KnowLine-31B-Gen2",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": "Gemma 4 31B",
+      "setup_label": "KnowLine-31B-Gen2",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 66.20285888077859,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.7296228710462287,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.02388174276626831,
+      "improvement_points": null,
+      "runs": [
+       "logic:knowline-31b-gen2_en",
+       "math:knowline-31b-gen2_en",
+       "logic:knowline-31b-gen2_en_dontknow",
+       "math:knowline-31b-gen2_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.12277777777777776,
+      "gpu_cost_usd": 0.3057166666666667
      },
      {
       "repo": "decisionmodels/REAX-1.3",
@@ -9778,7 +9845,7 @@
      }
     ]
    },
-   "sha256": "e2b0b13ae5ce75734f04191cf2979aa455181157c0e4ced35089c199767fa210"
+   "sha256": "bd2b41aa7c105d2b0a49c00c51778d4201419cbbbb1cc03223bd62c272d9d789"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -11218,10 +11285,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-16T02:36Z",
+    "updated": "2026-11-16T11:11Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "a4c84614a4513e147300b1dc89321e0719d1d2cb3e0f2220dccc6b8074196bbb"
+   "sha256": "18a6c3b1fe8d3755c5b16e0b9f8a2f92acda1b4422d6b4f8e1975c2db30d66b8"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
@@ -11231,7 +11298,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-15T19:16:34Z",
+    "updated": "2026-11-16T11:26:00Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -11347,6 +11414,34 @@
       ],
       "notes": "sthanika-ai/Sieve-31B-v3@8fcee858, sieve-serve 0.5.1 (text only, design 'letters'), BF16, on one DGX Spark (ours) as for its published runs, self-hosted; the server reports no input-token count; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 2 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
       "gpu_hours": 1.6228648508469032,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "KnowLine-31B-Gen2",
+      "display_name": "KnowLine-31B-Gen2",
+      "tag": "",
+      "model_key": "knowline-31b-gen2",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "repo": "PelaAI/KnowLine-31B-Gen2",
+      "commit": "fd99a9ed2255d8a67dd47a44cc429e638f611593",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 87.6752054132431,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.917834702754954,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.07166560874597089,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-knowline-31b-gen2-v1"
+      ],
+      "notes": "PelaAI/KnowLine-31B-Gen2@fd99a9ed, its card's serve_knowline.sh (SGLang, then knowline_server.py, card defaults) in the lmsysorg/sglang image with SGLang 0.5.23 (the card names 0.5.21, which we do not have), BF16, SHA256SUMS checked, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); the run overlapped a host GPU recovery warning; its serving process continued, and the run completed without interruption or resume (producer report)",
+      "gpu_hours": 0.2582788412532403,
       "gpu_cost_usd": null
      },
      {
@@ -11882,6 +11977,34 @@
       "gpu_cost_usd": null
      },
      {
+      "name": "KnowLine-12B-Gen1",
+      "display_name": "KnowLine-12B-Gen1",
+      "tag": "",
+      "model_key": "knowline-12b-gen1",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "repo": "PelaAI/KnowLine-12B-Gen1",
+      "commit": "f26fbc2d64092bb2f8caaedbec243172bb3e908f",
+      "params_total": 12.0,
+      "params_active": 12.0,
+      "quantization": "BF16",
+      "score_0_100": 80.86031899468341,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8724021266312229,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.06837137729635548,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-knowline-12b-gen1-v1"
+      ],
+      "notes": "PelaAI/KnowLine-12B-Gen1@f26fbc2d, its card's serve_knowline.sh (SGLang, then knowline_server.py, card defaults) in the lmsysorg/sglang image with SGLang 0.5.23 (the card names 0.5.21, which we do not have), BF16, SHA256SUMS checked, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.11182212392749963,
+      "gpu_cost_usd": null
+     },
+     {
       "name": "KnowLine 4B Gen5.5",
       "display_name": "KnowLine 4B Gen5.5",
       "tag": "",
@@ -12391,6 +12514,34 @@
       ],
       "notes": "victorbennett/Verdin-4B-v1.1@45830d21, its card's own server (python -m verdin.server, in the package versions its card lists: torch 2.8.0 cu128, transformers 5.17.0, flash-linear-attention 0.5.2, triton 3.8.0; no causal-conv1d, so its own torch conv path), BF16, on one RTX PRO 6000 (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
       "gpu_hours": 0.031078735832046005,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "KnowLine-9B-Gen2",
+      "display_name": "KnowLine-9B-Gen2",
+      "tag": "",
+      "model_key": "knowline-9b-gen2",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "repo": "PelaAI/KnowLine-9B-Gen2",
+      "commit": "8ec8eb609bc10aa6050ae3754aee419d458fae42",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 75.27791203479943,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8351860802319961,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.04495010483366471,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-knowline-9b-gen2-v1"
+      ],
+      "notes": "PelaAI/KnowLine-9B-Gen2@8ec8eb60, its card's serve_knowline.sh (SGLang, then knowline_server.py, card defaults) in the lmsysorg/sglang image with SGLang 0.5.23 (the card names 0.5.21, which we do not have), BF16, SHA256SUMS checked, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.07386159999956078,
       "gpu_cost_usd": null
      },
      {
@@ -13215,7 +13366,7 @@
      }
     ]
    },
-   "sha256": "a9f01e78e8117f990a2f6e70fcaa27fb36f4b158b7c163589240d36fd171b0d5"
+   "sha256": "98ded68e10b2c2b2eb4e3ef1e9a7f17cedb6fd1090fb4835618c86cc9dfb4ba4"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -13223,10 +13374,10 @@
    "seen": "2026-11-16",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-15T19:16:43Z",
+    "updated": "2026-11-16T11:26:06Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "a9f01e78e8117f990a2f6e70fcaa27fb36f4b158b7c163589240d36fd171b0d5"
+     "sha256": "98ded68e10b2c2b2eb4e3ef1e9a7f17cedb6fd1090fb4835618c86cc9dfb4ba4"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -13805,6 +13956,66 @@
       "recall_none": 0.9336,
       "wrong_answer_recall": 0.6201,
       "false_alarm_rate": 0.0339,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
+      "run": "grading:site-knowline-9b-gen2-v1",
+      "model_key": "knowline-9b-gen2",
+      "latency_s_median": 0.101,
+      "latency_s_p90": 0.158,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 128.5,
+      "recall_reference": 0.8928,
+      "recall_other": 0.3587,
+      "recall_none": 0.9637,
+      "wrong_answer_recall": 0.3587,
+      "false_alarm_rate": 0.0144,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
+      "run": "grading:site-knowline-12b-gen1-v1",
+      "model_key": "knowline-12b-gen1",
+      "latency_s_median": 0.163,
+      "latency_s_p90": 0.247,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 194.6,
+      "recall_reference": 0.9331,
+      "recall_other": 0.6109,
+      "recall_none": 0.9085,
+      "wrong_answer_recall": 0.6109,
+      "false_alarm_rate": 0.0356,
+      "invalid": 0,
+      "probabilities": true
+     },
+     {
+      "run": "grading:site-knowline-31b-gen2-v1",
+      "model_key": "knowline-31b-gen2",
+      "latency_s_median": 0.389,
+      "latency_s_p90": 0.612,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 449.4,
+      "recall_reference": 0.9682,
+      "recall_other": 0.8632,
+      "recall_none": 0.881,
+      "wrong_answer_recall": 0.8632,
+      "false_alarm_rate": 0.0362,
       "invalid": 0,
       "probabilities": true
      },
@@ -14614,7 +14825,7 @@
      }
     ]
    },
-   "sha256": "e324756553bc6f6470b2a0793e3f26b69338ab9b93c84c656bfb5e2a07d85876"
+   "sha256": "152d80115049135bf7c36c6d8315e5516ab1deeb9d5fdbd1897a65549d9b9072"
   }
  }
 }
