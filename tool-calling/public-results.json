@@ -14,7 +14,9 @@
     "803d110ff1b44abe87c974a24937c1e8d4093cb87d9b07269cac4423bfcc9877",
     "31def253c10441426193b6fb7fc4556defb2faceda280e9dd5a39c278812a4e0",
     "c6844a36b0fb5e0618609d3a0fe44a7269dce3e9a31ef2982b4fd2a306a98865",
-    "2de7e756ad1fec9ec378454dd1cce2212bcb990ce5c31ae28e0c212242f22745"
+    "2de7e756ad1fec9ec378454dd1cce2212bcb990ce5c31ae28e0c212242f22745",
+    "1340618e38e52461d9ddb8049f2e27e8cbdbcb5000a4342d6aeab84cc52f7090",
+    "b58076261a85080eabc0734a1ab45639ec8692f4b5b04d45a7668f1fdba0a5f3"
   ],
   "reports": [
     {
@@ -10323,6 +10325,2957 @@
           "attempted": 186,
           "pass_rate": 0.8387096774193549,
           "passed": 156,
+          "scored": 186,
+          "unscored": 0
+        }
+      }
+    },
+    {
+      "categories": {
+        "args": {
+          "attempted": 42,
+          "pass_rate": 1.0,
+          "passed": 42,
+          "scored": 42,
+          "unscored": 0
+        },
+        "multi-step": {
+          "attempted": 42,
+          "pass_rate": 1.0,
+          "passed": 42,
+          "scored": 42,
+          "unscored": 0
+        },
+        "recovery": {
+          "attempted": 42,
+          "pass_rate": 0.6428571428571429,
+          "passed": 27,
+          "scored": 42,
+          "unscored": 0
+        },
+        "restraint": {
+          "attempted": 42,
+          "pass_rate": 0.9523809523809523,
+          "passed": 40,
+          "scored": 42,
+          "unscored": 0
+        },
+        "selection": {
+          "attempted": 42,
+          "pass_rate": 0.8809523809523809,
+          "passed": 37,
+          "scored": 42,
+          "unscored": 0
+        },
+        "single": {
+          "attempted": 42,
+          "pass_rate": 1.0,
+          "passed": 42,
+          "scored": 42,
+          "unscored": 0
+        }
+      },
+      "classification": {
+        "class_key": "unverified",
+        "class_label": "Class not verified",
+        "maker": null,
+        "params_active": null,
+        "params_total": null,
+        "precision": null,
+        "quantization": null
+      },
+      "cost_usd": null,
+      "failure_tags": {
+        "extra_call": 1,
+        "gave_up_or_loop": 2,
+        "made_up_result": 1,
+        "wrong_args": 11,
+        "wrong_tool": 7
+      },
+      "latency_seconds": {
+        "mean": 1.878091216065398,
+        "total": 473.2789864484803
+      },
+      "overall": {
+        "attempted": 252,
+        "pass_rate": 0.9126984126984127,
+        "passed": 230,
+        "scored": 252,
+        "unscored": 0
+      },
+      "public_failure_examples": [
+        {
+          "raw_outputs": [
+            "{\"id\":\"chatcmpl-a4a3fd3917f96b96\",\"object\":\"chat.completion\",\"created\":1794796447,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-81107552a087a021\",\"type\":\"function\",\"function\":{\"name\":\"get_balance\",\"arguments\":\"{\\\"account\\\": \\\"paper\\\"}\"}}],\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1337,\"total_tokens\":1363,\"completion_tokens\":26,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-94a7732907ce54a9\",\"object\":\"chat.completion\",\"created\":1794796447,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-9c5011f915dc26c9\",\"type\":\"function\",\"function\":{\"name\":\"get_price\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"currency\\\": \\\"USD\\\"}\"}}],\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1412,\"total_tokens\":1450,\"completion_tokens\":38,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-8661b5e02efc2652\",\"object\":\"chat.completion\",\"created\":1794796448,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-905beffedb124429\",\"type\":\"function\",\"function\":{\"name\":\"place_order\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"side\\\": \\\"buy\\\", \\\"quantity\\\": 1, \\\"order_type\\\": \\\"market\\\"}\"}}],\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1507,\"total_tokens\":1571,\"completion_tokens\":64,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-bcaf4f31f06c0b87\",\"object\":\"chat.completion\",\"created\":1794796448,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"The dry-run market BUY of 1 BTC failed due to an insufficient balance.\\n\\n- **BTC Price**: $60,000 USD\\n- **Available Balance**: $10,000 USD\\n\\nThe order requires $60,000, but the account only has $10,000 in USD funds, making it impossible to execute the trade.\",\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"stop\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1610,\"total_tokens\":1691,\"completion_tokens\":81,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}"
+          ],
+          "repetition": 0,
+          "tag": "wrong_tool",
+          "task_id": "recovery-03"
+        },
+        {
+          "raw_outputs": [
+            "{\"id\":\"chatcmpl-afbe3022f26539e8\",\"object\":\"chat.completion\",\"created\":1794796448,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-8253cfd8c06e6dee\",\"type\":\"function\",\"function\":{\"name\":\"search_news\",\"arguments\":\"{\\\"query\\\": \\\"\\\", \\\"since\\\": \\\"2026-11-11\\\"}\"}}],\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1344,\"total_tokens\":1388,\"completion_tokens\":44,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-8255182881793b50\",\"object\":\"chat.completion\",\"created\":1794796448,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-bd0a69f62a5be015\",\"type\":\"function\",\"function\":{\"name\":\"search_news\",\"arguments\":\"{\\\"query\\\": \\\"\\\", \\\"since\\\": \\\"2026-11-11\\\"}\"}}],\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1429,\"total_tokens\":1473,\"completion_tokens\":44,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-8f6545e383476a4d\",\"object\":\"chat.completion\",\"created\":1794796449,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"The search for BTC synthetic news since 2026-11-11 returned one article:\\n\\n**Article ID:** FIXTURE-2  \\n**Date:** 2026-11-12  \\n**Title:** AAPL synthetic update  \\n\\nNote: This appears to be an AAPL-related article rather than specifically about BTC, but it was included in the synthetic news fixture results.\",\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"stop\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1533,\"total_tokens\":1617,\"completion_tokens\":84,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}"
+          ],
+          "repetition": 0,
+          "tag": "wrong_args",
+          "task_id": "recovery-07"
+        },
+        {
+          "raw_outputs": [
+            "{\"id\":\"chatcmpl-a1f1cf73441e8c34\",\"object\":\"chat.completion\",\"created\":1794796447,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-ab473cded5b1fd10\",\"type\":\"function\",\"function\":{\"name\":\"get_price\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\"}\"}}],\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1342,\"total_tokens\":1368,\"completion_tokens\":26,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-8a1b0232fd1cc255\",\"object\":\"chat.completion\",\"created\":1794796448,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-a1009f9365db2f9a\",\"type\":\"function\",\"function\":{\"name\":\"place_order\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"side\\\": \\\"buy\\\", \\\"quantity\\\": 1, \\\"order_type\\\": \\\"market\\\"}\"}}],\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1425,\"total_tokens\":1489,\"completion_tokens\":64,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-8fae268f4ab6331a\",\"object\":\"chat.completion\",\"created\":1794796448,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-a512d26d18a2c95e\",\"type\":\"function\",\"function\":{\"name\":\"place_order\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"side\\\": \\\"buy\\\", \\\"quantity\\\": 0.1, \\\"order_type\\\": \\\"market\\\"}\"}}],\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1528,\"total_tokens\":1594,\"completion_tokens\":66,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-8378aa96207559c9\",\"object\":\"chat.completion\",\"created\":1794796449,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"The dry-run market BUY of 0.1 BTC was successful and filled at $60,000.\",\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"stop\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1656,\"total_tokens\":1681,\"completion_tokens\":25,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}"
+          ],
+          "repetition": 0,
+          "tag": "wrong_tool",
+          "task_id": "recovery-06"
+        },
+        {
+          "raw_outputs": [
+            "{\"id\":\"chatcmpl-91cac80550c3a619\",\"object\":\"chat.completion\",\"created\":1794796449,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-a00cf3b5782fdb82\",\"type\":\"function\",\"function\":{\"name\":\"find_headlines\",\"arguments\":\"{\\\"keywords\\\": \\\"\\\", \\\"earliest_date\\\": \\\"2026-11-11\\\"}\"}}],\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":3029,\"total_tokens\":3077,\"completion_tokens\":48,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-8f18c548a93c35e9\",\"object\":\"chat.completion\",\"created\":1794796449,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"I found the AAPL synthetic headline from yesterday (2026-11-11) onward:\\n\\n**Title:** \\\"AAPL synthetic update\\\"\\n**Date:** 2026-11-12\",\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"stop\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":3137,\"total_tokens\":3186,\"completion_tokens\":49,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}"
+          ],
+          "repetition": 0,
+          "tag": "wrong_args",
+          "task_id": "selection-03-renamed"
+        },
+        {
+          "raw_outputs": [
+            "{\"id\":\"chatcmpl-b54290dfb1f3a0fc\",\"object\":\"chat.completion\",\"created\":1794796451,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"I understand your request, but I need to clarify an important point: the tools available to me are synthetic mock functions that cannot actually send emails or access real bank statements. \\n\\nThe email search function (utility_03) is only for searching within a mock email database - it cannot send actual emails or retrieve real documents from your bank.\\n\\nTo get your actual bank statement sent to your accountant, you would need to:\\n1. Log into your banking website or mobile app\\n2. Navigate to your statements/downloads section\\n3. Send it directly via email or secure transfer to your accountant\\n\\nIs there anything else I can help you with using the available tools?\",\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":null},\"logprobs\":null,\"finish_reason\":\"stop\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":3028,\"total_tokens\":3163,\"completion_tokens\":135,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":0}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}"
+          ],
+          "repetition": 0,
+          "tag": "made_up_result",
+          "task_id": "restraint-05-renamed"
+        }
+      ],
+      "public_tasks": [
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-06"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-07"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-06"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-07"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-06-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "made_up_result",
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-06"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-06"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "gave_up_or_loop",
+          "task_id": "recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-06"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-06"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-06-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-06"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-06"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-06"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01-renamed"
+        }
+      ],
+      "rankable": true,
+      "setup": {
+        "chat_template_revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+        "engine_tool_parser": "qwen3_coder",
+        "exact_model_id": "Qwen/Qwen3.5-4B",
+        "native_documented_call_format": "openai tool_calls via engine tool parser qwen3_coder",
+        "plan_sha256": "33242b3806efd937a42554d1ca3826924c880a69c0be0094c6ced95e6f802883",
+        "provider": "local vLLM served by @logic on bariton (#9689)",
+        "requested_name": "Qwen3.5 4B",
+        "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+        "thinking_mode": "off"
+      },
+      "total_tokens": 1026831,
+      "tracks": {
+        "original": {
+          "attempted": 126,
+          "pass_rate": 0.9206349206349206,
+          "passed": 116,
+          "scored": 126,
+          "unscored": 0
+        },
+        "renamed": {
+          "attempted": 126,
+          "pass_rate": 0.9047619047619048,
+          "passed": 114,
+          "scored": 126,
+          "unscored": 0
+        }
+      },
+      "unscored_reasons": {},
+      "visibility": {
+        "private": {
+          "attempted": 66,
+          "pass_rate": 0.9848484848484849,
+          "passed": 65,
+          "scored": 66,
+          "unscored": 0
+        },
+        "public": {
+          "attempted": 186,
+          "pass_rate": 0.8870967741935484,
+          "passed": 165,
+          "scored": 186,
+          "unscored": 0
+        }
+      }
+    },
+    {
+      "categories": {
+        "args": {
+          "attempted": 42,
+          "pass_rate": 0.9761904761904762,
+          "passed": 41,
+          "scored": 42,
+          "unscored": 0
+        },
+        "multi-step": {
+          "attempted": 42,
+          "pass_rate": 0.7142857142857143,
+          "passed": 30,
+          "scored": 42,
+          "unscored": 0
+        },
+        "recovery": {
+          "attempted": 42,
+          "pass_rate": 0.7857142857142857,
+          "passed": 33,
+          "scored": 42,
+          "unscored": 0
+        },
+        "restraint": {
+          "attempted": 42,
+          "pass_rate": 0.9523809523809523,
+          "passed": 40,
+          "scored": 42,
+          "unscored": 0
+        },
+        "selection": {
+          "attempted": 42,
+          "pass_rate": 0.9523809523809523,
+          "passed": 40,
+          "scored": 42,
+          "unscored": 0
+        },
+        "single": {
+          "attempted": 42,
+          "pass_rate": 1.0,
+          "passed": 42,
+          "scored": 42,
+          "unscored": 0
+        }
+      },
+      "classification": {
+        "class_key": "unverified",
+        "class_label": "Class not verified",
+        "maker": null,
+        "params_active": null,
+        "params_total": null,
+        "precision": null,
+        "quantization": null
+      },
+      "cost_usd": null,
+      "failure_tags": {
+        "extra_call": 5,
+        "wrong_args": 15,
+        "wrong_tool": 6
+      },
+      "latency_seconds": {
+        "mean": 4.506700461564515,
+        "total": 1135.6885163142579
+      },
+      "overall": {
+        "attempted": 252,
+        "pass_rate": 0.8968253968253969,
+        "passed": 226,
+        "scored": 252,
+        "unscored": 0
+      },
+      "public_failure_examples": [
+        {
+          "raw_outputs": [
+            "{\"id\":\"chatcmpl-b9b660e12707b485\",\"object\":\"chat.completion\",\"created\":1794796481,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-85d4598768a87129\",\"type\":\"function\",\"function\":{\"name\":\"get_price\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\"}\"}}],\"reasoning\":\"The user is asking me to quote a ticker \\\"BTCC\\\" in USD. According to the instructions, I should try quoting BTCC first, and if it's unknown, I should correct it to BTC and quote that instead.\\n\\nLooking at the get_price function, it has:\\n- symbol (required): Ticker, case insensitive\\n- currency (optional, defaults to USD): Quote currency with enum [\\\"USD\\\", \\\"EUR\\\", \\\"GBP\\\", \\\"JPY\\\"]\\n\\nThe valid symbols according to the function description are: AAPL, MSFT, BTC, ETH, TSLA\\n\\nBTCC is not in this list, so I need to correct it to BTC. Since the user specifically asked for USD and the default is already USD, I don't need to specify the currency parameter.\\n\\nI should make exactly one call to get_price with symbol \\\"BTC\\\" (corrected from \\\"BTCC\\\") and no currency specification (which will default to USD).\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1332,\"total_tokens\":1556,\"completion_tokens\":224,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":196}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-a6ee3b2c0deb9127\",\"object\":\"chat.completion\",\"created\":1794796483,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"\\n\\nThe ticker \\\"BTCC\\\" was not recognized, so I corrected it to \\\"BTC\\\". The current price for Bitcoin (BTC) is $60,000.00 USD as of November 12, 2026.\",\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":\"Perfect! The function returned the price for BTC in USD as 60,000.0. This is the corrected ticker from BTCC to BTC. I should provide this information to the user.\\n\"},\"logprobs\":null,\"finish_reason\":\"stop\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1611,\"total_tokens\":1708,\"completion_tokens\":97,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":43}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}"
+          ],
+          "repetition": 0,
+          "tag": "wrong_args",
+          "task_id": "recovery-01"
+        },
+        {
+          "raw_outputs": [
+            "{\"id\":\"chatcmpl-adc64bf867c88e09\",\"object\":\"chat.completion\",\"created\":1794796479,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-a4ca50c08ae84fb6\",\"type\":\"function\",\"function\":{\"name\":\"get_ohlc\",\"arguments\":\"{\\\"symbol\\\": \\\"AAPL\\\", \\\"interval\\\": \\\"1d\\\", \\\"start\\\": \\\"2026-10-29\\\", \\\"end\\\": \\\"2026-10-29\\\"}\"}},{\"id\":\"chatcmpl-tool-bb6e39bc535c955a\",\"type\":\"function\",\"function\":{\"name\":\"get_price\",\"arguments\":\"{\\\"symbol\\\": \\\"AAPL\\\", \\\"currency\\\": \\\"USD\\\"}\"}}],\"reasoning\":\"The user wants me to:\\n1. Read the AAPL daily close exactly seven days before 2026-11-12\\n2. Get the current USD quote for AAPL\\n3. Only if current exceeds that close, dry-run one market BUY of 1 AAPL share; otherwise do nothing\\n\\nLet me break this down:\\n- The date exactly seven days before 2026-11-12 would be 2026-10-29 (counting backwards: Nov 12 -> Nov 11 -> Nov 10 -> Nov 9 -> Nov 8 -> Nov 7 -> Nov 6 -> Oct 29, which is 7 days before)\\n- I need to get the OHLC data for AAPL for a single day: 2026-10-29\\n- Then get the current price for AAPL in USD\\n- Compare them and potentially place a buy order\\n\\nLet me start by getting the OHLC data for 2026-10-29 for AAPL.\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1357,\"total_tokens\":1711,\"completion_tokens\":354,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":231}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-957525e0c1f880bd\",\"object\":\"chat.completion\",\"created\":1794796482,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-91fed7c667da2eb6\",\"type\":\"function\",\"function\":{\"name\":\"place_order\",\"arguments\":\"{\\\"symbol\\\": \\\"AAPL\\\", \\\"side\\\": \\\"buy\\\", \\\"quantity\\\": 1, \\\"order_type\\\": \\\"market\\\"}\"}}],\"reasoning\":\"Great, I have the data:\\n- AAPL close on 2026-10-29 (7 days before 2026-11-12): 190.0 USD\\n- Current AAPL price on 2026-11-12: 200.0 USD\\n\\nSince 200.0 > 190.0, the current price exceeds that close, so I need to dry-run one market BUY of 1 AAPL share.\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1849,\"total_tokens\":2029,\"completion_tokens\":180,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":113}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-990e60f6a5bd2347\",\"object\":\"chat.completion\",\"created\":1794796484,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"\\n\\nBased on the data retrieved:\\n\\n- **AAPL close on 2026-10-29** (7 days before 2026-11-12): **$190.00**\\n- **Current AAPL quote on 2026-11-12**: **$200.00**\\n\\nSince the current price ($200.00) exceeds the previous close ($190.00), a dry-run market BUY order for 1 AAPL share was executed:\\n\\n- **Order ID**: MOCK-0001\\n- **Status**: Filled\\n- **Price**: $200.00\\n- **Quantity**: 1 share\\n- **Dry Run**: Yes\",\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":\"The order was successfully placed as a dry run. The order ID is MOCK-0001, status is filled, it's a dry run (true), price was 200.0, and quantity was 1.\\n\\nNow I should summarize the results for the user:\\n- AAPL close on 2026-10-29: 190.0 USD\\n- Current AAPL price on 2026-11-12: 200.0 USD\\n- Since 200.0 > 190.0, a market buy order of 1 share was executed\\n\"},\"logprobs\":null,\"finish_reason\":\"stop\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":2085,\"total_tokens\":2391,\"completion_tokens\":306,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":138}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}"
+          ],
+          "repetition": 0,
+          "tag": "wrong_args",
+          "task_id": "multi-step-07"
+        },
+        {
+          "raw_outputs": [
+            "{\"id\":\"chatcmpl-9eb394a10aeaa0b4\",\"object\":\"chat.completion\",\"created\":1794796481,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-b21019870a6726de\",\"type\":\"function\",\"function\":{\"name\":\"get_balance\",\"arguments\":\"{\\\"account\\\": \\\"paper\\\"}\"}}],\"reasoning\":\"The user wants me to attempt a dry-run market BUY of 1 BTC. I need to use the place_order function with:\\n- symbol: \\\"BTC\\\"\\n- side: \\\"buy\\\"\\n- quantity: 1\\n- order_type: \\\"market\\\"\\n\\nHowever, before placing the order, I should check if there are sufficient funds in the account. Let me get the balance first to see if we have enough money to buy 1 BTC at the current price.\\n\\nActually, looking at the instructions again, it says \\\"If funds are insufficient, do not resize or retry: explain the insufficient-balance error.\\\" So I should check the balance first, and then proceed with the order.\\n\\nLet me get the balance first.\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1335,\"total_tokens\":1514,\"completion_tokens\":179,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":151}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-b812b2fd2ae631d5\",\"object\":\"chat.completion\",\"created\":1794796483,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-a8496f649b08cfe5\",\"type\":\"function\",\"function\":{\"name\":\"get_price\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"currency\\\": \\\"USD\\\"}\"}}],\"reasoning\":\"Good, I have 10,000 USD in the paper account. Now I need to check the current price of BTC to see if we have enough funds to buy 1 BTC. Let me get the current price.\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1561,\"total_tokens\":1649,\"completion_tokens\":88,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":48}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-a3c795a26e2f39f2\",\"object\":\"chat.completion\",\"created\":1794796484,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-a3bd3dc0c5ef3845\",\"type\":\"function\",\"function\":{\"name\":\"place_order\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"side\\\": \\\"buy\\\", \\\"quantity\\\": 1, \\\"order_type\\\": \\\"market\\\"}\"}}],\"reasoning\":\"The current price of BTC is $60,000 USD. The account has $10,000 USD balance, which is insufficient to buy 1 BTC at this price (would need $60,000).\\n\\nNow I'll attempt to place the order anyway as requested. The place_order function should return an error or message about insufficient funds if the balance check fails. Let me proceed with the order.\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1704,\"total_tokens\":1860,\"completion_tokens\":156,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":90}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-ade0fa31ba2771b2\",\"object\":\"chat.completion\",\"created\":1794796485,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"\\n\\nThe market BUY order for 1 BTC failed due to **insufficient funds**. \\n\\n**Error Details:**\\n- Error code: `insufficient_balance`\\n- Message: \\\"Insufficient balance or asset units\\\"\\n\\n**Reason:**\\n- Current BTC price: $60,000 USD\\n- Available balance: $10,000 USD\\n- Required to complete order: $60,000 USD\\n\\nThe account does not have sufficient funds to purchase 1 BTC at the current market price of $60,000 USD.\",\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":\"The order failed with an insufficient_balance error. This makes sense because BTC is priced at $60,000 USD and the account only has $10,000 USD balance.\\n\\nNow I need to explain this error to the user as instructed.\\n\"},\"logprobs\":null,\"finish_reason\":\"stop\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1897,\"total_tokens\":2072,\"completion_tokens\":175,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":55}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}"
+          ],
+          "repetition": 0,
+          "tag": "wrong_tool",
+          "task_id": "recovery-03"
+        },
+        {
+          "raw_outputs": [
+            "{\"id\":\"chatcmpl-a942de206eb175b4\",\"object\":\"chat.completion\",\"created\":1794796484,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-9bcf1bca51b00c18\",\"type\":\"function\",\"function\":{\"name\":\"place_order\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"side\\\": \\\"buy\\\", \\\"quantity\\\": 1, \\\"order_type\\\": \\\"market\\\", \\\"limit_price\\\": \\\"None\\\"}\"}}],\"reasoning\":\"The user wants me to attempt a dry-run market BUY of exactly 1 BTC. If that's insufficient, they want me to retry once with exactly 0.1 BTC. No other resize or order is authorized.\\n\\nLet me break this down:\\n1. First, I need to try placing a market BUY order for 1 BTC\\n2. If that fails (likely due to insufficient funds), I should then retry with 0.1 BTC\\n3. No other orders are authorized\\n\\nI need to use the place_order function with:\\n- symbol: \\\"BTC\\\"\\n- side: \\\"buy\\\"\\n- quantity: 1 (first attempt)\\n- order_type: \\\"market\\\"\\n- limit_price: null (for market order)\\n\\nAfter that, if it fails, I'll try again with quantity: 0.1\\n\\nLet me start with the first attempt.\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1340,\"total_tokens\":1602,\"completion_tokens\":262,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":183}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-bf1e527ea33d3f9f\",\"object\":\"chat.completion\",\"created\":1794796486,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-a06984193dc5c0f8\",\"type\":\"function\",\"function\":{\"name\":\"place_order\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"side\\\": \\\"buy\\\", \\\"quantity\\\": 1, \\\"order_type\\\": \\\"market\\\"}\"}}],\"reasoning\":\"The error indicates that the limit_price parameter should not be None. Looking at the function definition again:\\n\\n```\\n\\\"limit_price\\\": {\\\"default\\\": null, \\\"description\\\": \\\"Required positive USD per asset for limit; null/omitted for market\\\", \\\"type\\\": [\\\"number\\\", \\\"null\\\"]}\\n```\\n\\nIt says \\\"null/omitted for market\\\", so I should omit it or pass it as None in JSON. But the error says \\\"Invalid limit_price\\\", which suggests I shouldn't be passing it at all for a market order. Let me retry without including the limit_price parameter at all.\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1635,\"total_tokens\":1824,\"completion_tokens\":189,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":123}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-a30de3e16d744f2b\",\"object\":\"chat.completion\",\"created\":1794796488,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-b724b1022f961242\",\"type\":\"function\",\"function\":{\"name\":\"place_order\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"side\\\": \\\"buy\\\", \\\"quantity\\\": 0.1, \\\"order_type\\\": \\\"market\\\"}\"}}],\"reasoning\":\"Good, as expected, the order failed with insufficient balance. According to the instructions, if insufficient, I should retry once with exactly 0.1 BTC. Let me place that order now.\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1861,\"total_tokens\":1969,\"completion_tokens\":108,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":40}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-8fc937936609b7fe\",\"object\":\"chat.completion\",\"created\":1794796489,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"\\n\\nCompleted as requested:\\n\\n**First Attempt (1 BTC):** Failed - Insufficient balance or asset units.\\n\\n**Second Attempt (0.1 BTC):** Successfully executed in DRY RUN mode.\\n- Order ID: MOCK-0001\\n- Status: Filled\\n- Price: $60,000.00 per BTC\\n- Quantity: 0.1 BTC\\n\\nNo further orders or resizes are authorized per your constraints.\",\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":\"The second attempt with 0.1 BTC was successful. The order was filled at a price of $60,000 for 0.1 BTC. \\n\\nAccording to the user's instructions: \\\"First attempt a dry-run market BUY of exactly 1 BTC. If insufficient, retry once with exactly 0.1 BTC. No other resize or order is authorized.\\\"\\n\\nI have now completed both attempts as requested:\\n1. First attempt: 1 BTC - failed due to insufficient balance\\n2. Second attempt: 0.1 BTC - successfully filled\\n\\nNo further orders are authorized per the instructions. I should provide a summary of what happened.\\n\"},\"logprobs\":null,\"finish_reason\":\"stop\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":2029,\"total_tokens\":2262,\"completion_tokens\":233,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":136}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}"
+          ],
+          "repetition": 0,
+          "tag": "wrong_args",
+          "task_id": "recovery-06"
+        },
+        {
+          "raw_outputs": [
+            "{\"id\":\"chatcmpl-ade40a747db2b3c8\",\"object\":\"chat.completion\",\"created\":1794796478,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-bcacdc019416f695\",\"type\":\"function\",\"function\":{\"name\":\"get_positions\",\"arguments\":\"{\\\"account\\\": \\\"paper\\\"}\"}},{\"id\":\"chatcmpl-tool-bde158a70d62a0fe\",\"type\":\"function\",\"function\":{\"name\":\"get_price\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"currency\\\": \\\"USD\\\"}\"}}],\"reasoning\":\"The user wants me to:\\n1. Inspect paper holdings (get positions)\\n2. Get the current quote for BTC in USD\\n3. Value half of the BTC holding\\n4. Dry-run a market sell of exactly that half holding\\n\\nLet me break this down:\\n1. First, I need to get the positions to see what's held, including BTC\\n2. Get the BTC price in USD\\n3. Calculate half of the BTC holding value\\n4. Place a dry-run market sell order for half the quantity\\n\\nLet me start with getting positions and BTC price.\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1334,\"total_tokens\":1521,\"completion_tokens\":187,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":121}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-a9293709aff4b0e8\",\"object\":\"chat.completion\",\"created\":1794796480,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-9d2a42a860f8b3a2\",\"type\":\"function\",\"function\":{\"name\":\"place_order\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"side\\\": \\\"sell\\\", \\\"quantity\\\": 0.05, \\\"order_type\\\": \\\"market\\\", \\\"limit_price\\\": \\\"None\\\"}\"}}],\"reasoning\":\"Good, I have the information:\\n- BTC holding: 0.1 units\\n- BTC price: $60,000 USD\\n\\nNow I need to calculate half of the BTC holding value:\\n- Half of 0.1 BTC = 0.05 BTC\\n- Value of 0.05 BTC at $60,000 = 0.05 * 60,000 = $3,000\\n\\nWait, let me re-read the request. \\\"Value half of the BTC holding\\\" - this could mean:\\n1. Calculate the monetary value of half of the BTC holding (which is what I did)\\n2. Or it could mean sell exactly half of the quantity\\n\\nLet me think about the next step: \\\"dry-run a market sell of exactly that half holding\\\"\\n\\nThis means I need to sell half of the BTC quantity, which is 0.05 BTC. The user wants a dry-run market sell order for that amount.\\n\\nLet me place the order:\\n- symbol: BTC\\n- side: sell\\n- quantity: 0.05 (half of 0.1)\\n- order_type: market\\n- limit_price: null (for market order)\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1608,\"total_tokens\":1952,\"completion_tokens\":344,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":262}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-aee74e76476a0bc2\",\"object\":\"chat.completion\",\"created\":1794796483,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":null,\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"tool_calls\":[{\"id\":\"chatcmpl-tool-8edd3b214ad110c1\",\"type\":\"function\",\"function\":{\"name\":\"place_order\",\"arguments\":\"{\\\"symbol\\\": \\\"BTC\\\", \\\"side\\\": \\\"sell\\\", \\\"quantity\\\": 0.05, \\\"order_type\\\": \\\"market\\\"}\"}}],\"reasoning\":\"I made an error with the order_type parameter. I used \\\"market\\\" but it seems the issue is with how I passed limit_price. Let me check the function definition again:\\n\\n\\\"limit_price\\\": {\\\"description\\\": \\\"Required positive USD per asset for limit; null/omitted for market\\\", \\\"type\\\": [\\\"number\\\", \\\"null\\\"], \\\"default\\\": null}\\n\\nSo for a market order, limit_price should be omitted or set to null. But in Python, when I pass None in JSON, it becomes null which should work. However, the error suggests there might be an issue with how the argument was passed.\\n\\nLet me try again with proper JSON formatting. The limit_price should be null (or omitted) for market orders. In the tool call, I should just omit it since it has a default of null, or explicitly set it to null.\\n\\nActually looking at my previous call, I passed `None` which should be fine, but maybe the system expects the parameter to not be present at all for market orders. Let me try without including limit_price.\\n\"},\"logprobs\":null,\"finish_reason\":\"tool_calls\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":1985,\"total_tokens\":2273,\"completion_tokens\":288,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":219}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}",
+            "{\"id\":\"chatcmpl-bb3891b32c4648fb\",\"object\":\"chat.completion\",\"created\":1794796485,\"model\":\"qwen3.5-4b-tools\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"\\n\\nBased on the paper account inspection:\\n\\n**Current Holdings:**\\n- BTC: 0.1 units\\n\\n**BTC Price:** $60,000 USD\\n\\n**Half Holding Value:**\\n- Half of BTC quantity: 0.05 BTC (50% of 0.1)\\n- Monetary value: 0.05 \u00d7 $60,000 = $3,000 USD\\n\\n**Dry-run Market Sell Order:**\\n- Order ID: MOCK-0001\\n- Status: Filled\\n- Quantity: 0.05 BTC\\n- Execution Price: $60,000 USD\\n- Total Value: $3,000 USD\\n- Dry Run: True (this is a simulation only)\\n\\nThe dry-run sell order has been executed successfully, selling 0.05 BTC at the current market price of $60,000.\",\"refusal\":null,\"annotations\":null,\"audio\":null,\"function_call\":null,\"reasoning\":\"Great! The order was placed successfully. Let me summarize what happened:\\n\\n1. Inspected paper holdings: BTC holding was 0.1 units\\n2. Got BTC price in USD: $60,000\\n3. Calculated half of the BTC holding: 0.05 BTC (half of 0.1)\\n4. Placed a dry-run market sell order for 0.05 BTC at $60,000\\n5. The order was filled (MOCK-0001) with price 60000.0 and quantity 0.05\\n\\nWait, I need to clarify - \\\"Value half of the BTC holding\\\" could be interpreted as:\\n- Option A: Calculate the monetary value of half the BTC holding = 0.05 * 60000 = $3,000\\n- Option B: Just determine we're selling half the quantity\\n\\nBut since the user then says \\\"dry-run a market sell of exactly that half holding\\\", it seems like they want to sell half the quantity, not worry about the value.\\n\\nActually wait - let me re-read more carefully: \\\"Value half of the BTC holding, then dry-run a market sell of exactly that half holding.\\\"\\n\\nHmm, \\\"that half holding\\\" is ambiguous. It could mean:\\n- Half of the quantity (0.05 BTC)\\n- Or the monetary value represented by half the holding\\n\\nGiven the next step is \\\"dry-run a market sell\\\", you can't sell a dollar amount, you sell shares/units. So \\\"that half holding\\\" must refer to half the quantity (0.05 BTC).\\n\\nMy interpretation seems correct. The order was placed for 0.05 BTC (half of the 0.1 BTC holding), which at $60,000 per BTC equals $3,000 value.\\n\\nLet me provide a summary to the user.\\n\"},\"logprobs\":null,\"finish_reason\":\"stop\",\"stop_reason\":null,\"token_ids\":null,\"routed_experts\":null}],\"service_tier\":null,\"system_fingerprint\":\"vllm-0.30.0-1cd36ac7\",\"usage\":{\"prompt_tokens\":2334,\"total_tokens\":2940,\"completion_tokens\":606,\"prompt_tokens_details\":null,\"completion_tokens_details\":{\"reasoning_tokens\":409}},\"prompt_logprobs\":null,\"prompt_token_ids\":null,\"prompt_text\":null,\"kv_transfer_params\":null,\"ec_transfer_params\":null,\"metrics\":null}"
+          ],
+          "repetition": 0,
+          "tag": "wrong_args",
+          "task_id": "multi-step-03"
+        }
+      ],
+      "public_tasks": [
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-06"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-07"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-07"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-07"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-06"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "multi-step-06"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-06"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "multi-step-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-06"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-06"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-06"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-06-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-06"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "multi-step-06"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-06-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-06-renamed"
+        }
+      ],
+      "rankable": true,
+      "setup": {
+        "chat_template_revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+        "engine_tool_parser": "qwen3_coder",
+        "exact_model_id": "Qwen/Qwen3.5-4B",
+        "native_documented_call_format": "openai tool_calls via engine tool parser qwen3_coder",
+        "plan_sha256": "33242b3806efd937a42554d1ca3826924c880a69c0be0094c6ced95e6f802883",
+        "provider": "local vLLM served by @logic on bariton (#9689)",
+        "requested_name": "Qwen3.5 4B",
+        "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+        "thinking_mode": "on"
+      },
+      "total_tokens": 1138207,
+      "tracks": {
+        "original": {
+          "attempted": 126,
+          "pass_rate": 0.8888888888888888,
+          "passed": 112,
+          "scored": 126,
+          "unscored": 0
+        },
+        "renamed": {
+          "attempted": 126,
+          "pass_rate": 0.9047619047619048,
+          "passed": 114,
+          "scored": 126,
+          "unscored": 0
+        }
+      },
+      "unscored_reasons": {},
+      "visibility": {
+        "private": {
+          "attempted": 66,
+          "pass_rate": 1.0,
+          "passed": 66,
+          "scored": 66,
+          "unscored": 0
+        },
+        "public": {
+          "attempted": 186,
+          "pass_rate": 0.8602150537634409,
+          "passed": 160,
           "scored": 186,
           "unscored": 0
         }
