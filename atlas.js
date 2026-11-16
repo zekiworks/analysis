@@ -392,6 +392,7 @@ function draftView(){
  return '<div class="topline"><h2>Research drafts</h2><button class="outline" data-goto="compare">'+ic('compare')+' Selected records ('+list.length+')</button></div>'+compareNotice(list)+'<div class="stack">'+editor('summary','Finding summary',drafts.summary,false)+drafts.posts.map((t,i)=>editor('post'+i,'X draft'+(drafts.posts.length>1?' · '+(i+1)+' / '+drafts.posts.length:''),t,true)).join('')+'</div>'
 }
 function render(keepInput=false){
+ if(dates.length&&!data.has(s.snapshot)){loadSnapshot(s.snapshot).then(()=>render(keepInput));return} // chosen before it arrived
  const focus=keepInput?document.activeElement?.id:null;
  const cursor=focus==='modelSearch'?document.activeElement.selectionStart:null;
  renderNav();
@@ -468,6 +469,11 @@ function chooseTheme(theme){
  try{localStorage.setItem('hilde.atlas.theme',theme)}catch{}
  document.querySelectorAll('[data-theme-choice]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.theme===theme));
 }
+const loading=new Map();
+function loadSnapshot(day){
+ if(!loading.has(day))loading.set(day,(async()=>{const res=await fetch('data/'+day+'.json');if(!res.ok)throw Error(day);const json=await res.json();const views=await fetch('data/views/'+day+'.json');if(views.ok)guides.set(day,await views.json());sourceViews.set(day,json.sourceViews||{});commits.set(day,json.commit);json.rows.forEach(r=>records.set(r.id,r));data.set(day,json.rows)})());
+ return loading.get(day);
+}
 async function init(){
  chooseTheme(document.documentElement.dataset.theme||'light');
  document.querySelectorAll('i[data-icon]').forEach(i=>i.outerHTML=ic(i.dataset.icon));
@@ -475,9 +481,12 @@ async function init(){
  try{
  const index=await (await fetch('data/index.json',{cache:'no-cache'})).json();
  dates.push(index.defaultSnapshot,...index.snapshots.map(x=>x.version).filter(v=>v!==index.defaultSnapshot));
- if(!dates.includes(s.snapshot))s.snapshot=dates[0];
- await Promise.all(dates.map(async day=>{const res=await fetch('data/'+day+'.json');if(!res.ok)throw Error(day);const json=await res.json();data.set(day,json.rows);sourceViews.set(day,json.sourceViews||{});const views=await fetch('data/views/'+day+'.json');if(views.ok)guides.set(day,await views.json());commits.set(day,json.commit);json.rows.forEach(r=>records.set(r.id,r))}));
+ s=fromURL(); // again, now that the snapshot list is known (a link's snapshot and picks are checked against it)
+ // The shown snapshot (and those a shared link's picks name) first, the rest after the first render: each is ~4 MB.
+ const wanted=uniq([s.snapshot,...[...s.ids,s.detail].filter(Boolean).map(id=>id.split(':')[0])].filter(v=>dates.includes(v)));
+ await Promise.all(wanted.map(loadSnapshot));
  s.ids=s.ids.filter(id=>records.has(id));if(!records.has(s.detail))s.detail='';render();persist();if(s.detail)showDetail(records.get(s.detail));
+ Promise.all(dates.filter(v=>!data.has(v)).map(loadSnapshot)).then(()=>{if(!$('#modal').open)render(true)}).catch(()=>{});
  }catch{$('#workspace').innerHTML='<div class="panel empty"><strong>Source snapshots could not be loaded.</strong><p>Check your connection and try again.</p><button class="outline" id="retry">Reload</button></div>';HildeI18n.localize($('#workspace'),s.ui);$('#retry').onclick=()=>location.reload()}
 }
 init();
