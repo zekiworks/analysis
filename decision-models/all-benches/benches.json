@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-16T01:46:34Z",
+    "updated": "2026-11-16T10:45:55Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1104,6 +1104,37 @@
       "gpu_cost_usd": 0.06910667741470745
      },
      {
+      "repo": "PelaAI/KnowLine-31B-Gen2",
+      "commit": "fd99a9ed2255d8a67dd47a44cc429e638f611593",
+      "model_key": "knowline-31b-gen2",
+      "name": "KnowLine-31B-Gen2",
+      "display_name": "KnowLine-31B-Gen2",
+      "tag": "",
+      "class_label": "Open · 31B",
+      "base_model": "Gemma 4 31B",
+      "setup_label": "KnowLine-31B-Gen2",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 31.0,
+      "params_active": 31.0,
+      "quantization": "BF16",
+      "score_0_100": 48.66666666666667,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5893333333333334,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.03712864961929971,
+      "improvement_points": null,
+      "runs": [
+       "logic:knowline-31b-gen2_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 0.050555555555555555,
+      "gpu_cost_usd": 0.12588333333333335
+     },
+     {
       "repo": "Poindexter-Labs/Copernicus-31B",
       "commit": "be715259e97a743341f2d7a3e6a6298dab23ca0e",
       "model_key": "copernicus-31b",
@@ -1712,6 +1743,38 @@
       "gpu_cost_usd": 0.028021013767811232
      },
      {
+      "repo": "PelaAI/KnowLine-12B-Gen1",
+      "commit": "f26fbc2d64092bb2f8caaedbec243172bb3e908f",
+      "model_key": "knowline-12b-gen1",
+      "name": "KnowLine-12B-Gen1",
+      "display_name": "KnowLine-12B-Gen1",
+      "tag": "",
+      "class_label": "Open · 12B",
+      "base_model": "Gemma 4 12B",
+      "setup_label": "KnowLine-12B-Gen1",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 12.0,
+      "params_active": 12.0,
+      "quantization": "BF16",
+      "score_0_100": 38.22222222222222,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5057777777777778,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.04789807355469754,
+      "improvement_points": null,
+      "runs": [
+       "logic:knowline-12b-gen1_en",
+       "logic:knowline-12b-gen1_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.023333333333333334,
+      "gpu_cost_usd": 0.058100000000000006
+     },
+     {
       "repo": null,
       "commit": null,
       "model_key": "gemini-decision-1",
@@ -2318,6 +2381,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.011666666666666667,
       "gpu_cost_usd": 0.029050000000000003
+     },
+     {
+      "repo": "PelaAI/KnowLine-9B-Gen2",
+      "commit": "8ec8eb609bc10aa6050ae3754aee419d458fae42",
+      "model_key": "knowline-9b-gen2",
+      "name": "KnowLine-9B-Gen2",
+      "display_name": "KnowLine-9B-Gen2",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "Qwen3.5-9B",
+      "setup_label": "KnowLine-9B-Gen2",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 29.888888888888886,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.4391111111111111,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.03240833454261845,
+      "improvement_points": null,
+      "runs": [
+       "logic:knowline-9b-gen2_en",
+       "logic:knowline-9b-gen2_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.018055555555555554,
+      "gpu_cost_usd": 0.044958333333333336
      },
      {
       "repo": "apertixai/cerno-9b-v1.2",
@@ -3121,7 +3216,7 @@
      }
     ]
    },
-   "sha256": "0d76522ac181f1de2589304c8cdd853065c73b43635889cfd13df66d78d6476c"
+   "sha256": "4175626f1bd9dda7890c14c8d6f175c76ad58a6419981071ac114bcadeb08e17"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3131,7 +3226,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-16T01:46:34Z",
+    "updated": "2026-11-16T10:45:55Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -4960,6 +5055,38 @@
       "gpu_cost_usd": null
      },
      {
+      "repo": "PelaAI/KnowLine-12B-Gen1",
+      "commit": "f26fbc2d64092bb2f8caaedbec243172bb3e908f",
+      "model_key": "knowline-12b-gen1",
+      "name": "KnowLine-12B-Gen1",
+      "display_name": "KnowLine-12B-Gen1",
+      "tag": "",
+      "class_label": "Open · 12B",
+      "base_model": "Gemma 4 12B",
+      "setup_label": "KnowLine-12B-Gen1",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 12.0,
+      "params_active": 12.0,
+      "quantization": "BF16",
+      "score_0_100": 57.813222376329165,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6625057790106333,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.0397398558622103,
+      "improvement_points": null,
+      "runs": [
+       "math:knowline-12b-gen1_en",
+       "math:knowline-12b-gen1_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.03138888888888889,
+      "gpu_cost_usd": 0.07815833333333333
+     },
+     {
       "repo": null,
       "commit": null,
       "model_key": "liquid-d1.1",
@@ -5118,6 +5245,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.050555555555555555,
       "gpu_cost_usd": 0.12588333333333335
+     },
+     {
+      "repo": "PelaAI/KnowLine-9B-Gen2",
+      "commit": "8ec8eb609bc10aa6050ae3754aee419d458fae42",
+      "model_key": "knowline-9b-gen2",
+      "name": "KnowLine-9B-Gen2",
+      "display_name": "KnowLine-9B-Gen2",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "Qwen3.5-9B",
+      "setup_label": "KnowLine-9B-Gen2",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 50.12713823393435,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6010171058714748,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.047920111962225155,
+      "improvement_points": null,
+      "runs": [
+       "math:knowline-9b-gen2_en",
+       "math:knowline-9b-gen2_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.026944444444444444,
+      "gpu_cost_usd": 0.06709166666666667
      },
      {
       "repo": "tattrongvu/Jeffan-9B-1211",
@@ -6273,7 +6432,7 @@
      }
     ]
    },
-   "sha256": "89f6c03cb405aa6e8b2b93879d614450e8d85685cd215e09c76f3c0264b90e04"
+   "sha256": "bdfa50351031d7a94641a573c196d224dfe9998a2c7b4185c7dfe4b69afd941f"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -6283,7 +6442,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-16T01:46:34Z",
+    "updated": "2026-11-16T10:45:55Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -8156,6 +8315,40 @@
       "gpu_cost_usd": null
      },
      {
+      "repo": "PelaAI/KnowLine-12B-Gen1",
+      "commit": "f26fbc2d64092bb2f8caaedbec243172bb3e908f",
+      "model_key": "knowline-12b-gen1",
+      "name": "KnowLine-12B-Gen1",
+      "display_name": "KnowLine-12B-Gen1",
+      "tag": "",
+      "class_label": "Open · 12B",
+      "base_model": "Gemma 4 12B",
+      "setup_label": "KnowLine-12B-Gen1",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 12.0,
+      "params_active": 12.0,
+      "quantization": "BF16",
+      "score_0_100": 51.11009732360097,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6088807785888077,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.029121863781880038,
+      "improvement_points": null,
+      "runs": [
+       "logic:knowline-12b-gen1_en",
+       "math:knowline-12b-gen1_en",
+       "logic:knowline-12b-gen1_en_dontknow",
+       "math:knowline-12b-gen1_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.05472222222222223,
+      "gpu_cost_usd": 0.13625833333333334
+     },
+     {
       "repo": null,
       "commit": null,
       "model_key": "jev-1.14.0",
@@ -8358,6 +8551,40 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.042777777777777776,
       "gpu_cost_usd": 0.10651666666666668
+     },
+     {
+      "repo": "PelaAI/KnowLine-9B-Gen2",
+      "commit": "8ec8eb609bc10aa6050ae3754aee419d458fae42",
+      "model_key": "knowline-9b-gen2",
+      "name": "KnowLine-9B-Gen2",
+      "display_name": "KnowLine-9B-Gen2",
+      "tag": "",
+      "class_label": "Open · 9.0B",
+      "base_model": "Qwen3.5-9B",
+      "setup_label": "KnowLine-9B-Gen2",
+      "maker": "PelaAI",
+      "kind": "decision",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 43.20255474452554,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5456204379562044,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.03635415202928956,
+      "improvement_points": null,
+      "runs": [
+       "logic:knowline-9b-gen2_en",
+       "math:knowline-9b-gen2_en",
+       "logic:knowline-9b-gen2_en_dontknow",
+       "math:knowline-9b-gen2_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 0.045,
+      "gpu_cost_usd": 0.11205000000000001
      },
      {
       "repo": "fastino/GLiDE-9B",
@@ -9551,7 +9778,7 @@
      }
     ]
    },
-   "sha256": "59377d07326f81ab0566fce36074b962156d52d952adeb053671722578ca0c9b"
+   "sha256": "e2b0b13ae5ce75734f04191cf2979aa455181157c0e4ced35089c199767fa210"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",

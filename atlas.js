@@ -287,7 +287,7 @@ function metricEntries(r){
  const hint=(...items)=>items.filter(Boolean).join(' · ');
  return [
  entry('Raw accuracy',p(r.acc),has(r.right)&&has(r.n)?fmtNum(r.right,2)+' / '+fmtNum(r.n,0):null),
- entry('Normalized score',has(r.norm)?fmtNum(r.norm,2)+' / 100':null),
+ entry('Normalized score',has(r.norm)?fmtNum(r.norm,2)+' / 100':null,r.normLabel),
  entry(r.rankType||'Published rank',r.rank),entry('Confidence interval',ciValue(r),r.ciType),
  entry('Cost',m.cost.value,hint(m.cost.scope,m.cost.unit,m.cost.basis)),
  entry('Latency',m.time.value,hint(m.time.scope,m.time.basis)),
