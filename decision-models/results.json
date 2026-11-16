@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "94aef0c1",
-  "updated": "2026-11-16T20:50:26Z",
+  "results_version": "d7f5b704",
+  "updated": "2026-11-16T23:15:41Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -1321,6 +1321,26 @@
         "output_tokens": 4.5
       },
       "text": "$1.50 input, $4.50 output per 1M tokens"
+    },
+    {
+      "provider": "openrouter-chat",
+      "model": "thinkingmachines/inkling-2-small",
+      "perplexity_mode": null,
+      "basis": "OpenRouter's price for Nebius's endpoint (fp4)",
+      "source": "https://openrouter.ai/thinkingmachines/inkling-2-small",
+      "date": "2026-11-16",
+      "change": null,
+      "applies_to": "billed",
+      "extra_input_per_request": 0,
+      "per_request": 0.0,
+      "rates": {
+        "input_tokens": 0.3,
+        "cached_input_tokens": 0.3,
+        "cache_write_input_tokens": 0.3,
+        "cache_write_1h_input_tokens": 0.3,
+        "output_tokens": 1.0
+      },
+      "text": "$0.30 input, $1 output per 1M tokens"
     },
     {
       "provider": "openrouter-chat",
@@ -32319,6 +32339,487 @@
       "single_question_latency": null
     },
     {
+      "run": 1337,
+      "model": "thinkingmachines/inkling-2-small",
+      "name": "Inkling 2 Small",
+      "variant": null,
+      "reasoning": "high",
+      "provider": "openrouter-chat",
+      "perplexity_mode": null,
+      "note": "Thinking Machines' released model (Apache-2.0, 594B total, 17B active), too big for our GPUs, so run through OpenRouter",
+      "parameters": 594050672720,
+      "active_parameters": [
+        17000000000
+      ],
+      "effective_parameters": null,
+      "parameters_scope": "mixture of experts, the whole released checkpoint; active per token as the card states it; card: 594B total, 17B active",
+      "parameters_source": [
+        "https://huggingface.co/thinkingmachines/Inkling-2-Small/blob/2ad1157016e1aac77b6ff1b770e7c05229403134/README.md"
+      ],
+      "parameters_read": "2026-11-16",
+      "access": "OpenRouter chat API, Nebius's endpoint (fp4), fallbacks off, reasoning effort high, output cap 32,768 tokens, reasoning included; the answer schema",
+      "questions_per_request": 16,
+      "concurrency": 4,
+      "correct": 1450,
+      "invalid": 656,
+      "invalid_replies": {
+        "invalid_without_rule": 656,
+        "read_from_broken_replies": 0,
+        "read_without_confidence": 0,
+        "empty_replies_asked_again": 0,
+        "asked_again_with_answers": 0,
+        "answers_after_asking_again": 0,
+        "error_replies_asked_again": 0,
+        "invalid_by_kind": {
+          "cut off": 656
+        }
+      },
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 604
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 846
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 1449
+        }
+      },
+      "tyt_mix": 0.8556153316883363,
+      "questions_per_minute": 15.868537319799335,
+      "request_seconds": 8310.784878417999,
+      "median_request_seconds": 226.7155035934993,
+      "p90_request_seconds": 338.80930380310053,
+      "billing": "api",
+      "api_equivalent_usd": 3.4071306999999997,
+      "cost_basis": "api",
+      "cost_upper_bound": false,
+      "requests": 138,
+      "hardware": null,
+      "input_tokens": 512469,
+      "cached_input_tokens": 14208,
+      "cache_write_input_tokens": 0,
+      "cache_write_1h_input_tokens": 0,
+      "output_tokens": 3253390,
+      "confidence": {
+        "source": "stated",
+        "label": "Written estimate",
+        "bins": [
+          {
+            "questions": 0,
+            "correct": 0
+          },
+          {
+            "questions": 8,
+            "correct": 4
+          },
+          {
+            "questions": 199,
+            "correct": 143
+          },
+          {
+            "questions": 448,
+            "correct": 425
+          },
+          {
+            "questions": 887,
+            "correct": 878
+          }
+        ],
+        "auroc": 0.8746289355322339,
+        "auroc_interval": [
+          0.8363460663938154,
+          0.9086145785174912
+        ],
+        "parts": {
+          "meaning": {
+            "questions": 640,
+            "auroc": 0.9286009933774835,
+            "auroc_interval": [
+              0.8898774380064335,
+              0.9618171683389075
+            ]
+          },
+          "form": {
+            "questions": 902,
+            "auroc": 0.8347792131036812,
+            "auroc_interval": [
+              0.7809252286175363,
+              0.8859105318774216
+            ]
+          }
+        },
+        "aurc": 0.011148368949592922,
+        "ece": 0.07595330739299512,
+        "brier": 0.052806095979247736,
+        "coverage_accuracy": {
+          "0.20": 1.0,
+          "0.50": 0.9910623747199623,
+          "0.80": 0.9803083117163855
+        },
+        "coverage_intervals": {
+          "0.20": [
+            1.0,
+            1.0
+          ],
+          "0.50": [
+            0.9846750920489601,
+            0.9966652921455079
+          ],
+          "0.80": [
+            0.9725825046836719,
+            0.9881971465629054
+          ]
+        },
+        "risk_coverage": [
+          [
+            0.02,
+            0.0
+          ],
+          [
+            0.04,
+            0.0
+          ],
+          [
+            0.06,
+            0.0
+          ],
+          [
+            0.08,
+            0.0
+          ],
+          [
+            0.1,
+            0.0
+          ],
+          [
+            0.12,
+            0.0
+          ],
+          [
+            0.14,
+            0.0
+          ],
+          [
+            0.16,
+            0.0
+          ],
+          [
+            0.18,
+            0.0
+          ],
+          [
+            0.2,
+            0.0
+          ],
+          [
+            0.22,
+            0.0
+          ],
+          [
+            0.24,
+            0.0
+          ],
+          [
+            0.26,
+            0.0
+          ],
+          [
+            0.28,
+            0.0
+          ],
+          [
+            0.3,
+            0.0
+          ],
+          [
+            0.32,
+            0.0
+          ],
+          [
+            0.34,
+            0.0006
+          ],
+          [
+            0.36,
+            0.0027
+          ],
+          [
+            0.38,
+            0.0049
+          ],
+          [
+            0.4,
+            0.0066
+          ],
+          [
+            0.42,
+            0.0072
+          ],
+          [
+            0.44,
+            0.0077
+          ],
+          [
+            0.46,
+            0.0081
+          ],
+          [
+            0.48,
+            0.0086
+          ],
+          [
+            0.5,
+            0.0089
+          ],
+          [
+            0.52,
+            0.0093
+          ],
+          [
+            0.54,
+            0.0096
+          ],
+          [
+            0.56,
+            0.0099
+          ],
+          [
+            0.58,
+            0.0103
+          ],
+          [
+            0.6,
+            0.0108
+          ],
+          [
+            0.62,
+            0.0114
+          ],
+          [
+            0.64,
+            0.0119
+          ],
+          [
+            0.66,
+            0.0121
+          ],
+          [
+            0.68,
+            0.0121
+          ],
+          [
+            0.7,
+            0.012
+          ],
+          [
+            0.72,
+            0.0129
+          ],
+          [
+            0.74,
+            0.0139
+          ],
+          [
+            0.76,
+            0.0159
+          ],
+          [
+            0.78,
+            0.0181
+          ],
+          [
+            0.8,
+            0.0197
+          ],
+          [
+            0.82,
+            0.0209
+          ],
+          [
+            0.84,
+            0.0219
+          ],
+          [
+            0.86,
+            0.0235
+          ],
+          [
+            0.88,
+            0.025
+          ],
+          [
+            0.9,
+            0.0264
+          ],
+          [
+            0.92,
+            0.0301
+          ],
+          [
+            0.94,
+            0.0362
+          ],
+          [
+            0.96,
+            0.0448
+          ],
+          [
+            0.98,
+            0.0536
+          ],
+          [
+            1.0,
+            0.0597
+          ]
+        ],
+        "reliability": [
+          {
+            "low": 0.0,
+            "high": 0.1,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.1,
+            "high": 0.2,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.2,
+            "high": 0.3,
+            "questions": 0,
+            "mean_confidence": null,
+            "accuracy": null
+          },
+          {
+            "low": 0.3,
+            "high": 0.4,
+            "questions": 7,
+            "mean_confidence": 0.3485714285714286,
+            "accuracy": 0.5714285714285714
+          },
+          {
+            "low": 0.4,
+            "high": 0.5,
+            "questions": 1,
+            "mean_confidence": 0.4,
+            "accuracy": 0.0
+          },
+          {
+            "low": 0.5,
+            "high": 0.6,
+            "questions": 34,
+            "mean_confidence": 0.5552941176470589,
+            "accuracy": 0.6176470588235294
+          },
+          {
+            "low": 0.6,
+            "high": 0.7,
+            "questions": 94,
+            "mean_confidence": 0.6335106382978722,
+            "accuracy": 0.6276595744680851
+          },
+          {
+            "low": 0.7,
+            "high": 0.8,
+            "questions": 191,
+            "mean_confidence": 0.7492670157068066,
+            "accuracy": 0.9109947643979057
+          },
+          {
+            "low": 0.8,
+            "high": 0.9,
+            "questions": 328,
+            "mean_confidence": 0.8410060975609757,
+            "accuracy": 0.9573170731707317
+          },
+          {
+            "low": 0.9,
+            "high": 1.0,
+            "questions": 887,
+            "mean_confidence": 0.9408680947012418,
+            "accuracy": 0.9898534385569335
+          }
+        ],
+        "median_right": 0.9,
+        "median_wrong": 0.65,
+        "sure": {
+          "questions": 44,
+          "correct": 44,
+          "interval": [
+            0.9197016822179859,
+            0.9999999999999999
+          ]
+        },
+        "sure_before_audit": null,
+        "doubtful": {
+          "questions": 136,
+          "correct": 84,
+          "interval": [
+            0.5338050376414222,
+            0.6950252961076197
+          ]
+        },
+        "ece_refit": 0.014063732053791909,
+        "brier_refit": 0.04598055411219494,
+        "brier_base": 0.056122543886774706,
+        "refit_slopes": [
+          1.8759965879081202,
+          1.886131407428703,
+          1.9190777088924238,
+          1.846054234837184,
+          1.7700835506622847
+        ],
+        "refit_questions": 1542,
+        "refit_converged": true
+      },
+      "previous": null,
+      "units": [
+        123,
+        149,
+        49,
+        92,
+        96,
+        95,
+        122,
+        19,
+        86,
+        72,
+        32,
+        65,
+        78,
+        56,
+        45,
+        0,
+        0,
+        101,
+        42,
+        128
+      ],
+      "started": "2026-11-16T16:25:48Z",
+      "updated": "2026-11-16T18:44:19Z",
+      "format_of": null,
+      "group": "DEFGHIJKLMN",
+      "latency": {
+        "source": "run",
+        "runs": [
+          1337
+        ],
+        "concurrency": 4,
+        "median_request_seconds": 226.7155035934993,
+        "p90_request_seconds": 338.80930380310053
+      },
+      "single_question_latency": null
+    },
+    {
       "run": 120,
       "model": "deepseek-v4.1-flash",
       "name": "DeepSeek-V4.1-Flash, first release",
@@ -40151,7 +40652,7 @@
       "started": "2026-10-04T08:39:08Z",
       "updated": "2026-10-04T08:47:59Z",
       "format_of": null,
-      "group": "RSTUVWX",
+      "group": "RSTUVWXY",
       "latency": {
         "source": "repeats",
         "runs": [
@@ -63649,7 +64150,7 @@
       "single_question_latency": null
     }
   ],
-  "group_pairs": 9316,
+  "group_pairs": 9453,
   "paired": [
     {
       "first": 1108,
@@ -63752,7 +64253,7 @@
       "low": 0.00315656599695682,
       "high": 0.013221959935709241,
       "p": 0.0021024015732109547,
-      "p_holm": 0.2691074013710022,
+      "p_holm": 0.27120980294421315,
       "p_holm_all": 1.0
     },
     {
@@ -63791,7 +64292,7 @@
       "low": 0.0036661100122780893,
       "high": 0.019081842671980327,
       "p": 0.0052282430040142824,
-      "p_holm": 0.6639868615098139,
+      "p_holm": 0.6692151045138282,
       "p_holm_all": 1.0
     },
     {
@@ -63908,8 +64409,8 @@
       "low": 0.03225197249317953,
       "high": 0.06419934688807616,
       "p": 4.460847421739139e-09,
-      "p_holm": 5.977535545130447e-07,
-      "p_holm_all": 6.530680625426099e-06
+      "p_holm": 6.022144019347837e-07,
+      "p_holm_all": 6.68234943776523e-06
     },
     {
       "first": 939,
@@ -64168,8 +64669,8 @@
       "low": 0.030679166621566563,
       "high": 0.07396141572602216,
       "p": 2.7673699726562264e-06,
-      "p_holm": 0.0003652928363906219,
-      "p_holm_all": 0.0031852428385273166
+      "p_holm": 0.0003680602063632781,
+      "p_holm_all": 0.003265496567734347
     },
     {
       "first": 315,
@@ -64207,7 +64708,7 @@
       "low": 0.0068147555519082505,
       "high": 0.04050098603134926,
       "p": 0.006946613741516137,
-      "p_holm": 0.8752733314310333,
+      "p_holm": 0.8822199451725493,
       "p_holm_all": 1.0
     },
     {
@@ -64272,8 +64773,8 @@
       "low": -0.06598964347625874,
       "high": -0.027731921582885947,
       "p": 2.0485146663561087e-06,
-      "p_holm": 0.00027245245062536245,
-      "p_holm_all": 0.0023783255276394423
+      "p_holm": 0.0002745009652917186,
+      "p_holm_all": 0.0024377324529637695
     },
     {
       "first": 1347,
@@ -64311,8 +64812,8 @@
       "low": 0.056521036069118194,
       "high": 0.09361545164698735,
       "p": 3.678091628881056e-15,
-      "p_holm": 5.002204615278237e-13,
-      "p_holm_all": 7.050901652564985e-12
+      "p_holm": 5.038985531567048e-13,
+      "p_holm_all": 7.220093867493513e-12
     },
     {
       "first": 259,
@@ -64415,8 +64916,8 @@
       "low": 0.047455943209440694,
       "high": 0.08266234614451745,
       "p": 6.670084191087266e-13,
-      "p_holm": 9.004613657967809e-11,
-      "p_holm_all": 1.1659307166020542e-09
+      "p_holm": 9.071314499878681e-11,
+      "p_holm_all": 1.1952790870428381e-09
     },
     {
       "first": 862,
@@ -64446,14 +64947,27 @@
     },
     {
       "first": 558,
+      "second": 1337,
+      "questions": 2198,
+      "first_only": 355,
+      "second_only": 354,
+      "difference": 0.00045495905368516835,
+      "low": -0.023288903058098342,
+      "high": 0.02419882116546868,
+      "p": 1.0,
+      "p_holm": 1.0,
+      "p_holm_all": 1.0
+    },
+    {
+      "first": 1337,
       "second": 120,
       "questions": 2198,
-      "first_only": 96,
-      "second_only": 94,
-      "difference": 0.0009099181073703367,
-      "low": -0.01138153146928464,
-      "high": 0.013201367684025314,
-      "p": 0.9421914836304658,
+      "first_only": 363,
+      "second_only": 362,
+      "difference": 0.00045495905368516835,
+      "low": -0.02355532236173593,
+      "high": 0.024465240469106267,
+      "p": 1.0,
       "p_holm": 1.0,
       "p_holm_all": 1.0
     },
@@ -64623,7 +65137,7 @@
       "low": 0.008033138518606254,
       "high": 0.04929170224572496,
       "p": 0.007404857447081556,
-      "p_holm": 0.9256071808851944,
+      "p_holm": 0.933012038332276,
       "p_holm_all": 1.0
     },
     {
@@ -64805,8 +65319,8 @@
       "low": 0.01794483214073702,
       "high": 0.05757837077100093,
       "p": 0.00022780042456489667,
-      "p_holm": 0.029841855618001463,
-      "p_holm_all": 0.2063871846557964
+      "p_holm": 0.03006965604256636,
+      "p_holm_all": 0.2120821952699188
     },
     {
       "first": 127,
@@ -65143,8 +65657,8 @@
       "low": 0.017970916928709595,
       "high": 0.06665146705673171,
       "p": 0.0007641053000487032,
-      "p_holm": 0.09933368900633141,
-      "p_holm_all": 0.6441407679410568
+      "p_holm": 0.10009779430638012,
+      "p_holm_all": 0.6624792951422257
     },
     {
       "first": 126,
@@ -65156,7 +65670,7 @@
       "low": 0.015331309546318252,
       "high": 0.06383156579490104,
       "p": 0.0015873691578223686,
-      "p_holm": 0.20477062135908555,
+      "p_holm": 0.20635799051690792,
       "p_holm_all": 1.0
     },
     {
@@ -65429,8 +65943,8 @@
       "low": 0.100425868701859,
       "high": 0.13706275732179884,
       "p": 2.1991384606646548e-36,
-      "p_holm": 3.012819691110577e-34,
-      "p_holm_all": 6.75575335116182e-33
+      "p_holm": 3.0348110757172237e-34,
+      "p_holm_all": 6.91189218186901e-33
     }
   ],
   "cascades": [
@@ -403093,6 +403607,50 @@
         "vs_confidence": null
       },
       {
+        "name": "Inkling 2 Small",
+        "model": "thinkingmachines/inkling-2-small",
+        "provider": "openrouter-chat",
+        "perplexity_mode": null,
+        "group": "chat",
+        "run": 1354,
+        "runs": [
+          1354
+        ],
+        "right": 1523,
+        "wrong": 76,
+        "dont_know": 7,
+        "invalid": 592,
+        "invalid_replies": {
+          "invalid_without_rule": 592,
+          "read_from_broken_replies": 0,
+          "read_without_confidence": 0,
+          "empty_replies_asked_again": 0,
+          "asked_again_with_answers": 0,
+          "answers_after_asking_again": 0,
+          "error_replies_asked_again": 0,
+          "invalid_by_kind": {
+            "cut off": 592
+          }
+        },
+        "accuracy": 0.6929026387625113,
+        "attempt_rate": 0.7274795268425842,
+        "non_hallucination": 0.08433734939759036,
+        "mean_dont_know_probability": null,
+        "spread": null,
+        "answers_changed": null,
+        "original_run": 1337,
+        "original_accuracy": 0.6596906278434941,
+        "derived": {
+          "cut_off": 0.3,
+          "attempt_rate": 0.7015468607825296,
+          "non_hallucination": 0.8770053475935828,
+          "right": 1450,
+          "wrong": 92,
+          "abstained": 656
+        },
+        "vs_confidence": null
+      },
+      {
         "name": "Drex Max v1",
         "model": "drex-max-v1",
         "provider": "drex-max",
@@ -408350,7 +408908,7 @@
           "english_only_right": 0,
           "turkish_only_right": 8,
           "p": 0.0078125,
-          "p_holm": 0.828125
+          "p_holm": 0.8359375
         }
       },
       {
@@ -409110,7 +409668,7 @@
           "english_only_right": 3,
           "turkish_only_right": 21,
           "p": 0.0002771615982055664,
-          "p_holm": 0.031319260597229004
+          "p_holm": 0.03159642219543457
         }
       },
       {
@@ -409271,6 +409829,101 @@
           "english_only_right": 4,
           "turkish_only_right": 13,
           "p": 0.049041748046875,
+          "p_holm": 1.0
+        }
+      },
+      {
+        "name": "Inkling 2 Small",
+        "model": "thinkingmachines/inkling-2-small",
+        "provider": "openrouter-chat",
+        "run": 1335,
+        "runs": [
+          1335
+        ],
+        "dates": [
+          "2026-11-16"
+        ],
+        "perplexity_mode": null,
+        "turkish_run": 1337,
+        "turkish_runs": [
+          1337
+        ],
+        "english_machine": null,
+        "english_where": "hosted API",
+        "cost": {
+          "english": {
+            "usd": 0.4247459,
+            "per_1000": 0.7765007312614259,
+            "basis": "api",
+            "billing": "api",
+            "tokens": {
+              "input_tokens": 142293,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 382058
+            },
+            "requests": 35,
+            "price": {
+              "basis": "OpenRouter's price for Nebius's endpoint (fp4)",
+              "source": "https://openrouter.ai/thinkingmachines/inkling-2-small",
+              "date": "2026-11-16",
+              "change": null,
+              "applies_to": "billed",
+              "extra_input_per_request": 0,
+              "per_request": 0.0,
+              "rates": {
+                "input_tokens": 0.3,
+                "cached_input_tokens": 0.3,
+                "cache_write_input_tokens": 0.3,
+                "cache_write_1h_input_tokens": 0.3,
+                "output_tokens": 1.0
+              },
+              "text": "$0.30 input, $1 output per 1M tokens"
+            },
+            "upper_bound": false
+          },
+          "turkish": {
+            "usd": 3.4071306999999997,
+            "per_1000": 1.550104959053685,
+            "basis": "api",
+            "upper_bound": false
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 121.35981586200069,
+            "p90_request_seconds": 225.42163350880074,
+            "concurrency": 4,
+            "questions_per_request": 16
+          },
+          "turkish": {
+            "median_request_seconds": 226.7155035934993,
+            "p90_request_seconds": 338.80930380310053,
+            "concurrency": 4,
+            "questions_per_request": 16,
+            "source": "run"
+          }
+        },
+        "english": {
+          "right": 511,
+          "wrong": 36,
+          "invalid": 0,
+          "accuracy": 0.9341864716636198
+        },
+        "turkish": {
+          "right": 510,
+          "wrong": 29,
+          "invalid": 8,
+          "accuracy": 0.9323583180987203
+        },
+        "difference": 0.001828153564899515,
+        "spread": null,
+        "answers_changed": null,
+        "paired": {
+          "english_only_right": 14,
+          "turkish_only_right": 13,
+          "p": 1.0,
           "p_holm": 1.0
         }
       },
@@ -409558,7 +410211,7 @@
           "english_only_right": 30,
           "turkish_only_right": 12,
           "p": 0.007915897334896727,
-          "p_holm": 0.8311692201641563
+          "p_holm": 0.839085117499053
         }
       },
       {
@@ -409845,7 +410498,7 @@
           "english_only_right": 5,
           "turkish_only_right": 21,
           "p": 0.002493917942047119,
-          "p_holm": 0.2768248915672302
+          "p_holm": 0.27931880950927734
         }
       },
       {
@@ -410134,7 +410787,7 @@
           "english_only_right": 7,
           "turkish_only_right": 22,
           "p": 0.008130058646202087,
-          "p_holm": 0.8455260992050171
+          "p_holm": 0.8536561578512192
         }
       },
       {
@@ -410704,7 +411357,7 @@
           "english_only_right": 8,
           "turkish_only_right": 24,
           "p": 0.0070003666914999485,
-          "p_holm": 0.7560396026819944
+          "p_holm": 0.7630399693734944
         },
         "decision_score": {
           "score": 91.92048504081748,
@@ -415162,7 +415815,7 @@
           "english_only_right": 20,
           "turkish_only_right": 42,
           "p": 0.007148733833163067,
-          "p_holm": 0.7649145201484482
+          "p_holm": 0.7720632539816112
         },
         "decision_score": {
           "score": 88.7028702563218,
@@ -415503,7 +416156,7 @@
           "english_only_right": 74,
           "turkish_only_right": 23,
           "p": 2.027109075312698e-07,
-          "p_holm": 2.35144652736273e-05
+          "p_holm": 2.3717176181158567e-05
         },
         "decision_score": {
           "score": 88.1004137009927,
@@ -416840,7 +417493,7 @@
           "english_only_right": 60,
           "turkish_only_right": 33,
           "p": 0.006695018134217244,
-          "p_holm": 0.7297569766296795
+          "p_holm": 0.7364519947638968
         },
         "decision_score": {
           "score": 86.96258962545933,
@@ -417389,7 +418042,7 @@
           "english_only_right": 55,
           "turkish_only_right": 30,
           "p": 0.008836205876094518,
-          "p_holm": 0.9101292052377353
+          "p_holm": 0.9189654111138299
         },
         "decision_score": {
           "score": 85.43073684003656,
@@ -417486,7 +418139,7 @@
           "english_only_right": 60,
           "turkish_only_right": 34,
           "p": 0.009547810466077418,
-          "p_holm": 0.9738766675398967
+          "p_holm": 0.9834244780059741
         },
         "decision_score": {
           "score": 85.9748083272209,
@@ -417601,7 +418254,7 @@
           "english_only_right": 63,
           "turkish_only_right": 34,
           "p": 0.00422580392168276,
-          "p_holm": 0.46483843138510356
+          "p_holm": 0.4690642353067863
         },
         "decision_score": {
           "score": 86.03872878870524,
@@ -417861,7 +418514,7 @@
           "english_only_right": 95,
           "turkish_only_right": 49,
           "p": 0.00015720885376307122,
-          "p_holm": 0.01792180932899012
+          "p_holm": 0.01807901818275319
         }
       },
       {
@@ -418046,7 +418699,7 @@
           "english_only_right": 90,
           "turkish_only_right": 35,
           "p": 9.23997771897882e-07,
-          "p_holm": 0.00010625974376825643
+          "p_holm": 0.00010718374154015431
         },
         "decision_score": {
           "score": 82.21084905828268,
@@ -418148,7 +418801,7 @@
           "english_only_right": 175,
           "turkish_only_right": 33,
           "p": 1.474858241680115e-24,
-          "p_holm": 1.873069966933746e-22
+          "p_holm": 1.887818549350547e-22
         }
       },
       {
@@ -418333,7 +418986,7 @@
           "english_only_right": 221,
           "turkish_only_right": 42,
           "p": 1.6141574661170747e-30,
-          "p_holm": 2.0822631312910265e-28
+          "p_holm": 2.098404705952197e-28
         },
         "seeds": {
           "of": 3,
@@ -418422,7 +419075,7 @@
           "english_only_right": 112,
           "turkish_only_right": 39,
           "p": 2.271450283600249e-09,
-          "p_holm": 2.7030258374842966e-07
+          "p_holm": 2.725740340320299e-07
         },
         "decision_score": {
           "score": 77.81582860891653,
@@ -418524,7 +419177,7 @@
           "english_only_right": 166,
           "turkish_only_right": 40,
           "p": 1.9435372906100788e-19,
-          "p_holm": 2.4294216132625985e-17
+          "p_holm": 2.4488569861686993e-17
         },
         "seeds": {
           "of": 3,
@@ -418644,7 +419297,7 @@
           "english_only_right": 264,
           "turkish_only_right": 27,
           "p": 4.958685573905816e-50,
-          "p_holm": 6.545464957555678e-48
+          "p_holm": 6.595051813294736e-48
         }
       },
       {
@@ -418703,7 +419356,7 @@
           "english_only_right": 135,
           "turkish_only_right": 49,
           "p": 1.7218675720944863e-10,
-          "p_holm": 2.0662410865133835e-08
+          "p_holm": 2.0834597622343285e-08
         },
         "decision_score": {
           "score": 76.87952031780596,
@@ -418769,7 +419422,7 @@
           "english_only_right": 129,
           "turkish_only_right": 53,
           "p": 1.6944120417192497e-08,
-          "p_holm": 1.999406209228715e-06
+          "p_holm": 2.016350329645907e-06
         },
         "decision_score": {
           "score": 76.66106513904887,
@@ -418866,7 +419519,7 @@
           "english_only_right": 337,
           "turkish_only_right": 6,
           "p": 2.4594255756266907e-91,
-          "p_holm": 3.2710360155834986e-89
+          "p_holm": 3.2956302713397655e-89
         },
         "seeds": {
           "of": 3,
@@ -418987,7 +419640,7 @@
           "english_only_right": 207,
           "turkish_only_right": 40,
           "p": 2.42022559679353e-28,
-          "p_holm": 3.0978887638957186e-26
+          "p_holm": 3.122091019863654e-26
         }
       },
       {
@@ -419090,7 +419743,7 @@
           "english_only_right": 171,
           "turkish_only_right": 41,
           "p": 4.536077925178257e-20,
-          "p_holm": 5.715458185724604e-18
+          "p_holm": 5.760818964976386e-18
         },
         "decision_score": {
           "score": 74.15855038077375,
@@ -419156,7 +419809,7 @@
           "english_only_right": 141,
           "turkish_only_right": 61,
           "p": 1.7907697844040562e-08,
-          "p_holm": 2.0952006477527457e-06
+          "p_holm": 2.113108345596786e-06
         },
         "decision_score": {
           "score": 70.59346383621033,
@@ -419222,7 +419875,7 @@
           "english_only_right": 161,
           "turkish_only_right": 39,
           "p": 8.323830722852912e-19,
-          "p_holm": 1.0321550096337612e-16
+          "p_holm": 1.0404788403566141e-16
         },
         "decision_score": {
           "score": 70.08836424032732,
@@ -419288,7 +419941,7 @@
           "english_only_right": 222,
           "turkish_only_right": 38,
           "p": 8.493716039465006e-33,
-          "p_holm": 1.1126768011699157e-30
+          "p_holm": 1.1211705172093808e-30
         },
         "decision_score": {
           "score": 69.84327454412265,
@@ -419354,7 +420007,7 @@
           "english_only_right": 148,
           "turkish_only_right": 57,
           "p": 1.6384792484557003e-10,
-          "p_holm": 1.9825598906313973e-08
+          "p_holm": 1.9989446831159544e-08
         },
         "decision_score": {
           "score": 69.81580413306096,
@@ -419420,7 +420073,7 @@
           "english_only_right": 150,
           "turkish_only_right": 48,
           "p": 2.027549129468913e-13,
-          "p_holm": 2.4736099379520737e-11
+          "p_holm": 2.493885429246763e-11
         },
         "decision_score": {
           "score": 69.65402914139592,
@@ -419486,7 +420139,7 @@
           "english_only_right": 206,
           "turkish_only_right": 34,
           "p": 3.328240035956695e-31,
-          "p_holm": 4.3267120467437035e-29
+          "p_holm": 4.3599944471032705e-29
         },
         "decision_score": {
           "score": 69.05212318938176,
@@ -419601,7 +420254,7 @@
           "english_only_right": 152,
           "turkish_only_right": 47,
           "p": 4.1558518126437847e-14,
-          "p_holm": 5.111697729551855e-12
+          "p_holm": 5.153256247678293e-12
         },
         "decision_score": {
           "score": 67.46941180530165,
@@ -419698,7 +420351,7 @@
           "english_only_right": 74,
           "turkish_only_right": 39,
           "p": 0.001277625351448773,
-          "p_holm": 0.14309403936226256
+          "p_holm": 0.14437166471371135
         },
         "decision_score": {
           "score": 64.07815412888482,
@@ -420773,6 +421426,80 @@
       },
       {
         "name": "Raon-1 nano",
+        "model": "raon-1-nano",
+        "provider": "vllm-plain",
+        "reasoning": "on",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1355,
+        "runs": [
+          1355
+        ],
+        "dates": [
+          "2026-11-16"
+        ],
+        "parameters": 3529911568,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model with its per-layer embedding table (1,624,805,632), text only; the card says 1.5B effective, 3.1B total including a 1.5B per-layer embedding table",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, KRAFTON/Raon-1-nano@fcf2d1d",
+          "https://huggingface.co/KRAFTON/Raon-1-nano"
+        ],
+        "parameters_read": "2026-11-15",
+        "group": "chat",
+        "access": "our GPU (logic's server, KRAFTON's vLLM fork (krafton-ai/vllm@13a5dd8; not a vLLM release) BF16, revision KRAFTON/Raon-1-nano@fcf2d1d), one question per request, plain answer line ANSWER: X (no answer schema); sampling presence_penalty 1.5, seed 0, temperature 0.1, thinking on; output cap 32,768",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "english_where": "RTX PRO 6000",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 3.0144600328211393,
+            "per_1000": 5.510895855248883,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 110346,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 1876935
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 4358.255469138996
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 192.74513928899978,
+            "p90_request_seconds": 431.4123334209995,
+            "concurrency": 32,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 377,
+          "wrong": 160,
+          "invalid": 10,
+          "accuracy": 0.6892138939670932
+        }
+      },
+      {
+        "name": "Raon-1 nano",
         "model": "raon-1-nano-nothink",
         "provider": "vllm-plain",
         "reasoning": "off",
@@ -421510,7 +422237,7 @@
             "english_only_wrong": 80,
             "turkish_only_wrong": 133,
             "p": 0.00034406318274259637,
-            "p_holm": 0.017547222319872414
+            "p_holm": 0.017891285502615012
           }
         },
         {
@@ -421908,7 +422635,7 @@
             "english_only_wrong": 45,
             "turkish_only_wrong": 95,
             "p": 2.877574547626978e-05,
-            "p_holm": 0.0014963387647660286
+            "p_holm": 0.0015251145102422982
           }
         },
         {
@@ -422248,7 +422975,7 @@
             "english_only_wrong": 126,
             "turkish_only_wrong": 37,
             "p": 1.473591352172994e-12,
-            "p_holm": 7.957393301734168e-11
+            "p_holm": 8.104752436951467e-11
           }
         },
         {
@@ -422541,7 +423268,7 @@
             "english_only_wrong": 44,
             "turkish_only_wrong": 160,
             "p": 1.1281099734141455e-16,
-            "p_holm": 6.2046048537778e-15
+            "p_holm": 6.3174158511192145e-15
           }
         },
         {
@@ -422604,7 +423331,7 @@
             "english_only_wrong": 68,
             "turkish_only_wrong": 137,
             "p": 1.6455457800434282e-06,
-            "p_holm": 8.72139263423017e-05
+            "p_holm": 8.885947212234512e-05
           }
         },
         {
@@ -423030,7 +423757,7 @@
             "english_only_wrong": 79,
             "turkish_only_wrong": 115,
             "p": 0.011780425578763857,
-            "p_holm": 0.5654604277806652
+            "p_holm": 0.577240853359429
           }
         },
         {
@@ -423188,7 +423915,7 @@
             "english_only_wrong": 50,
             "turkish_only_wrong": 173,
             "p": 4.61331874192297e-17,
-            "p_holm": 2.583458495476863e-15
+            "p_holm": 2.629591682896093e-15
           }
         },
         {
@@ -423590,7 +424317,7 @@
             "english_only_wrong": 25,
             "turkish_only_wrong": 7,
             "p": 0.0021024015732109547,
-            "p_holm": 0.10512007866054773
+            "p_holm": 0.10722248023375869
           }
         },
         {
@@ -425215,7 +425942,7 @@
             "english_only_wrong": 52,
             "turkish_only_wrong": 86,
             "p": 0.004786266356000327,
-            "p_holm": 0.23452705144401603
+            "p_holm": 0.23931331780001636
           }
         },
         {
@@ -425681,6 +426408,71 @@
             "turkish_only_wrong": 43,
             "p": 0.008146902228698568,
             "p_holm": 0.40229640666125493
+          }
+        },
+        {
+          "name": "Inkling 2 Small",
+          "model": "thinkingmachines/inkling-2-small",
+          "provider": "openrouter-chat",
+          "group": "chat",
+          "text_run": 1337,
+          "english": {
+            "run": 1345,
+            "runs": [
+              1345
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 0,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {}
+            },
+            "right": 509,
+            "wrong": 37,
+            "dont_know": 1,
+            "invalid": 0,
+            "accuracy": 0.9305301645338209,
+            "attempt_rate": 0.9981718464351006,
+            "non_hallucination": 0.02631578947368421,
+            "mean_dont_know_probability": null
+          },
+          "turkish": {
+            "run": 1354,
+            "runs": [
+              1354
+            ],
+            "subset": false,
+            "invalid_replies": {
+              "invalid_without_rule": 592,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {
+                "cut off": 592
+              }
+            },
+            "right": 519,
+            "wrong": 25,
+            "dont_know": 3,
+            "invalid": 0,
+            "accuracy": 0.9488117001828154,
+            "attempt_rate": 0.9945155393053017,
+            "non_hallucination": 0.10714285714285714,
+            "mean_dont_know_probability": null
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 21,
+            "turkish_only_wrong": 9,
+            "p": 0.04277394525706768,
+            "p_holm": 1.0
           }
         },
         {
@@ -427612,6 +428404,43 @@
             "accuracy": 0.8628884826325411,
             "attempt_rate": 0.9890310786106032,
             "non_hallucination": 0.0547945205479452,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "Raon-1 nano",
+          "model": "raon-1-nano",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 1355,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1374,
+            "runs": [
+              1374
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 7,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {
+                "cut off": 6,
+                "unreadable": 1
+              }
+            },
+            "right": 391,
+            "wrong": 144,
+            "dont_know": 5,
+            "invalid": 7,
+            "accuracy": 0.7148080438756855,
+            "attempt_rate": 0.9780621572212066,
+            "non_hallucination": 0.03355704697986577,
             "mean_dont_know_probability": null
           }
         }
@@ -440921,6 +441750,463 @@
                   0.06422018348623854,
                   545,
                   35
+                ],
+                [
+                  0.9981718464351006,
+                  0.0641025641025641,
+                  546,
+                  35
+                ],
+                [
+                  1.0,
+                  0.06581352833638025,
+                  547,
+                  36
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Inkling 2 Small",
+          "text_run": 1337,
+          "native": [
+            {
+              "language": "Turkish",
+              "wording": "Bilmiyorum",
+              "run": 1354,
+              "full_bank_restricted": true,
+              "right": 519,
+              "wrong": 25,
+              "abstained": 3,
+              "invalid": 0,
+              "coverage": 0.9945155393053017,
+              "risk": 0.04595588235294118
+            },
+            {
+              "language": "Turkish",
+              "wording": "I don't know",
+              "run": null
+            },
+            {
+              "language": "English",
+              "wording": "I don't know",
+              "run": 1345,
+              "full_bank_restricted": false,
+              "right": 509,
+              "wrong": 37,
+              "abstained": 1,
+              "invalid": 0,
+              "coverage": 0.9981718464351006,
+              "risk": 0.06776556776556776
+            }
+          ],
+          "curves": [
+            {
+              "language": "Turkish",
+              "run": 1337,
+              "points": [
+                [
+                  0.02376599634369287,
+                  0.0,
+                  13,
+                  0
+                ],
+                [
+                  0.12431444241316271,
+                  0.0,
+                  68,
+                  0
+                ],
+                [
+                  0.19378427787934185,
+                  0.0,
+                  106,
+                  0
+                ],
+                [
+                  0.24314442413162707,
+                  0.0,
+                  133,
+                  0
+                ],
+                [
+                  0.3619744058500914,
+                  0.0,
+                  198,
+                  0
+                ],
+                [
+                  0.3802559414990859,
+                  0.0,
+                  208,
+                  0
+                ],
+                [
+                  0.4186471663619744,
+                  0.0,
+                  229,
+                  0
+                ],
+                [
+                  0.43875685557586835,
+                  0.0,
+                  240,
+                  0
+                ],
+                [
+                  0.4405850091407678,
+                  0.0,
+                  241,
+                  0
+                ],
+                [
+                  0.6142595978062158,
+                  0.005952380952380952,
+                  336,
+                  2
+                ],
+                [
+                  0.659963436928702,
+                  0.00554016620498615,
+                  361,
+                  2
+                ],
+                [
+                  0.6837294332723949,
+                  0.0053475935828877,
+                  374,
+                  2
+                ],
+                [
+                  0.720292504570384,
+                  0.005076142131979695,
+                  394,
+                  2
+                ],
+                [
+                  0.7257769652650823,
+                  0.005037783375314861,
+                  397,
+                  2
+                ],
+                [
+                  0.7605118829981719,
+                  0.004807692307692308,
+                  416,
+                  2
+                ],
+                [
+                  0.8080438756855576,
+                  0.006787330316742082,
+                  442,
+                  3
+                ],
+                [
+                  0.8482632541133455,
+                  0.01293103448275862,
+                  464,
+                  6
+                ],
+                [
+                  0.8537477148080439,
+                  0.01284796573875803,
+                  467,
+                  6
+                ],
+                [
+                  0.8756855575868373,
+                  0.012526096033402923,
+                  479,
+                  6
+                ],
+                [
+                  0.8829981718464351,
+                  0.014492753623188406,
+                  483,
+                  7
+                ],
+                [
+                  0.9012797074954296,
+                  0.014198782961460446,
+                  493,
+                  7
+                ],
+                [
+                  0.9140767824497258,
+                  0.018,
+                  500,
+                  9
+                ],
+                [
+                  0.9159049360146252,
+                  0.01996007984031936,
+                  501,
+                  10
+                ],
+                [
+                  0.9213893967093236,
+                  0.021825396825396824,
+                  504,
+                  11
+                ],
+                [
+                  0.9287020109689214,
+                  0.025590551181102362,
+                  508,
+                  13
+                ],
+                [
+                  0.9305301645338209,
+                  0.0275049115913556,
+                  509,
+                  14
+                ],
+                [
+                  0.9341864716636198,
+                  0.029354207436399216,
+                  511,
+                  15
+                ],
+                [
+                  0.946983546617916,
+                  0.032818532818532815,
+                  518,
+                  17
+                ],
+                [
+                  0.9670932358318098,
+                  0.045368620037807186,
+                  529,
+                  24
+                ],
+                [
+                  0.9725776965265083,
+                  0.04887218045112782,
+                  532,
+                  26
+                ],
+                [
+                  0.9744058500914077,
+                  0.04878048780487805,
+                  533,
+                  26
+                ],
+                [
+                  0.9817184643510055,
+                  0.0521415270018622,
+                  537,
+                  28
+                ],
+                [
+                  0.9835466179159049,
+                  0.05204460966542751,
+                  538,
+                  28
+                ],
+                [
+                  0.9853747714808044,
+                  0.05380333951762523,
+                  539,
+                  29
+                ]
+              ]
+            },
+            {
+              "language": "English",
+              "run": 1335,
+              "points": [
+                [
+                  0.014625228519195612,
+                  0.0,
+                  8,
+                  0
+                ],
+                [
+                  0.11151736745886655,
+                  0.0,
+                  61,
+                  0
+                ],
+                [
+                  0.1773308957952468,
+                  0.010309278350515464,
+                  97,
+                  1
+                ],
+                [
+                  0.23583180987202926,
+                  0.015503875968992248,
+                  129,
+                  2
+                ],
+                [
+                  0.3327239488117002,
+                  0.01098901098901099,
+                  182,
+                  2
+                ],
+                [
+                  0.3436928702010969,
+                  0.010638297872340425,
+                  188,
+                  2
+                ],
+                [
+                  0.37842778793418647,
+                  0.00966183574879227,
+                  207,
+                  2
+                ],
+                [
+                  0.40585009140767825,
+                  0.009009009009009009,
+                  222,
+                  2
+                ],
+                [
+                  0.4076782449725777,
+                  0.008968609865470852,
+                  223,
+                  2
+                ],
+                [
+                  0.6087751371115173,
+                  0.012012012012012012,
+                  333,
+                  4
+                ],
+                [
+                  0.6453382084095064,
+                  0.0113314447592068,
+                  353,
+                  4
+                ],
+                [
+                  0.6471663619744058,
+                  0.011299435028248588,
+                  354,
+                  4
+                ],
+                [
+                  0.6727605118829981,
+                  0.01358695652173913,
+                  368,
+                  5
+                ],
+                [
+                  0.720292504570384,
+                  0.015228426395939087,
+                  394,
+                  6
+                ],
+                [
+                  0.7257769652650823,
+                  0.015113350125944584,
+                  397,
+                  6
+                ],
+                [
+                  0.7276051188299817,
+                  0.01507537688442211,
+                  398,
+                  6
+                ],
+                [
+                  0.753199268738574,
+                  0.01699029126213592,
+                  412,
+                  7
+                ],
+                [
+                  0.7915904936014625,
+                  0.018475750577367205,
+                  433,
+                  8
+                ],
+                [
+                  0.8208409506398537,
+                  0.0200445434298441,
+                  449,
+                  9
+                ],
+                [
+                  0.8226691042047533,
+                  0.02,
+                  450,
+                  9
+                ],
+                [
+                  0.8610603290676416,
+                  0.027600849256900213,
+                  471,
+                  13
+                ],
+                [
+                  0.8647166361974405,
+                  0.02748414376321353,
+                  473,
+                  13
+                ],
+                [
+                  0.8829981718464351,
+                  0.031055900621118012,
+                  483,
+                  15
+                ],
+                [
+                  0.9122486288848263,
+                  0.04008016032064128,
+                  499,
+                  20
+                ],
+                [
+                  0.9195612431444241,
+                  0.0437375745526839,
+                  503,
+                  22
+                ],
+                [
+                  0.926873857404022,
+                  0.045364891518737675,
+                  507,
+                  23
+                ],
+                [
+                  0.943327239488117,
+                  0.044573643410852716,
+                  516,
+                  23
+                ],
+                [
+                  0.9616087751371115,
+                  0.053231939163498096,
+                  526,
+                  28
+                ],
+                [
+                  0.9817184643510055,
+                  0.05772811918063315,
+                  537,
+                  31
+                ],
+                [
+                  0.9872029250457038,
+                  0.06111111111111111,
+                  540,
+                  33
+                ],
+                [
+                  0.9945155393053017,
+                  0.0625,
+                  544,
+                  34
+                ],
+                [
+                  0.9963436928702011,
+                  0.062385321100917435,
+                  545,
+                  34
                 ],
                 [
                   0.9981718464351006,
@@ -966265,6 +967551,23 @@
           "paired": null
         },
         {
+          "name": "Inkling 2 Small",
+          "text_run": 1337,
+          "english": {
+            "run": 1345,
+            "right": 509,
+            "wrong": 37,
+            "dont_know": 1,
+            "invalid": 0,
+            "accuracy": 0.9305301645338209,
+            "attempt_rate": 0.9981718464351006,
+            "non_hallucination": 0.02631578947368421,
+            "mean_dont_know_probability": null
+          },
+          "turkish": null,
+          "paired": null
+        },
+        {
           "name": "Claude Opus 5.5",
           "text_run": 47,
           "english": {
@@ -970114,6 +971417,18 @@
           "wrong_by_rank": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000100000000000000000000000000000000000000000000000000100000000000000000000000000000000000000001000000000000000100000000000000000000000000000000000000000000110000000100000000000000000000000001000001000001000000000000000000000010000000000000010000000001100100000000000100000010010110001100101000000100100000010000000000001100100010000000000100000000010000000000000010010100001000000000000000000000101000010001110000001000000001010011000100000001001000000101001000000100010000001010110000101000101110000001100101100000001000010010100001100001111001000000100101101000000001001110000110000101000010101000000110010000001110010001000000000010000001110100111000000111101000001110100100000010000000110010010010000001000110001000101000001100011110000001101011101010000111011000001001110111000101010101000001001100111000010001011111110011101010000100000101001000101000000001010001010001001101101101011010010100110110011101101101011100111110001100011001100101011110001110101101110100100010001100101100100011100101101011111100010000010000101001111000100011111111101011000000011010111111010001001000000111111110010111010000100101000111001110010001111100111111111101111011010110101110010101100111000011001111111100010110010111001100001100111111001110000011111110111011110101110110111011111000011010111000110010110111101001011110110110100011110111011010001001111101111100101111110001000100110101101000001100110111110100111110010011100111110101111011111110010101111001111110011010100101010010111101110011010111100111011110111100111000111101101111010011010011010011110111101101111010111111101111100101101111111010011111011001101001001111011111101111111111011110011100010111111001010110111011100110011101111111110110101101111111111110010101110110011011011111011111111101111001001111111"
         },
         {
+          "name": "Inkling 2 Small",
+          "text_run": 1337,
+          "five_option_run": 1337,
+          "wrong": null,
+          "wrong_of_answers": null,
+          "difference": null,
+          "interval": null,
+          "p": null,
+          "p_holm": null,
+          "wrong_by_rank": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000100000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000110100000000000000000000000000010010000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000001100000000000000000000000000000000010000000000000010000000000000011000100010000000000000001000000000000100000000001000001000000000000000010100000000000001000000000000000000000000000000000000000000000000010001000000000100000000000010100000000000000000100000000000000000000000100100010100100010000000000001000010000010001000001000000101001100110100110100101001100001111000111011001101001000000010110101000111100111000010000100100010010100011"
+        },
+        {
           "name": "DeepSeek-V4.1-Flash, first release",
           "text_run": 120,
           "five_option_run": 120,
@@ -971536,7 +972851,7 @@
             -0.03225806451612903
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000010000000000000000001000000001000000010000000010000100000001010110",
           "points": []
         },
@@ -971552,7 +972867,7 @@
             -0.03225806451612903
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000010000001000001011001000100001100011011011",
           "points": []
         },
@@ -971568,7 +972883,7 @@
             -0.03024193548387097
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010100000000000010000000000000000000000000000001000000110001010110100001100000000100101100101",
           "points": []
         },
@@ -971584,7 +972899,7 @@
             -0.0282258064516129
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000001001000000001000000000000000000000010000000100110000000111010000010100011011000101",
           "points": []
         },
@@ -971600,7 +972915,7 @@
             -0.02217741935483871
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000010000000000000000000000000000000000000000000000000000000000001000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000010000000010000000000000001000000100010000000110000000010000000000100100111001000101",
           "points": []
         },
@@ -971616,7 +972931,7 @@
             -0.022177419354838707
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000010000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000100000000010000000001000000000000000000010000000000000000010100001010000000100000000001000001100011010011",
           "points": []
         },
@@ -971632,7 +972947,7 @@
             -0.020161290322580645
           ],
           "p": 0.00039996000399960006,
-          "p_holm": 0.027997200279972004,
+          "p_holm": 0.028397160283971604,
           "wrong_by_rank": "0000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011000000000000000000000000000000000001000000100000010000000011001000000101001000000101000010000010001000000000111001",
           "points": []
         },
@@ -971648,7 +972963,7 @@
             -0.020161290322580648
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000100010000000000000000000000000000000000000000000000000100000000000000000000001000001000000100000000000000100000100000000101000000100010011111011",
           "points": []
         },
@@ -971664,7 +972979,7 @@
             -0.02419354838709677
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000100000000010000000000000000000000000000000000010000000000000000001000000001000000000000001000100001000000011000100101001000000110000110110",
           "points": []
         },
@@ -971680,7 +972995,7 @@
             -0.026209677419354843
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001100000000000000010000010000000000000010011000000000000011100100000010001111101001000101",
           "points": []
         },
@@ -971696,7 +973011,7 @@
             -0.026209677419354836
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000001000000000000000000000000010000100010100010010000000100101000010101100001001011001000101",
           "points": []
         },
@@ -971712,7 +973027,7 @@
             -0.024193548387096774
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000100000100000000000000000000000000000000000000000000100000000000000000000001000000010010000000010011110000100001010001000010100100101011",
           "points": []
         },
@@ -971728,7 +973043,7 @@
             -0.026209677419354836
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000100000000000000000000001000010000010001000000101000000110100000011000100111101010101",
           "points": []
         },
@@ -971744,7 +973059,7 @@
             -0.01814516129032258
           ],
           "p": 0.00039996000399960006,
-          "p_holm": 0.027997200279972004,
+          "p_holm": 0.028397160283971604,
           "wrong_by_rank": "0000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000001000000000000000000100010010000000000000000000000000000000000000000000000100000000001000001000000000100010000000000000110011110011100001001000000111",
           "points": []
         },
@@ -971760,7 +973075,7 @@
             -0.02217741935483871
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000001000000100000000000000000000000000000000000000000000000000001010000000000010000000000000010000000000100001010000100111000101100101100011011001",
           "points": []
         },
@@ -971776,7 +973091,7 @@
             -0.01814516129032258
           ],
           "p": 0.00039996000399960006,
-          "p_holm": 0.027997200279972004,
+          "p_holm": 0.028397160283971604,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000001010000000000000000000001000100000000000100000000111000110100110101000011000001010000000011010101000100011",
           "points": []
         },
@@ -971792,7 +973107,7 @@
             -0.012096774193548387
           ],
           "p": 0.001999800019998,
-          "p_holm": 0.11598840115988401,
+          "p_holm": 0.11798820117988201,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000010000000000000000100000000100000000100000000010000000100000000010000000001000100000001010100010001000101000001000111000000100001011101",
           "points": []
         },
@@ -971808,7 +973123,7 @@
             -0.01209677419354839
           ],
           "p": 0.0017998200179982,
-          "p_holm": 0.10618938106189381,
+          "p_holm": 0.107989201079892,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000010000000000000000000000110000000000000000000000000001000000000000000000000000000000000000000000110000100011000000001000010000000000110100000000000110101000010010001110110101",
           "points": []
         },
@@ -971824,7 +973139,7 @@
             -0.01008064516129032
           ],
           "p": 0.004999500049995001,
-          "p_holm": 0.23997600239976002,
+          "p_holm": 0.24497550244975505,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000010000000100000000000000000000000000000000000000000010000000000000001000000000000000000000000000000000000000000000000000000000000000000000000001000000000010000000000000000000000000001000000000000000000000000000000000000001000000000000000000000001101000000101010000010101100001110000110000001000000011000101",
           "points": []
         },
@@ -971840,7 +973155,7 @@
             -0.034274193548387094
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000010000111001001001011010011001",
           "points": []
         },
@@ -971856,7 +973171,7 @@
             -0.012096774193548383
           ],
           "p": 0.0027997200279972004,
-          "p_holm": 0.15398460153984603,
+          "p_holm": 0.15678432156784322,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000010000000000000000000000011000001010000000100000000000000000000010010000100000100110000010101010001101001010100010100011001001010100110010",
           "points": [
             {
@@ -971879,8 +973194,24 @@
             -0.010080645161290324
           ],
           "p": 0.0021997800219978004,
-          "p_holm": 0.12538746125387462,
+          "p_holm": 0.12758724127587243,
           "wrong_by_rank": "0000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100001000000000000011000000000000000000000000000000000000000001010000000000000001000000001100000000000000000011000000001000000000010000010110100001110010011101111111101",
+          "points": []
+        },
+        {
+          "name": "Inkling 2 Small",
+          "text_run": 1337,
+          "five_option_run": 1335,
+          "wrong": 19,
+          "wrong_of_answers": 0.038306451612903226,
+          "difference": -0.02016129032258064,
+          "interval": [
+            -0.04032258064516129,
+            0.0
+          ],
+          "p": 0.05879412058794121,
+          "p_holm": 1.0,
+          "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000001000000000000000000000010000000000000010000000000100000000000000000000000000010000000001000011000000000100010000000100010001010001001001101000000000000111011000100001000101011000011",
           "points": []
         },
         {
@@ -971911,7 +973242,7 @@
             -0.01008064516129032
           ],
           "p": 0.0031996800319968005,
-          "p_holm": 0.16958304169583044,
+          "p_holm": 0.17278272172782722,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000110000000000000001000000000100000000000000001000000000000000010100010000010001100000000111001010010010000010000001101111100101011011011110101000",
           "points": [
             {
@@ -971966,7 +973297,7 @@
             -0.006048387096774195
           ],
           "p": 0.011198880111988802,
-          "p_holm": 0.45915408459154083,
+          "p_holm": 0.47035296470352966,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000100010000010000001010000000000111000000101000000010100000000011111010110000110000110101110000100001010011110111100",
           "points": [
             {
@@ -972005,7 +973336,7 @@
             -0.006048387096774195
           ],
           "p": 0.0115988401159884,
-          "p_holm": 0.463953604639536,
+          "p_holm": 0.47555244475552444,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000010000000000000100000001000101010000111000110001000000010000100000001010010100100100111110101101011000101110011010101",
           "points": [
             {
@@ -972521,7 +973852,7 @@
             0.06451612903225806
           ],
           "p": 0.0023997600239976003,
-          "p_holm": 0.13438656134386562,
+          "p_holm": 0.13678632136786323,
           "wrong_by_rank": "0100000000000000000001010000000010100000000100000000000000000010000000000000000000000000000010000000000000000000010100000000000000010000000000000000000000000000000000000000000000000000000001011000000000000000000000000000000110000100000000011100000000000000000000000100100000000000000000000000000000000000000100000011000000000001000000000010000000000000010000001001000000000000100001000001000000001101000000000000000011000010000000000001000010000000000000000010000001000111000000000100000100000000000011100000001000001000001010000100001000000011100",
           "points": []
         },
@@ -972622,7 +973953,7 @@
             0.05443548387096774
           ],
           "p": 0.0143985601439856,
-          "p_holm": 0.5615438456154385,
+          "p_holm": 0.575942405759424,
           "wrong_by_rank": "0000000000000000001000100000000000000100000000000000000000000000000000000000100000000000000000100010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000101000000000100000000000000100000000000000000000000000000000000100000000100000000010000000000000000010010000000000000000011000001100000000000000000000100000100000100001000000100100000000000000001100100000001000011000110000010000101000000001001010000000001000010000101000000000000001000001100010000000101111011000001000011100001111101",
           "points": []
         },
@@ -972654,7 +973985,7 @@
             0.06451612903225806
           ],
           "p": 0.0031996800319968005,
-          "p_holm": 0.16958304169583044,
+          "p_holm": 0.17278272172782722,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000100000110000000000000000000000000000000000000000100000000000000000100000000000000000000000000000000000000000000000001000000000000000000000000000000000000100001000000000000001000001000000000001010000010010000000000000000000000000000100000000000000000001000000000010100101010000000100100100000001011001100000000000000000101110111001000010000011001001001010001000110010000100000000000110011000110101010001001001000110111",
           "points": []
         },
@@ -972670,7 +974001,7 @@
             0.06048387096774194
           ],
           "p": 0.010198980101989802,
-          "p_holm": 0.4283571642835717,
+          "p_holm": 0.43855614438556145,
           "wrong_by_rank": "0000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000011000000000000000000000000000100000001010000000100000100001000010000100000100000010000000001100000001100010000000000010000000000000000000001001010000110001001100011000100000011101110010101010000001111100100011011101000001110000010000111011010011000001101",
           "points": [
             {
@@ -972693,7 +974024,7 @@
             0.06854838709677419
           ],
           "p": 0.0013998600139986002,
-          "p_holm": 0.08679132086791322,
+          "p_holm": 0.08819118088191182,
           "wrong_by_rank": "0000000000000000000000000000000100000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000010000010100000100000000000000000000000000000100000000000000000000000000000000100000000000000000010000000000000100000010000000000000000000000000000100000000000000000011000000000000001001001100010000000000000100000110010100010001000100000100100010000000011100010011110000100010111010000111001000100000001000000000000011111000010111101010001001010110011",
           "points": []
         },
@@ -972709,7 +974040,7 @@
             0.05040322580645162
           ],
           "p": 0.027797220277972202,
-          "p_holm": 0.9451054894510549,
+          "p_holm": 0.972902709729027,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000001001000000000000000000100000001000000000000000000000000000000000000000000000000000010000100000001001000000000000000000110010101000100110100000101100000010001001001110000100101110011001010010010000100000001101001000001101001101001100110101101101000111111011111",
           "points": []
         },
@@ -972738,7 +974069,7 @@
             0.07862903225806452
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000010000000000000000000000000000000000000000000000000000000000000000100100000000000000000000000000000000000001000000000100001010010000000000000000000000000000000000000000000000000000000000100000000000010000000000000000000000010000000000000000000000000000000000000000000000000000000000000101100000000000000101010001011000100000000000000000001100100000000100110000000000100000000000000011000010101100100100000001011000010000000010000000000001000001001001100001101000011100001000000101000000000001000000100101100001000011010011000010011010001",
           "points": []
         },
@@ -972754,7 +974085,7 @@
             0.056451612903225805
           ],
           "p": 0.016798320167983202,
-          "p_holm": 0.6215378462153784,
+          "p_holm": 0.6383361663833617,
           "wrong_by_rank": "0000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001000000010000000001000000000000000000000001000100000100000000100000100000000010000110000100110001001000010000010001010000111000000111100010000100010001110000100000000011101110000001011010010101101000111100100100110110100010111111110",
           "points": [
             {
@@ -972777,7 +974108,7 @@
             0.06451612903225806
           ],
           "p": 0.006799320067993201,
-          "p_holm": 0.3127687231276872,
+          "p_holm": 0.31956804319568044,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000110000000000000010010000000010010000000000000000000000000001001000001010000000001010100000001100000000000000000000100000000010100000011000101000000001101000100000000010000010000110000011010010101100011011000000100100001001010111100011011011100000001001001101011000111010110",
           "points": [
             {
@@ -972800,7 +974131,7 @@
             0.05241935483870967
           ],
           "p": 0.0143985601439856,
-          "p_holm": 0.5615438456154385,
+          "p_holm": 0.575942405759424,
           "wrong_by_rank": "0000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000100000100000000100100100000000000100000000000001000000000000000000000000010010000000100000011000000000100100000110101000101000010100000100100000001000000110011011101110110010001101000011100011010011001101100111111010100101111011101",
           "points": [
             {
@@ -972823,7 +974154,7 @@
             0.05040322580645162
           ],
           "p": 0.0211978802119788,
-          "p_holm": 0.7631236876312368,
+          "p_holm": 0.7843215678432156,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000001100000000000000000000000000000000000010010000000001000000000000000001000010000000000000000100000000000000000000000000000000010000010000001000000010000000000000110000010001001000010000000110101000010001100010010000010011110110000100001111011001010010111001011010010111010101111010101010111110101",
           "points": [
             {
@@ -972846,7 +974177,7 @@
             0.06048387096774193
           ],
           "p": 0.009799020097990201,
-          "p_holm": 0.4213578642135787,
+          "p_holm": 0.43115688431156884,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000100000000000000000000000100000000000000010000000000000000000000000000010000000001000000000000000010000000000100000000000000000000000000100000000010000000010000000000001110000100100000000100000000000110101000100011000001100010000000000000110001110000100101010001000000011000101011001010100010010010011110000111110010101101110111110110011",
           "points": [
             {
@@ -972869,7 +974200,7 @@
             0.0846774193548387
           ],
           "p": 0.0005999400059994001,
-          "p_holm": 0.03899610038996101,
+          "p_holm": 0.0395960403959604,
           "wrong_by_rank": "0000000000000000000000000001000000000000000000000010000000001001000000000000001000000000000000000000000000000000000001100000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001001000000000000000000000000010000001000000000010001000000000000011100000000100100000001001000001000000000100100101000001000000000100010000010000000010100000000001000001000010001010010000000000000000000010000100000101010000100000001100011101100100100010100100011010101100010000100011001000001000001110100101",
           "points": []
         },
@@ -972885,7 +974216,7 @@
             0.06048387096774194
           ],
           "p": 0.004999500049995001,
-          "p_holm": 0.23997600239976002,
+          "p_holm": 0.24497550244975505,
           "wrong_by_rank": "0100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000001000000000000000000000000000000010000000100000000000000000110000000001010101000000000000100001000100001000110001000000000001000000110000001010000010011111101101000100011000001001011001101001011101100000101100111010001000011010101101100111111111",
           "points": [
             {
@@ -972924,7 +974255,7 @@
             0.05241935483870967
           ],
           "p": 0.0235976402359764,
-          "p_holm": 0.825917408259174,
+          "p_holm": 0.8495150484951505,
           "wrong_by_rank": "0000000000000000000000000000000000000000000100000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000010000000000000010000000000000000000000000000000000000000010000000001000100000000000000000000000000000100000001000000000000110000010010000011001000010010010000000101000010000010001000100110010100001010011010110111010111001000011101001011100111101111101011111011010111011",
           "points": [
             {
@@ -972947,7 +974278,7 @@
             0.06854838709677419
           ],
           "p": 0.0013998600139986002,
-          "p_holm": 0.08679132086791322,
+          "p_holm": 0.08819118088191182,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000001000000000000000000100000101000100001100110001000000000000000000100000000010000000000000000000010010101000001100100000011000011000100010100111110001000000000001100000000101000000010111110011100101111000100000110001100100011101010110101010101111110110",
           "points": [
             {
@@ -972970,7 +974301,7 @@
             0.07056451612903225
           ],
           "p": 0.00039996000399960006,
-          "p_holm": 0.027997200279972004,
+          "p_holm": 0.028397160283971604,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000010000010000000000000000000000000000000000000000000000000000000000000000000000101001100001100000001000010001001000001011001100000000000010000111000000010101000010011001111000001010010000010010100110101010100101010100000001100001110001000110010000001101011011101110110101011101",
           "points": []
         },
@@ -972986,7 +974317,7 @@
             0.05645161290322581
           ],
           "p": 0.003999600039996,
-          "p_holm": 0.1999800019998,
+          "p_holm": 0.203979602039796,
           "wrong_by_rank": "0000000000000000000000000000000000000000000001000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010000000000000000000000000000000000000000000000001000010000000000000000110000110001000000000000000000100000010010000000000100000100010000000111100100000101001001011000110010101010100010101100101010100001010101110010000011011110111110011110011010011001111111",
           "points": []
         },
@@ -973002,7 +974333,7 @@
             0.06653225806451613
           ],
           "p": 0.004399560043995601,
-          "p_holm": 0.21557844215578445,
+          "p_holm": 0.21997800219978003,
           "wrong_by_rank": "0000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000010000000000000000000000000101000000000000000001000000000100000000000001100000000010110000010000000000000100000001100100000000101000011000000100001001000000000010010010010001010000100000000110101001000100001101001000000011011011100000011100101010011111110001100010011001110111110101",
           "points": [
             {
@@ -973025,7 +974356,7 @@
             0.058467741935483875
           ],
           "p": 0.007999200079992,
-          "p_holm": 0.35996400359964004,
+          "p_holm": 0.36796320367963203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010000000001100000000000000001000000001000000000000000000000100000000000000000000000000000000010000010000010100000000000000000000000000101101100000001000110001010001111000110000000001001000000100000110110100000001111110011000000100111110110111000001101110111100100011100111010111111",
           "points": [
             {
@@ -973048,7 +974379,7 @@
             0.058467741935483875
           ],
           "p": 0.007999200079992,
-          "p_holm": 0.35996400359964004,
+          "p_holm": 0.36796320367963203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010000000001100000000000000001000000001000000000000000000000100000000000000000000000000000000010000010000010100000000000000000000000000101101100000001000110001010001111000110000000001001000000100000110110100000001111110011000000100111110110111000001101110111100100011100111010111111",
           "points": []
         },
@@ -973064,7 +974395,7 @@
             0.06451612903225806
           ],
           "p": 0.0037996200379962005,
-          "p_holm": 0.19378062193780624,
+          "p_holm": 0.19758024197580243,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100001000000000000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000001000000000000000000000010000001000000000000000000000000000000100000000000000111001100000010000000000000000000010000000010000000001101010000000000011001000000111100001001011010010100001100100101110000100010000010000110000001010000000100111111110111001111101001011001011001111011",
           "points": [
             {
@@ -973087,7 +974418,7 @@
             0.06653225806451613
           ],
           "p": 0.0013998600139986002,
-          "p_holm": 0.08679132086791322,
+          "p_holm": 0.08819118088191182,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000100000000000000100000001000000101000000000000000000000000000000001000000001000000101000110101001011010000010001000000000001010001000010000000001100111011000101100101100001110010001101101101010010011001011001000101111110011101011100011001111",
           "points": [
             {
@@ -973110,7 +974441,7 @@
             0.07258064516129031
           ],
           "p": 0.0005999400059994001,
-          "p_holm": 0.03899610038996101,
+          "p_holm": 0.0395960403959604,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000100000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000001000000000000000000000000000000000000000000000000001010000000000000000000000000000000000100000100000000000000000000000000100011100100010000000000010001000000000010000000100010000000010000110000000110000000000000100000001001000101000110000110001000011001010110101011101010001000000010110010110010000101110000001111111100100110011000001111101",
           "points": [
             {
@@ -973133,7 +974464,7 @@
             0.07862903225806453
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000100000000000000000000000000000010000000000000100000000000011000110000101000001000010001000000001010000101100000011000000101101001010000000000000100100100100100110000001010100000100010111011001010101110000001101010101110000000010100001101010101011110111000011011101101",
           "points": [
             {
@@ -973156,7 +974487,7 @@
             0.06451612903225806
           ],
           "p": 0.0027997200279972004,
-          "p_holm": 0.15398460153984603,
+          "p_holm": 0.15678432156784322,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010001001000000000000100000000000000000000000000000000000100000000010000000010000000000000000010000000000000010000000010000000010001000100100000000000000000100000000000000000000000001000000001000001000001010110000001101001011001001010000000001000011000000010000100010100001110001011000001100010001110110100111010101100011011111011111111110100",
           "points": [
             {
@@ -973179,7 +974510,7 @@
             0.0786290322580645
           ],
           "p": 0.000999900009999,
-          "p_holm": 0.062993700629937,
+          "p_holm": 0.063993600639936,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000100000000000000000000000000000000000001000000000001000010000000010001000000000011001000000000000000000000000001000000000000001000010000010001100010100000000000001011001000000000000000000100000001000000001000001000000000010111001001000000000111100110110001110111011000001010011010100000111111100001111010011100000111010111111000001",
           "points": [
             {
@@ -973202,7 +974533,7 @@
             0.12096774193548386
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000010010000000000001000000001010010011000000000000000100100101000000000110000000000001000000000000000001000000100101011100010010000101010100111000000000000000000000000000000000001000000000100000000000000000000100010010001000110110010000000000100000011000100000010000000010000110000000100000010110000000000000010000001000001000000010000001000100100010010010000000000000000000000001000000000000100000010100000000000000000000000000000000000000100100001001001110000011010000000001000000000000000000000000100000111",
           "points": []
         },
@@ -973218,7 +974549,7 @@
             0.07661290322580644
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000010000000000000000000000000000000000000000000000000000000000000000000000000100100010000000000000000000000000010110000100000000100000000000000000010010000000010000001000000000100010000001000100111100010001100010110000000111000101100011100011010111101011010111011000100100000101101011001111100101101100110001011111111",
           "points": []
         },
@@ -973234,7 +974565,7 @@
             0.08669354838709678
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000010000000100000000000000000000100000000000000100010000000000000000010000000000000000100100001000000000000001011001110000110000100100000000000000000000000010000000000001000000000000100100010001000000001101000000100000000000000000010000110011000110110100100000000100000010010110000010110111011100001000001001110001110000100000100101011010111011011100101111",
           "points": []
         },
@@ -973250,7 +974581,7 @@
             0.08064516129032256
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000001000000000010000000000000000000000000000010000000001000001000010000010000000000011000000000101000100010001000000011010110000011010010011001000101000001101000000110010000000001101001100100000100011000101111000100000101111000011111101111100001000011110010111010110111111110",
           "points": [
             {
@@ -973273,7 +974604,7 @@
             0.08870967741935483
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000001000000000000000010000001100000000000100000100000000011010001000001010000000000000000000100000010000001000100000000000011001101010000000000000000010100000100110011001000001110001100001000000111000001001000101011110100100010000100011110101010111010111110011001110100010001010001011011101",
           "points": [
             {
@@ -973296,7 +974627,7 @@
             0.09274193548387097
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000010000000000001000000000000000000010000000000000000000000010000000000000000000000000000000000000100000100000000000000000000000000010001001000000010000000000000010011000000000001000011000100011010000010001010000001011010000001000000110001001111011001100000000000110001011011011000000001000000001001010100100000111011011111010110101101001001100000000101101111110111",
           "points": []
         },
@@ -973312,7 +974643,7 @@
             0.08870967741935484
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000010000000000000000000000000100000000000000000100001000100000000000000000000100000000000010110000010000000000000001011000000010110000100001010111001000001000110000000011010000000011110010101010101011110100100110111101000101100100001000011001101000000111001111100010001101111111011111",
           "points": [
             {
@@ -973335,7 +974666,7 @@
             0.07258064516129031
           ],
           "p": 0.00039996000399960006,
-          "p_holm": 0.027997200279972004,
+          "p_holm": 0.028397160283971604,
           "wrong_by_rank": "0000000000000000000001000000000000000000000000100000000000000001000010100000000100000000000000100000000000000000100000000101100001000010100010000000000000000000000000000000000000000000000000000000000000000000100000001100100000000000000100000000000000000100000000000000000000000000001000000000000100000001000000100000000100010000000000000000000000000000000000000000000000000000000000000000000000000000000000001001000000000000000010000000000000000000000100000000001001110100011101110011011011100110011101111111110011101001001010011111111111110111101",
           "points": []
         },
@@ -973351,7 +974682,7 @@
             0.0907258064516129
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000100000000000000010000000000000000000001000000000010000010000000000000010000000100000000000000000000000010000000010000000000000010000000000100000000000000000000000001001000000000000000000011100010000000100001100010100100001100110000000000000100000100100001111010110100010111100000110010101001101110010110001001011110011011100110010011011011011100100000001110111",
           "points": [
             {
@@ -973374,7 +974705,7 @@
             0.0907258064516129
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000001000000000100000000000000000000000000000000000010000000010000000000000000000000000000000000000000100000000000100000000010011100000001000000000101010000000011000000010110100000000100000111000011010010001000000000101010100100100110110010100001100010111000010110101000011011001111010100010001010010110100101111110111111010110011",
           "points": [
             {
@@ -973397,7 +974728,7 @@
             0.08669354838709678
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000100000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000100000000000000000010000001000000000000000000000000000000010000000000000000000000001100000000011000000011000001000011000000000100000010011000001000000011011000000000000000011010011010000011000010000010101110011001101100101000101010010101110010000101101101111011110000001111101101101010011101111010",
           "points": [
             {
@@ -973420,7 +974751,7 @@
             0.09274193548387098
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000100000000000000000001000000000000000000000000000000000000000000001000001010010000001000000000000001000000000000000100000000000010000000100000010011101100111000010110001110010000101100000000101010000001000110010100000100111001011111110110001111111011100111101110110010101010110110100011011001110010",
           "points": [
             {
@@ -973443,7 +974774,7 @@
             0.08669354838709678
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000001000000000000000000000000000000000000000000010000000000000010000000000000000000000000000000000000000010000000000000000000000100000000000000100000000000001000001000000000000010010000000100000000000000000000000000000000111000000000000000010010011011000000100010000000011001000010010111011001111101000010111000100100011001000000101110110000010110001010000011001111110100000100110011111110011111111111",
           "points": [
             {
@@ -973466,7 +974797,7 @@
             0.10080645161290322
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000100000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000001001000100100100000100100001000000100000000000010010000010100000000001001000001001000000001100000000101110000010011000100101100111101101011000010110011101100000100101101011010100001000111110011001110000100101011011011010111011011110111",
           "points": [
             {
@@ -973502,7 +974833,7 @@
             0.10685483870967741
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000100000000000000000000010000000000000000000100010000000000100000000000000000000000000000000110001100000000000001000000000010000000110000000000001000001000000101000100000110000000000000001000000000000001010010001010101010101010001111000100010000000000110001001110000010010010011010011000000000110001000101000010101001101001011010110010101110111010010100101110011110001111101110",
           "points": [
             {
@@ -973525,7 +974856,7 @@
             0.09879032258064517
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000001000000000000000000000000000000010000100000010000001100100101000000000000001010000100010001000000010000001000000000001101000100000000101001001000001100001001000100000010110010001010010100100110100000100010100000010001000110100110010110101001010111101011111010010111010011101001101011111101111011101",
           "points": [
             {
@@ -973548,7 +974879,7 @@
             0.09879032258064516
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000010000100000000000000000000000000100000010000000000010000000000001000000011001000100000001000110000000000101011000001000001010000001010010100011001100111100001010101110000001110100010001011100111011000101100100000100101110111010110011111111110010111011110110110111110101",
           "points": [
             {
@@ -973571,7 +974902,7 @@
             0.12298387096774194
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000001000000000001000000000001000000000000000000010001010111010100010000000001000010011100000001000010010111110000100000000000011101000000010110000000010100111010101010010101100010110100011111111001111000100110001100110010011011010100100111110110100110111111110101101000101",
           "points": [
             {
@@ -973594,7 +974925,7 @@
             0.12499999999999999
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000001000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000001000000000000000000000000000000000000000000000000000000000100000001001000000000000000000000000000000000000100011000000001000000000000000000010100000000000000010100000001000010111000100100001010011011001100100000000000111010000001011000110000110001001110110110001100001100000010011010110011011111000011010111010101111111011101010001111011011000011001111100111011",
           "points": [
             {
@@ -973630,7 +974961,7 @@
             0.1310483870967742
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000011000000000000000000000000000000000000000000000000000000100000000000000100000000010000000000000000100010000010010000001000000101000000000000100000000000000000000011000000001000100000000000011100000000000010000000000100000000000100010001000000010000000101000111000001000000000001100100011011010001001011010110010010000100100000001010010001101001110010100100101110111110111100111011000110111111011111110001100111111101000011011",
           "points": []
         },
@@ -973646,7 +974977,7 @@
             0.15524193548387094
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000000010000000000000000001010000000000100000000000000100000000000000000000000000000000000000100000000000000010100000100000000000000100100000000100000000000000001000000000000000000110001000101000100000000000100010000000100001000011100000000000000001100100000111001100000010000100100000100011000000101001010110000010000000010111111110111000000001010011111101001111100001100110101110101101011110100110101111001111111101000010101111111001101111111",
           "points": [
             {
@@ -973682,7 +975013,7 @@
             0.21572580645161288
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010000000000000000000000001000000010000010001000000000000000000000100100000000000000000000100000000000000100000000000000000000100000100001100000000000010010000011110010000010001001011100101110000100011001000000000000100000000111101000111001110101011000011111001000100000000101111011001001101101110100111001100101100010011110101101110011011101001011100111100010111110011100011011100111010110111110111100001110111111111101011",
           "points": []
         },
@@ -973711,7 +975042,7 @@
             0.23185483870967744
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000001000000000000001000110000000000000000000000001000000000000000000010000000001000000001000000000011000000000000001000000001100101000000000000010100000000100010000010000000000000110001100110000000001010000101100110101110101000010101101001100000001111000101001001000011110000100000001111111011000110101110111101101001000111001011011111001010110001111000011001100110010110111101000000001101101110111111100111101010110100110101111011111101101000011",
           "points": [
             {
@@ -973760,7 +975091,7 @@
             0.22983870967741937
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000001000000000000000000000000000000000000000001010000000000000000000000000000000010000000001000000000000010000000000001000000000000000000010000000000000100100000000010000000011011001001001000000000000000000001111000000001010111000000000000110000000010100101000010100110100100000101000000100110100110010000110100100000101001011101110010100000110001110110111001011000111101010000001010010011000110101000100111011111010001010111100111010011011101111110000111000000011110111111111011011111111101010111011111111011",
           "points": [
             {
@@ -973783,7 +975114,7 @@
             0.24193548387096775
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000001000001000000000000000000000000000000000010000000000000000000001000000000001001000000000100100000000010000001100001000000000000100001001000100000010010000110101010000000000110000000011010100011111010000000001101101011000010101000100000000100111000001010011000011110111001111100101001101101110000110100111010101011100010110100011001011110011000101111111000011011000011110100100010011101001011011111101111100011101000111010111111101110111100111111",
           "points": [
             {
@@ -973832,7 +975163,7 @@
             0.2782258064516129
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000001010010000000000000000000000000000000000000000000000000000001000000000000000000000000100000001000000001000000000001100000000000100100000100001001010001001010000000100010000000000001001000100100000010100100100111010000000001000100000000110010010001000001111011100100010110001000100000000001001100000011111000001011010010001001101011100001000000010011110010000001100101111101000111001010001100010101101111011010110111101101011010111110011111111000001011110011011101101011111011111111010101111110111110111111111011101110111",
           "points": [
             {
@@ -973855,7 +975186,7 @@
             0.35080645161290325
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0010000000000000000000000000000000000000000000000000000001000000000000000000000000000010100010000000000000000000000000010000000000000000010010000001010000000000000101010001000001111000000000100001000010101000100000000001000000011001010100000100001010000111000011010100110001011000111000101000110100101010111100110111111111101101010001001001101101011100000110101101111111000100011111001000001011011110101011111110111111111110000111110001101101111110111111101011011011011011011000111101011111110111011101101110100111100110111011000110101101110110111",
           "points": [
             {
@@ -973878,7 +975209,7 @@
             0.3588709677419355
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000001000000010001011000000010000000000000000000000000010100000000000000011100000000000000000000101000000001000001000001000000111001000101000000000000100000100100000000001000000011101000110000010000010110100101100000100011100001100000110000101011100110010001101011101101101011010100100010101111111001011000110111010111111111111111000011111110001000111101101110011101011000101000110111001111011011111010110011111011010100111101101110010011010111010111111110111100111100111111110111010011111110100110111100101110",
           "points": [
             {
@@ -973901,7 +975232,7 @@
             0.35080645161290325
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000001000000000000100000000000010000000000000001000000000100000000000000100000000000001000000001100001000011000010000000101000010000100000100100000000101010001001001101000100011010000010010110001110110010010101100010000010000000100000101101101001111011100001111010111111000010010010111100110011000011110111100010001000110010001110110001010110101101100011010110000101101111100011000000010011111100000111001110110101101110100001000011011011010111100010001000101111011111111111010011010111110011011111110101110111110110011111111101111111",
           "points": [
             {
@@ -973924,7 +975255,7 @@
             0.36491935483870963
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000001000000000101100000000000000010000010000000000001010001000000001100100000100000000001000100101000001100100000011110000000110000010010010000000000001101010111000001010100101111100111001000001000101101001110000000101010110100100101010001001011000010110100000100000101011100001110000100110000100011110011000001111110111111111001111000111100010111111011100100000011111111010100011110010110101010111100111111111111011010110110011010110011111001010111110110011110010100111111010110111110001101101111110011",
           "points": [
             {
@@ -973947,7 +975278,7 @@
             0.3649193548387097
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000100000000000000000001010000000000000000000000000000000000000001000000000000000000100000000000000100000000100010100000011000000001011000000000000001100000000010000110000001100000100001001010010001100000000000101000100000001100010111101010000110010100100110011001011100001110110011000111001100111001010011000000110011110111001010011111001101011101101110100111110111001111111011101101001101011101010100000111011001110110000110010111111111111100100111101011010001111110010011001111011111111011011111111011110011111111011111001110101111101011000",
           "points": [
             {
@@ -973970,7 +975301,7 @@
             0.3770161290322581
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000001000000000000000000000000000000001000100000000000100001000000100000010100000100000000101001000010110010000001100100000101010001000100100000100000010011000000000100000000011101100010100100111110101000110011001010000100001111001010101110100010010010001010100111110001000011110110111100110111000011001101110010010001010011011111101100110101110110000110001000010110001111001011111101010011011000110011111110110100111001010110110101111110111101001111011100011100110111111110110100101111111011101111101100010111101001001100111",
           "points": [
             {
@@ -973993,7 +975324,7 @@
             0.40927419354838707
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000010000000000000000000000000100010000000010000010000000000010001000000000010010010000010000011000111000100000001001000000000011000011000000001100000001101100000010100111100011000100010010001010100011000000110001110011000011000010001110010011111100111110010111010111111100100010010010101001101101000111010101010011011111101111110100011001110101110111101101011111110110111111100011000111100001110011101111011100101001011101100000100000101000110001000111001111111111111111101101111101011110111100111000101111010111010000101100111111101110",
           "points": []
         },
@@ -974009,7 +975340,7 @@
             0.5040322580645161
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000001001000001001000001100000000000000000000001000101100010011000100100001111101110010110001000111100011101111011101000101011000101101101101110010011000000111001111101111001010100001110111101110100010111100100011101101101110001111011011111011100110101111111111111101111111111111011111111101101101111110110111110111110111100101111111101111111111001011111111111111111111110001010101110101111111110110110111010111111111111111111111110101110011111011111111010110111111111",
           "points": [
             {
@@ -974032,7 +975363,7 @@
             0.7540322580645161
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "1011100111011111100111111111111111101011100111110100110110111110101111111001111100111101111111011111011011111111111100101010111100011111111111111111001001110010111100101110011111111111011111111111101111111111111101111111111011111011111111111110111110111111010000101111110011111101101101101111110111110111001110101111110011110101101111111111110010111111100110111101111011110010110111111111011111111110011101101010010001001010100111111011110011111111111111111011111110111110111111011101110101111101111110111111111101111101110111101011100101110111111",
           "points": [
             {
@@ -974055,7 +975386,7 @@
             0.7641129032258065
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "1111100111101110101000011000111110100011110111101011110111001010111111101110101111010011101111111111111111111011101111110110011111111111011111111011111111100101110101010101111101111110111101111111100111001111000111011110111011011111011111111111111111111101101101111111110110101011111111111110101110111111101111111111101010011111110111110111111001110101111111111101100100111111011111111011011111111111101111111111011111111111111101111111110101010111011111111111010111110011011110101111110101011111111101011111110011111111111011111110111101111111011",
           "points": [
             {
@@ -974078,7 +975409,7 @@
             0.8145161290322581
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "1111011111111111111011111111111101011001111111111111110111111111111110111111111110111111111011111011011111111101111111111111011101111011111011110011101111011011111110011111111001111111110111111111111111101111111111111111110111011101111011111111111111111111011101111111110101111110111100111111001111111011100011010111101011111011111111101011010100011111111111101111111111111101111111110111010111111001101111111111111111111111011111111110111111111011111001101110001101110111111110111111101011000110111110110110111101111011111111111111111111101111111",
           "points": []
         },
@@ -974094,7 +975425,7 @@
             0.8306451612903225
           ],
           "p": 0.00019998000199980003,
-          "p_holm": 0.024597540245975404,
+          "p_holm": 0.024797520247975203,
           "wrong_by_rank": "1111111100111011111111111110111111111111100111111111110111100011111111111111111111111101111111111111111111111111111111110111101110011101111011001101111111001111111111110111110111110110111110111101111100111111111111111110110111111101011111111111101100011111111111111011111011001111111110101111111111111111110111101111101111110111111010011001111111110111111111111111111110111111111111110110111110110111111111111101111101101111111111110100111101110111110110011111111111101101111111111111011110111111111011111011111011011011101111101110111111110101111",
           "points": [
             {
@@ -975117,6 +976448,12 @@
         "text_run": 558,
         "kept": 1009,
         "wrong": 92
+      },
+      {
+        "name": "Inkling 2 Small",
+        "text_run": 1337,
+        "kept": 492,
+        "wrong": 0
       },
       {
         "name": "DeepSeek-V4.1-Flash, first release",

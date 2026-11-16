@@ -10854,6 +10854,31 @@
       "commit": null,
       "improvement_points": null,
       "kind": "decision",
+      "maker": "Liquid AI",
+      "model_key": "liquid-d1.2-ultra",
+      "name": "d1.2-ultra",
+      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (not attempted: outside the requested scope); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (not attempted: outside the requested scope); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #62 (Ümit via Zeki #10928/#10931, 16 Nov 2026). Liquid AI's d1.2-ultra through its decisions API (provider liquid, paid tier; the larger of the two d1.2 models), never on our GPUs; the request format of Liquid d1-ultra's League 1 decisions. First stage 16 Nov 2026, 19:56–20:01 UTC: its 9 program and hosted opponents (#1527–#1541); local stage 16 Nov 2026, 22:16–22:39 UTC: the 8 setups we run ourselves, one at a time on our GPU 0 (#1542–#1549). Runner 38024d6 (target/gemini-decision, map-check v2) for every match, started by the scripts of tools/v3/late-d12 (branch late-d12ultra, 39ad4b3; locals 0bedcfa). Its pairs with GPT-6 Luna (Decisions API) and Mercury Decide were not played: outside the requested scope (Ümit, 12 Nov).; hosted (API or subscription)",
+      "params_active": null,
+      "params_total": null,
+      "quantization": null,
+      "raw": {
+       "metric": "error rate (PR, lower is better)",
+       "options": null,
+       "questions": 1835,
+       "value": 33.06741772133258
+      },
+      "repo": null,
+      "runs": [
+       "backgammon:liquid-d1.2-ultra"
+      ],
+      "score_0_100": 72.7,
+      "tag": ""
+     },
+     {
+      "calibration_error": null,
+      "commit": null,
+      "improvement_points": null,
+      "kind": "decision",
       "maker": "Fastino",
       "model_key": "fastino-glide",
       "name": "GLiDE",
@@ -11098,6 +11123,31 @@
       ],
       "score_0_100": 67.98,
       "tag": "NVIDIA RTX PRO 6000 Blackwell + NVIDIA DGX Spark"
+     },
+     {
+      "calibration_error": null,
+      "commit": null,
+      "improvement_points": null,
+      "kind": "decision",
+      "maker": "Liquid AI",
+      "model_key": "liquid-d1.2",
+      "name": "d1.2",
+      "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (not attempted: outside the requested scope); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (not attempted: outside the requested scope); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #61 (Ümit via Zeki #10928/#10931, 16 Nov 2026). Liquid AI's d1.2 through its decisions API (provider liquid, paid tier; the smaller of the two d1.2 models), never on our GPUs; the request format of Liquid d1-ultra's League 1 decisions. First stage 16 Nov 2026, 19:56–20:01 UTC: its 9 program and hosted opponents (#1524–#1540); local stage 16 Nov 2026, 22:43–23:07 UTC: the 8 setups we run ourselves, one at a time on our GPU 0 (#1550–#1557). Runner 38024d6 (target/gemini-decision, map-check v2) for every match, started by the scripts of tools/v3/late-d12 (branch late-d12ultra, 39ad4b3; locals 0bedcfa). Its pairs with GPT-6 Luna (Decisions API) and Mercury Decide were not played: outside the requested scope (Ümit, 12 Nov).; hosted (API or subscription)",
+      "params_active": null,
+      "params_total": null,
+      "quantization": null,
+      "raw": {
+       "metric": "error rate (PR, lower is better)",
+       "options": null,
+       "questions": 1900,
+       "value": 40.0676253986986
+      },
+      "repo": null,
+      "runs": [
+       "backgammon:liquid-d1.2"
+      ],
+      "score_0_100": 66.92,
+      "tag": ""
      },
      {
       "calibration_error": null,
@@ -11680,10 +11730,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-16T22:35Z",
+    "updated": "2026-11-16T23:18Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "44c5543a4e6d8500253e1cf1fa6503a1d51d6c39c19a24f1ad7838e49857a51c"
+   "sha256": "37a5dc6faef834736ef205d266620cd4fe185a0d22b0e369d60a246680a89699"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
