@@ -1,15 +1,46 @@
 {
-  "attempted": 4536,
+  "attempted": 5796,
   "full_cohort_approved": true,
+  "hard_set": {
+    "attempted": 3312,
+    "report_ids": [
+      "f6a742942de067fc3de4686e688c564e80be956f0bbeee5b08c5f96d12e160af",
+      "49054f114d4aa8ab00b0c970a466e93e09bdb8a8a2b13e094cb3f89fa4ccb6f5",
+      "6438dc0d15728a182dc3216c2f94299e8263235b2e728a125ff9f8cadbdc76ed",
+      "53112cc9e51a3c84619a497052868f2be47fd3bfcd44b4eb17af43f0f08311a9",
+      "27a84c9ac606f29120025ba5146dab10d8f79ef462e0349180345e8f555e1039",
+      "14a1670c43f9b70edb6d260fd3652c7187b98c97fd041848fce7f700d36730ff",
+      "21f3ef13e659ef514e71016f70155fa31e593844002b71343fc4d06cde56b3fe",
+      "5a64e9a304ce5c22dfd4735c60096c3fe6de65503565fd9c137b08a2bde90f1e",
+      "10f52280f44dd977a0733509d0804f1816b0e0644c25d892d70f1f66e9802318",
+      "6e10091742dfb5f0288682ffb0410d23bff860b2d03558c320630b957452baf6",
+      "d2f720cf1b957dd753d1e58d2e828032b15b14a9ab92d897881a20200f6195e1",
+      "24f1c17bca4f3b38537e72c6986fabd7b26ff4299c7e541839e3202593272272",
+      "96415472354b896e265793e2365fc5b2bebc5594968e98f2c325bb3c39f43339",
+      "d22fa30c9004d04be7e72181e46b3f7fdd3ec9120580253f3f1e57f22d72c827",
+      "79f5324a24db4cc6683f5865e00eb7d8331fe137d891fbdf13dfa98cb58be2d3",
+      "511dae62ca5252589cc84079f21e12e5a4e9da5859b8010ed9dba2db800e6cc2",
+      "87114d424d910acc4d84092ad931c0475cb0d5065dd1225e549e670a2d5b032c",
+      "e03a41c8c729e138a1fb4130837439a8db729ee21829c5ba0d89b80306493c30",
+      "9918f896f7234fe98b21795fb4937fb29b7dfe49b233ddc1bdda4c5881fb2c8e",
+      "33b2fc529fb2de88831d43e81b9afd563c90d7d8dbded7d334a2ac02081daff4",
+      "604dc3902cff19025cbfe96022094ed0376406a03797afe689cb8227ffe6786c",
+      "f4b2e4a175cbb720ef525cacf7c1ce04ae09083a794457d2af61fbcf1f78e024",
+      "a92b0fc63f5e4d1d3c6ad852aca000c3a793ff08d84ee076b0ab1367a5930506"
+    ],
+    "scored": 3311,
+    "setups": 23,
+    "unscored": 1
+  },
   "not_qualified": [
     {
-      "finding": "Qualification failed on public task single-01 with the maker's chat template: after a correct get_price call and its mock result, the model's next token was <|tool_response> (the opening tag of a new tool result, which Gemma's generation_config lists as a stop token), so the reply was empty. One observation. A matching template gap is reported in https://github.com/google-deepmind/gemma/issues/829: with thinking off, Gemma 4's template adds no empty thought after a tool result, although it does at the start of a turn (the issue's measurements use the 26B model). With the issue's suggested two-line fix this model passed: see the row 'Gemma 4 E2B (tool-result cue template)'.",
+      "finding": "Qualification failed on public task single-01: after a correct get_price call and its mock result, the model's next token was <|tool_response> (an end-of-generation id), so the reply was empty. With thinking off, neither the maker's chat template nor vLLM's example template adds a continuation cue after a tool result. One observation; cause not proven.",
       "qualification_evidence_sha256": "11b2effa6e9f1f57d2fd1a76001d65b3f2a5f497ee815666bc2a8b6e8d41a18a",
       "requested_name": "Gemma 4 E2B",
       "thinking_mode": "off"
     }
   ],
-  "rankable_setups": 18,
+  "rankable_setups": 23,
   "report_ids": [
     "5e65142ae9cfa7bb6cf0ca3c53bd63a502a255d13ee66aea80faeb782411f5e6",
     "27023f16baa4af5f5d659c2e14bc79406f064a356825f8e5ca094385cd6cd726",
@@ -28,12 +59,17 @@
     "71d9250a150d74bd08882aef5d9c6cb9c0b6c7faa795b471b724d5110e895242",
     "3ed26ffbcd602b69bf2bdf8e3931eb85fe5e7d8fe3b86e072c51576497ba4b99",
     "3a310919357f8495163596163db17dbf37d8243f612a8fee8ad639b0b04d38cb",
-    "449350778855864d3c4bb9d94c9c09aea997425277dc1193015f6c3c93f3922a"
+    "449350778855864d3c4bb9d94c9c09aea997425277dc1193015f6c3c93f3922a",
+    "ab8b10f2c435f6346f219b9ec2434c2931462f4794e9a3a3e62c6fea993afbaa",
+    "540de94d654c683bd368da1a75c12428a9651864c783fecb2d6db1efb25c5710",
+    "d072f54b34ce4ea09e6e8023f3129093965fe4ec2cb27cedccd46acb73359aaf",
+    "55d109bbc1ec0970e88c9c1c787786a7c2e4417ac93360986f37abd225615559",
+    "23e74f4bd54a0e12636cd523d94479ad9fff48615c4bbed2e09b6d4a7d3a8cee"
   ],
-  "scored": 4536,
-  "setups": 18,
+  "scored": 5796,
+  "setups": 23,
   "stage": "results",
   "tiered": true,
   "unscored": 0,
-  "updated": "2026-11-16T15:52:44+01:00"
+  "updated": "2026-11-16T17:30:54+01:00"
 }
