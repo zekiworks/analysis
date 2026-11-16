@@ -853,6 +853,11 @@ GPU_TIME: dict[tuple[str, str], int] = {
     # (newsbang/adjudex-9b-v5 at ffdcb825) behind its card's autojev server, which answers only to 'jev-latest' or
     # 'autojev-qwen3.5-9b'; Jeffan-9B-1211 (tattrongvu/Jeffan-9B-1211 at 862d1a7a) behind di_serve.py.
     ("knowline", "PelaAI/KnowLine-9B-Gen1"): 1,
+    # KnowLine-31B-Gen2 (fd99a9ed), KnowLine-9B-Gen2 (8ec8eb60) and KnowLine-12B-Gen1 (f26fbc2d), each behind its card's
+    # serve_knowline.sh in SGLang 0.5.23 on one bariton GPU, compactor's loads after its Answer Check (Ümit #9814, #9815).
+    ("knowline", "PelaAI/KnowLine-31B-Gen2"): 1,
+    ("knowline", "PelaAI/KnowLine-9B-Gen2"): 1,
+    ("knowline", "PelaAI/KnowLine-12B-Gen1"): 1,
     ("pplx-decider", "jev-latest"): 1,
     ("di-serve", "Jeffan-9B-1211"): 1,
     # Chinese Decision Pointer 4B (quincyqiang/chinese-decision-pointer-4b at 889f23e2) behind di_serve.py (compactor
