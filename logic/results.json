@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-16T17:12:06Z",
+ "generated_at": "2026-11-16T17:22:01Z",
  "tests": {
   "logic": {
    "name": "Logic",
@@ -199,6 +199,34 @@
      "cost_basis": null,
      "gpu_hours": null,
      "median_latency_ms": 8210.0,
+     "mixed_concurrency": false
+    },
+    {
+     "name": "Inkling 2 Small",
+     "display_name": "Inkling 2 Small",
+     "tag": "high · chat",
+     "class_label": "Open · 594B MoE · 17B active",
+     "base_model": null,
+     "setup_label": "Inkling 2 Small",
+     "group": "chat",
+     "gpu_or_api": "API",
+     "accuracy": 0.9564444444444444,
+     "wilson_low": 0.9428835110822366,
+     "wilson_high": 0.9668986939676129,
+     "right": 1076,
+     "n": 1125,
+     "decision_score": null,
+     "chosen_answer_brier": null,
+     "n_scored": null,
+     "decision_score_lacking": null,
+     "auroc": null,
+     "non_hallucination": 0.6,
+     "cost_per_1000": 4.121375804444444,
+     "cost_usd": 4.63654778,
+     "cost_unit": "USD",
+     "cost_basis": "provider price × reported usage",
+     "gpu_hours": null,
+     "median_latency_ms": 13180.0,
      "mixed_concurrency": false
     },
     {
@@ -748,7 +776,7 @@
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
-     "non_hallucination": 0.5934959349593496,
+     "non_hallucination": 0.5431472081218274,
      "cost_per_1000": 0.9701777777777778,
      "cost_usd": 1.09145,
      "cost_unit": "USD",
@@ -1067,9 +1095,15 @@
        "run_id": "gemma-4-e2b-it-think-32k-sampled-seed0_en",
        "right": 855,
        "n": 1125
+      },
+      {
+       "seed": 1,
+       "run_id": "gemma-4-e2b-it-think-32k-sampled-seed1_en",
+       "right": 873,
+       "n": 1125
       }
      ],
-     "seeds_complete": "1/3"
+     "seeds_complete": "2/3"
     },
     {
      "name": "Gemma 4 E2B",
