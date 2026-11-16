@@ -11,8 +11,8 @@ const storeName='hilde.research.atlas.v1';
 const $=s=>document.querySelector(s);
 const safe=v=>String(v??'').replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[x]));
 const fmtNum=(x,n=1)=>Number(x).toLocaleString(s.ui==='tr'?'tr-TR':'en-US',{maximumFractionDigits:n,minimumFractionDigits:0});
-const timed=/^(\d{4}-\d{2}-\d{2})T(\d{2})(\d{2})Z$/;
-const dateLabel=v=>timed.test(v||'')?(m=>new Intl.DateTimeFormat(s.ui==='tr'?'tr-TR':'en-GB',{day:'numeric',month:s.ui==='tr'?'long':'short',year:'numeric',timeZone:'UTC'}).format(new Date(m[1]+'T12:00:00Z'))+' · '+m[2]+':'+m[3]+' UTC')(timed.exec(v)):v==='2026-11-15'?(s.ui==='tr'?'15 Kasım 2026 · sabah':'15 Nov 2026 · morning'):dates.includes(v)?new Intl.DateTimeFormat(s.ui==='tr'?'tr-TR':'en-US',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(v+'T12:00:00Z')):v;
+const timed=/^(\d{4}-\d{2}-\d{2})T(\d{2})(\d{2})(\d{2})?Z$/; // to the second where two commits share a minute
+const dateLabel=v=>timed.test(v||'')?(m=>new Intl.DateTimeFormat(s.ui==='tr'?'tr-TR':'en-GB',{day:'numeric',month:s.ui==='tr'?'long':'short',year:'numeric',timeZone:'UTC'}).format(new Date(m[1]+'T12:00:00Z'))+' · '+m[2]+':'+m[3]+(m[4]?':'+m[4]:'')+' UTC')(timed.exec(v)):v==='2026-11-15'?(s.ui==='tr'?'15 Kasım 2026 · sabah':'15 Nov 2026 · morning'):dates.includes(v)?new Intl.DateTimeFormat(s.ui==='tr'?'tr-TR':'en-US',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(v+'T12:00:00Z')):v;
 const has=v=>v!==undefined&&v!==null&&v!=='';
 const uniq=a=>Array.from(new Set(a));
 const iconShapes={

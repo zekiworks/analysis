@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 296d5aea (16 November 2026)
+
+- MiniCPM5-2B with thinking off gets its Turkish side, at the request settings of its English runs, on logic's loads of 15 November (Text run 1299 on GPU 2; its "Bilmiyorum" run 1304 on GPU 2, then on a reload on GPU 1 after the GPU 2 server stopped at 145 answers, same image, weights and settings; logic #9547). Its Turkish smoke test had failed, and Ümit asked for the runs anyway (via Zeki #8830): every reply is kept and a reply without a readable answer counts wrong. Text: 123 of 2,198 right (5.6%; reading 43, grammar 80), 1,654 replies without a readable answer; last of 131 setups. "Bilmiyorum": 109 right, 113 "Bilmiyorum", 332 wrong, 1,644 unreadable. It leaves the In progress table.
+- The paired test now counts 131 comparisons (130 before), 7 passing (6 before).
+
 ## Results 3806e5aa (16 November 2026)
 
 - English seeds of the thinking-off setups (Ümit #9658): LFM3-1.7B (runs 1223, 1302, 1303: 399, 388 and 391 of 547) and MiniCPM5-2B (runs 1094, 1300, 1301: 370, 377 and 365) now show the mean of three seeds with the lowest and highest beside it: 71.8% (70.9–72.9%) and 67.8% (66.7–68.9%). Seeds 1 and 2 were asked at the first run's request settings with only the seed changed, on logic's loads of 15 November; MiniCPM5-2B's note gives its server settings as logic reported them.
