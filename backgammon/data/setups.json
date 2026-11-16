@@ -3875,6 +3875,70 @@
    "weights": "open"
   },
   {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "16 Nov 2026",
+   "missing": [],
+   "model": "Liquid d1.2-ultra",
+   "model_id": "d1.2-ultra (Liquid AI decisions API; closed weights)",
+   "model_type": "decision model",
+   "name": "Liquid d1.2-ultra",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #62 (Ümit via Zeki #10928/#10931, 16 Nov 2026). Liquid AI's d1.2-ultra through its decisions API (provider liquid, paid tier; the larger of the two d1.2 models), never on our GPUs; the request format of Liquid d1-ultra's League 1 decisions. First stage 16 Nov 2026, 19:56–20:01 UTC: its 9 program and hosted opponents (#1527–#1541); local stage 16 Nov 2026, 22:16–22:39 UTC: the 8 setups we run ourselves, one at a time on our GPU 0 (#1542–#1549). Runner 38024d6 (target/gemini-decision, map-check v2) for every match, started by the scripts of tools/v3/late-d12 (branch late-d12ultra, 39ad4b3; locals 0bedcfa). Its pairs with GPT-6 Luna (Decisions API) and Mercury Decide were not played: outside the requested scope (Ümit, 12 Nov).",
+   "option_groups": "up to 255 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-16",
+    "input_per_mtok": 0.042,
+    "label": "API price",
+    "output_per_mtok": 0.0,
+    "source": "liquid.ai/pricing and liquid.ai/blog/d1-2 ($0.042/M input, $0 output), read 2026-11-16; cost is the list price × our recorded tokens (turns.cost_usd)"
+   },
+   "provider": "Liquid AI decisions API (api.liquid.ai/decisions/v1/systemone, model d1.2-ultra), paid tier; at most 2 requests in flight, one match at a time",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "API",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "liquid-d1.2-ultra",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/probability_source/cost_usd/harness_commit (v3.db, read-only)",
+    "mailbox/Late entry Liquid d1.2-ultra - status.md"
+   ],
+   "weights": "closed"
+  },
+  {
+   "confidence_source": "decision-model probability",
+   "dataset": "late-entry",
+   "date_run": "16 Nov 2026",
+   "missing": [],
+   "model": "Liquid d1.2",
+   "model_id": "d1.2 (Liquid AI decisions API; closed weights)",
+   "model_type": "decision model",
+   "name": "Liquid d1.2",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #61 (Ümit via Zeki #10928/#10931, 16 Nov 2026). Liquid AI's d1.2 through its decisions API (provider liquid, paid tier; the smaller of the two d1.2 models), never on our GPUs; the request format of Liquid d1-ultra's League 1 decisions. First stage 16 Nov 2026, 19:56–20:01 UTC: its 9 program and hosted opponents (#1524–#1540); local stage 16 Nov 2026, 22:43–23:07 UTC: the 8 setups we run ourselves, one at a time on our GPU 0 (#1550–#1557). Runner 38024d6 (target/gemini-decision, map-check v2) for every match, started by the scripts of tools/v3/late-d12 (branch late-d12ultra, 39ad4b3; locals 0bedcfa). Its pairs with GPT-6 Luna (Decisions API) and Mercury Decide were not played: outside the requested scope (Ümit, 12 Nov).",
+   "option_groups": "up to 255 options per request; more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-16",
+    "input_per_mtok": 0.02,
+    "label": "API price",
+    "output_per_mtok": 0.0,
+    "source": "liquid.ai/pricing and liquid.ai/blog/d1-2 ($0.02/M input, $0 output), read 2026-11-16; cost is the list price × our recorded tokens (turns.cost_usd)"
+   },
+   "provider": "Liquid AI decisions API (api.liquid.ai/decisions/v1/systemone, model d1.2), paid tier; at most 2 requests in flight, one match at a time",
+   "reasoning": "none (decision model)",
+   "rules_text": "long",
+   "runs_on": "API",
+   "sampling": "not sent (decision request)",
+   "setting": null,
+   "slug": "liquid-d1.2",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/probability_source/cost_usd/harness_commit (v3.db, read-only)",
+    "mailbox/Late entry Liquid d1.2 - status.md"
+   ],
+   "weights": "closed"
+  },
+  {
    "confidence_source": "none",
    "dataset": "late-entry",
    "date_run": null,
