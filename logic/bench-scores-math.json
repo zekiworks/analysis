@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-16T17:46:57Z",
+ "updated": "2026-11-16T17:53:52Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -840,37 +840,6 @@
    "gpu_cost_usd": 0.5865333333333334
   },
   {
-   "repo": "KRAFTON/Raon-1-nano",
-   "commit": "fcf2d1d55e84e2f9fbe7b5d724dcfc4d861cfcee",
-   "model_key": "raon-1-nano",
-   "name": "Raon-1 nano",
-   "display_name": "Raon-1 nano",
-   "tag": "on · chat",
-   "class_label": "Open · 3.1B",
-   "base_model": "Raon-1 mini preview (MoE-to-Dense pruning and distillation)",
-   "setup_label": "Raon-1 nano (chat, thinking on, KRAFTON vLLM fork, on our GPU)",
-   "maker": "KRAFTON",
-   "kind": "chat",
-   "params_total": 3.1,
-   "params_active": 3.1,
-   "quantization": null,
-   "score_0_100": 96.24364308830326,
-   "raw": {
-    "metric": "accuracy",
-    "value": 0.9699491447064262,
-    "questions": 2163,
-    "options": 5
-   },
-   "calibration_error": null,
-   "improvement_points": null,
-   "runs": [
-    "math:raon-1-nano_en"
-   ],
-   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); 1.5B effective parameters; no complete 'I don't know' run",
-   "gpu_hours": 1.4508333333333334,
-   "gpu_cost_usd": 3.612575
-  },
-  {
    "repo": "google/gemma-4-E2B-it",
    "commit": "4adf15748de9e1a0097b6274cee9c15836c41c37",
    "model_key": "gemma-4-e2b",
@@ -1093,6 +1062,37 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
    "gpu_hours": 0.2311111111111111,
    "gpu_cost_usd": 0.5754666666666668
+  },
+  {
+   "repo": "KRAFTON/Raon-1-nano",
+   "commit": "fcf2d1d55e84e2f9fbe7b5d724dcfc4d861cfcee",
+   "model_key": "raon-1-nano",
+   "name": "Raon-1 nano",
+   "display_name": "Raon-1 nano",
+   "tag": "off · chat",
+   "class_label": "Open · 3.1B",
+   "base_model": "Raon-1 mini preview (MoE-to-Dense pruning and distillation)",
+   "setup_label": "Raon-1 nano (chat, thinking off, KRAFTON vLLM fork, on our GPU)",
+   "maker": "KRAFTON",
+   "kind": "chat",
+   "params_total": 3.1,
+   "params_active": 3.1,
+   "quantization": null,
+   "score_0_100": 86.93943596856218,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8955154877484974,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "math:raon-1-nano-nothink_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Raon-1 nano (on · chat); 1.5B effective parameters; no complete 'I don't know' run",
+   "gpu_hours": 1.6511111111111112,
+   "gpu_cost_usd": 4.111266666666667
   },
   {
    "repo": "MachinePulseAI/karpo-decision-31B",
