@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "242935ed",
-  "updated": "2026-11-15T16:00:17Z",
+  "results_version": "3806e5aa",
+  "updated": "2026-11-16T02:26:48Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -1915,7 +1915,7 @@
         "https://deepmind.google/models/model-cards/gemini-4-carbon/"
       ],
       "parameters_read": "2026-11-11",
-      "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, tools denied, thinking high; the bridge applies no response format, so the prompt adds a paragraph stating the answer layout",
+      "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, thinking high; each request a new Antigravity agent conversation, so Antigravity's own agent instructions and tool declarations (about 13,000 tokens) come before our prompt, with every tool call denied and, as the bridge's owner reports, no workspace files and no earlier conversation; the bridge applies no response format, so the prompt adds a paragraph stating the answer layout",
       "questions_per_request": 16,
       "concurrency": 1,
       "correct": 2164,
@@ -3329,7 +3329,7 @@
         "https://deepmind.google/models/model-cards/gemini-4-hydrogen/"
       ],
       "parameters_read": "2026-11-12",
-      "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, tools denied, thinking high; the bridge applies no response format, so the prompt adds a paragraph stating the answer layout",
+      "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, thinking high; each request a new Antigravity agent conversation, so Antigravity's own agent instructions and tool declarations (about 13,000 tokens) come before our prompt, with every tool call denied and, as the bridge's owner reports, no workspace files and no earlier conversation; the bridge applies no response format, so the prompt adds a paragraph stating the answer layout",
       "questions_per_request": 16,
       "concurrency": 1,
       "correct": 2156,
@@ -400104,6 +400104,95 @@
         }
       },
       {
+        "name": "Erk-14B",
+        "model": "erk-14b",
+        "provider": "vllm",
+        "run": 762,
+        "runs": [
+          762
+        ],
+        "dates": [
+          "2026-11-05"
+        ],
+        "perplexity_mode": null,
+        "turkish_run": 132,
+        "turkish_runs": [
+          132
+        ],
+        "english_machine": null,
+        "cost": {
+          "english": {
+            "usd": 0.06741200797837034,
+            "per_1000": 0.123239502702688,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 133224,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 4409
+            },
+            "requests": 35,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 97.46314406511374
+          },
+          "turkish": {
+            "usd": 0.23228015626617224,
+            "per_1000": 0.10567796008470075,
+            "basis": "gpu",
+            "upper_bound": false
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 2.8556911799823865,
+            "p90_request_seconds": 2.9146575883496553,
+            "concurrency": 1,
+            "questions_per_request": 16
+          },
+          "turkish": {
+            "median_request_seconds": 2.3896605125046335,
+            "p90_request_seconds": 2.662659723334946,
+            "concurrency": 1,
+            "questions_per_request": 16,
+            "source": "run"
+          }
+        },
+        "english": {
+          "right": 394,
+          "wrong": 153,
+          "invalid": 0,
+          "accuracy": 0.720292504570384
+        },
+        "turkish": {
+          "right": 412,
+          "wrong": 135,
+          "invalid": 0,
+          "accuracy": 0.753199268738574
+        },
+        "difference": -0.03290676416819005,
+        "spread": null,
+        "answers_changed": null,
+        "paired": {
+          "english_only_right": 48,
+          "turkish_only_right": 66,
+          "p": 0.11093931188461267,
+          "p_holm": 1.0
+        }
+      },
+      {
         "name": "LFM3-1.7B",
         "model": "lfm3-1.7b-vllm-nothink",
         "provider": "vllm-plain",
@@ -400195,95 +400284,36 @@
           "turkish_only_right": 42,
           "p": 1.6141574661170747e-30,
           "p_holm": 1.985413683324002e-28
-        }
-      },
-      {
-        "name": "Erk-14B",
-        "model": "erk-14b",
-        "provider": "vllm",
-        "run": 762,
-        "runs": [
-          762
-        ],
-        "dates": [
-          "2026-11-05"
-        ],
-        "perplexity_mode": null,
-        "turkish_run": 132,
-        "turkish_runs": [
-          132
-        ],
-        "english_machine": null,
-        "cost": {
-          "english": {
-            "usd": 0.06741200797837034,
-            "per_1000": 0.123239502702688,
-            "basis": "gpu",
-            "billing": "local",
-            "tokens": {
-              "input_tokens": 133224,
-              "cached_input_tokens": 0,
-              "cache_write_input_tokens": 0,
-              "cache_write_1h_input_tokens": 0,
-              "output_tokens": 4409
+        },
+        "seeds": {
+          "of": 3,
+          "completed": 3,
+          "runs": [
+            {
+              "seed": 0,
+              "run": 1223,
+              "right": 399,
+              "questions": 547,
+              "accuracy": 0.7294332723948812
             },
-            "requests": 35,
-            "price": {
-              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
-              "source": "https://www.runpod.io/pricing",
-              "date": "2026-11-05",
-              "change": null,
-              "applies_to": "gpu",
-              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
-              "gpus": 1,
-              "usd_per_gpu_hour": 2.49,
-              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            {
+              "seed": 1,
+              "run": 1302,
+              "right": 388,
+              "questions": 547,
+              "accuracy": 0.7093235831809872
             },
-            "upper_bound": false,
-            "request_seconds": 97.46314406511374
-          },
-          "turkish": {
-            "usd": 0.23228015626617224,
-            "per_1000": 0.10567796008470075,
-            "basis": "gpu",
-            "upper_bound": false
-          }
-        },
-        "latency": {
-          "english": {
-            "median_request_seconds": 2.8556911799823865,
-            "p90_request_seconds": 2.9146575883496553,
-            "concurrency": 1,
-            "questions_per_request": 16
-          },
-          "turkish": {
-            "median_request_seconds": 2.3896605125046335,
-            "p90_request_seconds": 2.662659723334946,
-            "concurrency": 1,
-            "questions_per_request": 16,
-            "source": "run"
-          }
-        },
-        "english": {
-          "right": 394,
-          "wrong": 153,
-          "invalid": 0,
-          "accuracy": 0.720292504570384
-        },
-        "turkish": {
-          "right": 412,
-          "wrong": 135,
-          "invalid": 0,
-          "accuracy": 0.753199268738574
-        },
-        "difference": -0.03290676416819005,
-        "spread": null,
-        "answers_changed": null,
-        "paired": {
-          "english_only_right": 48,
-          "turkish_only_right": 66,
-          "p": 0.11093931188461267,
-          "p_holm": 1.0
+            {
+              "seed": 2,
+              "run": 1303,
+              "right": 391,
+              "questions": 547,
+              "accuracy": 0.7148080438756855
+            }
+          ],
+          "mean": 0.7178549664838513,
+          "min": 0.7093235831809872,
+          "max": 0.7294332723948812
         }
       },
       {
@@ -402468,6 +402498,37 @@
           "wrong": 169,
           "invalid": 8,
           "accuracy": 0.676416819012797
+        },
+        "seeds": {
+          "of": 3,
+          "completed": 3,
+          "runs": [
+            {
+              "seed": 0,
+              "run": 1094,
+              "right": 370,
+              "questions": 547,
+              "accuracy": 0.676416819012797
+            },
+            {
+              "seed": 1,
+              "run": 1300,
+              "right": 377,
+              "questions": 547,
+              "accuracy": 0.6892138939670932
+            },
+            {
+              "seed": 2,
+              "run": 1301,
+              "right": 365,
+              "questions": 547,
+              "accuracy": 0.6672760511882998
+            }
+          ],
+          "mean": 0.6776355880560634,
+          "min": 0.6672760511882998,
+          "max": 0.6892138939670932,
+          "note": "Seeds 1 and 2 on logic's load of 15 November (vLLM v0.30.0, max-num-seqs 16), which logic gives as run 1094's setup (#9335); the server's settings are not recorded with a run."
         }
       },
       {
@@ -802816,53 +802877,6 @@
           ]
         },
         {
-          "name": "LFM3-1.7B",
-          "text_run": 1227,
-          "native": [
-            {
-              "language": "Turkish",
-              "wording": "Bilmiyorum",
-              "run": 1234,
-              "full_bank_restricted": true,
-              "right": 138,
-              "wrong": 173,
-              "abstained": 215,
-              "invalid": 21,
-              "coverage": 0.5685557586837294,
-              "risk": 0.5562700964630225
-            },
-            {
-              "language": "Turkish",
-              "wording": "I don't know",
-              "run": null
-            },
-            {
-              "language": "English",
-              "wording": "I don't know",
-              "run": 1225,
-              "full_bank_restricted": false,
-              "right": 392,
-              "wrong": 137,
-              "abstained": 18,
-              "invalid": 0,
-              "coverage": 0.9670932358318098,
-              "risk": 0.2589792060491493
-            }
-          ],
-          "curves": [
-            {
-              "language": "Turkish",
-              "run": 1227,
-              "points": []
-            },
-            {
-              "language": "English",
-              "run": 1223,
-              "points": []
-            }
-          ]
-        },
-        {
           "name": "Erk-14B",
           "text_run": 132,
           "native": [
@@ -809436,6 +809450,53 @@
                   153
                 ]
               ]
+            }
+          ]
+        },
+        {
+          "name": "LFM3-1.7B",
+          "text_run": 1227,
+          "native": [
+            {
+              "language": "Turkish",
+              "wording": "Bilmiyorum",
+              "run": 1234,
+              "full_bank_restricted": true,
+              "right": 138,
+              "wrong": 173,
+              "abstained": 215,
+              "invalid": 21,
+              "coverage": 0.5685557586837294,
+              "risk": 0.5562700964630225
+            },
+            {
+              "language": "Turkish",
+              "wording": "I don't know",
+              "run": null
+            },
+            {
+              "language": "English",
+              "wording": "I don't know",
+              "run": 1225,
+              "full_bank_restricted": false,
+              "right": 392,
+              "wrong": 137,
+              "abstained": 18,
+              "invalid": 0,
+              "coverage": 0.9670932358318098,
+              "risk": 0.2589792060491493
+            }
+          ],
+          "curves": [
+            {
+              "language": "Turkish",
+              "run": 1227,
+              "points": []
+            },
+            {
+              "language": "English",
+              "run": 1223,
+              "points": []
             }
           ]
         },
@@ -915534,23 +915595,6 @@
           "paired": null
         },
         {
-          "name": "LFM3-1.7B",
-          "text_run": 1227,
-          "english": {
-            "run": 1225,
-            "right": 392,
-            "wrong": 137,
-            "dont_know": 18,
-            "invalid": 0,
-            "accuracy": 0.716636197440585,
-            "attempt_rate": 0.9670932358318098,
-            "non_hallucination": 0.11612903225806452,
-            "mean_dont_know_probability": null
-          },
-          "turkish": null,
-          "paired": null
-        },
-        {
           "name": "Erk-14B",
           "text_run": 132,
           "english": {
@@ -915563,6 +915607,23 @@
             "attempt_rate": 0.9945155393053017,
             "non_hallucination": 0.020833333333333332,
             "mean_dont_know_probability": 0.010261961333447632
+          },
+          "turkish": null,
+          "paired": null
+        },
+        {
+          "name": "LFM3-1.7B",
+          "text_run": 1227,
+          "english": {
+            "run": 1225,
+            "right": 392,
+            "wrong": 137,
+            "dont_know": 18,
+            "invalid": 0,
+            "accuracy": 0.716636197440585,
+            "attempt_rate": 0.9670932358318098,
+            "non_hallucination": 0.11612903225806452,
+            "mean_dont_know_probability": null
           },
           "turkish": null,
           "paired": null
@@ -920965,19 +921026,6 @@
           "points": []
         },
         {
-          "name": "LFM3-1.7B",
-          "text_run": 1227,
-          "five_option_run": 1223,
-          "wrong": null,
-          "wrong_of_answers": null,
-          "difference": null,
-          "interval": null,
-          "p": null,
-          "p_holm": null,
-          "wrong_by_rank": "",
-          "points": []
-        },
-        {
           "name": "Erk-14B",
           "text_run": 132,
           "five_option_run": 762,
@@ -920991,6 +921039,19 @@
           "p": 0.00019998000199980003,
           "p_holm": 0.023397660233976603,
           "wrong_by_rank": "0000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010000000000000000000000001000000010000010001000000000000000000000100100000000000000000000100000000000000100000000000000000000100000100001100000000000010010000011110010000010001001011100101110000100011001000000000000100000000111101000111001110101011000011111001000100000000101111011001001101101110100111001100101100010011110101101110011011101001011100111100010111110011100011011100111010110111110111100001110111111111101011",
+          "points": []
+        },
+        {
+          "name": "LFM3-1.7B",
+          "text_run": 1227,
+          "five_option_run": 1223,
+          "wrong": null,
+          "wrong_of_answers": null,
+          "difference": null,
+          "interval": null,
+          "p": null,
+          "p_holm": null,
+          "wrong_by_rank": "",
           "points": []
         },
         {

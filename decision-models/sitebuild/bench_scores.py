@@ -143,7 +143,9 @@ def vision_bench(site: Site) -> dict[str, Any]:
             widest[question] = max(widest.get(question, 0), len(answer[1]))
     models = []
     for model in data["models"]:
-        if model["kind"] != "image":
+        # A model on the Page images tab without a Text tab setup (page_config.json page_images_alone) has no setup
+        # records (checkpoint, size, maker) for the All benches feed, so it stays out of it (Zeki #9086).
+        if model["kind"] != "image" or site.by_id.get(model["a_run"]) is None:
             continue
         got = model["conditions"]["B"]
         answers = data["answers"][f"{model['provider']}|{model['model']}|B"]

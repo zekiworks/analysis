@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 3806e5aa (16 November 2026)
+
+- English seeds of the thinking-off setups (Ümit #9658): LFM3-1.7B (runs 1223, 1302, 1303: 399, 388 and 391 of 547) and MiniCPM5-2B (runs 1094, 1300, 1301: 370, 377 and 365) now show the mean of three seeds with the lowest and highest beside it: 71.8% (70.9–72.9%) and 67.8% (66.7–68.9%). Seeds 1 and 2 were asked at the first run's request settings with only the seed changed, on logic's loads of 15 November; MiniCPM5-2B's note gives its server settings as logic reported them.
+- Page images: LFM3-VL-2B with thinking off joins the tab without a Text tab setup (Zeki #9086): its condition A is a run on the same 763 questions. Text only 182 right (23.9%), picture only 115 (15.1%), text and picture 142 (18.6%). Its smoke test failed the 10% rule and the runs were asked anyway at the owner's decision (Ümit via Zeki #8830); every reply is kept and an unreadable or cut-off reply counts wrong. Its row's note gives the counts.
+- Gemini 4 Carbon and Hydrogen: their setup notes now say that the agbench bridge runs each request inside Google Antigravity's agent harness (its own instructions and tool declarations, about 13,000 tokens, come before our prompt; every tool call is denied), and that the absence of workspace files and earlier conversation is the bridge owner's report (Can #9177, grading #9181).
+
 ## Results 242935ed (15 November 2026)
 
 - Added StartLux-Decision v1.1 9B (`startlux-models/StartLux-Decision-v1.1-9B-Instant` at `18a17f7`, a fine-tune of Qwen3.5-9B), the last StartLux size, on logic's DGX Spark load of it after Logic & Math and compactor's Answer Check (logic #8964, compactor #8984), through its package's own server (`startlux-decide serve` on vLLM 0.31.0, BF16) as its 4B sibling; one question per request, every run passed the probability check. Text run 1290: 1,126 of 2,198 right (51.2%; reading 517 of 656, grammar 609 of 1,542), 95th of 130 Text tab setups; a repeat (run 1291) changed none of its answers. English run 1293: 475 of 547 (86.8%). "I don't know": English 1295, 471 right and 2; Turkish 1297, 1,105 right and 24 "Bilmiyorum". Its card lists English only; its weights are for non-commercial use, used for evaluation. Size 9B as its card states (our count 9,653,104,368).

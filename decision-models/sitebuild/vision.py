@@ -27,7 +27,7 @@ from typing import Any
 import build_page as bp
 from sitebuild import names
 from sitebuild.site import (DECISION_ONLY, GROUPS, ROOT, Site, chat_note, esc, family_icon, family_legend, hbars, interval,
-                            more_link, pct, rel, request_size, run_families, shown)
+                            label_count, more_link, pct, rel, request_size, run_families, shown, stated_total)
 
 PATH = "vision/"
 OCR_NAMES = {
@@ -144,29 +144,53 @@ def cells(data: dict[str, Any], model: dict[str, Any], pending_state: str = "") 
     return "".join(out)
 
 
-def text_run(site: Site, model: dict[str, Any]) -> dict[str, Any]:
+def alone(site: Site, model: dict[str, Any]) -> dict[str, Any] | None:
+    """page_config.json's page_images_alone entry of a model on this tab without a Text tab setup (its condition A a run
+    on these questions only; Zeki #9086), else None."""
+    return site.config.get("page_images_alone", {}).get("models", {}).get(model["model"])
+
+
+def text_run(site: Site, model: dict[str, Any]) -> dict[str, Any] | None:
     """A vision.json model's Text tab setup (condition A's run), through which the page names it: vision.json's own
-    model names are setup names, never shown raw. The build stops for a model without one."""
+    model names are setup names, never shown raw. None for a model in page_images_alone (alone_name names it); the build
+    stops for any other model without one."""
     run = site.by_id.get(model["a_run"])
-    if run is None:
+    if run is None and alone(site, model) is None:
         raise SystemExit(f"vision.json: {model['name']}'s condition A run {model['a_run']} is not on the Text tab, so the "
-                         "page has no name for it")
+                         "page has no name for it (or list it in page_config.json page_images_alone)")
     return run
 
 
+def alone_name(site: Site, model: dict[str, Any]) -> tuple[str, str]:
+    """A page_images_alone model's official name, from the shared model_names.json only (never guessed), and its tag."""
+    found = (names.entry(model["name"]) or names.entry(model["model"]) or {}).get("name")  # vision.json's name, then key
+    if not found:
+        raise SystemExit(f"vision.json: {model['model']} is in page_images_alone but the shared model_names.json lacks it")
+    return found, alone(site, model)["tag"]
+
+
 def plain_name(site: Site, model: dict[str, Any]) -> str:
-    """A model's official name and tag as plain text (Site.plain of its Text tab setup)."""
-    return site.plain(text_run(site, model))
+    """A model's official name and tag as plain text (Site.plain of its Text tab setup, or alone_name's)."""
+    run = text_run(site, model)
+    return site.plain(run) if run else names.plain(*alone_name(site, model))
 
 
 def model_cell(site: Site, origin: str, model: dict[str, Any]) -> str:
     """The model, after its maker's colour dot and its family's icon (as the home page's Leaderboard), linked to the page
     of its Text tab setup (condition A's run), its official name with its tag after the link, its settings in the
-    tooltip."""
+    tooltip. A page_images_alone model has no model page: its name is not a link, and its label is its openness and the
+    size its maker states (stated_sizes)."""
     known = family(site, model)
     mark = (f'<i class="lb-dot" style="background:{known["colour"]}" title="{esc(known["maker"])}"></i>'
             f'{family_icon(known["name"])}')
     run = text_run(site, model)
+    if run is None:
+        name, tag = alone_name(site, model)
+        total = stated_total({"model": model["model"], "name": model["name"]})
+        size = f" · {label_count(total)}" if total else ""
+        openness = "Open" if (names.entry(model["model"]) or {}).get("open") else "Closed"
+        return (f'<td class="model">{mark}<span class="model-name">{esc(name)}</span>{names.tag_html(tag)} '
+                f'<span class="lb-size">{openness}{size}</span></td>')
     detail = site.detail(run)
     tip = f' title="{esc(detail)}"' if detail else ""
     return (f'<td class="model"{tip}>{mark}<a class="model-name" href="{rel(origin, site.model_path(run))}">'
@@ -269,6 +293,8 @@ def asked_otherwise(site: Site, model: dict[str, Any]) -> str:
     if site.decision(model):
         return ""
     run = text_run(site, model)
+    if run is None:  # page_images_alone: its condition A was asked as its B, C and D (page_chat.sh)
+        return ""
     ways = ([request_size(run["questions_per_request"])] if run["questions_per_request"] > 1 else []) + (
         ["a stated confidence"] if (run.get("confidence") or {}).get("source") == "stated" else [])
     if not ways:
@@ -294,7 +320,8 @@ def leaderboard(site: Site, data: dict[str, Any], decision: bool) -> str:
         empty = "No chat or general model has been run on the page images yet." if not decision else "No decision model has been run on the page images yet."
         return f'{start}<p class="note">{empty}</p>{not_run(skipped)}\n    </section>'
     groups = "".join(group(site, data, [model for model in models if model["kind"] == kind], kind) for kind in ("image", "text"))
-    otherwise = " ".join(filter(None, (asked_otherwise(site, model) for model in models)))
+    otherwise = " ".join(filter(None, [asked_otherwise(site, model) for model in models]
+                                + [alone(site, model)["note"] for model in models if text_run(site, model) is None]))
     notes = f'<p class="note">{esc(otherwise)}</p>' if otherwise else ""
     return f"{start}{groups}{notes}{not_run(skipped)}\n    </section>"
 
@@ -759,10 +786,12 @@ def face(site: Site, data: dict[str, Any]) -> str:
     acc = lambda model, label: model["conditions"][label]["correct"] / model["conditions"][label]["questions"]  # noqa: E731
 
     def name(model: dict[str, Any]) -> str:
-        return site.title(text_run(site, model))
+        run = text_run(site, model)
+        return site.title(run) if run else alone_name(site, model)[0]
 
     def tag(model: dict[str, Any]) -> str:
-        return site.tag(text_run(site, model))
+        run = text_run(site, model)
+        return site.tag(run) if run else alone_name(site, model)[1]
 
     def class_key(model: dict[str, Any]) -> str | None:
         run = site.by_id.get(model["a_run"])
@@ -900,7 +929,8 @@ def chat_method(site: Site, data: dict[str, Any], chat: list[dict[str, Any]]) ->
                     answer[1] for answer in given.values()) or any(item["ece"] is not None for item in model["paired"]):
                 raise SystemExit(f"vision.json: {model['name']} {label} holds option probabilities, which the chat models' "
                                  "method says they do not give")
-    otherwise = " ".join(filter(None, (asked_otherwise(site, model) for model in chat)))
+    otherwise = " ".join(filter(None, [asked_otherwise(site, model) for model in chat]
+                                + [alone(site, model)["note"] for model in chat if text_run(site, model) is None]))
     return (f"<h3>Chat models</h3><p>For B, C and D the chat models ({esc(listed(site, chat))}) are asked one question per "
             "request and answer with a plain answer line: the crops go in as image parts after the text, and D gives the "
             "same OCR text as for the decision models, with no images. Condition A is the model's Turkish Text run, its "

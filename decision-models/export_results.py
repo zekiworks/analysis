@@ -224,17 +224,23 @@ MODELS: dict[str, dict[str, Any]] = {
     "gemini-4-argon": {"name": "Gemini 4 Argon"},
     "gemini-4-carbon": {
         "name": "Gemini 4 Carbon",
+        # The bridge starts a new Antigravity agent conversation per request: Antigravity's agent instructions and tool
+        # declarations (about 13,000 prompt tokens) come before our prompt; tools are denied by its hook (Can #9177).
         "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, "
-                  "tools denied, thinking high; the bridge applies no response format, so the prompt adds a paragraph "
-                  "stating the answer layout",
+                  "thinking high; each request a new Antigravity agent conversation, so Antigravity's own agent "
+                  "instructions and tool declarations (about 13,000 tokens) come before our prompt, with every tool "
+                  "call denied and, as the bridge's owner reports, no workspace files and no earlier conversation; the "
+                  "bridge applies no response format, so the prompt adds a paragraph stating the answer layout",
     },
     # Gemini 4 Hydrogen through the same bridge and subscription (Ümit via Zeki #5663; admitted by
     # antigravity-benchmark #5668: 'gemini-4-hydrogen' is high effort), asked with Carbon's answer layout.
     "gemini-4-hydrogen": {
         "name": "Gemini 4 Hydrogen",
         "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, "
-                  "tools denied, thinking high; the bridge applies no response format, so the prompt adds a paragraph "
-                  "stating the answer layout",
+                  "thinking high; each request a new Antigravity agent conversation, so Antigravity's own agent "
+                  "instructions and tool declarations (about 13,000 tokens) come before our prompt, with every tool "
+                  "call denied and, as the bridge's owner reports, no workspace files and no earlier conversation; the "
+                  "bridge applies no response format, so the prompt adds a paragraph stating the answer layout",
     },
     "claude-fable-5-1": {"name": "Claude Fable 5.1"},
     "claude-fable-5-2": {"name": "Claude Fable 5.2"},

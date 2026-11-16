@@ -144,7 +144,12 @@ function reader(){
  }).join('');
  return '<article class="panel guide"><div class="eyelabel">'+safe(s.section)+' · '+safe(dateLabel(s.snapshot))+'</div><h2>'+safe(resource?.title||s.panel)+'</h2><div class="guideLinks">'+links+'</div>'+(s.ui==='tr'?'<p class="sourceNote">Yayımlanmış kaynaktan alıntılar İngilizcedir.</p>':'')+'<div data-verbatim lang="en">'+body+'</div></article>';
 }
-function resultNote(){
+function resultNote(f){
+ // A track the snapshot did not re-read keeps its rows from an earlier snapshot: say from when (Zeki #9682)
+ const from=uniq((f?.rows||[]).map(r=>r.carriedFrom).filter(Boolean));
+ return (from.length?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Copied unchanged from an earlier snapshot; its source files were not read again for this one:'))+' '+safe(from.map(dateLabel).join(', '))+'</div>':'')+resultNoteText();
+}
+function resultNoteText(){
  if(s.panel==='Learning')return '<div class="notice neutral">The source gives each setup its own improvement verdict. Before and after refer to empty context and the final lessons evaluation. A paused or running setup has no final verdict.</div>';
  if(s.panel==='Learning pilot')return '<div class="notice neutral">Gemma 4 31B with reasoning off. T0 is one shared baseline across arms. Each later checkpoint keeps its own context condition.</div>';
  if(s.section==='Toolbench'&&(data.get(s.snapshot)||[]).some(r=>r.section==='Toolbench'&&r.track==='Pilot results'))return '<div class="notice neutral">Pilot results: task pass rate over 42 tasks on each of two tracks (original and renamed tools), 3 repetitions, no chance correction. A setup that failed qualification has no score.</div>';
@@ -399,7 +404,7 @@ function render(keepInput=false){
  if(!panelNames().includes(s.panel))s.panel='Results';
  const f=filtered();
  $('#publicationTabs').innerHTML=s.view==='results'?publicationTabs():'';
- $('#workspace').innerHTML=s.view==='results'?'<div class="workgrid">'+(isRecordPanel()?filters(f.base):'<aside class="sidebar guideSide"><h2>Source</h2>'+renderField('Source snapshot','snapshot',dates,null)+'<button class="outline" data-act="share">'+ic('link')+' Copy link</button></aside>')+'<div class="mainCol">'+(isRecordPanel()?cohortTabs(f)+resultNote()+resultSurface(f)+readerSources():reader())+'</div></div>':s.view==='compare'?compareView():draftView();
+ $('#workspace').innerHTML=s.view==='results'?'<div class="workgrid">'+(isRecordPanel()?filters(f.base):'<aside class="sidebar guideSide"><h2>Source</h2>'+renderField('Source snapshot','snapshot',dates,null)+'<button class="outline" data-act="share">'+ic('link')+' Copy link</button></aside>')+'<div class="mainCol">'+(isRecordPanel()?cohortTabs(f)+resultNote(f)+resultSurface(f)+readerSources():reader())+'</div></div>':s.view==='compare'?compareView():draftView();
  applyLanguage();
  if(focus==='modelSearch'){const inp=$('#modelSearch');inp.focus({preventScroll:true});if(cursor!==null)inp.setSelectionRange(cursor,cursor)}
 }
