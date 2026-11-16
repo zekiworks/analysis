@@ -2,6 +2,7 @@ import argparse
 import copy
 import hashlib
 import io
+import itertools
 import json
 import math
 import os
@@ -92,6 +93,49 @@ from benchmark_ollama import (
     start_run,
     store_answers,
 )
+
+
+# The paid route sends only under a spending guard (SpendGuard, Zeki #9930/#9996/#10111): these tests, whose requests
+# never leave the process (mocked or local senders), each run under a fresh synthetic guard with a cap no test reaches,
+# in its own temporary ledger, so that no test sees another's held empty replies.
+_GUARD_DIR = None
+_CALLS = itertools.count()
+
+
+def _fresh_guard() -> None:
+    import benchmark_ollama
+    ledger = Path(tempfile.mkdtemp(dir=_GUARD_DIR.name)) / "ledger.jsonl"
+    benchmark_ollama.SPEND_GUARD = benchmark_ollama.SpendGuard(
+        ledger, 1000.0, benchmark_ollama.Price("synthetic test fixture", "local", "2026-11-16", input=1.0, output=1.0))
+
+
+def setUpModule() -> None:
+    global _GUARD_DIR
+    import benchmark_ollama
+    _GUARD_DIR = tempfile.TemporaryDirectory()
+    # Each ask of these tests is a request of its own, as each is of a run of its own: one scope per call, so that a
+    # test asking the same batch twice gets two independent asks (the runner's run loop scopes by run and acknowledges).
+    post_chat = benchmark_ollama.post_chat
+
+    def scoped_post_chat(*args, **kwargs):
+        guard = benchmark_ollama.SPEND_GUARD
+        with guard.scoped(f"test call {next(_CALLS)}"):
+            return post_chat(*args, **kwargs)
+    benchmark_ollama.post_chat = scoped_post_chat
+    benchmark_ollama.post_chat.original = post_chat
+    for test_case in [value for value in globals().values()
+                      if isinstance(value, type) and issubclass(value, unittest.TestCase)]:
+        def set_up(self, original=test_case.setUp) -> None:
+            _fresh_guard()
+            original(self)
+        test_case.setUp = set_up
+
+
+def tearDownModule() -> None:
+    import benchmark_ollama
+    benchmark_ollama.SPEND_GUARD = None
+    benchmark_ollama.post_chat = benchmark_ollama.post_chat.original
+    _GUARD_DIR.cleanup()
 
 
 class RegradeTests(unittest.TestCase):

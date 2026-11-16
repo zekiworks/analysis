@@ -15,6 +15,7 @@ commercial book and cannot be shared. Anyone who owns the book can rebuild a ban
 | `repair_questions.py` | Builds the repaired bank and its review pages |
 | `osym_bank.py` | Finishes a bank extracted from an ÖSYM exam booklet (the 2026 exam check) |
 | `test_benchmark_metrics.py`, `test_benchmark_ollama.py` | Unit tests |
+| `test_spend_guard.py`, `test_review_boundaries.py`, `test_crash_durability.py`, `test_completion_handoff.py`, `test_uncertain_drain.py` | Offline tests of the paid route's spending cap (`--spend-cap-usd`, `--spend-ledger`): a local stand-in server, no request leaves the machine |
 | `run_*.sh` | One script per published configuration; `run_experiments.sh` holds the repeats and routing runs |
 | `pipeline/` | The two routing plans the routing runs used (question IDs only) |
 
@@ -34,7 +35,7 @@ Metask-Jev and Laya behind the decision request are not included either; the
   answer store `benchmark-results.sqlite`, the report `benchmark-results.md`, and `repair/`.
 
 ```bash
-python3 -m unittest test_benchmark_metrics test_benchmark_ollama   # needs no bank
+python3 -m unittest test_benchmark_metrics test_benchmark_ollama test_spend_guard test_review_boundaries test_crash_durability test_completion_handoff test_uncertain_drain   # needs no bank
 ./benchmark_ollama.py --help
 ```
 

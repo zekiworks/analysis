@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import base64
 import bisect
+import contextlib
 import copy
 import decimal
 import fcntl
@@ -1331,6 +1332,258 @@ OPENROUTER_EFFORTS = ("none", "minimal", "low", "medium", "high", "xhigh", "max"
 # The output cap of an OpenRouter chat request (--openrouter-max-tokens), reasoning included: 32,768 unless a run asks
 # for more, as MiMo V2.6 Flash's do (its Turkish smoke batch spent all 32,768 on reasoning, run 835).
 OPENROUTER_MAX_TOKENS = 32768
+
+
+# A paid route's spending cap (Zeki #9930, #9996): every request a --provider openrouter-chat run sends, each retry and
+# the repeat of an empty reply included, first reserves its worst case against the cap in a ledger file shared by every
+# run (and every process) that spends from the same share. A request is sent only when what is already spent, plus what
+# is still in flight, plus its own worst case stays within the cap. Its worst case: every byte of the request body a
+# token (a BPE token is at least one byte) plus SPEND_INPUT_MARGIN tokens of chat template, at the input rate, plus its
+# whole output cap (max_tokens, reasoning included) at the output rate, plus any per-request charge. On the reply the
+# reservation settles at OpenRouter's reported usage.cost when that is a finite number of at least 0; a reply without
+# one (or with any other value), an HTTP error, a transport failure or a crash before settling keeps the whole worst
+# case as spent (it may have been billed). A reported cost above its worst case means the price is wrong: it is kept as
+# charged and the ledger is halted, so nothing more is sent from that share (a corrected price needs a new ledger whose
+# cap is what is left of the share). Stored answers are never asked again, so a resumed run or the retained answers of
+# a first (calibration) run count once, in the ledger.
+SPEND_INPUT_MARGIN = 1024
+
+
+class UncertainRetry(RuntimeError):
+    """A request's once-more ask after an empty reply may have gone out before a stop, and its reply is unknown: the
+    request is neither asked a third time nor scored as empty; the run stops for its owner to decide."""
+
+
+class SpendCapReached(RuntimeError):
+    """A request was not sent: its worst case would take spending past the cap, or the ledger is halted."""
+
+
+def money(value: Any) -> float | None:
+    """A finite amount of at least 0 as a float, else None (negative, NaN, infinite, not a number, a bool)."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    value = float(value)
+    return value if math.isfinite(value) and value >= 0 else None
+
+
+class SpendGuard:
+    """Reservations before each paid request against a cap, kept in an append-only JSON-lines ledger under an exclusive
+    file lock (processes) and a mutex (threads), each line flushed to disk before the request is sent. Every line read
+    back is checked: a cut line (a crash while writing) is left behind on its own line and never joined to the next."""
+
+    def __init__(self, ledger: Path, cap_usd: float, price: Price) -> None:
+        if money(cap_usd) is None or cap_usd <= 0:
+            raise ValueError(f"a spending cap must be a finite amount above 0, not {cap_usd!r}")
+        for name, rate in price.rates().items():
+            if money(rate) is None:
+                raise ValueError(f"the price's {name} rate must be a finite amount of at least 0, not {rate!r}")
+        if money(price.per_request) is None:
+            raise ValueError(f"the price's per-request charge must be a finite amount of at least 0")
+        self.ledger, self.cap, self.price = ledger, float(cap_usd), price
+        self._mutex = threading.Lock()
+        self._tag = threading.local()
+        with self._locked() as lines:
+            caps = [line["usd"] for line in lines if line.get("t") == "cap"]
+            if caps and not (money(caps[0]) is not None and math.isclose(caps[0], self.cap, rel_tol=0, abs_tol=1e-9)):
+                raise ValueError(f"{ledger} holds a cap of ${caps[0]}, not ${cap_usd}: a share's cap never changes; "
+                                 "a new cap needs a new ledger")
+            if not caps:
+                self._append({"t": "cap", "usd": self.cap, "at": time.time()})
+
+    def bound(self, request_bytes: int, max_tokens: int) -> float:
+        """A request's worst-case cost in USD (see SPEND_INPUT_MARGIN)."""
+        bound = ((request_bytes + SPEND_INPUT_MARGIN) * self.price.input + max_tokens * self.price.output) / 1_000_000 \
+            + self.price.per_request
+        if money(bound) is None:
+            raise ValueError(f"a request's worst case must be a finite amount of at least 0, not {bound!r}")
+        return bound
+
+    @staticmethod
+    def exposure(lines: list[dict[str, Any]]) -> float:
+        """Settled charges plus the whole worst case of every reservation not settled (in flight, or lost in a crash).
+        A settlement whose charge is not a finite amount of at least 0 leaves its reservation unsettled; a reservation
+        without a valid worst case makes the ledger unreadable (ValueError: nothing is sent)."""
+        settled: dict[str, float] = {}
+        for line in lines:
+            if line.get("t") == "settle" and money(line.get("charged")) is not None:
+                settled[line["id"]] = max(settled.get(line["id"], 0.0), float(line["charged"]))
+        total = 0.0
+        for line in lines:
+            if line.get("t") != "reserve":
+                continue
+            bound = money(line.get("bound"))
+            if bound is None:
+                raise ValueError(f"a reservation in the ledger has no valid worst case: {line!r}")
+            total += settled[line["id"]] if line["id"] in settled else bound
+        return total
+
+    @staticmethod
+    def halted(lines: list[dict[str, Any]]) -> str | None:
+        """Why the ledger is halted, or None: a settlement whose charge is above its reservation's worst case, read from
+        the settlement itself, so that the stop survives a crash at any point after it is on disk (Zeki #10033 R3)."""
+        bounds = {line["id"]: money(line.get("bound")) for line in lines if line.get("t") == "reserve"}
+        for line in lines:
+            charged, bound = money(line.get("charged")), bounds.get(line.get("id"))
+            if line.get("t") == "settle" and charged is not None and bound is not None and charged > bound:
+                return (f"a request cost ${charged:.6f}, above its worst case ${bound:.6f}: the price is wrong; a "
+                        "corrected price needs a new ledger with the share's remaining cap")
+        return None
+
+    def reserve(self, request_bytes: int, max_tokens: int) -> tuple[str, float]:
+        """Reserve a request's worst case, or raise SpendCapReached without sending it."""
+        bound = self.bound(request_bytes, max_tokens)
+        with self._locked() as lines:
+            stop = self.halted(lines)
+            if stop is not None:
+                raise SpendCapReached(f"{self.ledger} is halted ({stop}); nothing more is sent from this share")
+            exposure = self.exposure(lines)
+            if exposure + bound > self.cap:
+                raise SpendCapReached(f"spending cap ${self.cap:.2f} reached ({self.ledger}): ${exposure:.4f} spent or in "
+                                      f"flight, the next request's worst case ${bound:.4f}; nothing more is sent")
+            ticket = f"{os.getpid()}-{threading.get_ident()}-{time.time_ns()}"
+            line = {"t": "reserve", "id": ticket, "bound": bound, "at": time.time()}
+            if getattr(self._tag, "key", None):
+                line["empty_key"] = self._tag.key
+            self._append(line)
+        return ticket, bound
+
+    def settle(self, ticket: tuple[str, float], result: Any) -> None:
+        """Settle a reservation at the reply's reported usage.cost when it is a finite amount of at least 0, else (no
+        reply, no or invalid cost) at its whole worst case. A cost above the worst case is kept, and that settlement halts
+        the ledger (halted)."""
+        ticket_id, bound = ticket
+        usage = result.get("usage") if isinstance(result, dict) else None
+        raw = usage.get("cost") if isinstance(usage, dict) else None
+        reported = money(raw)
+        charged = bound if reported is None else reported
+        with self._locked():
+            self._append({"t": "settle", "id": ticket_id, "charged": charged,
+                          "reported": reported if reported is not None else (None if raw is None else repr(raw)),
+                          "at": time.time()})
+        if reported is not None and reported > bound:
+            print(f"error: a request cost ${reported:.6f}, above its worst case ${bound:.6f}: the price is wrong; "
+                  "this ledger sends nothing more", file=sys.stderr)
+
+    def empty_state(self, key: str) -> tuple[Any | None, bool, Any | None]:
+        """A request's first, empty reply held for its once-more ask (hold_empty); whether a reservation for that ask is
+        on disk (so it may have gone out); and that ask's reply once it came back (empty_done), kept so that a request
+        resumed before its answers were stored replays it rather than asking again (Zeki #9996, #10033, #10111 R4)."""
+        with self._locked() as lines:
+            held, asked, second = None, False, None
+            for line in lines:
+                if line.get("key") != key and line.get("empty_key") != key:
+                    continue
+                kind = line.get("t")
+                if kind == "empty_first":
+                    held, asked, second = line.get("reply"), False, None
+                elif kind == "reserve" and held is not None:
+                    asked = True
+                elif kind == "empty_retry_failed":
+                    asked = False
+                elif kind == "empty_done" and held is not None:
+                    second = line.get("reply")
+                elif kind == "empty_acked":
+                    held, asked, second = None, False, None
+            return held, asked, second
+
+    def hold_empty(self, key: str, reply: Any) -> None:
+        """Keep a request's first, empty reply on disk before its once-more ask."""
+        with self._locked():
+            self._append({"t": "empty_first", "key": key, "reply": reply, "at": time.time()})
+
+    def mark_empty(self, key: str, kind: str, reply: Any = None) -> None:
+        """Mark a held empty reply's protocol: "empty_taken" (a resumed request asks once more), "empty_retry_failed"
+        (the once-more ask failed without a reply, so it may be asked again) or "empty_done" with the once-more ask's
+        reply (the outcome, replayed until the caller has stored it)."""
+        with self._locked():
+            line = {"t": kind, "key": key, "at": time.time()}
+            if kind == "empty_done":
+                line["reply"] = reply
+            self._append(line)
+
+    @contextlib.contextmanager
+    def scoped(self, scope: str):
+        """Requests asked inside belong to `scope` (a run): their empty-reply protocol is kept in the ledger, and one
+        run's is never another's, so a repeat run with the same requests asks them itself; the run acknowledges each
+        outcome once stored. The run loop is the one caller that scopes; an unscoped request's state is never closed."""
+        self._tag.scope, self._tag.pending = scope, []
+        try:
+            yield
+        finally:
+            self._tag.scope = None
+
+    def scope(self) -> str | None:
+        return getattr(self._tag, "scope", None)
+
+    def note_pending(self, key: str) -> None:
+        """A request whose outcome the caller is to store and acknowledge (inside a run scope)."""
+        if self.scope() is not None:
+            self._tag.pending.append(key)
+
+    def take_pending(self) -> list[str]:
+        """The keys of this thread's requests whose empty-reply protocol waits for the caller to store the outcome."""
+        keys, self._tag.pending = list(getattr(self._tag, "pending", [])), []
+        return keys
+
+    def acknowledge(self, keys: list[str]) -> None:
+        """The caller has stored these requests' outcomes: their protocol state is closed (empty_acked)."""
+        if keys:
+            with self._locked():
+                for key in keys:
+                    self._append({"t": "empty_acked", "key": key, "at": time.time()})
+
+    def request_key(self, payload: dict[str, Any]) -> str:
+        """The key of a request's empty-reply state: its scope and its body."""
+        body = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+        return hashlib.sha256(f"{self.scope()}\n{body}".encode()).hexdigest()
+
+    @contextlib.contextmanager
+    def asking_again(self, key: str):
+        """Reservations made inside carry the held reply's key: once one is on disk, the once-more ask counts as made."""
+        self._tag.key = key
+        try:
+            yield
+        finally:
+            self._tag.key = None
+
+    def _append(self, line: dict[str, Any]) -> None:
+        with self.ledger.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(line, separators=(",", ":"), allow_nan=False) + "\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+
+    @contextlib.contextmanager
+    def _locked(self):
+        with self._mutex, open(self.ledger.with_name(self.ledger.name + ".lock"), "a") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            try:
+                lines = []
+                if self.ledger.exists():
+                    data = self.ledger.read_bytes()
+                    if data and not data.endswith(b"\n"):
+                        # a line cut by a crash: end it here, so that it stays unreadable on its own line and the
+                        # next record is never joined to it (Zeki #9996 R2)
+                        with self.ledger.open("ab") as handle:
+                            handle.write(b"\n")
+                            handle.flush()
+                            os.fsync(handle.fileno())
+                    for raw in data.decode("utf-8", errors="replace").splitlines():
+                        try:
+                            line = json.loads(raw, parse_constant=lambda name: None)
+                        except json.JSONDecodeError:
+                            # a cut line: a cut settlement leaves its reservation counted whole; a cut reservation
+                            # was never followed by its request (requests are sent only after the line is on disk)
+                            continue
+                        if isinstance(line, dict):
+                            lines.append(line)
+                yield lines
+            finally:
+                fcntl.flock(lock, fcntl.LOCK_UN)
+
+
+# The guard of this process's paid requests (main sets it from --spend-cap-usd and --spend-ledger); ask_openrouter_chat
+# sends nothing without one.
+SPEND_GUARD: SpendGuard | None = None
 # Can's Antigravity subscription bridge (agbench): an OpenAI-compatible chat endpoint serving Gemini 4 Carbon at high
 # thinking with the Antigravity app's own context; it accepts but ignores temperature and max_tokens.
 AGBENCH_URL = "http://192.168.1.120:8899/v1/chat/completions"
@@ -1567,6 +1820,19 @@ def parse_args() -> argparse.Namespace:
         f"{OPENROUTER_MAX_TOKENS}); a run with another cap records it with its endpoint",
     )
     parser.add_argument(
+        "--spend-cap-usd",
+        type=float,
+        metavar="USD",
+        help="the share's spending cap for a paid route (--provider openrouter-chat needs it): no request is sent whose "
+        "worst case would take what --spend-ledger records past it",
+    )
+    parser.add_argument(
+        "--spend-ledger",
+        type=Path,
+        metavar="FILE",
+        help="the JSON-lines ledger of the share's reservations and charges, shared by every run spending from it",
+    )
+    parser.add_argument(
         "--openrouter-answer-layout",
         action="store_true",
         help="with --provider openrouter-chat, for a pinned endpoint without structured outputs: no answer schema, the "
@@ -1758,6 +2024,10 @@ def parse_args() -> argparse.Namespace:
         parser.error("--provider openrouter-chat needs --openrouter-reasoning and --openrouter-order")
     if args.openrouter_max_tokens < 1:
         parser.error("--openrouter-max-tokens must be at least 1")
+    if (args.spend_cap_usd is None) != (args.spend_ledger is None):
+        parser.error("--spend-cap-usd and --spend-ledger go together")
+    if args.spend_cap_usd is not None and args.spend_cap_usd <= 0:
+        parser.error("--spend-cap-usd must be above 0")
     if args.repeat is not None and args.repeat < 2:
         parser.error("--repeat must be at least 2; the first run of a configuration is repeat 1")
     if args.questions is not None and (args.sample is not None or args.limit is not None):
@@ -3391,13 +3661,13 @@ def reply_error(result: Any) -> str | None:
 
 def post_reply(
     endpoint: str, payload: dict[str, Any], headers: dict[str, str], timeout: float, verbose_log: TextIO | None,
-    service: str,
+    service: str, guard: SpendGuard | None = None,
 ) -> Any:
     """post_json's reply, asked again while it is an error (reply_error) with post_json's retries and delays for a
     failed request; a RuntimeError when they run out, so that an error is never stored as the model's reply."""
     attempt = 0
     while True:
-        result, _ = post_json(endpoint, payload, headers, timeout, verbose_log, service)
+        result, _ = post_json(endpoint, payload, headers, timeout, verbose_log, service, guard)
         failure = reply_error(result)
         if failure is None:
             return result
@@ -3412,16 +3682,48 @@ def post_reply(
 
 def post_chat(
     endpoint: str, payload: dict[str, Any], headers: dict[str, str], timeout: float, verbose_log: TextIO | None,
-    service: str, retry_empty: bool = True,
+    service: str, retry_empty: bool = True, guard: SpendGuard | None = None,
 ) -> tuple[Any, Any | None]:
     """A chat completions request through post_reply (an error in place of the reply is asked again as a failed request
     is, never kept), asked once more, the same request, when its reply is EMPTY (and `retry_empty`): the reply to use,
-    and the first, empty reply when there was a retry, else None. A second empty reply stays empty."""
-    result = post_reply(endpoint, payload, headers, timeout, verbose_log, service)
-    if not retry_empty or not empty_reply(result):
-        return result, None
+    and the first, empty reply when there was a retry, else None. A second empty reply stays empty. With a spending
+    `guard`, the first, empty reply is kept in the ledger until the once-more ask is done: a request resumed after the
+    cap held that ask back, or after a stop, asks only the second time; once the second reply came back it is replayed
+    until the caller has stored it; and when that ask may have gone out with its reply unknown, the request stops
+    (UncertainRetry) rather than ask a third time or score an empty reply (Zeki #9996, #10033, #10111 R4)."""
+    if guard is None or not retry_empty:
+        result = post_reply(endpoint, payload, headers, timeout, verbose_log, service, guard)
+        if not retry_empty or not empty_reply(result):
+            return result, None
+        print(f"warning: empty {service} reply; asking once more", file=sys.stderr)
+        return post_reply(endpoint, payload, headers, timeout, verbose_log, service, guard), result
+    key = guard.request_key(payload)
+    held, asked, second = guard.empty_state(key)
+    if held is not None and second is not None:
+        guard.note_pending(key)
+        return second, held  # both replies came back before a stop: the outcome as it was received
+    if held is not None and asked:
+        raise UncertainRetry(f"{service}'s once-more ask after an empty reply may have gone out before a stop and its reply "
+                             f"is unknown (ledger {guard.ledger}, key {key[:12]}): not asked a third time, not scored")
+    if held is not None:
+        result = held
+        guard.mark_empty(key, "empty_taken")
+    else:
+        result = post_reply(endpoint, payload, headers, timeout, verbose_log, service, guard)
+        if not empty_reply(result):
+            return result, None
+        guard.hold_empty(key, result)
     print(f"warning: empty {service} reply; asking once more", file=sys.stderr)
-    retry = post_reply(endpoint, payload, headers, timeout, verbose_log, service)
+    try:
+        with guard.asking_again(key):
+            retry = post_reply(endpoint, payload, headers, timeout, verbose_log, service, guard)
+    except SpendCapReached:
+        raise  # held back before sending: the held reply waits for the resumed request
+    except Exception:
+        guard.mark_empty(key, "empty_retry_failed")  # no reply came back: an error is never kept as the reply
+        raise
+    guard.mark_empty(key, "empty_done", retry)  # kept, and replayed, until the caller has stored it (acknowledge)
+    guard.note_pending(key)
     return retry, result
 
 
@@ -4001,6 +4303,8 @@ def ask_openrouter_chat(
     key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not key:
         raise ValueError("--provider openrouter-chat requires OPENROUTER_API_KEY")
+    if SPEND_GUARD is None:
+        raise ValueError("--provider openrouter-chat is paid: it sends only under --spend-cap-usd and --spend-ledger")
     pin: dict[str, Any] = {"order": [order], "allow_fallbacks": False}
     if require_parameters:
         pin["require_parameters"] = True
@@ -4026,7 +4330,8 @@ def ask_openrouter_chat(
     payload["provider"] = pin
     payload["usage"] = {"include": True}
     headers = {"Content-Type": "application/json", "Authorization": f"Bearer {key}"}
-    result, first = post_chat(OPENROUTER_CHAT_URL, payload, headers, timeout, verbose_log, "OpenRouter", retry_empty)
+    result, first = post_chat(OPENROUTER_CHAT_URL, payload, headers, timeout, verbose_log, "OpenRouter", retry_empty,
+                              SPEND_GUARD)
     return read_chat_reply(result, first, batch, answer_layout, f"OpenRouter response (served by {result.get('provider')!r})")
 
 
@@ -4139,15 +4444,19 @@ def post_json(
     timeout: float,
     verbose_log: TextIO | None,
     service: str,
+    guard: SpendGuard | None = None,
 ) -> tuple[Any, Any]:
     """POST JSON without following redirects; retry 408, 429, 5xx and transport failures. `headers` may be a function,
-    called for each attempt, so that a retry carries a freshly fetched token."""
+    called for each attempt, so that a retry carries a freshly fetched token. With a spending `guard`, each attempt
+    first reserves its worst case (SpendCapReached, nothing sent, when it does not fit) and settles on its outcome."""
     raw_request = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
     write_verbose(verbose_log, f"RAW REQUEST POST {endpoint}", raw_request)
+    body = raw_request.encode()
     attempt = 0
     while True:
         request_headers = headers() if callable(headers) else headers
-        request = Request(endpoint, data=raw_request.encode(), headers=request_headers, method="POST")
+        request = Request(endpoint, data=body, headers=request_headers, method="POST")
+        ticket = guard.reserve(len(body), int(payload.get("max_tokens") or 0)) if guard is not None else None
         try:
             with JEV_OPENER.open(request, timeout=timeout) as response:
                 raw_response = response.read().decode("utf-8", errors="replace")
@@ -4155,12 +4464,16 @@ def post_json(
                 write_verbose(verbose_log, f"RAW RESPONSE HTTP {response.status}", raw_response)
             break
         except HTTPError as exc:
+            if ticket is not None:
+                guard.settle(ticket, None)
             detail = exc.read().decode("utf-8", errors="replace")
             write_verbose(verbose_log, f"RAW RESPONSE HTTP {exc.code}", detail)
             if exc.code not in JEV_RETRY_STATUSES or attempt == JEV_MAX_RETRIES:
                 raise RuntimeError(f"{service} returned HTTP {exc.code}: {detail}") from exc
             failure, delay = f"HTTP {exc.code}", jev_retry_delay(exc.headers, attempt)
         except OSError as exc:
+            if ticket is not None:
+                guard.settle(ticket, None)
             write_verbose(verbose_log, "TRANSPORT ERROR", str(exc))
             if attempt == JEV_MAX_RETRIES:
                 raise RuntimeError(f"could not reach {service} at {endpoint}: {exc}") from exc
@@ -4173,9 +4486,14 @@ def post_json(
         )
         time.sleep(delay)
     try:
-        return json.loads(raw_response), response_headers
+        parsed = json.loads(raw_response)
     except json.JSONDecodeError as exc:
+        if ticket is not None:
+            guard.settle(ticket, None)
         raise RuntimeError(f"{service} returned invalid JSON: {exc}") from exc
+    if ticket is not None:
+        guard.settle(ticket, parsed)
+    return parsed, response_headers
 
 
 def system_one_answer(response: Any) -> dict[str, Any]:
@@ -5395,24 +5713,39 @@ def evaluate(
     batches = [pending[offset : offset + args.batch_size] for offset in range(0, len(pending), args.batch_size)]
     queue = iter(batches)
 
-    def request(batch: list[tuple[int, Question]]) -> tuple[list[tuple[int, Question]], list[str | None], str, float, float]:
+    def request(batch: list[tuple[int, Question]]) -> tuple[list[tuple[int, Question]], list[str | None], str, float, float,
+                                                             list[str]]:
         started = time.monotonic()
-        predictions, raw_response = ask_batch(args, [question for _, question in batch], thinking, verbose_log)
-        return batch, predictions, raw_response, started, time.monotonic()
+        if SPEND_GUARD is None:
+            predictions, raw_response = ask_batch(args, [question for _, question in batch], thinking, verbose_log)
+            return batch, predictions, raw_response, started, time.monotonic(), []
+        with SPEND_GUARD.scoped(f"run {identity.run_id}"):
+            predictions, raw_response = ask_batch(args, [question for _, question in batch], thinking, verbose_log)
+            return batch, predictions, raw_response, started, time.monotonic(), SPEND_GUARD.take_pending()
 
     # Request time is the time at least one request was in flight: the sum of the request times when
     # they run one at a time, and the wall-clock time when several overlap (--concurrency).
     covered_until = 0.0
+    # A request its spending cap holds back (SpendCapReached), or one whose once-more ask has an unknown outcome
+    # (UncertainRetry), stops the run: nothing more is sent, the requests already in flight finish and are stored, and
+    # then the run stops with that exception, resumable from its stored answers (Zeki #10250).
+    cap_reached: SpendCapReached | UncertainRetry | None = None
     with ThreadPoolExecutor(max_workers=args.concurrency) as executor:
         in_flight = {executor.submit(request, batch) for batch in itertools.islice(queue, args.concurrency)}
         while in_flight:
             done, in_flight = wait(in_flight, return_when=FIRST_COMPLETED)
-            for batch, predictions, raw_response, started, finished in sorted(
-                (future.result() for future in done), key=lambda item: item[4]
-            ):
+            replies = []
+            for future in done:
+                try:
+                    replies.append(future.result())
+                except (SpendCapReached, UncertainRetry) as exc:
+                    cap_reached = cap_reached or exc
+            for batch, predictions, raw_response, started, finished, pending in sorted(replies, key=lambda item: item[4]):
                 elapsed = max(finished - max(started, covered_until), 0.0)
                 covered_until = max(covered_until, finished)
                 store_answers(connection, identity.run_id, batch, predictions, raw_response, elapsed, finished - started)
+                if pending:
+                    SPEND_GUARD.acknowledge(pending)  # stored: the empty-reply protocol of these requests is closed
                 evaluation = [
                     {
                         "question_id": question.question_id,
@@ -5433,9 +5766,11 @@ def evaluate(
                         f"{runtime_info(connection, identity.run_id, total-evaluated)}",
                         flush=True,
                     )
-                following = next(queue, None)
+                following = next(queue, None) if cap_reached is None else None
                 if following is not None:
                     in_flight.add(executor.submit(request, following))
+    if cap_reached is not None:
+        raise cap_reached
     evaluated, correct, invalid, categories = score(connection, identity.run_id)
     if evaluated != total:
         raise RuntimeError(f"result database contains {evaluated}/{total} expected answers")
@@ -7589,7 +7924,14 @@ def require_server_url(url: str, flag: str) -> str:
 
 
 def main() -> int:
+    global SPEND_GUARD
     args = parse_args()
+    if args.spend_cap_usd is not None:
+        price = PRICES.get((args.provider, args.model))
+        if price is None:
+            print(f"error: no list price for {args.provider} {args.model}: a capped run needs one in PRICES", file=sys.stderr)
+            return 2
+        SPEND_GUARD = SpendGuard(args.spend_ledger.resolve(), args.spend_cap_usd, price)
     result_connection: sqlite3.Connection | None = None
     identity: RunIdentity | None = None
     verbose_log: TextIO | None = None
