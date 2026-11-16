@@ -1,0 +1,230 @@
+{
+ "model": "deepseek-v4.1-flash-on",
+ "at": "2026-11-12T18:19:20+00:00",
+ "original": {
+  "before": {
+   "risks_found": 44.63636363636363,
+   "right_safety": 91.24524153095581
+  },
+  "after": {
+   "risks_found": 51.849589895342575,
+   "right_safety": 87.0763553906411
+  },
+  "change": {
+   "risks_found": 7.213226258978942,
+   "right_safety": -4.1688861403147115
+  },
+  "threshold": 5.0,
+  "gate": true,
+  "improved": true,
+  "status": "Yes"
+ },
+ "run2": {
+  "before": {
+   "risks_found": 44.63636363636363,
+   "right_safety": 91.24524153095581
+  },
+  "after": {
+   "risks_found": 52.857142857142854,
+   "right_safety": 87.65615337043909
+  },
+  "change": {
+   "risks_found": 8.220779220779221,
+   "right_safety": -3.5890881605167237
+  },
+  "threshold": 5.0,
+  "gate": true,
+  "improved": true,
+  "status": "Yes"
+ },
+ "source": {
+  "E1": "reused from the original run",
+  "S1": "run2",
+  "S2": "reused from the original run",
+  "E2": "reused from the original run",
+  "S3": "reused from the original run",
+  "S4": "reused from the original run",
+  "E3": "reused from the original run",
+  "S5": "original + run2 refill of answers [1465, 1466, 1491, 1492]"
+ },
+ "tests": {
+  "E1": {
+   "original": {
+    "answered": 200,
+    "valid": 199,
+    "invalid": 1,
+    "failed": 0,
+    "risk_pays": 99,
+    "safety_pays": 100,
+    "risks_found": 46.464646464646464,
+    "right_safety": 92.0
+   },
+   "run2": {
+    "answered": 200,
+    "valid": 199,
+    "invalid": 1,
+    "failed": 0,
+    "risk_pays": 99,
+    "safety_pays": 100,
+    "risks_found": 46.464646464646464,
+    "right_safety": 92.0
+   }
+  },
+  "S1": {
+   "original": {
+    "answered": 200,
+    "valid": 195,
+    "invalid": 5,
+    "failed": 0,
+    "risk_pays": 95,
+    "safety_pays": 100,
+    "risks_found": 48.421052631578945,
+    "right_safety": 87.0
+   },
+   "run2": {
+    "answered": 200,
+    "valid": 198,
+    "invalid": 2,
+    "failed": 0,
+    "risk_pays": 99,
+    "safety_pays": 99,
+    "risks_found": 52.525252525252526,
+    "right_safety": 89.8989898989899
+   }
+  },
+  "S2": {
+   "original": {
+    "answered": 200,
+    "valid": 197,
+    "invalid": 3,
+    "failed": 0,
+    "risk_pays": 98,
+    "safety_pays": 99,
+    "risks_found": 55.10204081632653,
+    "right_safety": 88.88888888888889
+   },
+   "run2": {
+    "answered": 200,
+    "valid": 197,
+    "invalid": 3,
+    "failed": 0,
+    "risk_pays": 98,
+    "safety_pays": 99,
+    "risks_found": 55.10204081632653,
+    "right_safety": 88.88888888888889
+   }
+  },
+  "E2": {
+   "original": {
+    "answered": 200,
+    "valid": 197,
+    "invalid": 3,
+    "failed": 0,
+    "risk_pays": 99,
+    "safety_pays": 98,
+    "risks_found": 44.44444444444444,
+    "right_safety": 91.83673469387755
+   },
+   "run2": {
+    "answered": 200,
+    "valid": 197,
+    "invalid": 3,
+    "failed": 0,
+    "risk_pays": 99,
+    "safety_pays": 98,
+    "risks_found": 44.44444444444444,
+    "right_safety": 91.83673469387755
+   }
+  },
+  "S3": {
+   "original": {
+    "answered": 200,
+    "valid": 197,
+    "invalid": 3,
+    "failed": 0,
+    "risk_pays": 98,
+    "safety_pays": 99,
+    "risks_found": 56.12244897959184,
+    "right_safety": 84.84848484848484
+   },
+   "run2": {
+    "answered": 200,
+    "valid": 197,
+    "invalid": 3,
+    "failed": 0,
+    "risk_pays": 98,
+    "safety_pays": 99,
+    "risks_found": 56.12244897959184,
+    "right_safety": 84.84848484848484
+   }
+  },
+  "S4": {
+   "original": {
+    "answered": 200,
+    "valid": 197,
+    "invalid": 3,
+    "failed": 0,
+    "risk_pays": 99,
+    "safety_pays": 98,
+    "risks_found": 47.474747474747474,
+    "right_safety": 89.79591836734694
+   },
+   "run2": {
+    "answered": 200,
+    "valid": 197,
+    "invalid": 3,
+    "failed": 0,
+    "risk_pays": 99,
+    "safety_pays": 98,
+    "risks_found": 47.474747474747474,
+    "right_safety": 89.79591836734694
+   }
+  },
+  "E3": {
+   "original": {
+    "answered": 200,
+    "valid": 199,
+    "invalid": 1,
+    "failed": 0,
+    "risk_pays": 100,
+    "safety_pays": 99,
+    "risks_found": 43.0,
+    "right_safety": 89.8989898989899
+   },
+   "run2": {
+    "answered": 200,
+    "valid": 199,
+    "invalid": 1,
+    "failed": 0,
+    "risk_pays": 100,
+    "safety_pays": 99,
+    "risks_found": 43.0,
+    "right_safety": 89.8989898989899
+   }
+  },
+  "S5": {
+   "original": {
+    "answered": 200,
+    "valid": 193,
+    "invalid": 7,
+    "failed": 0,
+    "risk_pays": 94,
+    "safety_pays": 99,
+    "risks_found": 52.12765957446808,
+    "right_safety": 84.84848484848484
+   },
+   "run2": {
+    "answered": 200,
+    "valid": 197,
+    "invalid": 3,
+    "failed": 0,
+    "risk_pays": 98,
+    "safety_pays": 99,
+    "risks_found": 53.06122448979592,
+    "right_safety": 84.84848484848484
+   }
+  }
+ },
+ "billed_run2": 7.860496176,
+ "billed_model_total": 58.183692816
+}
