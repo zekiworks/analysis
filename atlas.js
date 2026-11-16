@@ -326,7 +326,11 @@ function showDetail(r,open=true){
  const body=$('.dialogBody');
  body.innerHTML='<div class="drawerHead"><div><span class="eyelabel">'+safe(r.section)+'</span><h2>'+branded(r,safe(r.name))+'</h2></div><button class="square" data-act="close" aria-label="Close">'+ic('close')+'</button></div><div class="tagLine">'+statusTag(r)+'<span class="pill">'+safe(r.lang)+'</span><span class="pill">'+safe(r.mode)+'</span></div><p class="drawerMeta">'+[r.track,r.setup||r.tag,dateLabel(snap(r))].map(safe).join(' / ')+'</p>'+metricGrid(r,false)+detailsDl(r)+sourceLinks(r)+historyButtons(r)+'<div class="modalFooter"><button class="primary" data-toggle-detail="'+r.id+'">'+ic('compare')+(s.ids.includes(r.id)?'Remove from selection':'Add to comparison')+'</button><button class="outline" data-act="share">'+ic('link')+' Copy record link</button></div>';
  HildeI18n.localize(body,s.ui);
- if(open&&!$('#modal').open)$('#modal').showModal()
+ if(open&&!$('#modal').open)$('#modal').showModal();
+ // the record's other snapshots: load them once, then redraw the box if it still shows this record
+ const missing=dates.filter(v=>!data.has(v));
+ const had=data.size;
+ if(missing.length)Promise.all(missing.map(v=>loadSnapshot(v).catch(()=>{}))).then(()=>{if(data.size>had&&$('#modal').open&&s.detail===r.id)showDetail(r,false)});
 }
 function comparable(list){
  if(list.length<2)return 'single';
@@ -492,7 +496,8 @@ async function init(){
  const wanted=uniq([s.snapshot,...[...s.ids,s.detail].filter(Boolean).map(id=>id.split(':')[0])].filter(v=>dates.includes(v)));
  await Promise.all(wanted.map(loadSnapshot));
  s.ids=s.ids.filter(id=>records.has(id));if(!records.has(s.detail))s.detail='';render();persist();if(s.detail)showDetail(records.get(s.detail));
- Promise.all(dates.filter(v=>!data.has(v)).map(loadSnapshot)).then(()=>{if(!$('#modal').open)render(true)}).catch(()=>{});
+ // The others load only when wanted: a snapshot chosen in the list (render) or a record's history (showDetail). With
+ // a snapshot after each publication, loading them all up front fetched over 100 MB on every visit.
  }catch{$('#workspace').innerHTML='<div class="panel empty"><strong>Source snapshots could not be loaded.</strong><p>Check your connection and try again.</p><button class="outline" id="retry">Reload</button></div>';HildeI18n.localize($('#workspace'),s.ui);$('#retry').onclick=()=>location.reload()}
 }
 init();
