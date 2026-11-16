@@ -1246,7 +1246,7 @@ def method_values(snap: Snapshot) -> dict[str, str]:
     # 25: the two pairs the text walks through, both among the listed (adjacent) comparisons; the text says the first
     # model scored higher, and where each of Astra and Sol's adjusted p values falls against the threshold.
     by_pair = {(item["first"], item["second"]): item for item in results["paired"]}
-    for first, second in (("astra_medium", "sol"), ("deepseek_1017_on", "terra_low")):
+    for first, second in (("astra_medium", "sol"), ("qwen4_max", "terra_low")):
         item = by_pair[(named[first]["run"], named[second]["run"])]
         if item["difference"] <= 0:
             raise ValueError(f"{first} no longer scores above {second}; rewrite the comparison in #differences")

@@ -479,6 +479,8 @@ def english(site: Site, run: dict[str, Any]) -> str | None:
                 (f"Cost, $ {cost_per()}, first English run", measure_cell(site, model, "cost", "english")),
                 ("Latency, median request, first English run", latency_value),
                 (f"English run{'s' if len(held) > 1 else ''}", esc(", ".join(map(str, model["runs"])))),
+                # Where they ran (Ümit #10906): results.json english_where, from each run's server address.
+                ("Machine, English runs", esc(model["english_where"])),
                 (f"Date{'s' if len(dates) > 1 else ''}", esc(", ".join(dates))),
                 ("Request format", each(lambda record: request_size(record["questions_per_request"]))),
                 ("Reasoning", each(lambda record: NOT_RECORDED if record.get("thinking") is None else str(record["thinking"]))),

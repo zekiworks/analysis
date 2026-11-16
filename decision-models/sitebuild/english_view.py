@@ -34,7 +34,7 @@ from sitebuild.english_reading import (NO_OPTION, NO_RATE, NOT_RUN, PATH as COMP
                                        anchor, check_dont_know, cost_note, english_members, english_only, english_second,
                                        english_value, entry_href, experiments_note, from_run, group_models, idk_key, label,
                                        limit_line, limit_note, measure_card, measure_cell, measure_heads, missing_note,
-                                       missing_side, name_html, noun, only_anchor, seed_note, seed_runs_text, seeds_complete,
+                                       missing_side, name_html, where_title, noun, only_anchor, seed_note, seed_runs_text, seeds_complete,
                                        setup_families, setup_icon, setup_key, setup_run, turkish_paused, turkish_running,
                                        under_way, under_way_why)
 from sitebuild import holding_back as hold
@@ -337,7 +337,7 @@ def build(site: Site) -> dict[str, str]:
             run = setup_run(site, model)
             row_id = "" if "turkish_run" in model else f' id="{anchor(only_anchor(model), group)}"'
             name = (f'<td class="model">{setup_icon(site, model)}'
-                    f'{name_html(site, run, href(site, model), " · ".join(filter(None, (site.detail(run), f"English run {model['run']}"))))}</td>')
+                    f'{name_html(site, run, href(site, model), " · ".join(filter(None, (site.detail(run), f"English run {model['run']}", where_title(model)))))}</td>')
             rows.append(f"<tr{row_id}{site.class_attribute(run)}>{name}"
                         + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
         head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{cost_unit_in(esc(note))}</span></th>'

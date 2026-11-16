@@ -262,6 +262,20 @@ MODELS: dict[str, dict[str, Any]] = {
                   "included; no response format (the endpoint has no structured outputs), so the prompt adds a paragraph "
                   "stating the answer layout",
     },
+    # Ümit #9817, #10509 ('use API'): the newest Inkling and Qwen Max, as Logic & Math runs them.
+    "thinkingmachines/inkling-2-small": {
+        "name": "Inkling 2 Small",
+        "note": "Thinking Machines' released model (Apache-2.0, 594B total, 17B active), too big for our GPUs, so run "
+                "through OpenRouter",
+        "access": "OpenRouter chat API, Nebius's endpoint (fp4), fallbacks off, reasoning effort high, output cap 32,768 "
+                  "tokens, reasoning included; the answer schema",
+    },
+    "qwen/qwen4-max": {
+        "name": "Qwen4-Max",
+        "note": "Alibaba's closed flagship chat model (OpenRouter id qwen/qwen4-max, listed 16 November 2026)",
+        "access": "OpenRouter chat API, Alibaba's endpoint (the maker's), fallbacks off, reasoning effort high, output cap "
+                  "32,768 tokens, reasoning included; the answer schema",
+    },
     "qwen/qwen3.5-397b-a17b": {
         "name": "Qwen 3.5 397B-A17B",
         "access": "OpenRouter chat API, DeepInfra's endpoint (fp8), fallbacks off, output cap 65,536 tokens, reasoning included",
@@ -920,6 +934,16 @@ SIZES: dict[str, dict[str, Any]] = {
     "anthropic/claude-haiku-5.5": {"total": None, "sources": ["https://www.anthropic.com/claude-haiku-5-5",
                                                               "https://platform.claude.com/docs/en/models/overview"],
                                    "read": "2026-11-10"},
+    # Counted from the released checkpoint's safetensors (Hugging Face's total); the active count is the card's
+    # ("594B total, 17B active").
+    "thinkingmachines/inkling-2-small": {"total": 594_050_672_720, "active": [17_000_000_000],
+                                         "repo": "thinkingmachines/Inkling-2-Small", "commit": "2ad1157",
+                                         "scope": "mixture of experts, the whole released checkpoint; active per token as "
+                                                  "the card states it; card: 594B total, 17B active",
+                                         "sources": ["https://huggingface.co/thinkingmachines/Inkling-2-Small/blob/"
+                                                     "2ad1157016e1aac77b6ff1b770e7c05229403134/README.md"],
+                                         "read": "2026-11-16"},
+    "qwen/qwen4-max": {"total": None, "sources": ["https://openrouter.ai/qwen/qwen4-max"], "read": "2026-11-16"},
     "qwen/qwen3.8-flash": {"total": None, "sources": ["https://www.alibabacloud.com/help/en/model-studio/model-pricing",
                                                        "https://openrouter.ai/qwen/qwen3.8-flash"],
                            "read": "2026-11-11"},
@@ -3314,6 +3338,19 @@ ENGLISH_MACHINE = {
 }
 
 
+def english_where(provider: str, model: str, billing: str, hardware: str | None) -> str:
+    """Where a setup's English runs ran, as the English pages and the data name it (Ümit #10906): "RTX PRO 6000" or
+    "DGX Spark" for a self-hosted setup (its ENGLISH_MACHINE, else the machine its hardware names; check_machines.py
+    compares both with each English run's server address at every release), "hosted API" for the others."""
+    if billing != "local":
+        return "hosted API"
+    where = ENGLISH_MACHINE.get((provider, model)) or hardware or ""
+    for machine in ("RTX PRO 6000", "DGX Spark"):
+        if machine in where:
+            return machine
+    raise ValueError(f"{model} ({provider}): its English runs' machine {where!r} is no machine of ours")
+
+
 def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict[str, Any] | None:
     """The runs of the English reading track (results.json `english_reading`) from the report's records of runs in
     English: one entry per setup (provider, model, reasoning, questions per request, Perplexity mode) with its runs, the
@@ -3404,6 +3441,7 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
                     "access": access_text(provider, info, first),
                     "billing": billing,
                     "hardware": info.get("hardware") if billing == "local" else None,
+                    "english_where": english_where(provider, model, billing, info.get("hardware")),
                     "note": " ".join(note for note in (info.get("note"), RUN_NOTES.get(first["run_id"])) if note) or None,
                     "cost": {"english": english_cost},
                     "latency": {"english": english_latency},
@@ -3426,6 +3464,7 @@ def english_reading(records: list[dict[str, Any]], data: dict[str, Any]) -> dict
                 "turkish_run": turkish["run"],
                 "turkish_runs": repeats.get(turkish["run"], [turkish["run"]]),
                 "english_machine": ENGLISH_MACHINE.get((provider, model)),
+                "english_where": english_where(provider, model, billing, info.get("hardware")),
                 "cost": {
                     "english": english_cost,
                     "turkish": None if text_cost is None else {

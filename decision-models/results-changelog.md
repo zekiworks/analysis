@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results cf6c82bd (16 November 2026)
+
+- Qwen4-Max (Alibaba's closed flagship chat model) through OpenRouter, pinned to Alibaba's endpoint, fallbacks off, reasoning effort high, 16 questions per request, output capped at 32,768 tokens (Ümit #9817, #10509). Turkish Text 2,016 of 2,198 (91.7%; run 1336), English 517 of 547 (94.5%; run 1334), English "I don't know" 518 right (run 1338), Turkish "Bilmiyorum" 2,042 right (run 1339). OpenRouter billed $11.95 for the four runs and their 20-question smoke. No language is named for it (closed weights, no model card), so the Turkish tables mark it as not officially supporting Turkish.
+- English reading names the machine each setup's English runs used: RTX PRO 6000 (65 setups), DGX Spark (18) or hosted API (55), in each English row's hover line, in the model page's English section and in `results.json` (`english_reading` entries' `english_where`) (Ümit #10906). Each self-hosted English run's machine is read from its server's address, and the release checks it against the record.
+- Paired English–Turkish test: 135 comparisons (134 before), 7 passing.
+
 ## Results 35f5c23a (16 November 2026)
 
 - PelaAI's KnowLine-31B-Gen2 (`fd99a9e`), KnowLine-12B-Gen1 (`f26fbc2`) and KnowLine-9B-Gen2 (`8ec8eb6`) (Ümit #9814, #9815): fine-tunes of Gemma-4-31B-it, Gemma-4-12B-it and Qwen3.5-9B behind their cards' serve_knowline.sh (SGLang 0.5.23, BF16), each alone on one of our RTX PRO 6000 GPUs after compactor's Answer Check and logic's Logic & Math, one question per request. They are separate setups: the earlier KnowLine-31B-Gen1.5 and KnowLine-9B-Gen1 rows are unchanged.

@@ -402,6 +402,12 @@ def label(site: Site, model: dict[str, Any]) -> str:
     return setup_labels(site)[setup_key(model)]
 
 
+def where_title(model: dict[str, Any]) -> str:
+    """A row's hover line on where its English runs ran (Ümit #10906): results.json english_where, from each English
+    run's server address (release-english/check_machines.py)."""
+    return f"English runs on: {model['english_where']}"
+
+
 def name_html(site: Site, run: dict[str, Any], href: str, title: str = "") -> str:
     """A setup's name cell content: its official name linking href, the tag after the link, then its class label."""
     tip = f' title="{esc(title)}"' if title else ""
@@ -874,7 +880,7 @@ def against_reference(site: Site, data: dict[str, Any]) -> str:
     for model in models:
         compared = by_run[model["run"]]
         run = site.by_id[compared["turkish_run"]]
-        name = (f'<td class="model">{site.icon(run)}{name_html(site, run, href(site, compared), site.detail(run))}'
+        name = (f'<td class="model">{site.icon(run)}{name_html(site, run, href(site, compared), " · ".join(filter(None, (site.detail(run), where_title(compared)))))}'
                 f'</td>')
         values = [
             run_span([model["run"]]),
@@ -1060,7 +1066,7 @@ def main_table(site: Site, data: dict[str, Any], group: str) -> str:
             source = esc(entry["source"].split("//", 1)[1].split("/", 1)[0])
             values.append(f'{languages_text(entry["languages"])}<span class="small"><a href="{esc(entry["source"])}">{source}</a></span>')
         run = site.by_id[model["turkish_run"]]
-        name = f'<td class="model">{site.icon(run)}{name_html(site, run, href(site, model), site.detail(run))}</td>'
+        name = f'<td class="model">{site.icon(run)}{name_html(site, run, href(site, model), " · ".join(filter(None, (site.detail(run), where_title(model)))))}</td>'
         rows.append(f"<tr{site.class_attribute(run)}>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>")
     short = "".join(f'<th scope="col" class="num">{name}<span class="small">{cost_unit_in(esc(note))}</span></th>'
                     for part, names, notes in groups if names != ("",) for name, note in zip(names, notes))
@@ -1163,7 +1169,7 @@ def row(site: Site, data: dict[str, Any], model: dict[str, Any]) -> str:
     ]
     heads = [f"{head} ({note})" for head, note in columns(data)]
     run = site.by_id[model["turkish_run"]]
-    name = f'<td class="model">{site.icon(run)}{name_html(site, run, href(site, model), site.detail(run))}</td>'
+    name = f'<td class="model">{site.icon(run)}{name_html(site, run, href(site, model), " · ".join(filter(None, (site.detail(run), where_title(model)))))}</td>'
     return f"<tr{site.class_attribute(run)}>{name}" + "".join(cell(head, value) for head, value in zip(heads, values)) + "</tr>"
 
 

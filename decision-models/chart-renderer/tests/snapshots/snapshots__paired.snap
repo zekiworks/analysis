@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 134 comparisons (7 pass).
-━━ passes the Holm adjustment across these 134 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 135 comparisons (7 pass).
+━━ passes the Holm adjustment across these 135 comparisons   ━━ does not pass
 
                                                  Gemini 4 Carbon · high · chat minus Claude Fable 5.2 · max · chat                         ⠠⣷⠤                                     +0.3
                                                 Claude Fable 5.2 · max · chat minus Gemini 3.8 Flash · high · chat                        ⠠⠤⡧⠄                                     +0.0
@@ -23,7 +23,8 @@ shows a related but separate test, adjusted across these 134 comparisons (7 pass
                                                         Gemini 3.8 Flash · low · chat minus Grok 4.7 · high · chat                        ⠤⠤⡧⡦⠤⠤⠄                                  +0.5
                             Grok 4.7 · high · chat minus DeepSeek-V4.1-Flash · reasoning on · chat · first release                        ⠠⠤⡧⢴⠤⠤⠄                                  +0.7
   DeepSeek-V4.1-Flash · reasoning on · chat · first release minus DeepSeek-V4.1-Flash · reasoning on · chat · 1017                        ⠤⠤⣷⠤⠤⠄                                   +0.3
-                                 DeepSeek-V4.1-Flash · reasoning on · chat · 1017 minus GPT-6.1 Terra · low · chat                        ⠠⠤⡧⠤⡦⠤⠤⠄                                 +0.9
+                                    DeepSeek-V4.1-Flash · reasoning on · chat · 1017 minus Qwen4-Max · high · chat                       ⠤⠤⠤⡧⠤⠤⠄                                   +0.0
+                                                          Qwen4-Max · high · chat minus GPT-6.1 Terra · low · chat                        ⠠⠤⡧⠤⡦⠤⠤⠄                                 +0.9
                                                      GPT-6.1 Terra · low · chat minus Claude Opus 5.5 · low · chat                       ⠠⠤⠤⡧⡦⠤⠤⠄                                  +0.4
                                                         Claude Opus 5.5 · low · chat minus Muse Ember · max · chat                          ⡇      ⠠⠤⠤⠤⢴⠤⠤⠤⠄                       +4.8
                                                      Muse Ember · max · chat minus Claude Sonnet 5.5 · high · chat                       ⠤⠤⠤⡧⡦⠤⠤⠤⠄                                 +0.6
@@ -47,7 +48,7 @@ shows a related but separate test, adjusted across these 134 comparisons (7 pass
                                       Gemma 4 31B · reasoning off · chat minus Kimi K3.1 Pro · no reasoning · chat                      ⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤                                 +0.4
                                                               Gemma 4 31B · reasoning off · chat minus GLiDE · API                          ⡇      ⠤⠤⠤⠤⠤⢴⠤⠤⠤⠤⠤                     +5.2
                                            Kimi K3.1 Pro · no reasoning · chat minus MiMo-V2.6-Flash · high · chat                      ⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤⠤                                +0.6
-                                                                     MiMo-V2.6-Flash · high · chat minus GLiDE 27B                       ⠤⠤⠤⡧⠤⡦⠤⠤⠤⠤⠤                               +1.0
+                                                                     MiMo-V2.6-Flash · high · chat minus GLiDE 27B                       ⠤⠤⠤⡧⠤⡧⠤⠤⠤⠤⠤                               +1.0
                                                       GLiDE 27B minus Perplexity Decider 27B v1.2 · API · with web                          ⡇⠠⠤⠤⠤⢼⠤⠤⠤⠤                             +2.4
                                                    Perplexity Decider 27B v1.2 · API · with web minus GLiDE · v1.2                      ⠠⠤⠤⠤⣿⠤⠤⠤⠄                                  +0.3
                                                                     GLiDE · v1.2 minus Perplexity Decider 27B v1.3                      ⠠⠤⠤⠤⡧⠤⠤⠄                                   +0.0
@@ -100,7 +101,7 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
       Qwen3.8-27B · vote share · reasoning off · chat minus Qwen3.8-27B · stated confidence · reasoning off · chat                       ⠒⠒⠒⡗⠒⠒⠂                                   +0.1
                                      Qwen3.8-27B · stated confidence · reasoning off · chat minus KnowLine-9B-Gen2                      ⠐⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠂                               +0.9
                                                                               KnowLine-9B-Gen2 minus Adjudex 9B v5                      ⠒⠒⠒⠒⡗⠒⠒⠒⠒                                  +0.1
-                                                                                    Adjudex 9B v5 minus Elephant-1                       ⠐⠒⠒⡗⢺⠒⠒⠒⠒                                 +0.8
+                                                                                    Adjudex 9B v5 minus Elephant-1                       ⠐⠒⠒⡗⠺⠒⠒⠒⠒                                 +0.8
                                                                                          Elephant-1 minus GLiDE 9B                      ⠐⠒⠒⠒⡿⠒⠒⠒⠒⠂                                 +0.3
                                                                        GLiDE 9B minus Qwen3.8-27B · yes/no scoring                     ⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒                                 +0.1
                                                             Qwen3.8-27B · yes/no scoring minus Dexy-Decision-9B-V2                     ⠒⠒⠒⠒⠒⡿⠒⠒⠒⠒⠒⠂                                +0.3

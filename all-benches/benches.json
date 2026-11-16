@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-16T18:19:20Z",
+    "updated": "2026-11-16T19:34:48Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1808,6 +1808,38 @@
       "gpu_cost_usd": 0.028021013767811232
      },
      {
+      "repo": null,
+      "commit": null,
+      "model_key": "liquid-d1.2-ultra",
+      "name": "d1.2-ultra",
+      "display_name": "d1.2-ultra",
+      "tag": "",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Liquid d1.2-ultra",
+      "maker": "Liquid AI",
+      "kind": "decision",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 39.444444444444436,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5155555555555555,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": 0.030123540871246392,
+      "improvement_points": null,
+      "runs": [
+       "logic:d1.2-ultra_en",
+       "logic:d1.2-ultra_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
       "repo": "PelaAI/KnowLine-12B-Gen1",
       "commit": "f26fbc2d64092bb2f8caaedbec243172bb3e908f",
       "model_key": "knowline-12b-gen1",
@@ -3281,7 +3313,7 @@
      }
     ]
    },
-   "sha256": "394cee8dec86aad77af6f3c482f7062f1259701ec234800d7bb1bdc3e5ff254f"
+   "sha256": "2864668821e77d39892244ce44021137b9b0c2a51c17dd9749bb6f2105c557a3"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3291,7 +3323,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-16T18:19:20Z",
+    "updated": "2026-11-16T19:34:48Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -3678,6 +3710,38 @@
        "math:grok-4.7-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "inkling-2-small",
+      "name": "Inkling 2 Small",
+      "display_name": "Inkling 2 Small",
+      "tag": "high · chat",
+      "class_label": "Open · 594B MoE · 17B active",
+      "base_model": null,
+      "setup_label": "Inkling 2 Small",
+      "maker": "Thinking Machines",
+      "kind": "chat",
+      "params_total": 594.0,
+      "params_active": 17.0,
+      "quantization": null,
+      "score_0_100": 99.42209893666204,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9953767914932964,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:inkling-2-small_en",
+       "math:inkling-2-small_en_dontknow"
+      ],
+      "notes": "hosted API via OpenRouter",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -5050,6 +5114,38 @@
       "runs": [
        "math:celeris-1.1_en",
        "math:celeris-1.1_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "liquid-d1.2-ultra",
+      "name": "d1.2-ultra",
+      "display_name": "d1.2-ultra",
+      "tag": "",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Liquid d1.2-ultra",
+      "maker": "Liquid AI",
+      "kind": "decision",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 62.320850670365225,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6985668053629218,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": 0.04578252722217225,
+      "improvement_points": null,
+      "runs": [
+       "math:d1.2-ultra_en",
+       "math:d1.2-ultra_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
@@ -6561,7 +6657,7 @@
      }
     ]
    },
-   "sha256": "898575d9eb05b8bb9077a36d1642bc791ecdde82e07bc482e580dc108dd8f83d"
+   "sha256": "2c31eb1b71651a50b2c158e60a700c60e1e1dd7067b5e5b3126da1c38d0fd1e4"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -6571,7 +6667,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-16T18:19:20Z",
+    "updated": "2026-11-16T19:34:48Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -6705,9 +6801,11 @@
       "improvement_points": null,
       "runs": [
        "logic:qwen4-max_en",
-       "math:qwen4-max_en"
+       "math:qwen4-max_en",
+       "logic:qwen4-max_en_dontknow",
+       "math:qwen4-max_en_dontknow"
       ],
-      "notes": "hosted API via OpenRouter; no complete 'I don't know' run",
+      "notes": "hosted API via OpenRouter",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -6844,6 +6942,40 @@
        "math:claude-sonnet-5.5-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "inkling-2-small",
+      "name": "Inkling 2 Small",
+      "display_name": "Inkling 2 Small",
+      "tag": "high · chat",
+      "class_label": "Open · 594B MoE · 17B active",
+      "base_model": null,
+      "setup_label": "Inkling 2 Small",
+      "maker": "Thinking Machines",
+      "kind": "chat",
+      "params_total": 594.0,
+      "params_active": 17.0,
+      "quantization": null,
+      "score_0_100": 97.75699513381994,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9820559610705596,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:inkling-2-small_en",
+       "math:inkling-2-small_en",
+       "logic:inkling-2-small_en_dontknow",
+       "math:inkling-2-small_en_dontknow"
+      ],
+      "notes": "hosted API via OpenRouter",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -8336,6 +8468,40 @@
        "math:gemini-decision-1_en_dontknow"
       ],
       "notes": "hosted API via OpenRouter",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "liquid-d1.2-ultra",
+      "name": "d1.2-ultra",
+      "display_name": "d1.2-ultra",
+      "tag": "",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Liquid d1.2-ultra",
+      "maker": "Liquid AI",
+      "kind": "decision",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 54.493613138686136,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.6359489051094891,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": 0.03239794297434979,
+      "improvement_points": null,
+      "runs": [
+       "logic:d1.2-ultra_en",
+       "math:d1.2-ultra_en",
+       "logic:d1.2-ultra_en_dontknow",
+       "math:d1.2-ultra_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -9973,7 +10139,7 @@
      }
     ]
    },
-   "sha256": "c7955790df597513c73fe33f31a03a9d71e03b6381003345a3eef84a0d514417"
+   "sha256": "a6a21cea8d70d6f1ca1df32a5637df23e526947b830fcda5d216812190b57cd0"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",

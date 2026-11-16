@@ -1046,8 +1046,8 @@ of {v['method_pair_astra_medium_sol_split']} questions only one got right, Astra
 {v['pair_astra_medium_sol_p_holm']} among the selected comparisons and {v['pair_astra_medium_sol_p_holm_all']} across all pairs,
 {v['method_pair_astra_medium_sol_relation']} {v['method_alpha']}. A p value says
 how unusual so uneven a split would be at equal accuracy, not the chance that the models are equal.</p>
-<p>DeepSeek-V4.1-Flash, the 1017 release, with reasoning scored {v['pair_deepseek_1017_on_terra_low_difference']} points above GPT-6.1 Terra with low reasoning
-(adjusted p {v['pair_deepseek_1017_on_terra_low_p_holm']}). Not establishing a difference does not show equal accuracy: many
+<p>Qwen4-Max with high reasoning scored {v['pair_qwen4_max_terra_low_difference']} points above GPT-6.1 Terra with low reasoning
+(adjusted p {v['pair_qwen4_max_terra_low_p_holm']}). Not establishing a difference does not show equal accuracy: many
 language comparisons have too few questions to detect gaps this small.{cite(18)}</p>
 {paired_figure}"""),
         ("statistical-methods", "How we measure uncertainty", f"""
