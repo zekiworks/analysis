@@ -2,6 +2,92 @@
   "method": "Tiers within each size class: for each pair of setups, every task (42 per track, public and private) is one paired item, won by the setup that passed more of its 3 repetitions; ties drop out. Exact two-sided sign test, Holm-corrected over all pairs of the class, p < 0.05. Rows in accuracy order: the top row starts Tier 1, and a row starts the next tier when the test separates it from its tier's top row. Accuracy: both tracks (84 tasks); Renamed tools: each track (42 tasks). \u2013 : not tiered (class not verified, incomplete or not qualified).",
   "views": {
     "all": {
+      "small": {
+        "attempts_per_setup": 252,
+        "order": [
+          {
+            "passed": 238,
+            "report_id": "3a310919357f8495163596163db17dbf37d8243f612a8fee8ad639b0b04d38cb",
+            "setup": "Gemma 4 12B \u00b7 thinking off",
+            "tier": 1
+          },
+          {
+            "passed": 235,
+            "report_id": "3ed26ffbcd602b69bf2bdf8e3931eb85fe5e7d8fe3b86e072c51576497ba4b99",
+            "setup": "Granite 4.2 8B \u00b7 thinking on",
+            "tier": 1
+          },
+          {
+            "passed": 234,
+            "report_id": "449350778855864d3c4bb9d94c9c09aea997425277dc1193015f6c3c93f3922a",
+            "setup": "Gemma 4 12B \u00b7 thinking on",
+            "tier": 1
+          },
+          {
+            "passed": 211,
+            "report_id": "71d9250a150d74bd08882aef5d9c6cb9c0b6c7faa795b471b724d5110e895242",
+            "setup": "Granite 4.2 8B \u00b7 thinking off",
+            "tier": 2
+          }
+        ],
+        "pairs": [
+          {
+            "first": "Gemma 4 12B \u00b7 thinking off",
+            "losses": 3,
+            "p": 0.5078125,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 8B \u00b7 thinking on",
+            "ties": 75,
+            "wins": 6
+          },
+          {
+            "first": "Gemma 4 12B \u00b7 thinking off",
+            "losses": 2,
+            "p": 0.453125,
+            "p_holm": 1.0,
+            "second": "Gemma 4 12B \u00b7 thinking on",
+            "ties": 77,
+            "wins": 5
+          },
+          {
+            "first": "Gemma 4 12B \u00b7 thinking off",
+            "losses": 2,
+            "p": 0.00738525390625,
+            "p_holm": 0.0380859375,
+            "second": "Granite 4.2 8B \u00b7 thinking off",
+            "ties": 69,
+            "wins": 13
+          },
+          {
+            "first": "Granite 4.2 8B \u00b7 thinking on",
+            "losses": 6,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 12B \u00b7 thinking on",
+            "ties": 73,
+            "wins": 5
+          },
+          {
+            "first": "Granite 4.2 8B \u00b7 thinking on",
+            "losses": 1,
+            "p": 0.00634765625,
+            "p_holm": 0.0380859375,
+            "second": "Granite 4.2 8B \u00b7 thinking off",
+            "ties": 72,
+            "wins": 11
+          },
+          {
+            "first": "Gemma 4 12B \u00b7 thinking on",
+            "losses": 6,
+            "p": 0.11531829833984375,
+            "p_holm": 0.461273193359375,
+            "second": "Granite 4.2 8B \u00b7 thinking off",
+            "ties": 64,
+            "wins": 14
+          }
+        ],
+        "tasks": 84
+      },
       "tiny": {
         "attempts_per_setup": 252,
         "order": [
@@ -9,6 +95,12 @@
             "passed": 237,
             "report_id": "140f843536d8fa04928edaa53d3bc8ad5a9e8e0d5fe47b5a7ee4345377f94fbf",
             "setup": "Gemma 4 E2B \u00b7 thinking on",
+            "tier": 1
+          },
+          {
+            "passed": 234,
+            "report_id": "200b3adfe6fc263356bd06c28bb143cedecbb9c877db8b46a682e51c893b0471",
+            "setup": "Granite 4.2 3B \u00b7 thinking on",
             "tier": 1
           },
           {
@@ -33,6 +125,12 @@
             "passed": 226,
             "report_id": "b58076261a85080eabc0734a1ab45639ec8692f4b5b04d45a7668f1fdba0a5f3",
             "setup": "Qwen3.5 4B \u00b7 thinking on",
+            "tier": 1
+          },
+          {
+            "passed": 225,
+            "report_id": "19a04105741d831b532081e524955585f9c6635d5a1d93b10080adcf991a5496",
+            "setup": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
             "tier": 1
           },
           {
@@ -66,6 +164,12 @@
             "tier": 2
           },
           {
+            "passed": 200,
+            "report_id": "315eb4775b3311ebb6fe55b312f82a70df77904742fc3047edb4c1d22405b167",
+            "setup": "Granite 4.2 3B \u00b7 thinking off",
+            "tier": 2
+          },
+          {
             "passed": 185,
             "report_id": "c6844a36b0fb5e0618609d3a0fe44a7269dce3e9a31ef2982b4fd2a306a98865",
             "setup": "Qwen3.5-2B \u00b7 thinking off",
@@ -73,6 +177,15 @@
           }
         ],
         "pairs": [
+          {
+            "first": "Gemma 4 E2B \u00b7 thinking on",
+            "losses": 7,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking on",
+            "ties": 69,
+            "wins": 8
+          },
           {
             "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 5,
@@ -111,6 +224,15 @@
           },
           {
             "first": "Gemma 4 E2B \u00b7 thinking on",
+            "losses": 4,
+            "p": 0.1795654296875,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 70,
+            "wins": 10
+          },
+          {
+            "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 3,
             "p": 0.09228515625,
             "p_holm": 1.0,
@@ -122,7 +244,7 @@
             "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 2,
             "p": 0.002349853515625,
-            "p_holm": 0.101043701171875,
+            "p_holm": 0.176239013671875,
             "second": "Qwen3.5-2B \u00b7 thinking on",
             "ties": 67,
             "wins": 15
@@ -131,7 +253,7 @@
             "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 2,
             "p": 0.004180908203125,
-            "p_holm": 0.17559814453125,
+            "p_holm": 0.305206298828125,
             "second": "LFM3-1.7B \u00b7 thinking off",
             "ties": 68,
             "wins": 14
@@ -140,7 +262,7 @@
             "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 1,
             "p": 7.62939453125e-05,
-            "p_holm": 0.003814697265625,
+            "p_holm": 0.00640869140625,
             "second": "MiniCPM5-2B \u00b7 thinking off",
             "ties": 65,
             "wins": 18
@@ -149,7 +271,7 @@
             "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 4,
             "p": 0.000310748815536499,
-            "p_holm": 0.014605194330215454,
+            "p_holm": 0.024549156427383423,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 57,
             "wins": 23
@@ -157,11 +279,128 @@
           {
             "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 1,
+            "p": 1.0967254638671875e-05,
+            "p_holm": 0.0009541511535644531,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 62,
+            "wins": 21
+          },
+          {
+            "first": "Gemma 4 E2B \u00b7 thinking on",
+            "losses": 1,
             "p": 7.916241884231567e-09,
-            "p_holm": 4.353933036327362e-07,
+            "p_holm": 7.203780114650726e-07,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 51,
             "wins": 32
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 8,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "LFM3-1.7B \u00b7 thinking on",
+            "ties": 67,
+            "wins": 9
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 5,
+            "p": 0.5810546875,
+            "p_holm": 1.0,
+            "second": "Qwen3.5 4B \u00b7 thinking off",
+            "ties": 71,
+            "wins": 8
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 6,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "MiniCPM5-2B \u00b7 thinking on",
+            "ties": 71,
+            "wins": 7
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 5,
+            "p": 0.210113525390625,
+            "p_holm": 1.0,
+            "second": "Qwen3.5 4B \u00b7 thinking on",
+            "ties": 68,
+            "wins": 11
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 6,
+            "p": 0.79052734375,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 70,
+            "wins": 8
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 5,
+            "p": 0.5810546875,
+            "p_holm": 1.0,
+            "second": "Raon-1 nano \u00b7 thinking on",
+            "ties": 71,
+            "wins": 8
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 5,
+            "p": 0.063568115234375,
+            "p_holm": 1.0,
+            "second": "Qwen3.5-2B \u00b7 thinking on",
+            "ties": 65,
+            "wins": 14
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 4,
+            "p": 0.266845703125,
+            "p_holm": 1.0,
+            "second": "LFM3-1.7B \u00b7 thinking off",
+            "ties": 71,
+            "wins": 9
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 5,
+            "p": 0.04138946533203125,
+            "p_holm": 1.0,
+            "second": "MiniCPM5-2B \u00b7 thinking off",
+            "ties": 64,
+            "wins": 15
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 4,
+            "p": 0.004343509674072266,
+            "p_holm": 0.3127326965332031,
+            "second": "Raon-1 nano \u00b7 thinking off",
+            "ties": 62,
+            "wins": 18
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.004425048828125,
+            "p_holm": 0.3127326965332031,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 65,
+            "wins": 16
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 7,
+            "p": 0.00019107642583549023,
+            "p_holm": 0.0156682669185102,
+            "second": "Qwen3.5-2B \u00b7 thinking off",
+            "ties": 47,
+            "wins": 30
           },
           {
             "first": "LFM3-1.7B \u00b7 thinking on",
@@ -195,6 +434,15 @@
             "losses": 5,
             "p": 0.5810546875,
             "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 71,
+            "wins": 8
+          },
+          {
+            "first": "LFM3-1.7B \u00b7 thinking on",
+            "losses": 5,
+            "p": 0.5810546875,
+            "p_holm": 1.0,
             "second": "Raon-1 nano \u00b7 thinking on",
             "ties": 71,
             "wins": 8
@@ -221,7 +469,7 @@
             "first": "LFM3-1.7B \u00b7 thinking on",
             "losses": 4,
             "p": 0.0192108154296875,
-            "p_holm": 0.7108001708984375,
+            "p_holm": 1.0,
             "second": "MiniCPM5-2B \u00b7 thinking off",
             "ties": 65,
             "wins": 15
@@ -230,16 +478,25 @@
             "first": "LFM3-1.7B \u00b7 thinking on",
             "losses": 5,
             "p": 0.006610751152038574,
-            "p_holm": 0.27104079723358154,
+            "p_holm": 0.4561418294906616,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 60,
             "wins": 19
           },
           {
             "first": "LFM3-1.7B \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.0025768280029296875,
+            "p_holm": 0.19068527221679688,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 64,
+            "wins": 17
+          },
+          {
+            "first": "LFM3-1.7B \u00b7 thinking on",
             "losses": 1,
             "p": 5.774199962615967e-08,
-            "p_holm": 3.118067979812622e-06,
+            "p_holm": 5.19677996635437e-06,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 54,
             "wins": 29
@@ -261,6 +518,15 @@
             "second": "Qwen3.5 4B \u00b7 thinking on",
             "ties": 66,
             "wins": 11
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking off",
+            "losses": 10,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 64,
+            "wins": 10
           },
           {
             "first": "Qwen3.5 4B \u00b7 thinking off",
@@ -309,9 +575,18 @@
           },
           {
             "first": "Qwen3.5 4B \u00b7 thinking off",
+            "losses": 6,
+            "p": 0.03468966484069824,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 61,
+            "wins": 17
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking off",
             "losses": 7,
             "p": 0.00031255115754902363,
-            "p_holm": 0.014605194330215454,
+            "p_holm": 0.024549156427383423,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 48,
             "wins": 29
@@ -324,6 +599,15 @@
             "second": "Qwen3.5 4B \u00b7 thinking on",
             "ties": 65,
             "wins": 11
+          },
+          {
+            "first": "MiniCPM5-2B \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.7265625,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 76,
+            "wins": 5
           },
           {
             "first": "MiniCPM5-2B \u00b7 thinking on",
@@ -356,7 +640,7 @@
             "first": "MiniCPM5-2B \u00b7 thinking on",
             "losses": 0,
             "p": 0.0001220703125,
-            "p_holm": 0.0059814453125,
+            "p_holm": 0.0101318359375,
             "second": "MiniCPM5-2B \u00b7 thinking off",
             "ties": 70,
             "wins": 14
@@ -365,7 +649,7 @@
             "first": "MiniCPM5-2B \u00b7 thinking on",
             "losses": 2,
             "p": 0.00022125244140625,
-            "p_holm": 0.0106201171875,
+            "p_holm": 0.01792144775390625,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 63,
             "wins": 19
@@ -373,11 +657,29 @@
           {
             "first": "MiniCPM5-2B \u00b7 thinking on",
             "losses": 1,
+            "p": 0.000274658203125,
+            "p_holm": 0.02197265625,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 67,
+            "wins": 16
+          },
+          {
+            "first": "MiniCPM5-2B \u00b7 thinking on",
+            "losses": 1,
             "p": 1.1175870895385742e-07,
-            "p_holm": 5.923211574554443e-06,
+            "p_holm": 9.94652509689331e-06,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 55,
             "wins": 28
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking on",
+            "losses": 10,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 65,
+            "wins": 9
           },
           {
             "first": "Qwen3.5 4B \u00b7 thinking on",
@@ -410,7 +712,7 @@
             "first": "Qwen3.5 4B \u00b7 thinking on",
             "losses": 4,
             "p": 0.0192108154296875,
-            "p_holm": 0.7108001708984375,
+            "p_holm": 1.0,
             "second": "MiniCPM5-2B \u00b7 thinking off",
             "ties": 65,
             "wins": 15
@@ -419,19 +721,91 @@
             "first": "Qwen3.5 4B \u00b7 thinking on",
             "losses": 6,
             "p": 0.009355306625366211,
-            "p_holm": 0.3648569583892822,
+            "p_holm": 0.6174502372741699,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 58,
             "wins": 20
           },
           {
             "first": "Qwen3.5 4B \u00b7 thinking on",
+            "losses": 6,
+            "p": 0.03468966484069824,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 61,
+            "wins": 17
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking on",
             "losses": 5,
             "p": 3.8558151572942734e-05,
-            "p_holm": 0.0019664657302200794,
+            "p_holm": 0.0032774428837001324,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 50,
             "wins": 29
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 6,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Raon-1 nano \u00b7 thinking on",
+            "ties": 71,
+            "wins": 7
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 9,
+            "p": 0.5234670639038086,
+            "p_holm": 1.0,
+            "second": "Qwen3.5-2B \u00b7 thinking on",
+            "ties": 62,
+            "wins": 13
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 3,
+            "p": 0.34375,
+            "p_holm": 1.0,
+            "second": "LFM3-1.7B \u00b7 thinking off",
+            "ties": 74,
+            "wins": 7
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 2,
+            "p": 0.00738525390625,
+            "p_holm": 0.502197265625,
+            "second": "MiniCPM5-2B \u00b7 thinking off",
+            "ties": 69,
+            "wins": 13
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 4,
+            "p": 0.004343509674072266,
+            "p_holm": 0.3127326965332031,
+            "second": "Raon-1 nano \u00b7 thinking off",
+            "ties": 62,
+            "wins": 18
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 4,
+            "p": 0.01181793212890625,
+            "p_holm": 0.7681655883789062,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 64,
+            "wins": 16
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 1,
+            "p": 2.1606683731079102e-07,
+            "p_holm": 1.901388168334961e-05,
+            "second": "Qwen3.5-2B \u00b7 thinking off",
+            "ties": 56,
+            "wins": 27
           },
           {
             "first": "Raon-1 nano \u00b7 thinking on",
@@ -455,7 +829,7 @@
             "first": "Raon-1 nano \u00b7 thinking on",
             "losses": 2,
             "p": 0.012939453125,
-            "p_holm": 0.49169921875,
+            "p_holm": 0.828125,
             "second": "MiniCPM5-2B \u00b7 thinking off",
             "ties": 70,
             "wins": 12
@@ -464,7 +838,7 @@
             "first": "Raon-1 nano \u00b7 thinking on",
             "losses": 3,
             "p": 0.007537841796875,
-            "p_holm": 0.301513671875,
+            "p_holm": 0.505035400390625,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 66,
             "wins": 15
@@ -472,8 +846,17 @@
           {
             "first": "Raon-1 nano \u00b7 thinking on",
             "losses": 4,
+            "p": 0.0192108154296875,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 65,
+            "wins": 15
+          },
+          {
+            "first": "Raon-1 nano \u00b7 thinking on",
+            "losses": 4,
             "p": 3.39532271027565e-05,
-            "p_holm": 0.001765567809343338,
+            "p_holm": 0.002919977530837059,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 53,
             "wins": 27
@@ -508,8 +891,17 @@
           {
             "first": "Qwen3.5-2B \u00b7 thinking on",
             "losses": 8,
+            "p": 0.10775214433670044,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 59,
+            "wins": 17
+          },
+          {
+            "first": "Qwen3.5-2B \u00b7 thinking on",
+            "losses": 8,
             "p": 0.0007528970600105822,
-            "p_holm": 0.03312747064046562,
+            "p_holm": 0.05722017656080425,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 47,
             "wins": 29
@@ -527,7 +919,7 @@
             "first": "LFM3-1.7B \u00b7 thinking off",
             "losses": 5,
             "p": 0.02660369873046875,
-            "p_holm": 0.9311294555664062,
+            "p_holm": 1.0,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 63,
             "wins": 16
@@ -535,8 +927,17 @@
           {
             "first": "LFM3-1.7B \u00b7 thinking off",
             "losses": 5,
+            "p": 0.09625244140625,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 66,
+            "wins": 13
+          },
+          {
+            "first": "LFM3-1.7B \u00b7 thinking off",
+            "losses": 5,
             "p": 0.0005461126565933228,
-            "p_holm": 0.024575069546699524,
+            "p_holm": 0.04205067455768585,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 55,
             "wins": 24
@@ -552,6 +953,15 @@
           },
           {
             "first": "MiniCPM5-2B \u00b7 thinking off",
+            "losses": 9,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 66,
+            "wins": 9
+          },
+          {
+            "first": "MiniCPM5-2B \u00b7 thinking off",
             "losses": 8,
             "p": 0.052238985896110535,
             "p_holm": 1.0,
@@ -562,17 +972,121 @@
           {
             "first": "Raon-1 nano \u00b7 thinking off",
             "losses": 11,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 61,
+            "wins": 12
+          },
+          {
+            "first": "Raon-1 nano \u00b7 thinking off",
+            "losses": 11,
             "p": 0.11018416518345475,
             "p_holm": 1.0,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 52,
             "wins": 21
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking off",
+            "losses": 10,
+            "p": 0.13604594767093658,
+            "p_holm": 1.0,
+            "second": "Qwen3.5-2B \u00b7 thinking off",
+            "ties": 55,
+            "wins": 19
           }
         ],
         "tasks": 84
       }
     },
     "original": {
+      "small": {
+        "attempts_per_setup": 126,
+        "order": [
+          {
+            "passed": 119,
+            "report_id": "3a310919357f8495163596163db17dbf37d8243f612a8fee8ad639b0b04d38cb",
+            "setup": "Gemma 4 12B \u00b7 thinking off",
+            "tier": 1
+          },
+          {
+            "passed": 117,
+            "report_id": "3ed26ffbcd602b69bf2bdf8e3931eb85fe5e7d8fe3b86e072c51576497ba4b99",
+            "setup": "Granite 4.2 8B \u00b7 thinking on",
+            "tier": 1
+          },
+          {
+            "passed": 117,
+            "report_id": "449350778855864d3c4bb9d94c9c09aea997425277dc1193015f6c3c93f3922a",
+            "setup": "Gemma 4 12B \u00b7 thinking on",
+            "tier": 1
+          },
+          {
+            "passed": 107,
+            "report_id": "71d9250a150d74bd08882aef5d9c6cb9c0b6c7faa795b471b724d5110e895242",
+            "setup": "Granite 4.2 8B \u00b7 thinking off",
+            "tier": 1
+          }
+        ],
+        "pairs": [
+          {
+            "first": "Gemma 4 12B \u00b7 thinking off",
+            "losses": 2,
+            "p": 0.6875,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 8B \u00b7 thinking on",
+            "ties": 36,
+            "wins": 4
+          },
+          {
+            "first": "Gemma 4 12B \u00b7 thinking off",
+            "losses": 1,
+            "p": 0.625,
+            "p_holm": 1.0,
+            "second": "Gemma 4 12B \u00b7 thinking on",
+            "ties": 38,
+            "wins": 3
+          },
+          {
+            "first": "Gemma 4 12B \u00b7 thinking off",
+            "losses": 1,
+            "p": 0.0703125,
+            "p_holm": 0.421875,
+            "second": "Granite 4.2 8B \u00b7 thinking off",
+            "ties": 34,
+            "wins": 7
+          },
+          {
+            "first": "Granite 4.2 8B \u00b7 thinking on",
+            "losses": 3,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 12B \u00b7 thinking on",
+            "ties": 36,
+            "wins": 3
+          },
+          {
+            "first": "Granite 4.2 8B \u00b7 thinking on",
+            "losses": 1,
+            "p": 0.125,
+            "p_holm": 0.625,
+            "second": "Granite 4.2 8B \u00b7 thinking off",
+            "ties": 35,
+            "wins": 6
+          },
+          {
+            "first": "Gemma 4 12B \u00b7 thinking on",
+            "losses": 4,
+            "p": 0.548828125,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 8B \u00b7 thinking off",
+            "ties": 31,
+            "wins": 7
+          }
+        ],
+        "tasks": 42
+      },
       "tiny": {
         "attempts_per_setup": 126,
         "order": [
@@ -589,9 +1103,21 @@
             "tier": 1
           },
           {
+            "passed": 116,
+            "report_id": "200b3adfe6fc263356bd06c28bb143cedecbb9c877db8b46a682e51c893b0471",
+            "setup": "Granite 4.2 3B \u00b7 thinking on",
+            "tier": 1
+          },
+          {
             "passed": 115,
             "report_id": "27023f16baa4af5f5d659c2e14bc79406f064a356825f8e5ca094385cd6cd726",
             "setup": "LFM3-1.7B \u00b7 thinking on",
+            "tier": 1
+          },
+          {
+            "passed": 114,
+            "report_id": "19a04105741d831b532081e524955585f9c6635d5a1d93b10080adcf991a5496",
+            "setup": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
             "tier": 1
           },
           {
@@ -625,6 +1151,12 @@
             "tier": 1
           },
           {
+            "passed": 99,
+            "report_id": "315eb4775b3311ebb6fe55b312f82a70df77904742fc3047edb4c1d22405b167",
+            "setup": "Granite 4.2 3B \u00b7 thinking off",
+            "tier": 1
+          },
+          {
             "passed": 98,
             "report_id": "803d110ff1b44abe87c974a24937c1e8d4093cb87d9b07269cac4423bfcc9877",
             "setup": "MiniCPM5-2B \u00b7 thinking off",
@@ -655,12 +1187,30 @@
           },
           {
             "first": "Gemma 4 E2B \u00b7 thinking on",
+            "losses": 3,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking on",
+            "ties": 35,
+            "wins": 4
+          },
+          {
+            "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 4,
             "p": 1.0,
             "p_holm": 1.0,
             "second": "LFM3-1.7B \u00b7 thinking on",
             "ties": 35,
             "wins": 3
+          },
+          {
+            "first": "Gemma 4 E2B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.6875,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 36,
+            "wins": 4
           },
           {
             "first": "Gemma 4 E2B \u00b7 thinking on",
@@ -709,9 +1259,18 @@
           },
           {
             "first": "Gemma 4 E2B \u00b7 thinking on",
+            "losses": 1,
+            "p": 0.00634765625,
+            "p_holm": 0.5078125,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 30,
+            "wins": 11
+          },
+          {
+            "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 0,
             "p": 0.001953125,
-            "p_holm": 0.099609375,
+            "p_holm": 0.16796875,
             "second": "MiniCPM5-2B \u00b7 thinking off",
             "ties": 32,
             "wins": 10
@@ -720,7 +1279,7 @@
             "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 2,
             "p": 0.002349853515625,
-            "p_holm": 0.11749267578125,
+            "p_holm": 0.199737548828125,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 25,
             "wins": 15
@@ -729,10 +1288,19 @@
             "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 0,
             "p": 1.52587890625e-05,
-            "p_holm": 0.0008392333984375,
+            "p_holm": 0.0013885498046875,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 25,
             "wins": 17
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking off",
+            "losses": 3,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking on",
+            "ties": 37,
+            "wins": 2
           },
           {
             "first": "Qwen3.5 4B \u00b7 thinking off",
@@ -741,6 +1309,15 @@
             "p_holm": 1.0,
             "second": "LFM3-1.7B \u00b7 thinking on",
             "ties": 34,
+            "wins": 4
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking off",
+            "losses": 5,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 33,
             "wins": 4
           },
           {
@@ -787,6 +1364,15 @@
             "second": "LFM3-1.7B \u00b7 thinking off",
             "ties": 33,
             "wins": 5
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking off",
+            "losses": 4,
+            "p": 0.266845703125,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 29,
+            "wins": 9
           },
           {
             "first": "Qwen3.5 4B \u00b7 thinking off",
@@ -801,7 +1387,7 @@
             "first": "Qwen3.5 4B \u00b7 thinking off",
             "losses": 2,
             "p": 0.012939453125,
-            "p_holm": 0.54345703125,
+            "p_holm": 0.944580078125,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 28,
             "wins": 12
@@ -810,10 +1396,118 @@
             "first": "Qwen3.5 4B \u00b7 thinking off",
             "losses": 4,
             "p": 0.01181793212890625,
-            "p_holm": 0.515625,
+            "p_holm": 0.87890625,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 22,
             "wins": 16
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 4,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "LFM3-1.7B \u00b7 thinking on",
+            "ties": 34,
+            "wins": 4
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 3,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 36,
+            "wins": 3
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 4,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Qwen3.5-2B \u00b7 thinking on",
+            "ties": 33,
+            "wins": 5
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.6875,
+            "p_holm": 1.0,
+            "second": "Qwen3.5 4B \u00b7 thinking on",
+            "ties": 36,
+            "wins": 4
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 3,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "MiniCPM5-2B \u00b7 thinking on",
+            "ties": 35,
+            "wins": 4
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.6875,
+            "p_holm": 1.0,
+            "second": "Raon-1 nano \u00b7 thinking on",
+            "ties": 36,
+            "wins": 4
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 1,
+            "p": 0.625,
+            "p_holm": 1.0,
+            "second": "LFM3-1.7B \u00b7 thinking off",
+            "ties": 38,
+            "wins": 3
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 1,
+            "p": 0.0390625,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 33,
+            "wins": 8
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.109375,
+            "p_holm": 1.0,
+            "second": "MiniCPM5-2B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 8
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.012939453125,
+            "p_holm": 0.944580078125,
+            "second": "Raon-1 nano \u00b7 thinking off",
+            "ties": 28,
+            "wins": 12
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.004425048828125,
+            "p_holm": 0.358428955078125,
+            "second": "Qwen3.5-2B \u00b7 thinking off",
+            "ties": 23,
+            "wins": 16
+          },
+          {
+            "first": "LFM3-1.7B \u00b7 thinking on",
+            "losses": 3,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 36,
+            "wins": 3
           },
           {
             "first": "LFM3-1.7B \u00b7 thinking on",
@@ -863,6 +1557,15 @@
           {
             "first": "LFM3-1.7B \u00b7 thinking on",
             "losses": 1,
+            "p": 0.021484375,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 9
+          },
+          {
+            "first": "LFM3-1.7B \u00b7 thinking on",
+            "losses": 1,
             "p": 0.0390625,
             "p_holm": 1.0,
             "second": "MiniCPM5-2B \u00b7 thinking off",
@@ -873,7 +1576,7 @@
             "first": "LFM3-1.7B \u00b7 thinking on",
             "losses": 2,
             "p": 0.012939453125,
-            "p_holm": 0.54345703125,
+            "p_holm": 0.944580078125,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 28,
             "wins": 12
@@ -882,9 +1585,90 @@
             "first": "LFM3-1.7B \u00b7 thinking on",
             "losses": 1,
             "p": 0.000518798828125,
-            "p_holm": 0.0269775390625,
+            "p_holm": 0.045135498046875,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 26,
+            "wins": 15
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 4,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Qwen3.5-2B \u00b7 thinking on",
+            "ties": 33,
+            "wins": 5
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 4,
+            "p": 0.75390625,
+            "p_holm": 1.0,
+            "second": "Qwen3.5 4B \u00b7 thinking on",
+            "ties": 32,
+            "wins": 6
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 1,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "MiniCPM5-2B \u00b7 thinking on",
+            "ties": 39,
+            "wins": 2
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 2,
+            "p": 0.6875,
+            "p_holm": 1.0,
+            "second": "Raon-1 nano \u00b7 thinking on",
+            "ties": 36,
+            "wins": 4
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 1,
+            "p": 0.625,
+            "p_holm": 1.0,
+            "second": "LFM3-1.7B \u00b7 thinking off",
+            "ties": 38,
+            "wins": 3
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 1,
+            "p": 0.021484375,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 9
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 0,
+            "p": 0.0078125,
+            "p_holm": 0.59375,
+            "second": "MiniCPM5-2B \u00b7 thinking off",
+            "ties": 34,
+            "wins": 8
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 1,
+            "p": 0.00341796875,
+            "p_holm": 0.28369140625,
+            "second": "Raon-1 nano \u00b7 thinking off",
+            "ties": 29,
+            "wins": 12
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 0,
+            "p": 6.103515625e-05,
+            "p_holm": 0.0054931640625,
+            "second": "Qwen3.5-2B \u00b7 thinking off",
+            "ties": 27,
             "wins": 15
           },
           {
@@ -925,9 +1709,18 @@
           },
           {
             "first": "Qwen3.5-2B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.03857421875,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 30,
+            "wins": 10
+          },
+          {
+            "first": "Qwen3.5-2B \u00b7 thinking on",
             "losses": 1,
             "p": 0.021484375,
-            "p_holm": 0.829559326171875,
+            "p_holm": 1.0,
             "second": "MiniCPM5-2B \u00b7 thinking off",
             "ties": 32,
             "wins": 9
@@ -936,7 +1729,7 @@
             "first": "Qwen3.5-2B \u00b7 thinking on",
             "losses": 3,
             "p": 0.021270751953125,
-            "p_holm": 0.829559326171875,
+            "p_holm": 1.0,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 26,
             "wins": 13
@@ -945,7 +1738,7 @@
             "first": "Qwen3.5-2B \u00b7 thinking on",
             "losses": 1,
             "p": 0.000274658203125,
-            "p_holm": 0.014556884765625,
+            "p_holm": 0.024169921875,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 25,
             "wins": 16
@@ -979,6 +1772,15 @@
           },
           {
             "first": "Qwen3.5 4B \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.14599609375,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 30,
+            "wins": 9
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking on",
             "losses": 1,
             "p": 0.0390625,
             "p_holm": 1.0,
@@ -990,7 +1792,7 @@
             "first": "Qwen3.5 4B \u00b7 thinking on",
             "losses": 2,
             "p": 0.00738525390625,
-            "p_holm": 0.34710693359375,
+            "p_holm": 0.58343505859375,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 27,
             "wins": 13
@@ -999,7 +1801,7 @@
             "first": "Qwen3.5 4B \u00b7 thinking on",
             "losses": 3,
             "p": 0.007537841796875,
-            "p_holm": 0.34710693359375,
+            "p_holm": 0.58343505859375,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 24,
             "wins": 15
@@ -1024,9 +1826,18 @@
           },
           {
             "first": "MiniCPM5-2B \u00b7 thinking on",
+            "losses": 1,
+            "p": 0.021484375,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 9
+          },
+          {
+            "first": "MiniCPM5-2B \u00b7 thinking on",
             "losses": 0,
             "p": 0.015625,
-            "p_holm": 0.625,
+            "p_holm": 1.0,
             "second": "MiniCPM5-2B \u00b7 thinking off",
             "ties": 35,
             "wins": 7
@@ -1035,7 +1846,7 @@
             "first": "MiniCPM5-2B \u00b7 thinking on",
             "losses": 1,
             "p": 0.00341796875,
-            "p_holm": 0.1640625,
+            "p_holm": 0.28369140625,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 29,
             "wins": 12
@@ -1044,7 +1855,7 @@
             "first": "MiniCPM5-2B \u00b7 thinking on",
             "losses": 0,
             "p": 0.0001220703125,
-            "p_holm": 0.006591796875,
+            "p_holm": 0.0108642578125,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 28,
             "wins": 14
@@ -1060,6 +1871,15 @@
           },
           {
             "first": "Raon-1 nano \u00b7 thinking on",
+            "losses": 1,
+            "p": 0.0390625,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 33,
+            "wins": 8
+          },
+          {
+            "first": "Raon-1 nano \u00b7 thinking on",
             "losses": 0,
             "p": 0.03125,
             "p_holm": 1.0,
@@ -1071,7 +1891,7 @@
             "first": "Raon-1 nano \u00b7 thinking on",
             "losses": 1,
             "p": 0.01171875,
-            "p_holm": 0.515625,
+            "p_holm": 0.87890625,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 31,
             "wins": 10
@@ -1080,10 +1900,19 @@
             "first": "Raon-1 nano \u00b7 thinking on",
             "losses": 2,
             "p": 0.002349853515625,
-            "p_holm": 0.11749267578125,
+            "p_holm": 0.199737548828125,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 25,
             "wins": 15
+          },
+          {
+            "first": "LFM3-1.7B \u00b7 thinking off",
+            "losses": 1,
+            "p": 0.0703125,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 34,
+            "wins": 7
           },
           {
             "first": "LFM3-1.7B \u00b7 thinking off",
@@ -1098,7 +1927,7 @@
             "first": "LFM3-1.7B \u00b7 thinking off",
             "losses": 2,
             "p": 0.0224609375,
-            "p_holm": 0.8310546875,
+            "p_holm": 1.0,
             "second": "Raon-1 nano \u00b7 thinking off",
             "ties": 29,
             "wins": 11
@@ -1107,10 +1936,37 @@
             "first": "LFM3-1.7B \u00b7 thinking off",
             "losses": 2,
             "p": 0.00738525390625,
-            "p_holm": 0.34710693359375,
+            "p_holm": 0.58343505859375,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 27,
             "wins": 13
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking off",
+            "losses": 4,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "MiniCPM5-2B \u00b7 thinking off",
+            "ties": 33,
+            "wins": 5
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking off",
+            "losses": 7,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Raon-1 nano \u00b7 thinking off",
+            "ties": 28,
+            "wins": 7
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking off",
+            "losses": 6,
+            "p": 0.454498291015625,
+            "p_holm": 1.0,
+            "second": "Qwen3.5-2B \u00b7 thinking off",
+            "ties": 26,
+            "wins": 10
           },
           {
             "first": "MiniCPM5-2B \u00b7 thinking off",
@@ -1144,6 +2000,92 @@
       }
     },
     "renamed": {
+      "small": {
+        "attempts_per_setup": 126,
+        "order": [
+          {
+            "passed": 119,
+            "report_id": "3a310919357f8495163596163db17dbf37d8243f612a8fee8ad639b0b04d38cb",
+            "setup": "Gemma 4 12B \u00b7 thinking off",
+            "tier": 1
+          },
+          {
+            "passed": 118,
+            "report_id": "3ed26ffbcd602b69bf2bdf8e3931eb85fe5e7d8fe3b86e072c51576497ba4b99",
+            "setup": "Granite 4.2 8B \u00b7 thinking on",
+            "tier": 1
+          },
+          {
+            "passed": 117,
+            "report_id": "449350778855864d3c4bb9d94c9c09aea997425277dc1193015f6c3c93f3922a",
+            "setup": "Gemma 4 12B \u00b7 thinking on",
+            "tier": 1
+          },
+          {
+            "passed": 104,
+            "report_id": "71d9250a150d74bd08882aef5d9c6cb9c0b6c7faa795b471b724d5110e895242",
+            "setup": "Granite 4.2 8B \u00b7 thinking off",
+            "tier": 1
+          }
+        ],
+        "pairs": [
+          {
+            "first": "Gemma 4 12B \u00b7 thinking off",
+            "losses": 1,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 8B \u00b7 thinking on",
+            "ties": 39,
+            "wins": 2
+          },
+          {
+            "first": "Gemma 4 12B \u00b7 thinking off",
+            "losses": 1,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 12B \u00b7 thinking on",
+            "ties": 39,
+            "wins": 2
+          },
+          {
+            "first": "Gemma 4 12B \u00b7 thinking off",
+            "losses": 1,
+            "p": 0.125,
+            "p_holm": 0.625,
+            "second": "Granite 4.2 8B \u00b7 thinking off",
+            "ties": 35,
+            "wins": 6
+          },
+          {
+            "first": "Granite 4.2 8B \u00b7 thinking on",
+            "losses": 3,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 12B \u00b7 thinking on",
+            "ties": 37,
+            "wins": 2
+          },
+          {
+            "first": "Granite 4.2 8B \u00b7 thinking on",
+            "losses": 0,
+            "p": 0.0625,
+            "p_holm": 0.375,
+            "second": "Granite 4.2 8B \u00b7 thinking off",
+            "ties": 37,
+            "wins": 5
+          },
+          {
+            "first": "Gemma 4 12B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.1796875,
+            "p_holm": 0.71875,
+            "second": "Granite 4.2 8B \u00b7 thinking off",
+            "ties": 33,
+            "wins": 7
+          }
+        ],
+        "tasks": 42
+      },
       "tiny": {
         "attempts_per_setup": 126,
         "order": [
@@ -1151,6 +2093,12 @@
             "passed": 119,
             "report_id": "140f843536d8fa04928edaa53d3bc8ad5a9e8e0d5fe47b5a7ee4345377f94fbf",
             "setup": "Gemma 4 E2B \u00b7 thinking on",
+            "tier": 1
+          },
+          {
+            "passed": 118,
+            "report_id": "200b3adfe6fc263356bd06c28bb143cedecbb9c877db8b46a682e51c893b0471",
+            "setup": "Granite 4.2 3B \u00b7 thinking on",
             "tier": 1
           },
           {
@@ -1184,6 +2132,12 @@
             "tier": 1
           },
           {
+            "passed": 111,
+            "report_id": "19a04105741d831b532081e524955585f9c6635d5a1d93b10080adcf991a5496",
+            "setup": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "tier": 1
+          },
+          {
             "passed": 107,
             "report_id": "803d110ff1b44abe87c974a24937c1e8d4093cb87d9b07269cac4423bfcc9877",
             "setup": "MiniCPM5-2B \u00b7 thinking off",
@@ -1208,6 +2162,12 @@
             "tier": 1
           },
           {
+            "passed": 101,
+            "report_id": "315eb4775b3311ebb6fe55b312f82a70df77904742fc3047edb4c1d22405b167",
+            "setup": "Granite 4.2 3B \u00b7 thinking off",
+            "tier": 1
+          },
+          {
             "passed": 92,
             "report_id": "c6844a36b0fb5e0618609d3a0fe44a7269dce3e9a31ef2982b4fd2a306a98865",
             "setup": "Qwen3.5-2B \u00b7 thinking off",
@@ -1215,6 +2175,15 @@
           }
         ],
         "pairs": [
+          {
+            "first": "Gemma 4 E2B \u00b7 thinking on",
+            "losses": 4,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking on",
+            "ties": 34,
+            "wins": 4
+          },
           {
             "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 2,
@@ -1262,6 +2231,15 @@
           },
           {
             "first": "Gemma 4 E2B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.2890625,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 34,
+            "wins": 6
+          },
+          {
+            "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 1,
             "p": 0.0390625,
             "p_holm": 1.0,
@@ -1273,7 +2251,7 @@
             "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 1,
             "p": 0.01171875,
-            "p_holm": 0.59765625,
+            "p_holm": 0.99609375,
             "second": "Qwen3.5-2B \u00b7 thinking on",
             "ties": 31,
             "wins": 10
@@ -1298,12 +2276,129 @@
           },
           {
             "first": "Gemma 4 E2B \u00b7 thinking on",
+            "losses": 0,
+            "p": 0.001953125,
+            "p_holm": 0.171875,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 10
+          },
+          {
+            "first": "Gemma 4 E2B \u00b7 thinking on",
             "losses": 1,
             "p": 0.000518798828125,
-            "p_holm": 0.02801513671875,
+            "p_holm": 0.04669189453125,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 26,
             "wins": 15
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 3,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "MiniCPM5-2B \u00b7 thinking on",
+            "ties": 36,
+            "wins": 3
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 4,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "LFM3-1.7B \u00b7 thinking on",
+            "ties": 33,
+            "wins": 5
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.7265625,
+            "p_holm": 1.0,
+            "second": "Qwen3.5 4B \u00b7 thinking off",
+            "ties": 34,
+            "wins": 5
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.34375,
+            "p_holm": 1.0,
+            "second": "Qwen3.5 4B \u00b7 thinking on",
+            "ties": 32,
+            "wins": 7
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 3,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Raon-1 nano \u00b7 thinking on",
+            "ties": 35,
+            "wins": 4
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.7265625,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 34,
+            "wins": 5
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.34375,
+            "p_holm": 1.0,
+            "second": "MiniCPM5-2B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 7
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 1,
+            "p": 0.021484375,
+            "p_holm": 1.0,
+            "second": "Qwen3.5-2B \u00b7 thinking on",
+            "ties": 32,
+            "wins": 9
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.5078125,
+            "p_holm": 1.0,
+            "second": "LFM3-1.7B \u00b7 thinking off",
+            "ties": 33,
+            "wins": 6
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.2890625,
+            "p_holm": 1.0,
+            "second": "Raon-1 nano \u00b7 thinking off",
+            "ties": 34,
+            "wins": 6
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.109375,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 8
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking on",
+            "losses": 4,
+            "p": 0.0308837890625,
+            "p_holm": 1.0,
+            "second": "Qwen3.5-2B \u00b7 thinking off",
+            "ties": 24,
+            "wins": 14
           },
           {
             "first": "MiniCPM5-2B \u00b7 thinking on",
@@ -1343,9 +2438,18 @@
           },
           {
             "first": "MiniCPM5-2B \u00b7 thinking on",
+            "losses": 1,
+            "p": 0.375,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 37,
+            "wins": 4
+          },
+          {
+            "first": "MiniCPM5-2B \u00b7 thinking on",
             "losses": 0,
             "p": 0.015625,
-            "p_holm": 0.765625,
+            "p_holm": 1.0,
             "second": "MiniCPM5-2B \u00b7 thinking off",
             "ties": 35,
             "wins": 7
@@ -1379,9 +2483,18 @@
           },
           {
             "first": "MiniCPM5-2B \u00b7 thinking on",
+            "losses": 0,
+            "p": 0.015625,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 35,
+            "wins": 7
+          },
+          {
+            "first": "MiniCPM5-2B \u00b7 thinking on",
             "losses": 1,
             "p": 0.0009765625,
-            "p_holm": 0.0517578125,
+            "p_holm": 0.0869140625,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 27,
             "wins": 14
@@ -1412,6 +2525,15 @@
             "second": "Raon-1 nano \u00b7 thinking on",
             "ties": 36,
             "wins": 4
+          },
+          {
+            "first": "LFM3-1.7B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.453125,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 35,
+            "wins": 5
           },
           {
             "first": "LFM3-1.7B \u00b7 thinking on",
@@ -1451,9 +2573,18 @@
           },
           {
             "first": "LFM3-1.7B \u00b7 thinking on",
+            "losses": 2,
+            "p": 0.109375,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 8
+          },
+          {
+            "first": "LFM3-1.7B \u00b7 thinking on",
             "losses": 0,
             "p": 0.0001220703125,
-            "p_holm": 0.0067138671875,
+            "p_holm": 0.0111083984375,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 28,
             "wins": 14
@@ -1475,6 +2606,15 @@
             "second": "Raon-1 nano \u00b7 thinking on",
             "ties": 32,
             "wins": 5
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking off",
+            "losses": 5,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 31,
+            "wins": 6
           },
           {
             "first": "Qwen3.5 4B \u00b7 thinking off",
@@ -1514,6 +2654,15 @@
           },
           {
             "first": "Qwen3.5 4B \u00b7 thinking off",
+            "losses": 2,
+            "p": 0.109375,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 8
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking off",
             "losses": 3,
             "p": 0.021270751953125,
             "p_holm": 1.0,
@@ -1527,6 +2676,15 @@
             "p": 1.0,
             "p_holm": 1.0,
             "second": "Raon-1 nano \u00b7 thinking on",
+            "ties": 33,
+            "wins": 5
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking on",
+            "losses": 4,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
             "ties": 33,
             "wins": 5
           },
@@ -1568,12 +2726,30 @@
           },
           {
             "first": "Qwen3.5 4B \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.2265625,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 31,
+            "wins": 8
+          },
+          {
+            "first": "Qwen3.5 4B \u00b7 thinking on",
             "losses": 2,
             "p": 0.004180908203125,
-            "p_holm": 0.2174072265625,
+            "p_holm": 0.35955810546875,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 26,
             "wins": 14
+          },
+          {
+            "first": "Raon-1 nano \u00b7 thinking on",
+            "losses": 3,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "ties": 35,
+            "wins": 4
           },
           {
             "first": "Raon-1 nano \u00b7 thinking on",
@@ -1613,11 +2789,74 @@
           },
           {
             "first": "Raon-1 nano \u00b7 thinking on",
+            "losses": 3,
+            "p": 0.34375,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 7
+          },
+          {
+            "first": "Raon-1 nano \u00b7 thinking on",
             "losses": 2,
             "p": 0.012939453125,
-            "p_holm": 0.64697265625,
+            "p_holm": 1.0,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 28,
+            "wins": 12
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 2,
+            "p": 0.453125,
+            "p_holm": 1.0,
+            "second": "MiniCPM5-2B \u00b7 thinking off",
+            "ties": 35,
+            "wins": 5
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 5,
+            "p": 0.5810546875,
+            "p_holm": 1.0,
+            "second": "Qwen3.5-2B \u00b7 thinking on",
+            "ties": 29,
+            "wins": 8
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 2,
+            "p": 0.6875,
+            "p_holm": 1.0,
+            "second": "LFM3-1.7B \u00b7 thinking off",
+            "ties": 36,
+            "wins": 4
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 3,
+            "p": 0.5078125,
+            "p_holm": 1.0,
+            "second": "Raon-1 nano \u00b7 thinking off",
+            "ties": 33,
+            "wins": 6
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 3,
+            "p": 0.34375,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 7
+          },
+          {
+            "first": "Gemma 4 E2B (tool-result cue template) \u00b7 thinking off",
+            "losses": 1,
+            "p": 0.00341796875,
+            "p_holm": 0.29736328125,
+            "second": "Qwen3.5-2B \u00b7 thinking off",
+            "ties": 29,
             "wins": 12
           },
           {
@@ -1644,6 +2883,15 @@
             "p": 1.0,
             "p_holm": 1.0,
             "second": "Raon-1 nano \u00b7 thinking off",
+            "ties": 33,
+            "wins": 5
+          },
+          {
+            "first": "MiniCPM5-2B \u00b7 thinking off",
+            "losses": 4,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
             "ties": 33,
             "wins": 5
           },
@@ -1676,6 +2924,15 @@
           },
           {
             "first": "Qwen3.5-2B \u00b7 thinking on",
+            "losses": 6,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 29,
+            "wins": 7
+          },
+          {
+            "first": "Qwen3.5-2B \u00b7 thinking on",
             "losses": 7,
             "p": 0.26317596435546875,
             "p_holm": 1.0,
@@ -1694,6 +2951,15 @@
           },
           {
             "first": "LFM3-1.7B \u00b7 thinking off",
+            "losses": 4,
+            "p": 0.75390625,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 32,
+            "wins": 6
+          },
+          {
+            "first": "LFM3-1.7B \u00b7 thinking off",
             "losses": 3,
             "p": 0.057373046875,
             "p_holm": 1.0,
@@ -1703,12 +2969,30 @@
           },
           {
             "first": "Raon-1 nano \u00b7 thinking off",
+            "losses": 4,
+            "p": 1.0,
+            "p_holm": 1.0,
+            "second": "Granite 4.2 3B \u00b7 thinking off",
+            "ties": 33,
+            "wins": 5
+          },
+          {
+            "first": "Raon-1 nano \u00b7 thinking off",
             "losses": 3,
             "p": 0.09228515625,
             "p_holm": 1.0,
             "second": "Qwen3.5-2B \u00b7 thinking off",
             "ties": 29,
             "wins": 10
+          },
+          {
+            "first": "Granite 4.2 3B \u00b7 thinking off",
+            "losses": 4,
+            "p": 0.266845703125,
+            "p_holm": 1.0,
+            "second": "Qwen3.5-2B \u00b7 thinking off",
+            "ties": 29,
+            "wins": 9
           }
         ],
         "tasks": 42
