@@ -123,7 +123,7 @@ def not_measured_note(data: Data) -> str:
 
 # The summary under the intro (fixed copy in index.html): its accuracy line, word for word as the user gave it, and the
 # most words the whole block may show; summary_checks tests both on every build.
-SUMMARY_ACCURACY = "Accuracy: Copernicus-31B and KnowLine-31B-Gen1.5 tied at 81.8%, KnowLine-31B-Gen2 at 81.2% and Turion Jev 31B at 80.1%, tied with them; REAX 1.3, Karpo Decision 31B, Gemini Decision 1 and d1-ultra, tied at 77.1% to 77.9%; Logits Sigma-1 Duo and Sieve 31B v3 at 75.0% and 74.2%; GLiDE 27B at 71.1%; then eleven setups at 66.9% to 68.7%."
+SUMMARY_ACCURACY = "Accuracy: Copernicus-31B and KnowLine-31B-Gen1.5 tied at 81.8%, KnowLine-31B-Gen2 at 81.2% and Turion Jev 31B at 80.1%, tied with them; REAX 1.3, Karpo Decision 31B, Gemini Decision 1 and d1-ultra, tied at 77.1% to 77.9%; Logits Sigma-1 Duo and Sieve 31B v3 at 75.0% and 74.2%; GLiDE 27B at 71.1%; then twelve setups at 66.9% to 68.7%."
 SUMMARY_WORDS = 150
 # The LLMs the Routing tab puts behind a decision model: sitebuild.site.ROUTE_LLMS (key, label, URL slug, request sizes).
 # Copy about the routing LLMs at one question per request covers only those with a run at that size.
@@ -937,11 +937,11 @@ def copy_checks(data: Data) -> list[str]:
     check("and accuracy falls 0.16 points (replay)", round(-100 * one["difference"], 2) == 0.16)
     order = sorted((run for run in decision if (run["run"], sonnet16["run"]) in cascades),
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
-    check("SubQ Snap Preview sixteenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 15)
-    # Its routing places in front of Opus and Astra, the same at both request sizes (Decider 27B v1.3 joined above it on
-    # 14 November 2026).
-    for size in (16, 1):
-        for key, place, word in (("opus", 23, "twenty-third"), ("astra", 21, "twenty-first")):
+    check("SubQ Snap Preview seventeenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 16)
+    # Its routing places in front of Opus and Astra (Decider 27B v1.3 joined above it on 14 November 2026, d1.2-ultra
+    # and, at one question per request in front of Opus, d1.2 on 16 November).
+    for size, opus_place, opus_word in ((16, 24, "twenty-fourth"), (1, 25, "twenty-fifth")):
+        for key, place, word in (("opus", opus_place, opus_word), ("astra", 22, "twenty-second")):
             frontier = data.named(key, size)["run"]
             ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
                             key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
@@ -1009,10 +1009,11 @@ def copy_checks(data: Data) -> list[str]:
     check("Summary: Logits Sigma-1 Duo and Sieve 31B v3 at 75.0% and 74.2%",
           ranked[8] is sigma and percent(sigma) == "75.0" and ranked[9] is sieve and percent(sieve) == "74.2")
     check("Summary: GLiDE 27B at 71.1%", ranked[10] is glide27 and percent(glide27) == "71.1")
-    near = (with_web, glide12, decider13, glide, d3, d3_ultra, drex_v1, drex_11, mammoth, decider, decider12)
-    check("Summary: then eleven setups (Decider v1.2 with web search, GLiDE v1.2, Decider v1.3, hosted GLiDE, d3, "
-          "d3-ultra, Drex Max v1 and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark) at 66.9% to 68.7%",
-          {run["run"] for run in ranked[11:22]} == {run["run"] for run in near}
+    near = (with_web, glide12, decider13, glide, d3, d3_ultra, drex_v1, drex_11, mammoth, decider, decider12,
+            data.by_name("d1.2-ultra"))
+    check("Summary: then twelve setups (Decider v1.2 with web search, GLiDE v1.2, Decider v1.3, hosted GLiDE, d3, "
+          "d3-ultra, Drex Max v1 and v1.1, Mammoth-1, Decider v1.1 and v1.2 on our DGX Spark, d1.2-ultra) at 66.9% to 68.7%",
+          {run["run"] for run in ranked[11:23]} == {run["run"] for run in near}
           and min(percent(run) for run in near) == "66.9" and max(percent(run) for run in near) == "68.7")
     calibrated = sorted(decision, key=lambda run: run["confidence"]["ece"])
     check("Summary: calibration gap, as shipped: d1.1 had the smallest gap among decision models",

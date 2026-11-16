@@ -2,6 +2,17 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 94aef0c1 (16 November 2026)
+
+- Liquid AI's d1.2 and d1.2-ultra, released 16 November on the Liquid API (Ümit #10915, #10926), through the same route as d1-ultra, one question per request; Liquid served them to our key from 18:51 UTC.
+  - Turkish Text, five runs each (their repeats changed answers: the page's rule): d1.2-ultra 1,497 of 2,198 (68.1%) in all five runs (one answer differed in one run); d1.2 1,357 (61.7%; runs 1346, 1352, 1369, 1370, 1372 between 60.6% and 61.7%). For reference: d1-ultra 77.1%, d1.1 61.5%.
+  - English (547): d1.2-ultra 494 (90.3%), d1.2 487 (89.0%). "I don't know" and "Bilmiyorum" runs and the option-word check (English "I don't know" on the Turkish questions) as for d1-ultra.
+  - Page images, 763 questions: picture only (B) d1.2-ultra 45.3%, d1.2 46.9%; text and picture (C) 66.7% and 59.1%; the four OCR routes 53.2% to 61.7% and 48.9% to 51.9%.
+  - Liquid billed $0.34 (d1.2-ultra) and $0.16 (d1.2) for all of these runs. Liquid's pages name no languages, so the Turkish tables mark both as not officially supporting Turkish.
+- English reading, thinking on, on logic's loads (Ümit #10884): Qwen3.5-2B 415 of 547 (75.9%; run 1341) and Gemma 4 E2B (32k) 417 (76.2%; run 1349), with their English "I don't know" runs (1344, 1350), each a setup of its own beside the thinking-off rows.
+- The English leaderboard's details box of each row names the machine of its English runs (Zeki #11020).
+- Paired English–Turkish test: 137 comparisons (135 before), 7 passing.
+
 ## Results cf6c82bd (16 November 2026)
 
 - Qwen4-Max (Alibaba's closed flagship chat model) through OpenRouter, pinned to Alibaba's endpoint, fallbacks off, reasoning effort high, 16 questions per request, output capped at 32,768 tokens (Ümit #9817, #10509). Turkish Text 2,016 of 2,198 (91.7%; run 1336), English 517 of 547 (94.5%; run 1334), English "I don't know" 518 right (run 1338), Turkish "Bilmiyorum" 2,042 right (run 1339). OpenRouter billed $11.95 for the four runs and their 20-question smoke. No language is named for it (closed weights, no model card), so the Turkish tables mark it as not officially supporting Turkish.

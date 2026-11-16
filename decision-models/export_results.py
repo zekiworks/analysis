@@ -755,6 +755,8 @@ MODELS: dict[str, dict[str, Any]] = {
     "d1:free": {"name": "Liquid d1", "billing": "free"},
     "d1-ultra": {"name": "Liquid d1-ultra"},
     "d1.1": {"name": "Liquid d1.1"},
+    "d1.2": {"name": "Liquid d1.2"},
+    "d1.2-ultra": {"name": "Liquid d1.2-ultra"},
     # Google's decision model (launched 11 November 2026) through its own Decisions API.
     "gemini-decision-1": {
         "name": "Gemini Decision 1",
@@ -978,6 +980,9 @@ SIZES: dict[str, dict[str, Any]] = {
     # "we based d1-ultra on a larger open-weight model", unnamed.
     "d1-ultra": {"total": None, "sources": ["https://www.liquid.ai/blog/d1-ultra"], "read": READ},
     "d1.1": {"total": None, "sources": ["https://docs.liquid.ai/lfm/models/decision-models"], "read": READ},
+    # d1.2 and d1.2-ultra (16 November 2026): hosted only, no size stated.
+    "d1.2": {"total": None, "sources": ["https://www.liquid.ai/blog/d1-2"], "read": "2026-11-16"},
+    "d1.2-ultra": {"total": None, "sources": ["https://www.liquid.ai/blog/d1-2"], "read": "2026-11-16"},
     "subq-snap-preview": {"total": None, "sources": ["https://docs.subq.ai/using-the-api/models/"], "read": READ},
     "subq-snap-1.1": {"total": None, "sources": ["https://docs.subq.ai/using-the-api/models/"], "read": READ},
     # "it is a small model", with no number; the ID now serves Decider 1.1, whose weights meraGPT does not publish.

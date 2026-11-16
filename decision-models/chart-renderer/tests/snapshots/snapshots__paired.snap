@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 135 comparisons (7 pass).
-━━ passes the Holm adjustment across these 135 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 137 comparisons (7 pass).
+━━ passes the Holm adjustment across these 137 comparisons   ━━ does not pass
 
                                                  Gemini 4 Carbon · high · chat minus Claude Fable 5.2 · max · chat                         ⠠⣷⠤                                     +0.3
                                                 Claude Fable 5.2 · max · chat minus Gemini 3.8 Flash · high · chat                        ⠠⠤⡧⠄                                     +0.0
@@ -53,8 +53,9 @@ shows a related but separate test, adjusted across these 135 comparisons (7 pass
                                                    Perplexity Decider 27B v1.2 · API · with web minus GLiDE · v1.2                      ⠠⠤⠤⠤⣿⠤⠤⠤⠄                                  +0.3
                                                                     GLiDE · v1.2 minus Perplexity Decider 27B v1.3                      ⠠⠤⠤⠤⡧⠤⠤⠄                                   +0.0
                                                          Perplexity Decider 27B v1.3 minus GPT-6 Luna · low · chat                     ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤                                 +0.1
-                                                                         GPT-6 Luna · low · chat minus GLiDE · API                     ⠠⠤⠤⠤⠤⡧⡧⠤⠤⠤⠤⠄                                +0.4
+                                                                          GPT-6 Luna · low · chat minus d1.2-ultra                     ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤                                 +0.2
                                                           GPT-6 Luna · Decisions API minus GPT-6 Luna · low · chat          ⠤⠤⠤⠤⢼⠤⠤⠤⠤⠄      ⡇                                      -4.7
+                                                                                      d1.2-ultra minus GLiDE · API                     ⠠⠤⠤⠤⠤⣿⠤⠤⠤⠤⠄                                 +0.2
                                                                                               GLiDE · API minus d3                     ⠠⠤⠤⠤⠤⡧⠤⠤⠤⠤                                  +0.1
                                                                        GLiDE · API minus Perplexity Decider 27B v1                          ⡇            ⠠⠤⠤⠤⢼⠤⠤⠤⠤⠄                +7.5
                                                                                                  d3 minus d3-ultra                      ⠠⠤⠤⠤⡧⠤⠤⠄                                   +0.0
@@ -73,8 +74,9 @@ DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus DeepSeek-V4.1-Flash �
                                                                     SubQ Snap 1.1 minus GPT-6 Luna · Decisions API                     ⠤⠤⠤⠤⠤⣿⠤⠤⠤⠤⠤⠄                                +0.3
                                               GPT-6 Luna · Decisions API minus Qwen3.8 Flash · no reasoning · chat                      ⠤⠤⠤⠤⡧⡧⠤⠤⠤⠤⠄                                +0.5
                                                        Qwen3.8 Flash · no reasoning · chat minus KnowLine-12B-Gen1                      ⠤⠤⠤⠤⡧⡧⠤⠤⠤⠤⠤                                +0.6
-                                                                                      KnowLine-12B-Gen1 minus d1.1                       ⠤⠤⠤⡧⠤⡧⠤⠤⠤⠤⠤                               +1.0
-                                                                         d1.1 minus Claude Sonnet 5.5 · low · chat                     ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤                                 +0.1
+                                                                                      KnowLine-12B-Gen1 minus d1.2                      ⠠⠤⠤⠤⡧⢼⠤⠤⠤⠤⠤                                +0.7
+                                                                                                   d1.2 minus d1.1                      ⠠⠤⠤⠤⣿⠤⠤⠤⠄                                  +0.2
+                                                                         d1.1 minus Claude Sonnet 5.5 · low · chat                     ⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒                                 +0.1
                                                            Claude Sonnet 5.5 · low · chat minus celeris-1-decision                      ⠐⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠒                               +0.9
                                                                 celeris-1-decision minus Perplexity Decider 27B v1                     ⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠂                                 +0.1
                                                                         Perplexity Decider 27B v1 minus OneJev-27B                        ⠒⠒⡗⢺⠒⠒⠒⠂                                 +0.8

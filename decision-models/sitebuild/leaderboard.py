@@ -495,7 +495,9 @@ def english(site: Site, board: Board, both: bool) -> tuple[list[str], list[str]]
                   "Confidence: not measured" if plain_line(model) else None,
                   mine(f"Confidence: chosen-answer Brier {model['decision_score']['brier']:.4f}, Decision Score (AA formula) "
                        f"{model['decision_score']['score']:.2f}" if "decision_score" in model else None, model["run"]),
-                  mine(latency_line(model["latency"].get("english")), model["run"])])
+                  mine(latency_line(model["latency"].get("english")), model["run"]),
+                  # Where its English runs ran (Ümit #10906; Zeki #11020: the box, not only the name's hover title).
+                  f"English runs on: {model['english_where']}"])
         if both:
             cells = [pct(tr["accuracy"]),
                      pct(en["accuracy"]) + (f'<span class="small">{esc(paired)}</span>' if paired else ""),
