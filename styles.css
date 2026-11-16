@@ -58,5 +58,7 @@ html[data-theme=dark]{--ink:#f1eff0;--dim:#c0bbbf;--line:#424046;--paper:#19191c
   .sectionTab { min-height: 34px; padding: 6px 8px; font-size: 12px; }
 }
 /* The mark: Hilde's copper leaf (hilde-leaf-transparent.png from zekiworks/hilde, unchanged bytes, its full square canvas), contained in the old mark's 31 x 36 px box, never cropped or stretched (Ümit #10097, #10114) */
-.brandLeaf{object-fit:contain;flex:0 0 auto}
+.brandLeaf{object-fit:contain;flex:0 0 auto;width:56px;height:56px;margin:-10px -2px -10px -6px}
+@media(max-width:760px){.brandLeaf{width:46px;height:46px;margin:-5px -2px -5px -6px}}
+/* the leaf fills only part of its square canvas, so it shows larger than the old 31 x 36 box without growing the header (Ümit #10817) */
 /* the table's scroll box holds its absolutely placed screen-reader labels too, so none widens the page at 390 px (Zeki #10787) */

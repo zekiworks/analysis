@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-16T16:29:31Z",
+    "updated": "2026-11-16T16:44:04Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -108,6 +108,38 @@
        "logic:gpt-6.1-sol-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "qwen4-max",
+      "name": "Qwen4-Max",
+      "display_name": "Qwen4-Max",
+      "tag": "high · chat",
+      "class_label": "Closed · Undisclosed",
+      "base_model": null,
+      "setup_label": "Qwen4-Max",
+      "maker": "Alibaba",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 95.33333333333333,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9626666666666667,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:qwen4-max_en",
+       "logic:qwen4-max_en_dontknow"
+      ],
+      "notes": "hosted API via OpenRouter",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -811,7 +843,7 @@
        "logic:gemma-4-e4b-it_en",
        "logic:gemma-4-e4b-it_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Gemma 4 E4B (on · chat), Gemma 4 E4B (on · chat · 32k cap); 4.5B effective parameters",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Gemma 4 E4B (on · chat), Gemma 4 E4B (on · chat · 32k cap), Gemma 4 E4B (on · chat · 32k cap · sampled); 4.5B effective parameters",
       "gpu_hours": 0.38055555555555554,
       "gpu_cost_usd": 0.9475833333333333
      },
@@ -3216,7 +3248,7 @@
      }
     ]
    },
-   "sha256": "7994c5f3b813879d1c472e1b213fc5cad62746aa236af85a75b9c78ec3b5280c"
+   "sha256": "d550cd300144c9c2faf04c9ac0f9b1e9c8e725692657a8814c1efd2c158f9330"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3226,7 +3258,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-16T16:29:31Z",
+    "updated": "2026-11-16T16:44:04Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -6464,7 +6496,7 @@
      }
     ]
    },
-   "sha256": "42ab9bb72b5670227621f60d3bcc3808ca0b362061de0000ce6da6ef9c24551c"
+   "sha256": "de193678adb442ddd893d1b15722cdb1e9f195fc1a8b8467d71b0ebadd2cd256"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -6474,7 +6506,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-16T16:29:31Z",
+    "updated": "2026-11-16T16:44:04Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -9844,7 +9876,7 @@
      }
     ]
    },
-   "sha256": "e62c461f2c56eb2f14b6fa96b44b3f6a73ab9d16a4893e0bea2e14fea3e30c43"
+   "sha256": "12e3a029911b37f0c7c42c4ee91626df6dc47960bbec27e8599c9e1e393dacca"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
