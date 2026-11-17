@@ -11743,7 +11743,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-17T01:54:53Z",
+    "updated": "2026-11-17T14:07:44Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -12394,6 +12394,34 @@
       "gpu_cost_usd": null
      },
      {
+      "name": "Mammoth-1",
+      "display_name": "Mammoth-1",
+      "tag": "",
+      "model_key": "mammoth-1",
+      "maker": "Base Labs",
+      "kind": "decision",
+      "repo": "baselabs/mammoth-1",
+      "commit": "61cec44c281c693992e3d6ebeb44dd3402dfa186",
+      "params_total": 27.0,
+      "params_active": 27.0,
+      "quantization": "BF16",
+      "score_0_100": 82.38279362010633,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8825519574673756,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.019203385693571738,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-mammoth-1-v1"
+      ],
+      "notes": "baselabs/mammoth-1@61cec44c, the runner's baselabs_server.py in the card's setup.sh environment (OneJev 81ce62f1 with the checkpoint's serve.patch), the server its Logic & Math runs use, BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.18518004327501755,
+      "gpu_cost_usd": null
+     },
+     {
       "name": "GLiDE 9B",
       "display_name": "GLiDE 9B",
       "tag": "",
@@ -12958,6 +12986,34 @@
       "gpu_cost_usd": null
      },
      {
+      "name": "Clef",
+      "display_name": "Clef",
+      "tag": "",
+      "model_key": "clef",
+      "maker": "Cloudflare",
+      "kind": "decision",
+      "repo": "Cloudflare/clef",
+      "commit": "2f3de3dd85f379784083b0814d997ab627200f0c",
+      "params_total": 27.0,
+      "params_active": 27.0,
+      "quantization": "BF16",
+      "score_0_100": 76.5103914934751,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8434026099565007,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.039646737554374076,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-clef-v1"
+      ],
+      "notes": "Cloudflare/clef@2f3de3dd, Clef's own server.py, the server its Logic & Math runs use, BF16, on one RTX PRO 6000 (ours), self-hosted; server probabilities are rounded to four decimal places and retained without renormalization; ECE uses the reported maximum probability; on one pair the two highest rounded probabilities tie, and its label is the server's own choice; accuracy is the same whichever tied option wins; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.21970528871488218,
+      "gpu_cost_usd": null
+     },
+     {
       "name": "KnowLine-9B-Gen1",
       "display_name": "KnowLine-9B-Gen1",
       "tag": "",
@@ -13275,6 +13331,34 @@
       ],
       "notes": "Valen-Team/Valen-Decision-1.5-9B@5a512117, its card's vLLM deployment (valen-vllm, the Valen plugin at Valen-Team/Valen@773d3a64 in the official vllm/vllm-openai:v0.33.0 image), BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
       "gpu_hours": 0.04507349295907858,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "Drex 2.0",
+      "display_name": "Drex 2.0",
+      "tag": "",
+      "model_key": "drex-2.0-local",
+      "maker": "Nace.AI",
+      "kind": "decision",
+      "repo": "nace-ai/drex-v2.0",
+      "commit": "e646674476744e3826caf62b834054151e2aba51",
+      "params_total": 35.0,
+      "params_active": 3.0,
+      "quantization": "BF16",
+      "score_0_100": 73.75543740937651,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8250362493958434,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.11066872885451909,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-drex-2.0-v1"
+      ],
+      "notes": "nace-ai/drex-v2.0@e6466744, the maker's own serve.py (open weights, not Nace's hosted API), the server its local Logic & Math runs use, BF16, on one RTX PRO 6000 (ours), self-hosted; server probabilities are rounded to four decimal places and retained without renormalization; ECE uses the reported maximum probability; one question per request, 1 request at a time (latency not comparable across different concurrency)",
+      "gpu_hours": 0.1409135134105186,
       "gpu_cost_usd": null
      },
      {
@@ -14220,10 +14304,38 @@
       "notes": "PelaAI/KnowLine-0.8B-Gen1@6b27831f, the server its Logic & Math runs use, BF16, on one DGX Spark (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
       "gpu_hours": 0.04669099587283346,
       "gpu_cost_usd": null
+     },
+     {
+      "name": "Nemotron-Labs-Sigma-3B-instruct",
+      "display_name": "Nemotron-Labs-Sigma-3B-instruct",
+      "tag": "thinking off · chat",
+      "model_key": "nemotron-labs-sigma-3b",
+      "maker": "NVIDIA",
+      "kind": "chat",
+      "repo": "nvidia/Nemotron-Labs-Sigma-3B-instruct",
+      "commit": "057a0843f4979c1f8ef0182b194dd1133e85b764",
+      "params_total": 3.0,
+      "params_active": 3.0,
+      "quantization": "BF16",
+      "score_0_100": 4.3015949734171155,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.3620106331561141,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-nemotron-labs-sigma-3b-v1"
+      ],
+      "notes": "nvidia/Nemotron-Labs-Sigma-3B-instruct@057a0843, BF16, a local OpenAI-compatible wrapper, sigma_server.py (Transformers custom code, DDIM 32 steps per 32-token block, guidance 3, score temperature 0.3; one request at a time per copy) on one RTX PRO 6000 (ours), self-hosted; the wrapper makes two local fixes to the release's loading. It builds the noise schedule from the checkpoint's own projected_bernstein tensors, because the release's config builds a legacy schedule that leaves them unused. Its stop check reads special tokens, because the release's decode skips its own end-of-turn token. The server's per-reply sampler record was not kept by our client; one question per request, 5 requests at a time (latency not comparable across different concurrency); the server also answered another benchmark's requests (Reading) for part of the run, so its latency and GPU time are shared-load figures; thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 436 of 2069 replies (21%) had no answer marker and count wrong (0 of them cut off at the 8,192-token context (prompt plus reply; the server caps each reply at 8,192 minus its prompt in the model's own tokens)); every reply kept; before the run, 1 published-cohort pair was sent in test requests whose outputs were not kept, so its scored row comes from a later request",
+      "gpu_hours": 4.647603207788421,
+      "gpu_cost_usd": null
      }
     ]
    },
-   "sha256": "780f4698ef5127380328cc69454390163c2fb55f8207a4bb5f0e0163976dc645"
+   "sha256": "c98026e69b31e58267f79f0470fe29d9d0df4d7c32f2fe4d0146d85616f795f0"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -14231,10 +14343,10 @@
    "seen": "2026-11-17",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-17T09:22:12Z",
+    "updated": "2026-11-17T14:07:51Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "780f4698ef5127380328cc69454390163c2fb55f8207a4bb5f0e0163976dc645"
+     "sha256": "c98026e69b31e58267f79f0470fe29d9d0df4d7c32f2fe4d0146d85616f795f0"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -15491,6 +15603,72 @@
       "chosen_answer_brier": 0.1986
      },
      {
+      "run": "grading:site-mammoth-1-v1",
+      "model_key": "mammoth-1",
+      "latency_s_median": 0.291,
+      "latency_s_p90": 0.41,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 322.2,
+      "recall_reference": 0.9692,
+      "recall_other": 0.5745,
+      "recall_none": 0.9073,
+      "wrong_answer_recall": 0.5745,
+      "false_alarm_rate": 0.0132,
+      "invalid": 0,
+      "probabilities": true,
+      "decision_score": 90.2446,
+      "chosen_answer_brier": 0.0777
+     },
+     {
+      "run": "grading:site-clef-v1",
+      "model_key": "clef",
+      "latency_s_median": 0.345,
+      "latency_s_p90": 0.477,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 382.3,
+      "recall_reference": 0.9554,
+      "recall_other": 0.3921,
+      "recall_none": 0.8972,
+      "wrong_answer_recall": 0.3921,
+      "false_alarm_rate": 0.0207,
+      "invalid": 0,
+      "probabilities": true,
+      "decision_score": 87.4044,
+      "chosen_answer_brier": 0.0953
+     },
+     {
+      "run": "grading:site-drex-2.0-v1",
+      "model_key": "drex-2.0-local",
+      "latency_s_median": 0.211,
+      "latency_s_p90": 0.317,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 245.2,
+      "recall_reference": 0.7941,
+      "recall_other": 0.6869,
+      "recall_none": 0.9185,
+      "wrong_answer_recall": 0.6869,
+      "false_alarm_rate": 0.0885,
+      "invalid": 0,
+      "probabilities": true,
+      "decision_score": 85.1216,
+      "chosen_answer_brier": 0.1226
+     },
+     {
       "run": "grading:chat-qwen3.5-4b-nothink-v1",
       "model_key": "qwen3.5-4b-nothink",
       "runs": [
@@ -16072,10 +16250,32 @@
       "probabilities": false,
       "decision_score": null,
       "chosen_answer_brier": null
+     },
+     {
+      "run": "grading:chat-nemotron-labs-sigma-3b-v1",
+      "model_key": "nemotron-labs-sigma-3b",
+      "latency_s_median": 23.961,
+      "latency_s_p90": 91.088,
+      "requests_in_flight": 5,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 8086.7,
+      "recall_reference": 0.7877,
+      "recall_other": 0.0061,
+      "recall_none": 0.0063,
+      "wrong_answer_recall": 0.0061,
+      "false_alarm_rate": 0.0006,
+      "invalid": 436,
+      "probabilities": false,
+      "decision_score": null,
+      "chosen_answer_brier": null
      }
     ]
    },
-   "sha256": "7c616fc1a3f04a050a5e7a0f4f109e55c450b754af9b03883c7d5b6357c69e14"
+   "sha256": "ef09ea16125dd84a2df8580c9e1f95df9c51881ba83ce4f8e106f96f93f439dd"
   }
  }
 }
