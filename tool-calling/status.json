@@ -34,7 +34,7 @@
   },
   "not_qualified": [
     {
-      "finding": "Qualification failed on public task single-01: after a correct get_price call and its mock result, the model's next token was <|tool_response> (an end-of-generation id), so the reply was empty. With thinking off, neither the maker's chat template nor vLLM's example template adds a continuation cue after a tool result. One observation; cause not proven.",
+      "finding": "Qualification failed: after a tool result, the model's next token was <|tool_response> (an end-of-generation id), so the reply was empty. With thinking off, neither the maker's chat template nor vLLM's example template adds a continuation cue after a tool result. One observation; cause not proven.",
       "qualification_evidence_sha256": "11b2effa6e9f1f57d2fd1a76001d65b3f2a5f497ee815666bc2a8b6e8d41a18a",
       "requested_name": "Gemma 4 E2B",
       "thinking_mode": "off"
@@ -71,5 +71,5 @@
   "stage": "results",
   "tiered": true,
   "unscored": 0,
-  "updated": "2026-11-16T18:29:23+01:00"
+  "updated": "2026-11-17T01:39:49+01:00"
 }
