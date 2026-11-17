@@ -8,16 +8,16 @@ You can help in three ways.
 Open an [answer key correction](https://github.com/zekiworks/analysis/issues/new?template=answer-key-correction.md)
 issue. Give:
 
-- the question ID from `answers.json` (`questions.id`), with its topic, page and printed number;
+- the page and printed number of the question in your copy of the book (the site publishes neither, nor any key);
 - the printed key and the answer you think is right;
 - your evidence: a grammar rule, a reference or your reading of the page.
 
-Please do not paste the question text or a photo of the page: the publisher owns them. The ID, page and number are
-enough for us to find the question.
+Please do not paste the question text or a photo of the page: the publisher owns them. The page and number are enough
+for us to find the question.
 
 We check each report against the book's own key, or a second person reviews it. The reviewer sees the question and its
 options, but not the models' answers. If the fix holds, it creates a new answer key version: we add a row to
-[key-changelog.md](key-changelog.md) (question ID, old answer, new answer, reason, date), score every run again on the
+[key-changelog.md](key-changelog.md) (question ID, reason, date; the answers stay private), score every run again on the
 new key and publish the results with the new key version.
 
 ## Ask us to test a model

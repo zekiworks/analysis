@@ -15,7 +15,7 @@ PATH = "about/"
 TITLE = "About"
 # The order of the pages in Notes on each page; a page not named here follows them in the order it was built.
 NOTES_ORDER = ("", "english/", "turkish-vs-english/", "dont-know/", "web-grounding/", "pws-decisions/", "vision/",
-               "questions/", "experiments/", "data/")
+               "topics/", "experiments/", "data/")
 # The summary of the decision models' results, as it stood under Info on the home page: fixed copy, each line checked
 # against results.json by build_site.py (copy_checks, summary_checks). Its links open a tab of the full ranking (All
 # setups) on the Leaderboard.
@@ -53,7 +53,7 @@ def page(site: Site, intro: str, how_scores: str, notes: str, stats: str) -> str
     body = f"""    <section class="card prose" id="test">
       <h1>About the Reading bench</h1>
       <p>{esc(intro)}</p>
-      <p>The questions come from a published book; their text stays unpublished, as the publisher owns it. Every setup's answer to every question is in <a href="{up}answers.json" download>answers.json</a> and the files it lists beside it (the <a href="{up}data/">Data</a> page names each). The <a href="{rel(PATH, "method/")}">Method</a> page has the full study: the questions, the answer key, the runs and the tests.</p>
+      <p>The questions come from a published book; their text stays unpublished, as the publisher owns it, and so does anything that would rebuild the answer key: each question's key, its place in the book, the letter each model picked and its option probabilities. Each run's record and, question by question in a fixed order without question IDs, whether its answer was right, wrong or missing are in <a href="{up}answers.json" download>answers.json</a> and the files it lists beside it (the <a href="{up}data/">Data</a> page names each). The <a href="{rel(PATH, "method/")}">Method</a> page has the full study: the questions, the answer key, the runs and the tests.</p>
       <ul class="readouts">{stats}</ul>
       <p class="version">{site.version()}</p>
     </section>

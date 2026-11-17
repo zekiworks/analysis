@@ -7,6 +7,7 @@ import hashlib
 import re
 
 import build_page as bp
+import publish_projection
 from sitebuild.questions import PICKS
 from sitebuild.site import ROOT, Site, esc, more_link, rel
 from sitebuild.vision import joined
@@ -66,9 +67,9 @@ def markdown(text: str) -> str:
     return "\n".join(out)
 
 
-def size(path) -> str:
-    megabytes = path.stat().st_size / 1e6
-    return f"{megabytes:.1f} MB" if megabytes >= 1 else f"{path.stat().st_size / 1e3:.0f} kB"
+def size(length: int) -> str:
+    megabytes = length / 1e6
+    return f"{megabytes:.1f} MB" if megabytes >= 1 else f"{length / 1e3:.0f} kB"
 
 
 # What each section that answers.json keeps in a file of its own holds, for that file's line (answers.json `files`).
@@ -94,25 +95,27 @@ def build(site: Site) -> dict[str, str]:
         (ROOT / "results.json", rel(PATH, "results.json"),
          "Every published number: each setup's accuracy, confidence, latency and cost, and the routing replays and live tests."),
         (ROOT / "answers.json", rel(PATH, "answers.json"),
-         "Every answer of every run, with its score and option probabilities, and the prompts. No question text."
-         + (f" {elsewhere[:1].upper()}{elsewhere[1:]}, which it lists under files; reproduce.py reads them together."
-            if parts else "")),
+         "Every run's record (model, settings, request times) and, question by question in a fixed order without question "
+         "IDs, its outcome: right, wrong, the \u201cI don't know\u201d option or no valid answer; and the prompts. No question "
+         "text, answer key, place in the book, picked letter or option probability: the full file with them stays private."
+         + (f" {elsewhere[:1].upper()}{elsewhere[1:]}, which it lists under files." if parts else "")),
         *((ROOT / name, rel(PATH, name),
            f"The part of answers.json kept in a file of its own, under GitHub's file size limit: "
            f"{'; '.join(SECTION_WORDS[section] for section in sections)} ({', '.join(sections)}), with answers.json's "
            "schema version and dataset, so it reads on its own.") for name, sections in parts.items()),
         (PICKS, rel(PATH, "data/picks.json"),
-         "Built from answers.json for these pages: each leaderboard setup's pick and score on each scored question, and "
-         "each English setup's English pick and score on each kept reading question."),
+         "Built from answers.json for the Compare page: each leaderboard setup's outcome on each scored question (right, "
+         "wrong or no valid answer), reading and grammar apart, in a fixed order. No question ID, key or pick."),
         (ROOT / "vision.json", rel(PATH, "vision.json"),
          "The Page images test: the questions that depend on the printed page, asked as text, as page images and through "
-         "OCR; every number and each answer's pick and option probabilities. No question text, page image or OCR text."),
+         "OCR; every number and, question by question in a fixed order without question IDs, each answer's outcome. No "
+         "question text, page image, OCR text, picked letter or option probability."),
         (ROOT / "vision-repeats.json", rel(PATH, "vision-repeats.json"),
-         "The Page images test's repeat passes, kept outside its table: each pass's run records and answers, compared with "
-         "the table's first pass."),
+         "The Page images test's repeat passes, kept outside its table: each pass's run records and outcomes, compared "
+         "with the table's first pass."),
         (ROOT / "english-reading.json", rel(PATH, "english-reading.json"),
          "The record of the English reading and English and Turkish pages: the translator, its two prompts, each reading question's flags and the "
-         "SHA-256 of its English text. No question text."),
+         "SHA-256 of its English text. No question text or place in the book."),
         (ROOT / "web-grounding.json", rel(PATH, "web-grounding.json"),
          "The Web grounding page's inputs beside answers.json: each run's input tokens by group, what the grounded "
          "searches returned (sites and source checks, as counts and question IDs) and PWS-Decisions' aggregates. No question "
@@ -121,22 +124,24 @@ def build(site: Site) -> dict[str, str]:
          "The PWS-Decisions page's totals: each decision model's three runs on Parallel's benchmark of dated web facts, "
          "with request times, cost and confidence. No question or answer."),
     )
+    sizes = publish_projection.public_sizes(ROOT, [path.relative_to(ROOT).as_posix() for path, _, _ in files])
     downloads = "".join(
         f'<tr><td class="model"><a href="{href}" download>{esc(path.name)}</a></td><td data-label="Contents">{esc(text)}</td>'
-        f'<td class="num" data-label="Size">{size(path)}</td></tr>'
+        f'<td class="num" data-label="Size">{size(sizes[path.relative_to(ROOT).as_posix()])}</td></tr>'
         for path, href, text in files
     )
     citation = bp.citation(site.snapshot, site.values)
     key = results["answer_key"]
     picks_hash = hashlib.sha256(PICKS.read_bytes()).hexdigest()[:12]
-    site.note(PATH, "Data", "<p>Everything the pages show comes from these files. They hold aggregate numbers and every "
-              "answer, but not the questions: the publisher owns them.</p>")
+    site.note(PATH, "Data", "<p>Everything the pages show comes from these files, as published: aggregate numbers and "
+              "each answer's outcome, but not the questions, which the publisher owns, nor anything per question that "
+              "would rebuild the answer key.</p>")
     body = f"""    <section class="card">
       <h1>Data</h1>
       <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">File</th><th scope="col">Contents</th><th scope="col" class="num">Size</th></tr></thead><tbody>{downloads}</tbody></table></div>
       <p class="note">Everything the pages show comes from these files.</p>
       {more_link(PATH)}
-      <p class="note">Results version {esc(results["results_version"])} (what changed: the <a href="#results-changelog">results changelog</a>); picks.json {picks_hash}. The code that ran the benchmark and rebuilds these files is in the <a href="{CODE_URL}">repository</a>; its runner README explains how someone who owns the book rebuilds the question bank.</p>
+      <p class="note">Results version {esc(results["results_version"])} (what changed: the <a href="#results-changelog">results changelog</a>); picks.json {picks_hash}. The code that ran the benchmark is in the <a href="{CODE_URL}">repository</a>; rebuilding or checking these files (<code>reproduce.py</code>, <code>build_site.py</code>) needs the private answer files, with every pick, option probability and the key, which stay unpublished (<code>publish_projection.py</code> writes the public ones from them). The repository's runner README explains how someone who owns the book rebuilds the question bank.</p>
     </section>
     <section class="card" id="results-changelog">
       <h2>Results changelog</h2>
@@ -157,7 +162,7 @@ def build(site: Site) -> dict[str, str]:
       <h2>Licences</h2>
       <ul>
         <li>Code, results and answers: <a href="https://github.com/zekiworks/analysis/blob/main/LICENSE">MIT licence</a>.</li>
-        <li>The questions: owned by the book's publisher and not published. Question IDs, pages and printed numbers locate each one in the book.</li>
+        <li>The questions: owned by the book's publisher and not published; nor are their keys or their places in the book.</li>
       </ul>
     </section>"""
     return {PATH: site.page(PATH, "Data", "Downloads, the results and answer key changelogs, how to cite and the licences.",

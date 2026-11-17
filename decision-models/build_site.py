@@ -74,9 +74,9 @@ HOME_MORE = "data/home-more.json"
 NAMES = "data/names.json"
 HOME_KEYS = ("results_version", "questions", "sure_threshold", "units", "prices", "dont_know", "pipelines", "repeats",
              "replay", "baselines")
-# The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, which the others read.
-# The About page comes after them, from the home page's parts (sitebuild/about.py).
-PAGE_MODULES: tuple[str, ...] = ("questions", "disagreements", "topics", "models", "compare", "vision", "dont_know",
+# The modules of sitebuild/ that write pages, in build order: questions writes data/picks.json, the Compare page's
+# outcomes per question. The About page comes after them, from the home page's parts (sitebuild/about.py).
+PAGE_MODULES: tuple[str, ...] = ("questions", "topics", "models", "compare", "vision", "dont_know",
                                  "english_reading", "english_view", "aa_index", "web_grounding", "pws_decisions", "data",
                                  "method", "highlights", "experiments", "bench_scores", "all_benches")
 # The pages' title is the site's name: the question "When should you trust a decision model?" is gone from every page

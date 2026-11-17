@@ -1865,7 +1865,6 @@ def check_high_confidence(site: Site, high: dict[str, Any]) -> None:
 def high_face(site: Site, high: dict[str, Any]) -> str:
     """The section on the tab's face: the rule, every decision setup's answers at the threshold, d1-ultra's repeats, the
     three models Artificial Analysis ties at 65 across cutoffs, and d1-ultra in English."""
-    from sitebuild.questions import question_link
     digits = site.config["percent_digits"]
     threshold = f"{100 * high['threshold']:g}%"
 
@@ -1913,17 +1912,15 @@ def high_face(site: Site, high: dict[str, Any]) -> str:
     count = len(eruns)
     kept = sorted(run["kept"] for run in eruns)
     kept_text = f"{kept[0]:,}" if kept[0] == kept[-1] else f"{kept[0]:,} to {kept[-1]:,}"
-    links = lambda ids: joined([question_link(PATH, qid) for qid in ids])  # noqa: E731
+    # Which questions they are stays private, as every per-question answer does (publish_projection.py).
     if all(run["wrong"] == eruns[0]["wrong"] and run["wrong_questions"] == eruns[0]["wrong_questions"] for run in eruns):
         wrong = eruns[0]["wrong"]
         noun = "answer" if wrong == 1 else "answers"
-        tail = (f", always question {links(eruns[0]['wrong_questions'])}" if wrong == 1
-                else f", always questions {links(eruns[0]['wrong_questions'])}" if wrong else "")
+        tail = (", always on the same question" if wrong == 1
+                else f", always on the same {bp.in_words(wrong)} questions" if wrong else "")
         result = f"has {wrong:,} wrong {noun} in each of its {count} runs{tail}"
     else:
-        result = f"has, over its {count} runs, " + joined(
-            [f"{run['wrong']:,} wrong in run {run['run']}" + (f" (question {links(run['wrong_questions'])})" if run["wrong"] else "")
-             for run in eruns])
+        result = f"has, over its {count} runs, " + joined([f"{run['wrong']:,} wrong in run {run['run']}" for run in eruns])
     note = (f'<p class="note">In English (the {english["questions"]:,} kept reading questions of the '
             f'<a href="{rel(PATH, "turkish-vs-english/")}">Turkish vs English tab</a>), at {threshold}, {esc(english_name)} '
             f"{result}; each run keeps {kept_text} answers (runs {joined([str(run['run']) for run in eruns])}).</p>")
@@ -2056,7 +2053,7 @@ def build(site: Site) -> dict[str, str]:
       <h2>About this test</h2>
       <p>Every question of the Text tab gets one more option after its five answers: F, “{option}”, written in Turkish in the prompt (“{literal}”). It is always the last option, it is never shuffled and it is never correct. The System One instructions get one added sentence: “{esc(data["sentence"])}”{chat_sentence} Everything else is as on the Text tab: the same {total} scored questions and answer key, and each model's own settings from its text run, its questions per request too (one for every decision model).</p>
       <p>The models: {esc(SELECTION)}.{chat_models} Each has one full run; a model whose repeated text runs changed answers gets five.</p>
-      <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (every number on this page, under <code>dont_know</code>) and <a href="{rel(PATH, "answers.json")}" download>answers.json</a> (each run's answers, under <code>dont_know_runs</code>).</p>
+      <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (every number on this page, under <code>dont_know</code>) and <a href="{rel(PATH, "answers.json")}" download>answers.json</a> (each run's record and its outcome on each question, under <code>dont_know_runs</code>).</p>
     </section>
     <section class="card" id="results">
       <h2>Results</h2>{measure_rows(PATH, (PATH, "results"))}

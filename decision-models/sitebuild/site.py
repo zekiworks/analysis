@@ -32,12 +32,13 @@ esc = html.escape
 
 # The tabs of the top bar on every page, in order: (path inside the site, label). The row starts "Text · Vision" on the
 # three benchmark sites alike (the project lead through Zeki, bus #4039; agreed #4042-#4049): Text is the root index with
-# the Leaderboard, Vision the Page images board (vision/).
-TABS = (("", "Text"), ("vision/", "Vision"), ("questions/", "Questions"), ("highlights/", "Highlights"),
+# the Leaderboard, Vision the Page images board (vision/). Questions opens Topics: no page lists the questions themselves
+# (publish_projection.py).
+TABS = (("", "Text"), ("vision/", "Vision"), ("topics/", "Questions"), ("highlights/", "Highlights"),
         ("experiments/", "Experiments"), ("about/", "About"))
 # The tab each other page sits under, by the start of its path; a page under none of them sits under Text (the root
 # index, english/, turkish-vs-english/, english-reading/, models/).
-SECTION = {"question/": "questions/", "disagreements/": "questions/", "topics/": "questions/", "compare/": "questions/",
+SECTION = {"compare/": "topics/",
            "dont-know/": "experiments/", "web-grounding/": "experiments/",
            "pws-decisions/": "experiments/", "aa-decision-index/": "experiments/", "method/": "about/", "data/": "about/"}
 # The model groups a page can show (?models=, read by site.js on every page; data-models marks the parts of each):

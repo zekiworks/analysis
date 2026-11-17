@@ -1,7 +1,8 @@
 """Page images (vision/), the site's second tab: the questions that point at underlined or numbered words on
 the printed page, asked as text (A), as a picture of the page only (B), as both (C) and as each OCR model's reading of the
-picture (D), from vision.json. vision.json holds aggregate numbers and each answer's pick and option probabilities; no
-question text, picture or OCR text. Under one line, the charts, the leaderboards and the OCR models' table; Info holds
+picture (D), from vision.json. vision.json holds the picks and option probabilities of each answer here; its public
+projection (publish_projection.py) keeps aggregate numbers and each answer's outcome; never question text, picture or OCR
+text. Under one line, the charts, the leaderboards and the OCR models' table; Info holds
 what we found and the method. The longer intro and the four inputs drawn on a sample question written for the page
 (inputs_sample) are in About's notes on each page (Site.note).
 
@@ -1000,7 +1001,7 @@ def build(site: Site) -> dict[str, str]:
     <section class="card">
       <h2>About this test</h2>
       <p class="note">Accuracy: the share of the {questions} questions answered right ({esc(data["measures_method"]["accuracy"].split("; ")[1])}); in the tables its 95% interval shows when you hover over or tap a number.</p>
-      <p class="note">Download: <a href="{rel(PATH, "vision.json")}" download>vision.json</a> (every number on this page, and each answer's pick and option probabilities{", none for a chat model's answers" if chat else ""}; no question text, page image or OCR text).</p>
+      <p class="note">Download: <a href="{rel(PATH, "vision.json")}" download>vision.json</a> (every number on this page, and each answer's outcome, question by question in a fixed order without question IDs; no question text, page image, OCR text, picked letter or option probability).</p>
     </section>
     <section class="card" id="findings" {DECISION_ONLY}>
       <h2>What we found</h2>

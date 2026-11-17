@@ -6,8 +6,8 @@ Turkish exam questions.*
 The results site of a benchmark of language models and decision models on 2,198 scored multiple-choice
 questions from a question bank for the Turkish section of the TYT, the first stage of Turkey's university
 entrance exam. The home page ranks every setup, 20 decision models among them, in four tabs (accuracy,
-confidence, routing and stability) with two charts. Each setup, topic and question has its own page,
-Compare tests two setups against each other, and the Method page holds the full study.
+confidence, routing and stability) with two charts. Each setup and topic has its own page, Compare tests two
+setups against each other, and the Method page holds the full study.
 
 Site: <https://zekiworks.github.io/analysis/decision-models/>
 
@@ -16,7 +16,9 @@ writes the home page's generated parts and every other page from `results.json`,
 and `answers.json` with `answers-repeats.json` and `answers-english.json` beside it, which hold every answer of every
 main, repeat and routing run (the repeat runs in `answers-repeats.json`, the English reading runs in
 `answers-english.json`), with its
-full-precision score and option probabilities but without the questions' text. `v3.js` draws the home
+full-precision score and option probabilities but without the questions' text. Those answer files, `vision.json`,
+`vision-repeats.json` and `english-reading.json` are the private originals: what is published is their projection
+(`publish_projection.py`, under Publishing below), with no key, book locator, pick or probability per question. `v3.js` draws the home
 page's tabs and charts in the browser; without JavaScript the home page shows the leaderboard as a plain
 table. `benchmark_metrics.py` is the benchmark's metric code, and `runner/` the code that ran the
 benchmark. `v1/` keeps the earlier page as it was on 14 October 2026, with its own copies of the data it
@@ -36,7 +38,9 @@ filter stay as first published (the project lead via Zeki #5392).
 
 ## From a clean copy
 
-None of these commands needs a private file:
+None of these commands needs a file from outside this folder. `reproduce.py` and `build_site.py` read the private
+answer files it holds (every pick, option probability and key), so they do not run on the published copy, whose answer
+files are projections (Publishing, below):
 
 ```bash
 python3 reproduce.py                                       # recompute the published numbers
@@ -233,10 +237,10 @@ python3 -m http.server 8000                                # preview at http://1
     (`hilde-leaf.svg`) and the site's name, "Reading bench" (`SITE_NAME`), linking the home page, with the Dark /
     Light switch at the right; under them one row of six tabs (`TABS`), starting "Text · Vision" as on the other two
     benchmark sites (project lead through Zeki, bus #4039; agreed #4042-#4049): Text (the home page, with the
-    Leaderboard), Vision (`vision/`, the Page images board), Questions, Highlights, Experiments and About. The tab a page
-    sits under (`tab_of`, `SECTION`) is underlined in the accent colour: Text for the home page, `english/`,
-    `turkish-vs-english/` and `models/*`; Vision for `vision/`; Questions for `questions/`, `question/`,
-    `disagreements/`, `topics/` and `compare/`; Highlights for `highlights/`; Experiments for `experiments/`,
+    Leaderboard), Vision (`vision/`, the Page images board), Questions (`topics/`), Highlights, Experiments and About. The
+    tab a page sits under (`tab_of`, `SECTION`) is underlined in the accent colour: Text for the home page, `english/`,
+    `turkish-vs-english/` and `models/*`; Vision for `vision/`; Questions for `topics/` and `compare/` (no page lists
+    the questions: Publishing, below); Highlights for `highlights/`; Experiments for `experiments/`,
     `dont-know/`, `web-grounding/`, `pws-decisions/` and `aa-decision-index/`; About for
     `about/`, `method/` and `data/`. On a phone the tab row stays on one line and scrolls sideways, its scrollbar hidden,
     as on Logic & Math, and a current tab past the right edge is scrolled into view (`site.js` `currentTab`). No other
@@ -436,9 +440,8 @@ python3 -m http.server 8000                                # preview at http://1
     `turkish-vs-english/kept-question-ids.txt` (the 547 kept IDs) from `english-reading.json`, the track's public
     record, written by
     `runner/translate_reading.py publish`: the translator, both prompts, each reading question's flag reasons, whether it
-    is kept and the SHA-256 of its English text. Like every file here, it holds no question text. The question page
-    (`question/?id=`) shows, for each kept reading question, every compared model's answer and its probability in Turkish
-    and in English side by side (`picks.json`'s `english`).
+    is kept and the SHA-256 of its English text. Like every file here, it holds no question text; its published copy
+    holds no topic either.
   - **Web grounding** (`web-grounding/`, from `results.json`'s `web_grounding`, built by `sitebuild/web_grounding.py`):
     comparing the Text tab's two hosted setups, linked from the experiments line in About's notes on both English pages
     (`experiments` in `sitebuild/site.py`, its links keeping the group) and from the
@@ -731,7 +734,7 @@ python3 -m http.server 8000                                # preview at http://1
     Vision tab (the page's only mention of the questions' original Turkish). Every setup is named by its official name
     and tag (`Site.plain` / `Site.shown`). Every number is computed from `results.json` and `vision.json` at build
     time; each card's heading is a claim the build checks (`finding`), stopping when the data no longer supports it.
-  - **Questions** is Every question (`questions/`), with links to Where models disagree, Topics and Compare.
+  - **Questions** is Topics (`topics/`), with Compare beside it.
   - **The home page's charts**: each chart card has a line saying
     which way is better, and each bar chart names its value columns above them (`COLUMN_HEADS` in `v3.js`; the static
     charts through `hbars`' head or columns): Accuracy, each bar with its Wilson 95% interval as a whisker (`wilson` in
@@ -830,7 +833,7 @@ python3 -m http.server 8000                                # preview at http://1
     line under the Leaderboard, the All setups tabs' definitions and the Confidence guide under the board, English's
     and Turkish vs English's limit under the accuracy charts, Hallucination's definition under its first charts, Web
     grounding's and PWS-Decisions' lines under their charts, Vision's note (no longer starred: nothing links to it),
-    Every question's scope and Difficulty lines, Topics' scope and cell lines, Disagreements' definitions, AA's line
+    Topics' scope and cell lines, AA's line
     and the reply cards' label, and Data's line, each under its table or cards. Only an empty view's line may stand
     above.
   - **Page images** (`vision/`, `sitebuild/vision.py`): the 763 questions with
@@ -865,12 +868,8 @@ python3 -m http.server 8000                                # preview at http://1
     error rate beside it, the first English run's cost and
     median latency, and the English runs' ids, dates (`english_reading.models[].dates`), request size, reasoning,
     prompt version and translations' SHA-256 from their records in `answers.json`; `models/` itself sends the reader to the home
-    page's All models view, which replaced its list of every setup; query and fragment kept), every question
-    (`questions/`, with `questions.js`: filters on question ID, book page, topic and difficulty, 100 rows at a time,
-    all kept in the URL; every row shows without JavaScript), one page per question (`question/?id=…`, drawn by
-    `question.js`, with a line for readers without JavaScript), where models disagree with the key (`disagreements/`:
-    the questions where the chat setups in `page_config.json`'s `key_disagreement` agree on another answer, then the
-    questions most setups got wrong), topics with the accuracy-by-topic heat map (its colour scale's legend, headers
+    page's All models view, which replaced its list of every setup; query and fragment kept), topics with the
+    accuracy-by-topic heat map (its colour scale's legend, headers
     that stay in view while it scrolls, and a setup choice kept in `?setups=` by `topics.js`) and one page per topic
     (`topics/`), Compare (`compare/`, drawn by `compare.js`: the accuracy difference on all questions with its 95%
     interval and one sentence on what it means first, exact McNemar test as in `benchmark_metrics.py`, and each cost
@@ -889,14 +888,41 @@ python3 -m http.server 8000                                # preview at http://1
     redrawn (PNG files in `aa-decision-index/`), in the thread's order, each with its alt text from the thread, the
     thread's results version and a note (`page_config.json`'s `aa_decision_index.thread`); the build stops when a
     card's file is missing or not a PNG, or its alt text is empty. Nothing links the page from the navigation bar.
-  - **`data/picks.json`**: each leaderboard setup's pick and score on each scored question, written from
-    `answers.json` by `sitebuild/questions.py`, which checks every pick against its grade. Scores are floored
-    to four decimals, so a score below the 99% cutoff never reads as 99.00%.
+  - **`data/picks.json`**: each leaderboard setup's outcome on each scored question, reading and grammar apart, in the
+    order of the book (`R` right, `W` wrong, `N` no valid answer), for Compare's paired tests; written from
+    `answers.json` by `sitebuild/questions.py`, which checks every pick against its grade and each part's right answers
+    against `results.json`. No question ID, key, pick or score.
 - **The earlier page** (`v1/`): the page as it was on 14 October 2026 (results 84d533b4), with its own
   copies of `results.json`, `page_config.json`, `style.css`, the charts and the sharing images it links
   to; its answer export link points to `answers.json` at commit 77f40bc. Nothing rebuilds it.
 - **Redirects** (`v2/index.html`, `v3/index.html`): send the preview addresses here, keeping the URL's query
   and section.
+
+## Publishing
+
+`publish_projection.py DIR` turns an extracted copy of this folder (`push_pages.sh` extracts the page commit into one
+before copying it to the mirror) into what may be published: no bench publishes its questions, and for the Reading
+bench nothing per question may rebuild the answer key (Ümit #10760, #10764 via Zeki #11139, #11168, #11435). In DIR
+only:
+
+- each run record of `answers.json` and of the files it lists loses `choice`, `correct`, `score` and `probabilities`
+  and gets `outcome`, one character per question in question order: `R` right, `W` wrong, `I` the "I don't know"
+  option, `N` no valid answer (counted wrong), `.` not asked; `questions` keeps only `status` (which questions are
+  scored): no ID, topic, page, printed number, key or passage;
+- `vision.json`'s and `vision-repeats.json`'s answers per cell (pick, option probabilities and grade by question ID)
+  become the same outcome string, in the subset's ascending ID order; the subset's IDs and per-question reasons go
+  (their counts stay), as do the pages beside question IDs in the crops' leak check;
+- `english-reading.json`'s questions lose their topic;
+- the pages and scripts per question (`question/`, `questions/`, `disagreements/`, `question.js`, `questions.js`),
+  which the build no longer writes or links, are deleted if present.
+
+It prints each file's size before and after, the fields removed and the SHA-256 of what it wrote; then a guard reads
+every file left in DIR and exits 1 with the list of what survived: option probability maps, lists or strings of
+letters per question, `choice`, `picks`, `scores` or `probabilities` lists, key and locator columns, a question ID
+beside a locator, a link to a dropped page, a table column Answer key, Page, Number or Pick, a run of answer letters
+in a page, or a Markdown table of questions with locators or answers (`key-changelog.md` lists question IDs, reasons
+and dates only). The Data page gives each file's published size (`public_sizes`). `data/picks.json` is written
+outcome-only by the build itself.
 
 ## Running the benchmark
 

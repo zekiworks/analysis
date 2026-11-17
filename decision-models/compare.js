@@ -1,10 +1,11 @@
 'use strict';
 
 /* The Compare page, compare/?a=…&b=…: two setups' measures side by side from results.json (one folder up), and on the
-   same questions (../data/picks.json) how many each got right that the other got wrong, the paired difference with its
-   95% interval and the exact McNemar test, as benchmark_metrics.paired_comparison computes them. The difference on all
-   questions, its interval and what it means lead the page. compare-settings (sitebuild/compare.py) gives each run's cost
-   basis and list price in the model page's words, and the upper-bound mark. */
+   same questions (../data/picks.json, each setup's outcome per question) how many each got right that the other got
+   wrong, the paired difference with its 95% interval and the exact McNemar test, as benchmark_metrics.paired_comparison
+   computes them. The difference on all questions, its interval and what it means lead the page. compare-settings
+   (sitebuild/compare.py) gives each run's cost basis and list price in the model page's words, and the upper-bound
+   mark. */
 
 /* The data's addresses as the page gives them, each with its content's version (Site asset in sitebuild/site.py), so a
    cached file of another build is never paired with this page. A page cached from before versioned addresses gives none
@@ -105,13 +106,11 @@ const MEASURES = [
 let results;
 let picks;
 
+/* A setup's right answers on the scope's questions, from picks.json's outcomes (R right; reading, then grammar for
+   all): the paired test counts the questions one got right and the other did not, so their order does not matter. */
 function rightAnswers(runId, scope) {
   const item = picks.runs.find(entry => entry.run === runId);
-  const parts = new Map(picks.units.map(unit => [unit.number, unit.part]));
-  return picks.questions
-    .map((question, index) => ({ part: parts.get(question[1]), right: item.picks[index] === question[4] }))
-    .filter(entry => scope === 'all' || entry.part === scope)
-    .map(entry => entry.right);
+  return (scope === 'all' ? ['reading', 'grammar'] : [scope]).flatMap(part => [...item[part]].map(outcome => outcome === 'R'));
 }
 
 /* The page's lead: the accuracy difference on all questions, the leader first, its 95% interval in the same direction,

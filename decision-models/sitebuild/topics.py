@@ -1,12 +1,11 @@
 """Topics: the accuracy-by-topic heatmap (topics/) and one page per topic (topics/<number>/) with every setup's
-result on it and its questions."""
+result on it. No page lists a topic's questions: their IDs, pages, numbers and keys stay private (publish_projection.py)."""
 
 from __future__ import annotations
 
 from typing import Any
 
 import build_page as bp
-from sitebuild.questions import picks_data, question_link
 from sitebuild.site import Site, esc, interval, pct, rel
 
 # The heat map's colours: the ranking scale (page_config.json rank_scale: dark blue, turquoise, green, yellow) over
@@ -75,7 +74,7 @@ def heatmap(site: Site) -> str:
                      scripts=("topics.js",))
 
 
-def topic_page(site: Site, unit: dict[str, Any], data: dict[str, Any]) -> str:
+def topic_page(site: Site, unit: dict[str, Any]) -> str:
     number = unit["number"]
     path = f"topics/{number}/"
     position = site.units.index(unit)
@@ -87,25 +86,10 @@ def topic_page(site: Site, unit: dict[str, Any], data: dict[str, Any]) -> str:
             f'<td class="num" data-label="Accuracy">{pct(correct / unit["questions"])}<span class="small">{interval(correct, unit["questions"])}</span></td>'
             f'<td class="num" data-label="Right">{correct} of {unit["questions"]}</td></tr>'
         )
-    runs = data["runs"]
-    decision_total = sum(item["decision"] for item in runs)
-    questions = []
-    for index, (question_id, question_unit, page, printed, key) in enumerate(data["questions"]):
-        if question_unit != number:
-            continue
-        right = [item for item in runs if item["picks"][index] == key]
-        questions.append(
-            "<tr>"
-            f'<td class="model">{question_link(path, question_id)}</td>'
-            f'<td class="num" data-label="Page">{page}</td>'
-            f'<td class="num" data-label="Number">{esc(str(printed))}</td>'
-            f'<td class="num" data-label="Answer key">{esc(key)}</td>'
-            f'<td class="num" data-label="Setups right">{len(right)} of {len(runs)}</td>'
-            f'<td class="num" data-label="Decision models right">{sum(item["decision"] for item in right)} of {decision_total}</td>'
-            "</tr>"
-        )
-    if len(questions) != unit["questions"]:
-        raise ValueError(f"topic {number}: {len(questions)} scored questions in answers.json, {unit['questions']} in results.json")
+    questions = site.answers["questions"]["unit"]
+    scored = sum(questions[index] == number for index in site.scored)
+    if scored != unit["questions"]:
+        raise ValueError(f"topic {number}: {scored} scored questions in answers.json, {unit['questions']} in results.json")
     part = site.part(number).capitalize()
     body = f"""    <section class="card">
       <p class="eyebrow">{part} · topic {number}</p>
@@ -115,17 +99,12 @@ def topic_page(site: Site, unit: dict[str, Any], data: dict[str, Any]) -> str:
       <h2>Every setup's result · {unit["questions"]} scored questions</h2>
       <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">Setup</th><th scope="col" class="num">Accuracy</th><th scope="col" class="num">Right</th></tr></thead><tbody>{"".join(results)}</tbody></table></div>
       <p class="note">Accuracy on this topic's questions, with its 95% interval. Few questions make wide intervals. <a href="{rel(path, "topics/")}#heatmap">Accuracy by topic</a> compares this topic with the others.</p>
-    </section>
-    <section class="card">
-      <h2>Its questions</h2>
-      <div class="table-wrap"><table class="board list"><thead><tr><th scope="col">ID</th><th scope="col" class="num">Page</th><th scope="col" class="num">Number</th><th scope="col" class="num">Answer key</th><th scope="col" class="num">Setups right</th><th scope="col" class="num">Decision models right</th></tr></thead><tbody>{"".join(questions)}</tbody></table></div>
     </section>"""
-    return site.page(path, unit["english"], f"{part} topic: {unit['english']}. Every setup's result and its {unit['questions']} questions.", body)
+    return site.page(path, unit["english"], f"{part} topic: {unit['english']}. Every setup's result on its {unit['questions']} questions.", body)
 
 
 def build(site: Site) -> dict[str, str]:
-    data = picks_data(site)
     pages = {"topics/": heatmap(site)}
     for unit in site.units:
-        pages[f"topics/{unit['number']}/"] = topic_page(site, unit, data)
+        pages[f"topics/{unit['number']}/"] = topic_page(site, unit)
     return pages

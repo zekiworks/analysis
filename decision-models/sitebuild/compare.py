@@ -1,8 +1,8 @@
 """Compare: two setups side by side, with the exact McNemar test on the questions they answered differently. The page is
-drawn by compare.js from the site's results.json and from data/picks.json (written by sitebuild.questions), at the
-versioned addresses the page gives it (Site asset), and from compare-settings: each run's official name and tag
-(Site.title, Site.tag; results.json keeps the setup names), its cost basis and price in the model page's words
-(Site.cost_basis_text), and the upper-bound mark with its note."""
+drawn by compare.js from the site's results.json and from data/picks.json (each setup's outcome per question, written by
+sitebuild.questions), at the versioned addresses the page gives it (Site asset), and from compare-settings: each run's
+official name and tag (Site.title, Site.tag; results.json keeps the setup names), its cost basis and price in the model
+page's words (Site.cost_basis_text), and the upper-bound mark with its note."""
 
 from __future__ import annotations
 

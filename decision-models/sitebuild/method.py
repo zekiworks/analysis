@@ -1175,14 +1175,16 @@ and one question source; a confidence cutoff for a new task needs its own test.<
         ("data", "Download the data and check our calculations", f"""
 <p class="versions">Results updated {v['results_updated']} · Results snapshot {v['results_version']} · Question set
 {v['dataset_version']} · Answer key {v['key_version']}</p>
-<p>The {results_file} holds the summary numbers; the {answer_file} holds the recorded choices, confidence scores, settings,
-prompt templates and question IDs, without the copyrighted questions. The
+<p>The {results_file} holds the summary numbers; the {answer_file} holds each run's settings and request times, its
+outcome on each question (right, wrong or none, in a fixed order without question IDs) and the prompt templates, without
+the copyrighted questions. The choices, confidence scores, answer key and each question's place in the book stay in the
+private answer files: nothing published per question rebuilds the key. The
 <a href="{REPO_URL}/blob/main/decision-models/benchmark_metrics.py">metric code</a> computes each statistic; the
 {link('data/', 'Data page')} describes the files.</p>
 <p>This snapshot holds {v['configs']} main setups, {v['repeat_runs']} extra repeat runs, {v['method_live_runs']} runs from
 the {v['method_live_tests']} live tests, {v['method_alone_runs']} cheaper models tested alone and
 {v['method_single_runs']} more runs with one question per request on {v['method_single_questions']} questions.</p>
-<p>From the <a href="{REPO_URL}/tree/main/decision-models">repository</a>, <code>reproduce.py</code> recomputes every main
+<p>With the private answer files beside the <a href="{REPO_URL}/tree/main/decision-models">repository</a>'s code, <code>reproduce.py</code> recomputes every main
 setup's accuracy, ranking score, calibration gap before and after the refit, Brier scores and answers at {v['threshold']} or
 more (before and after the key review),
 the {v['comparisons']} selected comparisons, comparison groups, request format comparisons, reasoning pairs, repeats, prices,
