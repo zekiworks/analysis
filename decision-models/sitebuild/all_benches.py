@@ -588,6 +588,10 @@ class Data:
         # seed runs (bench_scores.english_bench, Zeki #6989), by each of them.
         self.only_english = {run: entry for entry in english_only(site.results["english_reading"])
                              for run in [entry["run"], *(item["run"] for item in (entry.get("seeds") or {}).get("runs", []) if item)]}
+        # A paired English run's setup: its Text tab run (english_reading.models' turkish_run), so that a bench row joins the
+        # model of its own setup before any other setup of the same model (Zeki #11697: the RTX PRO 6000 reruns).
+        self.paired_english = {entry["run"]: entry["turkish_run"] for entry in site.results["english_reading"]["models"]
+                               if entry.get("turkish_run") is not None}
         self.aliases = {bench: names for bench, names in config["aliases"].items() if bench != "about"}
         self.models: dict[str, dict[str, Any]] = {}
         for bench in self.all_benches:
@@ -652,6 +656,8 @@ class Data:
                 return self.site.by_id[int(number)]
             if bench == "english" and int(number) in self.only_english:
                 return setup_run(self.site, self.only_english[int(number)])
+            if bench == "english" and self.paired_english.get(int(number)) in self.site.by_id:
+                return self.site.by_id[self.paired_english[int(number)]]
         return None
 
     def add(self, bench: dict[str, Any]) -> None:
@@ -663,6 +669,11 @@ class Data:
         (name_key). Else it is a model of its own. The model keeps the name of its first row (this site's, then Logic
         & Math's, then Backgammon's)."""
         rows = [row for row in bench["bench"]["models"] if isinstance(row.get("score_0_100"), (int, float))]
+        # Rows of a setup already on the page first, each to its own setup's model (immutable run identity, Zeki
+        # #11697): another setup of the same model, as an RTX PRO 6000 rerun beside its DGX Spark run, then finds that
+        # model taken on this bench and stands as its own, whatever the rows' order in the file.
+        owned = {id(model["run"]) for model in self.models.values() if model["run"] is not None}
+        rows.sort(key=lambda row: id(self.run_of(row)) not in owned if self.run_of(row) is not None else True)
         for row in rows:
             key, repo, name = row_keys(row)
             # A Reading model_key the shared names table maps to the other sites' (its row's source_model_key).
@@ -673,7 +684,9 @@ class Data:
                     and not (repo and model["repos"] and not any(same_repo(repo, other) for other in model["repos"]))]
             first = lambda found: min(found, default=None, key=lambda model: model["kind"] != kind)  # noqa: E731
             alias = self.aliases.get(bench["key"], {}).get(row["name"])
-            model = (first([model for model in free if repo and any(same_repo(repo, other) for other in model["repos"])])
+            own = self.run_of(row)
+            model = (first([model for model in free if own is not None and model["run"] is own])
+                     or first([model for model in free if repo and any(same_repo(repo, other) for other in model["repos"])])
                      or first([model for model in free if key and key in model["keys"]])
                      or first([model for model in free if alias and alias in model["keys"]])
                      or (first([model for model in free if name in model["names"]]) if not key else None))
