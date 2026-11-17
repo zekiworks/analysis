@@ -5,7 +5,8 @@ Every setup in this benchmark is scored on one frozen answer key. This file list
 **How a fix works.** A fix to the key needs a check against the book's own key, or a second person who reviews the
 question and its options without seeing the models' answers. Each fix creates a new key version, adds a row to this
 file (question ID, reason, date) and rescores every run. The old and new answers, like every key and each question's
-place in the book, stay in the private answer files: nothing published per question may rebuild the key.
+place in the book, stay in the private answer files: nothing published per question may rebuild the key. The published
+copy of this file leaves out the question IDs too, as they follow the book's order.
 
 To report a wrong key, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -28,24 +29,24 @@ removed these 12 questions from scoring.
 Their printed keys stay in the private data, but they count in no result. Where each stands in the book stays private,
 as every question's place does.
 
-| Question ID | Change | Reason | Date |
-|---|---|---|---|
-| 379 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
-| 459 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
-| 652 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
-| 2473 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
-| 3024 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
-| 3087 | Removed from scoring | The key could not be confirmed: a red mark covers the printed answer strip, so the printed key cannot be read. | 2026-10-04 |
-| 3185 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
-| 3223 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
-| 3242 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
-| 3640 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
-| 4115 | Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
-| 4206 | Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
+| Change | Reason | Date |
+| --- | --- | --- |
+| Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
+| Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
+| Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
+| Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
+| Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
+| Removed from scoring | The key could not be confirmed: a red mark covers the printed answer strip, so the printed key cannot be read. | 2026-10-04 |
+| Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
+| Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
+| Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
+| Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
+| Removed from scoring | The key could not be confirmed: the page image did not settle the answer. No question-specific note was recorded at review time (4 October); the group reason applies. | 2026-10-04 |
+| Removed from scoring | The printed key could not be established against the other reading: both are defensible. Removed on the reviewer's decision. | 2026-10-04 |
 
 ## Later fixes
 
 None yet. Each fix adds a row here and a section for its new key version.
 
-| Question ID | Reason | Date | Key version |
-|---|---|---|---|
+| Reason | Date | Key version |
+| --- | --- | --- |

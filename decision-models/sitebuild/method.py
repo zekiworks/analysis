@@ -722,9 +722,9 @@ def glance(site: Site) -> str:
 
 def quality_manifests(v: dict[str, Any]) -> str:
     """One paragraph per dated quality manifest (quality-manifest-<date>.json): scored questions found after
-    publication to lack the source context their stem points at, disclosed with their IDs while every score, denominator
-    and the uncertain-question filter stay as first published (the project lead via Zeki #5392). The manifests hold
-    metadata only; the build stops on a finding or field it does not know."""
+    publication to lack the source context their stem points at, disclosed by count (no question IDs: they follow the
+    book's order) while every score, denominator and the uncertain-question filter stay as first published (the project
+    lead via Zeki #5392). The manifests hold metadata only; the build stops on a finding or field it does not know."""
     out = []
     for path in sorted(ROOT.glob("quality-manifest-*.json")):
         manifest = json.loads(path.read_text(encoding="utf-8"))
@@ -734,19 +734,18 @@ def quality_manifests(v: dict[str, Any]) -> str:
         count = len(items)
         english = sum(item["in_english_547"] for item in items)
         pictures = sum(item["in_page_images_subset"] for item in items)
-        ids = bp.and_list([str(item["question_id"]) for item in items])
         date = bp.long_date(manifest["date"])
         both = (f"all {bp.in_words(count)} are" if english == count else f"{bp.in_words(english)} of them"
                 f" {'is' if english == 1 else 'are'}") if english else "none is"
         images = ("none is among the Page images questions" if not pictures
                   else f"{bp.in_words(pictures)} {'is' if pictures == 1 else 'are'} among the Page images questions")
         out.append(f"""<p>Our quality control of {date} found {bp.in_words(count)} scored
-questions (IDs {ids}) whose stored question points at a passage or dialogue that our copy of the book lost: the passage
+questions whose stored question points at a passage or dialogue that our copy of the book lost: the passage
 is empty and there is no figure. {both[:1].upper()}{both[1:]} also among the English reading track's kept questions, in the
 English translation of the same item; {images}. We keep every score, denominator and the filter of the
 {v['method_suspect']} questions marked uncertain as first published, so these questions count in every run as they did;
 this is a limit of the test, disclosed here. The
-<a href="{REPO_URL}/blob/main/decision-models/{path.name}">quality manifest</a> lists them with metadata only.</p>""")
+<a href="{REPO_URL}/blob/main/decision-models/{path.name}">quality manifest</a> describes them with metadata only.</p>""")
     return "\n".join(out)
 
 

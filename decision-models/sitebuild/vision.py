@@ -26,6 +26,7 @@ from collections.abc import Callable
 from typing import Any
 
 import build_page as bp
+import publish_projection
 from sitebuild import names
 from sitebuild.site import (DECISION_ONLY, GROUPS, ROOT, Site, chat_note, esc, family_icon, family_legend, hbars, interval,
                             label_count, more_link, pct, rel, request_size, run_families, shown, stated_total)
@@ -278,12 +279,15 @@ def public(text: str) -> str:
     return text
 
 
-def not_run(items: list[dict[str, Any]]) -> str:
-    """The models we have not run yet, each with its reason from vision.json's skipped."""
+def not_run(site: Site, items: list[dict[str, Any]]) -> str:
+    """The models we have not run yet, each with its reason from vision.json's skipped, without the question IDs it
+    names (publish_projection.redact)."""
     if not items:
         return ""
+    known = publish_projection.Known(site.answers)
     lines = "".join(f"<li><strong>{esc((names.entry(item['model']) or {}).get('name') or item['model'])}</strong>: "
-                    f"{esc(public(item['reason'].removeprefix('Not run: ')))}</li>" for item in items)
+                    f"{esc(publish_projection.redact(public(item['reason'].removeprefix('Not run: ')), known))}</li>"
+                    for item in items)
     return f'<h3 class="board-group">Not run</h3><ul>{lines}</ul>'
 
 
@@ -319,12 +323,12 @@ def leaderboard(site: Site, data: dict[str, Any], decision: bool) -> str:
              f'\n      <h2>{title}</h2>\n      ')
     if not models:
         empty = "No chat or general model has been run on the page images yet." if not decision else "No decision model has been run on the page images yet."
-        return f'{start}<p class="note">{empty}</p>{not_run(skipped)}\n    </section>'
+        return f'{start}<p class="note">{empty}</p>{not_run(site, skipped)}\n    </section>'
     groups = "".join(group(site, data, [model for model in models if model["kind"] == kind], kind) for kind in ("image", "text"))
     otherwise = " ".join(filter(None, [asked_otherwise(site, model) for model in models]
                                 + [alone(site, model)["note"] for model in models if text_run(site, model) is None]))
     notes = f'<p class="note">{esc(otherwise)}</p>' if otherwise else ""
-    return f"{start}{groups}{notes}{not_run(skipped)}\n    </section>"
+    return f"{start}{groups}{notes}{not_run(site, skipped)}\n    </section>"
 
 
 def ocr_table(data: dict[str, Any]) -> str:

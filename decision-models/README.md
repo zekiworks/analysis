@@ -436,12 +436,11 @@ python3 -m http.server 8000                                # preview at http://1
     runs in English: `page_config.json`'s `english_reading.not_run` gives the reason of each setup still without an
     English run, by provider (`providers`) or by run (`runs`, which takes a setup over from its provider's entry), and the
     build stops when a Text tab setup has neither an English run nor a reason, or when an entry is stale (a run listed
-    that has an English run, a provider with no setup left to run). The build writes
-    `turkish-vs-english/kept-question-ids.txt` (the 547 kept IDs) from `english-reading.json`, the track's public
-    record, written by
+    that has an English run, a provider with no setup left to run). The track's public record is
+    `english-reading.json`, written by
     `runner/translate_reading.py publish`: the translator, both prompts, each reading question's flag reasons, whether it
     is kept and the SHA-256 of its English text. Like every file here, it holds no question text; its published copy
-    holds no topic either.
+    holds no topic or question ID either (the list of kept IDs is no longer published).
   - **Web grounding** (`web-grounding/`, from `results.json`'s `web_grounding`, built by `sitebuild/web_grounding.py`):
     comparing the Text tab's two hosted setups, linked from the experiments line in About's notes on both English pages
     (`experiments` in `sitebuild/site.py`, its links keeping the group) and from the
@@ -902,8 +901,9 @@ python3 -m http.server 8000                                # preview at http://1
 
 `publish_projection.py DIR` turns an extracted copy of this folder (`push_pages.sh` extracts the page commit into one
 before copying it to the mirror) into what may be published: no bench publishes its questions, and for the Reading
-bench nothing per question may rebuild the answer key (Ümit #10760, #10764 via Zeki #11139, #11168, #11435). In DIR
-only:
+bench nothing per question may rebuild the answer key or find a question in the book (Ümit #10760, #10764 via Zeki
+#11139, #11168, #11435, #11470). The question IDs (44 to 4231) were assigned in book order, so they count as locators.
+In DIR only:
 
 - each run record of `answers.json` and of the files it lists loses `choice`, `correct`, `score` and `probabilities`
   and gets `outcome`, one character per question in question order: `R` right, `W` wrong, `I` the "I don't know"
@@ -911,18 +911,32 @@ only:
   scored): no ID, topic, page, printed number, key or passage;
 - `vision.json`'s and `vision-repeats.json`'s answers per cell (pick, option probabilities and grade by question ID)
   become the same outcome string, in the subset's ascending ID order; the subset's IDs and per-question reasons go
-  (their counts stay), as do the pages beside question IDs in the crops' leak check;
-- `english-reading.json`'s questions lose their topic;
+  (their counts stay), as do the pages, crop file names and IDs in the crops' leak check;
+- in every JSON file, a field named `question_id` (or `question_ids`, `qid`) goes, and a list of question IDs under a
+  key of `ID_LISTS` (`results.json`'s `answer_key.excluded`, `high_confidence.english.runs[].wrong_questions` and the
+  web grounding searches' `ids`; `web-grounding.json`'s searches; `page_config.json`'s
+  `structural_check.problem_questions`; the runner's pipeline splits) becomes `{"questions": n}`, with `"sha256"`, the
+  SHA-256 of the sorted IDs as compact JSON, when it holds at least 20 IDs (`MIN_FINGERPRINT`); `english-reading.json`'s
+  and the quality manifest's questions keep their order and flags without IDs;
+- a text naming question IDs is redacted (`redact`: a parenthesised list after "question(s)" goes, "question N each
+  time" reads "the same question each time"), in JSON strings and Markdown files; Markdown tables lose their Question
+  ID column (`key-changelog.md`), and a `.txt` list of question IDs (the runner's pipeline lists) becomes a one-line
+  summary. The Data page renders both changelogs the same way (`public_markdown`), and the Page images page its Not run
+  reasons (`redact`);
 - the pages and scripts per question (`question/`, `questions/`, `disagreements/`, `question.js`, `questions.js`),
   which the build no longer writes or links, are deleted if present.
 
 It prints each file's size before and after, the fields removed and the SHA-256 of what it wrote; then a guard reads
 every file left in DIR and exits 1 with the list of what survived: option probability maps, lists or strings of
 letters per question, `choice`, `picks`, `scores` or `probabilities` lists, key and locator columns, a question ID
-beside a locator, a link to a dropped page, a table column Answer key, Page, Number or Pick, a run of answer letters
-in a page, or a Markdown table of questions with locators or answers (`key-changelog.md` lists question IDs, reasons
-and dates only). The Data page gives each file's published size (`public_sizes`). `data/picks.json` is written
-outcome-only by the build itself.
+beside a locator, a link to a dropped page, a table column Answer key, Page, Number, Pick or Question ID, a run of
+answer letters in a page; and any question ID, recognised against the private answer files' IDs (read before they are
+projected): a field of `ID_FIELDS`; a list under an `ID_LISTS` key whose numbers are all question IDs; any other list,
+or map keyed by numbers, of at least 5 question IDs not all of which are run ids (the two ranges overlap) and not under
+a run key; a text naming one ("question N", "question(s) (N, M)", "ID(s) N, M", "N-question.png"), in pages,
+Markdown, scripts, plain files and JSON strings; a plain file of IDs one per line; a Markdown table with a Question ID
+column. The Data page gives each file's published size (`public_sizes`). `data/picks.json` is written outcome-only by
+the build itself.
 
 ## Running the benchmark
 

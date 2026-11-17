@@ -59,8 +59,6 @@ TR_EN = ("Turkish · English", "TR · EN")
 NUMBERS = "<span>Numbers on the right: Turkish · English.</span>"
 # The tab's earlier address, now a page that sends its readers to PATH with their fragment.
 OLD_PATH = "english-reading/"
-# The kept questions' IDs, one per line, written by the build from english-reading.json.
-KEPT_IDS = "kept-question-ids.txt"
 RECORD = ROOT / "english-reading.json"
 # The options heading of the Text tab's prompts (runner/benchmark_ollama.py OPTIONS_HEADING); results.json gives the
 # English one.
@@ -2261,13 +2259,6 @@ def check_structural(site: Site, record: dict[str, Any]) -> dict[str, Any]:
     return facts
 
 
-def kept_ids(record: dict[str, Any]) -> str:
-    """The plain file of the kept questions' IDs, one per line, under a comment header."""
-    ids = [question["question_id"] for question in record["questions"] if question["kept"]]
-    return (f"# The {len(ids):,} reading questions kept on the Turkish vs English tab ({PATH}), one question ID "
-            "per line: english-reading.json's questions with kept true.\n" + "".join(f"{question}\n" for question in ids))
-
-
 def redirect(site: Site) -> str:
     """The page at the tab's earlier address: sends the reader to PATH with the query and fragment, as v2/ does."""
     target = rel(OLD_PATH, PATH)
@@ -2607,7 +2598,6 @@ def build(site: Site) -> dict[str, str]:
     reasons = "".join(f"<li>{esc(reason_name(key))}: {record['reasons'][key]:,}</li>" for key in enum if key in record["reasons"])
     script = f'<a href="{BLOB_URL}runner/translate_reading.py"><code>runner/translate_reading.py</code></a>'
     download = f'<a href="{rel(PATH, "english-reading.json")}" download>english-reading.json</a>'
-    ids_download = f'<a href="{KEPT_IDS}" download>{KEPT_IDS}</a>'
     split = (f"{bp.in_words(counts['decision'])} {noun('decision', counts['decision'])} and "
              f"{bp.in_words(counts['chat'])} {noun('chat', counts['chat'])}")
     against = against_reference(site, data) if counts["decision"] else ""
@@ -2684,7 +2674,7 @@ def build(site: Site) -> dict[str, str]:
       <h2>About this test</h2>
       <p>Since 5 November 2026 every setup of the Text tab also runs in English, decision models and chat models alike, each with its Text tab run's settings and compared with that run. {bp.opening_count(family)} of the Text tab's {text_tab["all"]:,} setups have an English run so far, {split}; the other {bp.in_words(missing["all"])} are listed under <a href="#results">Results</a> with the reason each has none yet. This tab is separate from the leaderboard; it ranks nothing on the Text tab and changes none of its numbers.</p>
       <p>The Text tab's reading questions ({esc(units_text(record))}; the grammar questions are left out) were translated into English by {esc(translator_name)}. The same model flagged the questions whose answer depends on Turkish wording; the {flagged} flagged questions are left out and the other {kept} kept. Each of the {bp.in_words(family)} English setups answered the kept questions in English and is compared with its own Text tab run on the same {kept} questions.</p>
-      <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (the comparison's numbers, under <code>english_reading</code>), <a href="{rel(PATH, site.answer_file("english_runs"))}" download>{site.answer_file("english_runs")}</a> (each English run's answers, under <code>english_runs</code>), {download} (the translator, its prompts, the flags, the question units and each question's hash of its English text; no question text) and {ids_download} (the {kept} kept questions' IDs, one per line).</p>
+      <p class="note">Download: <a href="{rel(PATH, "results.json")}" download>results.json</a> (the comparison's numbers, under <code>english_reading</code>), <a href="{rel(PATH, site.answer_file("english_runs"))}" download>{site.answer_file("english_runs")}</a> (each English run's record and its outcome on each question, under <code>english_runs</code>) and {download} (the translator, its prompts and, in the order of the book, each reading question's flags and the hash of its English text; no question text or ID).</p>
     </section>
     <section class="card" id="results">
       <h2>Results</h2>
@@ -2701,7 +2691,7 @@ def build(site: Site) -> dict[str, str]:
       <ul>{reasons}</ul>
       <p>No person checked the translations or the flags, and this is a limit of the method: a translation error, or a question whose answer still depends on Turkish wording that the model did not flag, would stay among the {kept} kept questions and could move a setup's accuracy in English. Both prompts in full are in {download} and {script}.</p>
       <h3>The structural check</h3>
-      <p>A script ({script}, its check step) then compared each translation with its Turkish original: a problem is a missing translation, option letters other than the original's, an empty text or a different count of underline markup; a warning is a change in the numbering or the numbers, Turkish letters in the English, or an English text under half or over 2.5 times the Turkish length. It found problems in {len(problems)} question{"" if len(problems) == 1 else "s"} ({esc(joined([str(question) for question in problems]))}), already left out by the flags, so it left out no further question; its {structural["warnings"]:,} warnings leave out nothing. In all, the checks left out {flagged} of the {reading} questions and kept {kept}: their IDs are in {ids_download}, one per line, and in {download}.</p>
+      <p>A script ({script}, its check step) then compared each translation with its Turkish original: a problem is a missing translation, option letters other than the original's, an empty text or a different count of underline markup; a warning is a change in the numbering or the numbers, Turkish letters in the English, or an English text under half or over 2.5 times the Turkish length. It found problems in {len(problems)} question{"" if len(problems) == 1 else "s"}, already left out by the flags, so it left out no further question; its {structural["warnings"]:,} warnings leave out nothing. In all, the checks left out {flagged} of the {reading} questions and kept {kept}; {download} marks which, in the order of the book.</p>
       <h3>Why the grammar questions are not translated</h3>
       <p>The Text tab's {grammar:,} grammar questions test Turkish grammar itself, so a translation would test something else, not the same question in another language. Only the {reading} reading questions were translated.</p>
       <h3>Asking the decision models</h3>
@@ -2722,4 +2712,4 @@ def build(site: Site) -> dict[str, str]:
                             f"The Text tab's {kept} kept reading questions in Turkish and in English: accuracy of {family} "
                             f"setups ({split}) in both languages, with paired tests, and their "
                             "non-hallucination.", body),
-            OLD_PATH: redirect(site), PATH + KEPT_IDS: kept_ids(record)}
+            OLD_PATH: redirect(site)}

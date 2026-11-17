@@ -1182,7 +1182,7 @@ PROSE_KEPT = ("aa-decision-index/",)
 
 def write_pages(site: Site) -> int:
     """Every page of PAGE_MODULES, each to <path>index.html, and the plain files they return under a path that does not
-    end in "/" (as turkish-vs-english/kept-question-ids.txt); the number of pages written. A page's text written with
+    end in "/" (none at present); the number of pages written. A page's text written with
     the setups' recorded names (notes, fixed copy, results' own lists) reads them through Site.in_prose, the Method
     page's names table and PROSE_KEPT left as they are."""
     written = 0

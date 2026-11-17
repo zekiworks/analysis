@@ -881,11 +881,11 @@ MODELS: dict[str, dict[str, Any]] = {
             "KRAFTON/Raon-1-nano@fcf2d1d"),
            # NVIDIA's continuous-diffusion models: no vLLM support, so the maker's own Transformers generate() behind
            # logic's OpenAI-style wrapper, with its two loader workarounds disclosed (logic #11282, #11318).
-           ("nemotron-labs-sigma-3b", "Nemotron-Labs-Sigma-3B",
+           ("nemotron-labs-sigma-3b", "Nemotron-Labs-Sigma-3B-instruct",
             "the maker's Transformers code (generate, DDIM 32 steps per 32-token block) behind logic's sigma_server.py "
             "(sha256 32ef0aad; it loads the checkpoint's own schedule endpoints and lets '<|im_end|>' stop a reply)",
             "nvidia/Nemotron-Labs-Sigma-3B-instruct@057a084"),
-           ("nemotron-labs-sigma-8b", "Nemotron-Labs-Sigma-8B",
+           ("nemotron-labs-sigma-8b", "Nemotron-Labs-Sigma-8B-instruct",
             "the maker's Transformers code (generate, DDIM 32 steps per 32-token block) behind logic's sigma_server.py "
             "(sha256 32ef0aad; it loads the checkpoint's own schedule endpoints and lets '<|im_end|>' stop a reply)",
             "nvidia/Nemotron-Labs-Sigma-8B-instruct@e5aab18"),

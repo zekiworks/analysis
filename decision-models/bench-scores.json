@@ -4,7 +4,7 @@
    "bench": "reading-text",
    "title": "Reading · Turkish",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-17T02:17:25Z",
+   "updated": "2026-11-17T13:06:37Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
@@ -1008,7 +1008,7 @@
     {
      "repo": null,
      "commit": null,
-     "name": "ultra d1.2",
+     "name": "d1.2-ultra",
      "tag": "",
      "model_key": "liquid-d1.2-ultra",
      "maker": "Liquid AI",
@@ -2962,7 +2962,7 @@
    "bench": "turkish-reading",
    "title": "Turkish Reading",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-17T02:17:25Z",
+   "updated": "2026-11-17T13:06:37Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 656 Turkish reading questions (units 1 to 6) right (accuracy 100%)"
@@ -3760,7 +3760,7 @@
     {
      "repo": null,
      "commit": null,
-     "name": "ultra d1.2",
+     "name": "d1.2-ultra",
      "tag": "",
      "model_key": "liquid-d1.2-ultra",
      "maker": "Liquid AI",
@@ -5920,7 +5920,7 @@
    "bench": "turkish-grammar",
    "title": "Turkish Grammar",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-17T02:17:25Z",
+   "updated": "2026-11-17T13:06:37Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 1,542 Turkish grammar questions (units 7 to 20) right (accuracy 100%)"
@@ -6974,7 +6974,7 @@
     {
      "repo": null,
      "commit": null,
-     "name": "ultra d1.2",
+     "name": "d1.2-ultra",
      "tag": "",
      "model_key": "liquid-d1.2-ultra",
      "maker": "Liquid AI",
@@ -8878,7 +8878,7 @@
    "bench": "reading-english",
    "title": "Reading · English",
    "url": "https://zekiworks.github.io/analysis/decision-models/english/",
-   "updated": "2026-11-17T02:17:25Z",
+   "updated": "2026-11-17T13:06:37Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 547 kept reading questions, translated into English, right (accuracy 100%)"
@@ -9666,7 +9666,7 @@
     {
      "repo": null,
      "commit": null,
-     "name": "ultra d1.2",
+     "name": "d1.2-ultra",
      "tag": "",
      "model_key": "liquid-d1.2-ultra",
      "maker": "Liquid AI",
@@ -11908,6 +11908,31 @@
      "notes": "meraGPT System One API; the kept reading questions in English"
     },
     {
+     "repo": "nvidia/Nemotron-Labs-Sigma-3B-instruct",
+     "commit": "057a084",
+     "name": "Nemotron-Labs-Sigma-3B-instruct",
+     "tag": "default reasoning · chat",
+     "model_key": "nemotron-labs-sigma-3b-instruct",
+     "maker": "NVIDIA",
+     "kind": "chat",
+     "params_total": 3.83,
+     "params_active": 3.83,
+     "quantization": "BF16",
+     "score_0_100": 44.698354661791576,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5575868372943327,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": null,
+     "improvement_points": null,
+     "runs": [
+      "english:1383"
+     ],
+     "notes": "our GPU (logic's server, the maker's Transformers code (generate, DDIM 32 steps per 32-token block) behind logic's sigma_server.py (sha256 32ef0aad; it loads the checkpoint's own schedule endpoints and lets '<|im_end|>' stop a reply) BF16, revision nvidia/Nemotron-Labs-Sigma-3B-instruct@057a084), one question per request, plain answer line ANSWER: X (no answer schema); sampling temperature 0.0; output cap 8,192; the kept reading questions in English"
+    },
+    {
      "repo": "KRAFTON/Raon-1-nano",
      "commit": "fcf2d1d",
      "name": "Raon-1 nano",
@@ -12063,7 +12088,7 @@
    "bench": "reading-vision",
    "title": "Reading · Vision",
    "url": "https://zekiworks.github.io/analysis/decision-models/vision/",
-   "updated": "2026-11-17T02:02:17Z",
+   "updated": "2026-11-17T12:44:39Z",
    "score": {
     "zero": "chance: 1 of each question's options right on every question (accuracy 20% with 5 options)",
     "hundred": "every one of the 763 questions that depend on the printed page right, read from the page image alone (accuracy 100%)"
@@ -12364,7 +12389,7 @@
     {
      "repo": null,
      "commit": null,
-     "name": "ultra d1.2",
+     "name": "d1.2-ultra",
      "tag": "",
      "model_key": "liquid-d1.2-ultra",
      "maker": "Liquid AI",

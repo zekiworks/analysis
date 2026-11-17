@@ -114,12 +114,13 @@ def build(site: Site) -> dict[str, str]:
          "The Page images test's repeat passes, kept outside its table: each pass's run records and outcomes, compared "
          "with the table's first pass."),
         (ROOT / "english-reading.json", rel(PATH, "english-reading.json"),
-         "The record of the English reading and English and Turkish pages: the translator, its two prompts, each reading question's flags and the "
-         "SHA-256 of its English text. No question text or place in the book."),
+         "The record of the English reading and English and Turkish pages: the translator, its two prompts and, in the "
+         "order of the book, each reading question's flags and the SHA-256 of its English text. No question text, ID or "
+         "place in the book."),
         (ROOT / "web-grounding.json", rel(PATH, "web-grounding.json"),
          "The Web grounding page's inputs beside answers.json: each run's input tokens by group, what the grounded "
-         "searches returned (sites and source checks, as counts and question IDs) and PWS-Decisions' aggregates. No question "
-         "text, page address or snippet."),
+         "searches returned (sites and source checks, as counts) and PWS-Decisions' aggregates. No question text, ID, "
+         "page address or snippet."),
         (ROOT / "pws-decisions.json", rel(PATH, "pws-decisions.json"),
          "The PWS-Decisions page's totals: each decision model's three runs on Parallel's benchmark of dated web facts, "
          "with request times, cost and confidence. No question or answer."),
@@ -132,6 +133,8 @@ def build(site: Site) -> dict[str, str]:
     )
     citation = bp.citation(site.snapshot, site.values)
     key = results["answer_key"]
+    # The changelogs as published: no question IDs (publish_projection.public_markdown).
+    known = publish_projection.Known(site.answers)
     picks_hash = hashlib.sha256(PICKS.read_bytes()).hexdigest()[:12]
     site.note(PATH, "Data", "<p>Everything the pages show comes from these files, as published: aggregate numbers and "
               "each answer's outcome, but not the questions, which the publisher owns, nor anything per question that "
@@ -145,12 +148,12 @@ def build(site: Site) -> dict[str, str]:
     </section>
     <section class="card" id="results-changelog">
       <h2>Results changelog</h2>
-      {site.in_prose(markdown((ROOT / "results-changelog.md").read_text()))}
+      {site.in_prose(markdown(publish_projection.public_markdown((ROOT / "results-changelog.md").read_text(), known)))}
     </section>
     <section class="card" id="key-changelog">
       <h2>Answer key changelog</h2>
       <p>Every setup is scored on answer key version {key["version"]}. Question bank SHA-256 <code>{esc(results["dataset"]["graded_sha256"])}</code>; key fingerprint <code>{esc(key["fingerprint"])}</code>.</p>
-      {site.in_prose(markdown((ROOT / "key-changelog.md").read_text()))}
+      {site.in_prose(markdown(publish_projection.public_markdown((ROOT / "key-changelog.md").read_text(), known)))}
       <p>To report a wrong key, use the <a href="https://github.com/zekiworks/analysis/issues/new?template=answer-key-correction.md">answer key correction</a> form.</p>
     </section>
     <section class="card" id="citation">
