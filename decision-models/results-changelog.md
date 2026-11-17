@@ -7,6 +7,7 @@ What changed in each results version that went live (`results_version` in `resul
 - Inkling 2 Small (Thinking Machines, 594B total, 17B active) through OpenRouter, pinned to Nebius's endpoint, fallbacks off, reasoning effort high, 16 questions per request, output capped at 32,768 tokens (Ümit #9817, #10509). Turkish Text 1,450 of 2,198 (66.0%; run 1337), English 511 of 547 (93.4%; run 1335), English "I don't know" 509 right (run 1345), Turkish "Bilmiyorum" 1,523 right (run 1354). On 41 of its 138 Turkish Text requests, mostly grammar, it spent the whole 32,768-token allowance on reasoning and gave no answer; as for every model, those questions count as wrong and were not asked again. OpenRouter billed $7.58 for the four runs and their 20-question smoke. Its card names English only, so the Turkish tables mark it as not officially supporting Turkish. It leaves the In progress table.
 - English reading, thinking on (Ümit #10884): Raon-1 nano 377 of 547 (68.9%; run 1355, 10 without a readable answer) and its English "I don't know" run (1374), on KRAFTON's own vLLM engine at 32,768 tokens, beside its thinking-off row.
 - Paired English–Turkish test: 138 comparisons (137 before), 7 passing.
+- Display name: Liquid's d1.2-ultra shows as "ultra d1.2" on every page (Ümit #11156, Zeki #11160), as on the other benches; its API model ID, runs and results are unchanged, and the older d1-ultra keeps its name.
 
 ## Results 94aef0c1 (16 November 2026)
 
