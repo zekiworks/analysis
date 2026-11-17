@@ -144,15 +144,19 @@ function reader(){
  }).join('');
  return '<article class="panel guide"><div class="eyelabel">'+safe(s.section)+' · '+safe(dateLabel(s.snapshot))+'</div><h2>'+safe(resource?.title||s.panel)+'</h2><div class="guideLinks">'+links+'</div>'+(s.ui==='tr'?'<p class="sourceNote">Yayımlanmış kaynaktan alıntılar İngilizcedir.</p>':'')+'<div data-verbatim lang="en">'+body+'</div></article>';
 }
+// Toolbench's first results were labelled a pilot; the bench is no longer called one, in any snapshot (Ümit #11253).
+function trackLabel(t){return t==='Pilot results'?'Results':t}
 function resultNote(f){
+ // An older snapshot than the newest: say so, with the way to the newest (Ümit #11253 looked at an old one).
+ const old=dates.length&&s.snapshot!==dates[0]?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('You are looking at an older snapshot:'))+' '+safe(dateLabel(s.snapshot))+'. <button class="textLink" data-newest="1">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Show the newest'))+'</button> ('+safe(dateLabel(dates[0]))+')</div>':'';
  // A track the snapshot did not re-read keeps its rows from an earlier snapshot: say from when (Zeki #9682)
  const from=uniq((f?.rows||[]).map(r=>r.carriedFrom).filter(Boolean));
- return (from.length?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Copied unchanged from an earlier snapshot; its source files were not read again for this one:'))+' '+safe(from.map(dateLabel).join(', '))+'</div>':'')+resultNoteText();
+ return old+(from.length?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Copied unchanged from an earlier snapshot; its source files were not read again for this one:'))+' '+safe(from.map(dateLabel).join(', '))+'</div>':'')+resultNoteText();
 }
 function resultNoteText(){
  if(s.panel==='Learning')return '<div class="notice neutral">The source gives each setup its own improvement verdict. Before and after refer to empty context and the final lessons evaluation. A paused or running setup has no final verdict.</div>';
  if(s.panel==='Learning pilot')return '<div class="notice neutral">Gemma 4 31B with reasoning off. T0 is one shared baseline across arms. Each later checkpoint keeps its own context condition.</div>';
- if(s.section==='Toolbench'&&(data.get(s.snapshot)||[]).some(r=>r.section==='Toolbench'&&r.track==='Pilot results'))return '<div class="notice neutral">Pilot results: task pass rate over 42 tasks on each of two tracks (original and renamed tools), 3 repetitions, no chance correction. A setup that failed qualification has no score.</div>';
+ if(s.section==='Toolbench'&&(data.get(s.snapshot)||[]).some(r=>r.section==='Toolbench'&&r.track==='Pilot results'))return '<div class="notice neutral">Task pass rate over 42 tasks on each of two tracks (original and renamed tools), 3 repetitions, no chance correction. A setup that failed qualification has no score.</div>';
  if(s.section==='Toolbench'&&(data.get(s.snapshot)||[]).some(r=>r.section==='Toolbench'&&r.track==='Results'))return '<div class="notice neutral">Task pass rate over 42 tasks on each of two tracks (original and renamed tools), 3 repetitions, no chance correction. Tiers are within each size class, never across classes. A setup that failed qualification has no score. The Medium class is held back until the harder task set.</div>';
  if(s.section==='Toolbench')return '<div class="notice neutral">The source records zero model runs in this snapshot. Candidates appear with their preparation status.</div>';
  return '';
@@ -247,8 +251,8 @@ function resultSurface(f){
  const measure=one?metric(one)[0]:'Outcome';
  const popular={'Reading & Grammar':['Turkish Reading & Grammar','Turkish Reading','Turkish Grammar','English Reading'], 'Logic & Math':['Logic','Math','Logic and Math'],Backgammon:['League 1','League 2','League 3'], 'All benches':['Combined','Turkish Reading','Turkish Grammar','English Reading','Logic','Math','Backgammon','Answer Check']};
  const visibleTracks=(['Learning','Learning pilot','Vision'].includes(s.panel)?f.tracks:popular[s.section]||[]).filter(t=>f.tracks.includes(t));
- const trackTabs=visibleTracks.length>1?'<div class="trackTabs" role="group" aria-label="Experiment tabs">'+visibleTracks.map(t=>'<button data-track="'+safe(t)+'" aria-pressed="'+(t===f.chosen)+'">'+safe(t)+'</button>').join('')+'</div>':'';
- const opts=f.tracks.map(v=>'<option value="'+safe(v)+'" '+(v===f.chosen?'selected':'')+'>'+safe(v)+'</option>').join('');
+ const trackTabs=visibleTracks.length>1?'<div class="trackTabs" role="group" aria-label="Experiment tabs">'+visibleTracks.map(t=>'<button data-track="'+safe(t)+'" aria-pressed="'+(t===f.chosen)+'">'+safe(trackLabel(t))+'</button>').join('')+'</div>':'';
+ const opts=f.tracks.map(v=>'<option value="'+safe(v)+'" '+(v===f.chosen?'selected':'')+'>'+safe(trackLabel(v))+'</option>').join('');
  const dims=key=>uniq(f.rows.map(r=>r[key]).filter(v=>v!==undefined));
  const labels=[s.section,...['lang','mode'].map(k=>dims(k).length===1?dims(k)[0]:null),dims('n').length===1&&dims('unit').length===1&&f.rows.every(r=>has(r.n))?fmtNum(dims('n')[0])+' '+(one?.unit||''):null].filter(Boolean);
  const radio=(layout,label,icon)=>'<button aria-pressed="'+(s.layout===layout)+'" class="'+(s.layout===layout?'active':'')+'" data-layout="'+layout+'">'+ic(icon)+label+'</button>';
@@ -276,7 +280,7 @@ function resultSurface(f){
     return '<tr class="'+(s.ids.includes(r.id)?'selectedRow':'')+'">'+main+'<td><button class="rowDetails" data-detail="'+r.id+'" aria-label="'+safe(r.name)+' details">'+ic('right')+'</button></td></tr>'
   }).join('')+'</tbody></table></div>'
  }
- const heading=s.section==='Toolbench'?(roster?'Candidate setups':rows.some(r=>r.track==='Pilot results')?'Pilot results':'Results'):s.panel==='Learning'?'Learning results':s.panel==='Learning pilot'?'Learning pilot results':'Experiment results';
+ const heading=s.section==='Toolbench'?(roster?'Candidate setups':'Results'):s.panel==='Learning'?'Learning results':s.panel==='Learning pilot'?'Learning pilot results':'Experiment results';
  return '<div class="topline"><h2>'+heading+' <span class="count">'+fmtNum(n,0)+'</span></h2>'+headingActions()+'</div><div class="panel"><div class="panelTools"><div class="trackCtl"><label class="sr" for="track">Experiment</label>'+ic('layers')+'<select id="track" class="selectControl" '+(!opts?'disabled':'')+'>'+(opts||'<option>No experiment</option>')+'</select></div><div class="toggleGroup">'+radio('table','Table','table')+radio('resources','Cost & latency','clock')+(s.section==='Toolbench'?'':radio('chart','Chart','chart')+radio('metrics','Metrics','filters'))+'</div></div>'+trackTabs+'<div class="contextStrip"><span class="dot"></span>'+labels.map(safe).join('<span class="divider">/</span>')+'</div>'+content+(n?'<div class="pager"><span>'+((s.page-1)*pageSize+1)+'–'+Math.min(s.page*pageSize,n)+' / '+fmtNum(n,0)+' records</span><div class="actions"><button class="square" data-page="-1" aria-label="Previous page" '+(s.page===1?'disabled':'')+'>'+ic('left')+'</button><span>'+s.page+' / '+last+'</span><button class="square" data-page="1" aria-label="Next page" '+(s.page===last?'disabled':'')+'>'+ic('right')+'</button></div></div>':'')+'</div><p class="smallnote">'+(roster?'Select a candidate to inspect its eligibility and source.':'¹ Published rank or statistical tier. A dash means no value is reported. Select a model to inspect its method and units.')+'</p>'
 }
 function selected(){return s.ids.map(id=>records.get(id)).filter(Boolean)}
@@ -431,6 +435,7 @@ document.addEventListener('click',e=>{
  const d=b.dataset;
  if(d.view||d.goto)return openView(d.view||d.goto);
  if(d.panel){s.panel=d.panel;s.track='';s.page=1;openView('results');return}
+ if(d.newest){const sel=$('select[data-filter="snapshot"]');if(sel){sel.value=dates[0];sel.dispatchEvent(new Event('change',{bubbles:true}))}return}
  if(has(d.section)){s.panel='Results';s.section=sections[+d.section];s.track=initialTracks[+d.section];s.models='all';s.size='all';s.page=1;openView('results');return} // a type or class chosen on another bench need not exist here
  if(d.ui){
   if(d.ui===s.ui)return;

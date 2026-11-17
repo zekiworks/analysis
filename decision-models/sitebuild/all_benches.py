@@ -613,6 +613,14 @@ class Data:
             found["combined"] = found["index"] = None
             found["not_combined"] = entry["reason"]
             self.not_combined.append(found)
+        # A display name set by a person for one model on this page only (page_config.json all_benches.display_names, by
+        # model_key; Ümit #11217: Liquid's d1.2-ultra reads 'd1.2-ultra' here while Reading keeps its own name). Numbers and
+        # identities stay; only the name shown, and the slug and address built from it, change.
+        for model in self.models.values():
+            named = next((config["display_names"][key] for key in sorted(model["keys"]) if key in config.get("display_names", {})), None)
+            if named:
+                model["name"] = named
+                model["slug"] = slug(" ".join(filter(None, (named, model["tag"]))))
         self.latency_runs(config["latency_runs"])
         self.their = config["their_score"]
         for item in self.their["models"]:
