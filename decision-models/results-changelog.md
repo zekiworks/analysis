@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 095f376a (17 November 2026)
+
+- English reading, thinking off (Ümit #10884, #11186): Granite-4.2-3B 395 of 547 (72.2%; run 1380, 1 without a readable answer) and its English "I don't know" run (1381), at the settings of logic's thinking-off Logic & Math runs (65,536 tokens; their 32,768-token smoke had answers cut off), on a second copy of logic's server on our RTX PRO 6000 GPU 3, which compactor's Answer Check run shared. It leaves the In progress table's English column.
+
 ## Results d7f5b704 (17 November 2026)
 
 - Inkling 2 Small (Thinking Machines, 594B total, 17B active) through OpenRouter, pinned to Nebius's endpoint, fallbacks off, reasoning effort high, 16 questions per request, output capped at 32,768 tokens (Ümit #9817, #10509). Turkish Text 1,450 of 2,198 (66.0%; run 1337), English 511 of 547 (93.4%; run 1335), English "I don't know" 509 right (run 1345), Turkish "Bilmiyorum" 1,523 right (run 1354). On 41 of its 138 Turkish Text requests, mostly grammar, it spent the whole 32,768-token allowance on reasoning and gave no answer; as for every model, those questions count as wrong and were not asked again. OpenRouter billed $7.58 for the four runs and their 20-question smoke. Its card names English only, so the Turkish tables mark it as not officially supporting Turkish. It leaves the In progress table.
