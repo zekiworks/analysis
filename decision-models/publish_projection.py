@@ -4,7 +4,7 @@
 No bench publishes its questions (Ümit #10760, #10764; Zeki #11139, #11168, #11435, #11470): for the Reading bench, the
 public site carries nothing a reader could rebuild the answer key from or find a question in the book by. Per question it
 holds no key letter, no book locator (page, printed number, topic, passage), no letter a model picked, no option
-probabilities, no score of the chosen option and no question ID: the IDs (44 to 4231) were assigned in book order, so
+probabilities, no score of the chosen option and no question ID: the IDs were assigned in book order, so
 they locate questions too. What stays: every run's record (run id, settings, timings, costs) and, per question in a
 fixed order with no question ID beside it, whether the run's answer was right, wrong or missing.
 
@@ -212,7 +212,7 @@ class Known:
 
 
 def fingerprint(ids: list[int]) -> str:
-    """SHA-256 of the sorted IDs as compact JSON ("[44,45,…]")."""
+    """SHA-256 of the sorted IDs as compact JSON ("[a,b,…]", ascending)."""
     return hashlib.sha256(json.dumps(sorted(ids), separators=(",", ":")).encode()).hexdigest()
 
 
@@ -222,12 +222,15 @@ def id_summary(ids: list[int]) -> dict[str, Any]:
 
 ID = r"\d{2,4}"
 ID_RUN = rf"{ID}(?:(?:,\s*(?:and\s+)?|\s+and\s+){ID})*"
-# "four questions (IDs 292, 3219, 3243 and 3287)", "2 of the 763 questions (3355 and 4019)", "1 question (3043)"
+# "four questions (IDs a, b, c and d)", "2 of the 763 questions (a and b)", "1 question (a)", with a question's ID for each letter
 PARENTHESISED = re.compile(rf"\b(questions?)\s*\((?:IDs?\s+)?({ID_RUN})\)")
 SAME_QUESTION = re.compile(rf"\bquestion ({ID}) each time")
 SINGLE = re.compile(rf"\bquestion\s+(?:IDs?\s+)?({ID})\b")
 NAMED_IDS = re.compile(rf"\bIDs?\s+({ID_RUN})")
 CROP_FILE = re.compile(rf"(?:^|/)({ID})-question\.[a-z]+\b")
+# An example list or range of IDs in prose or code ("[a,b,…]", "(a to b)"; Zeki #11514): flagged when its numbers are
+# question IDs.
+EXAMPLE = re.compile(rf"\[\s*({ID})\s*,\s*({ID})\b|\(({ID}) to ({ID})\)")
 
 
 def numbers(text: str) -> list[int]:
@@ -311,7 +314,7 @@ def public_text(text: str, known: Known, removed: Counter) -> str | None:
     removed["question IDs, one per line (-> summary)"] += len(values)
     summary = id_summary(values)
     return (f"# {summary['questions']:,} question IDs; the list stays private (no bench publishes its questions)."
-            + (f" SHA-256 of the sorted IDs as compact JSON ([44,45,...]): {summary['sha256']}" if "sha256" in summary else "")
+            + (f" SHA-256 of the sorted IDs as compact JSON, ascending: {summary['sha256']}" if "sha256" in summary else "")
             + "\n")
 
 
@@ -405,6 +408,10 @@ def text_ids(text: str, known: Known) -> list[str]:
             found.append(match.group(0))
     for match in CROP_FILE.finditer(text):
         if int(match.group(1)) in known.ids:
+            found.append(match.group(0))
+    for match in EXAMPLE.finditer(text):
+        values = [int(value) for value in match.groups() if value]
+        if all(value in known.ids for value in values) and not all(value in known.runs for value in values):
             found.append(match.group(0))
     return found
 
@@ -516,7 +523,7 @@ def guard(root: Path, known: Known) -> list[str]:
             guard_html(path.read_text(encoding="utf-8", errors="replace"), path, root, name, found, known)
         elif path.suffix == ".md":
             guard_markdown(path.read_text(encoding="utf-8", errors="replace"), name, found, known)
-        elif path.suffix in (".txt", ".js"):
+        elif path.suffix in (".txt", ".js", ".py"):
             text = path.read_text(encoding="utf-8", errors="replace")
             if id_lines(text, known) is not None:
                 found.append(f"{name}: a list of question IDs, one per line")

@@ -902,7 +902,7 @@ python3 -m http.server 8000                                # preview at http://1
 `publish_projection.py DIR` turns an extracted copy of this folder (`push_pages.sh` extracts the page commit into one
 before copying it to the mirror) into what may be published: no bench publishes its questions, and for the Reading
 bench nothing per question may rebuild the answer key or find a question in the book (Ümit #10760, #10764 via Zeki
-#11139, #11168, #11435, #11470). The question IDs (44 to 4231) were assigned in book order, so they count as locators.
+#11139, #11168, #11435, #11470). The question IDs were assigned in book order, so they count as locators.
 In DIR only:
 
 - each run record of `answers.json` and of the files it lists loses `choice`, `correct`, `score` and `probabilities`
