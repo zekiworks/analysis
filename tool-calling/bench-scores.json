@@ -957,6 +957,204 @@
       "score_0_100": 95.23809523809523,
       "setup_label": "on",
       "tag": "decision"
+    },
+    {
+      "base_model": null,
+      "calibration_error": null,
+      "class_label": "Open \u00b7 31B",
+      "commit": "f981bc17c15e57f70ecadc215f4311ad8a45a13e",
+      "display_name": "Turion Jev 31B (decision model, plain vLLM)",
+      "gpu_cost_usd": 0.060175000000000006,
+      "gpu_hours": 0.024166666666666666,
+      "improvement_points": null,
+      "kind": "decision",
+      "maker": "Turion AI",
+      "model_key": "toolbench-a893c1e39e76d082",
+      "name": "Turion Jev 31B (decision model, plain vLLM)",
+      "notes": "original/renamed paired, no chance correction; provider local vLLM served by @logic on bariton (#11279); plain chat serving of the published weights, not the maker's decision engine; Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795). Turion Jev 31B's own engine runs vLLM 0.32 with the weights quantised to FP8 and per-question-type temperatures; here: BF16 weights on vLLM 0.30.0. At the ceiling: 98% or more on both tracks (Toolbench's near-ceiling rule), so this task set cannot tell it apart from a perfect score; harder tasks would be needed to rank it further.",
+      "params_active": 31.0,
+      "params_total": 31.0,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 1.0
+      },
+      "repo": "turion-ai/turion-jev-31b",
+      "runs": [
+        "report:a893c1e39e76d082293236f73054b594e50d9707b60568954e3960b2402030a4"
+      ],
+      "score_0_100": 100.0,
+      "setup_label": "off",
+      "tag": "decision"
+    },
+    {
+      "base_model": null,
+      "calibration_error": null,
+      "class_label": "Open \u00b7 31B",
+      "commit": "f981bc17c15e57f70ecadc215f4311ad8a45a13e",
+      "display_name": "Turion Jev 31B (decision model, plain vLLM)",
+      "gpu_cost_usd": 0.17741250000000003,
+      "gpu_hours": 0.07125,
+      "improvement_points": null,
+      "kind": "decision",
+      "maker": "Turion AI",
+      "model_key": "toolbench-884ae482a852bafa",
+      "name": "Turion Jev 31B (decision model, plain vLLM)",
+      "notes": "original/renamed paired, no chance correction; provider local vLLM served by @logic on bariton (#11279); plain chat serving of the published weights, not the maker's decision engine; Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795). Turion Jev 31B's own engine runs vLLM 0.32 with the weights quantised to FP8 and per-question-type temperatures; here: BF16 weights on vLLM 0.30.0.",
+      "params_active": 31.0,
+      "params_total": 31.0,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 0.9841269841269841
+      },
+      "repo": "turion-ai/turion-jev-31b",
+      "runs": [
+        "report:884ae482a852bafaa766bf47df4dd37a079ea97c526d45959de1c9532fa680b8"
+      ],
+      "score_0_100": 98.4126984126984,
+      "setup_label": "on",
+      "tag": "decision"
+    },
+    {
+      "base_model": null,
+      "calibration_error": null,
+      "class_label": "Open \u00b7 31B",
+      "commit": "56ca884a8e3195c9c0786a4ec22e651669d04ba9",
+      "display_name": "KnowLine-31B-Gen1.5 (decision model, plain vLLM)",
+      "gpu_cost_usd": 0.05796166666666667,
+      "gpu_hours": 0.023277777777777776,
+      "improvement_points": null,
+      "kind": "decision",
+      "maker": "PelaAI",
+      "model_key": "toolbench-eacd8d77bbb4733f",
+      "name": "KnowLine-31B-Gen1.5 (decision model, plain vLLM)",
+      "notes": "original/renamed paired, no chance correction; provider local vLLM served by @logic on bariton (#11240 qualification; #11345 full runs, identical argv); plain chat serving of the published weights, not the maker's decision engine; Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795).",
+      "params_active": 31.0,
+      "params_total": 31.0,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 0.9603174603174603
+      },
+      "repo": "PelaAI/KnowLine-31B-Gen1.5",
+      "runs": [
+        "report:eacd8d77bbb4733fd948846e5010944a15254fe6bc78c1c697e5a011cb377705"
+      ],
+      "score_0_100": 96.03174603174604,
+      "setup_label": "off",
+      "tag": "decision"
+    },
+    {
+      "base_model": null,
+      "calibration_error": null,
+      "class_label": "Open \u00b7 31B",
+      "commit": "56ca884a8e3195c9c0786a4ec22e651669d04ba9",
+      "display_name": "KnowLine-31B-Gen1.5 (decision model, plain vLLM)",
+      "gpu_cost_usd": 0.1533425,
+      "gpu_hours": 0.06158333333333333,
+      "improvement_points": null,
+      "kind": "decision",
+      "maker": "PelaAI",
+      "model_key": "toolbench-856f8d9d5f1bb844",
+      "name": "KnowLine-31B-Gen1.5 (decision model, plain vLLM)",
+      "notes": "original/renamed paired, no chance correction; provider local vLLM served by @logic on bariton (#11240 qualification; #11345 full runs, identical argv); plain chat serving of the published weights, not the maker's decision engine; Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795).",
+      "params_active": 31.0,
+      "params_total": 31.0,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 0.9404761904761905
+      },
+      "repo": "PelaAI/KnowLine-31B-Gen1.5",
+      "runs": [
+        "report:856f8d9d5f1bb8443bc3aa030f023a433629fd109814cbbd7aac838b8de40304"
+      ],
+      "score_0_100": 94.04761904761905,
+      "setup_label": "on",
+      "tag": "decision"
+    },
+    {
+      "base_model": null,
+      "calibration_error": null,
+      "class_label": "Open \u00b7 31B",
+      "commit": "ae28efb0ae759c3494a1078c0a56eda10a9adb38",
+      "display_name": "Copernicus-31B (decision model, plain vLLM)",
+      "gpu_cost_usd": 0.058307500000000005,
+      "gpu_hours": 0.023416666666666665,
+      "improvement_points": null,
+      "kind": "decision",
+      "maker": "Poindexter Labs",
+      "model_key": "toolbench-8d44a799b6ef0729",
+      "name": "Copernicus-31B (decision model, plain vLLM)",
+      "notes": "original/renamed paired, no chance correction; provider local vLLM served by @logic on bariton (#11250 qualification; #11355 full runs, identical argv); plain chat serving of the published weights, not the maker's decision engine; Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795).",
+      "params_active": 31.0,
+      "params_total": 31.0,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 0.9801587301587301
+      },
+      "repo": "Poindexter-Labs/Copernicus-31B",
+      "runs": [
+        "report:8d44a799b6ef0729aff74a3cd77b2ccc0d4600412ec40f7966f23b67e59975d1"
+      ],
+      "score_0_100": 98.01587301587301,
+      "setup_label": "off",
+      "tag": "decision"
+    },
+    {
+      "base_model": null,
+      "calibration_error": null,
+      "class_label": "Open \u00b7 31B",
+      "commit": "ae28efb0ae759c3494a1078c0a56eda10a9adb38",
+      "display_name": "Copernicus-31B (decision model, plain vLLM)",
+      "gpu_cost_usd": 0.15569416666666666,
+      "gpu_hours": 0.06252777777777778,
+      "improvement_points": null,
+      "kind": "decision",
+      "maker": "Poindexter Labs",
+      "model_key": "toolbench-978d24d5e1541735",
+      "name": "Copernicus-31B (decision model, plain vLLM)",
+      "notes": "original/renamed paired, no chance correction; provider local vLLM served by @logic on bariton (#11250 qualification; #11355 full runs, identical argv); plain chat serving of the published weights, not the maker's decision engine; Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795).",
+      "params_active": 31.0,
+      "params_total": 31.0,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 0.9642857142857143
+      },
+      "repo": "Poindexter-Labs/Copernicus-31B",
+      "runs": [
+        "report:978d24d5e1541735609dba461aaadf505eab745fc066b11449a62de1714035f8"
+      ],
+      "score_0_100": 96.42857142857143,
+      "setup_label": "on",
+      "tag": "decision"
     }
   ],
   "score": {
@@ -964,6 +1162,6 @@
     "zero": "No tasks passed"
   },
   "title": "Can a small model use tools?",
-  "updated": "2026-11-17T09:23:47+01:00",
+  "updated": "2026-11-17T12:13:21+01:00",
   "url": "https://zekiworks.github.io/analysis/tool-calling/"
 }
