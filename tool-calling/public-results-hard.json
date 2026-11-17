@@ -22,7 +22,13 @@
     "33b2fc529fb2de88831d43e81b9afd563c90d7d8dbded7d334a2ac02081daff4",
     "604dc3902cff19025cbfe96022094ed0376406a03797afe689cb8227ffe6786c",
     "f4b2e4a175cbb720ef525cacf7c1ce04ae09083a794457d2af61fbcf1f78e024",
-    "a92b0fc63f5e4d1d3c6ad852aca000c3a793ff08d84ee076b0ab1367a5930506"
+    "a92b0fc63f5e4d1d3c6ad852aca000c3a793ff08d84ee076b0ab1367a5930506",
+    "d1ef5596260b35a82e0a6071d16d0c4b563572fb3ed8dfc82640a26fb86eddce",
+    "ab45e1037afc3bcfe312a3e3813077e34e7a0bbcfd5f68514b69aabdc6a74dd1",
+    "00efb41f3269af7faa0c01d89ab3fb4cf2908387ccf47c7e34bba350effe01ed",
+    "643e091c37ffd71848e75a7d3b378595cf7634c33fe873d89dd3e5aa5b64ba2d",
+    "1671d1820c423422c09d7fdf2efe130862becc000e417861d36105c728fef619",
+    "3610dae3b1cc0a0faed6671b99aa65184a88b30660f63bd1c9102a3bf530b67d"
   ],
   "reports": [
     {
@@ -13356,8 +13362,8 @@
       },
       "tiers": {
         "all": 3,
-        "original": 3,
-        "renamed": 3
+        "original": 2,
+        "renamed": 2
       },
       "total_tokens": 2353976,
       "tracks": {
@@ -15133,8 +15139,8 @@
       },
       "tiers": {
         "all": 2,
-        "original": 2,
-        "renamed": 2
+        "original": 1,
+        "renamed": 1
       },
       "total_tokens": 1798075,
       "tracks": {
@@ -20509,6 +20515,5357 @@
           "attempted": 108,
           "pass_rate": 0.8796296296296297,
           "passed": 95,
+          "scored": 108,
+          "unscored": 0
+        }
+      }
+    },
+    {
+      "categories": {
+        "branching": {
+          "attempted": 24,
+          "pass_rate": 0.8333333333333334,
+          "passed": 20,
+          "scored": 24,
+          "unscored": 0
+        },
+        "cascading-recovery": {
+          "attempted": 24,
+          "pass_rate": 0.625,
+          "passed": 15,
+          "scored": 24,
+          "unscored": 0
+        },
+        "computed-args": {
+          "attempted": 24,
+          "pass_rate": 0.5,
+          "passed": 12,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-chain": {
+          "attempted": 24,
+          "pass_rate": 0.6666666666666666,
+          "passed": 16,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-output": {
+          "attempted": 24,
+          "pass_rate": 0.25,
+          "passed": 6,
+          "scored": 24,
+          "unscored": 0
+        },
+        "multi-constraint": {
+          "attempted": 24,
+          "pass_rate": 0.6666666666666666,
+          "passed": 16,
+          "scored": 24,
+          "unscored": 0
+        }
+      },
+      "classification": {
+        "class_key": "small",
+        "class_label": "Open \u00b7 9.0B",
+        "classification_basis": "total_parameters",
+        "classification_source": "https://huggingface.co/baselabs/elephant-1/blob/b3f8a93462fb1051a9de031e94a7ff380e254072/README.md",
+        "maker": "Base Labs",
+        "params_active": 9.0,
+        "params_total": 9.0,
+        "precision": "BF16",
+        "quantization": null
+      },
+      "cost_usd": null,
+      "failure_tags": {
+        "gave_up_or_loop": 6,
+        "made_up_result": 1,
+        "no_call": 1,
+        "wrong_args": 47,
+        "wrong_tool": 4
+      },
+      "gpu": {
+        "card": "bariton GPU 3 (RTX PRO 6000, 96 GB)",
+        "gpu_count": 1,
+        "gpu_seconds": 346.0,
+        "in_flight": 16,
+        "rate_usd_per_gpu_hour": 2.49,
+        "server_max_num_seqs": 16
+      },
+      "latency_seconds": {
+        "mean": 14.029718331882528,
+        "total": 2020.2794397910839
+      },
+      "note": "Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795).",
+      "overall": {
+        "attempted": 144,
+        "pass_rate": 0.5902777777777778,
+        "passed": 85,
+        "scored": 144,
+        "unscored": 0
+      },
+      "public_tasks": [
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "gave_up_or_loop",
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "made_up_result",
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "gave_up_or_loop",
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "gave_up_or_loop",
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        }
+      ],
+      "rankable": true,
+      "setup": {
+        "chat_template_revision": "b3f8a93462fb1051a9de031e94a7ff380e254072",
+        "engine_tool_parser": "qwen3_coder",
+        "exact_model_id": "baselabs/elephant-1",
+        "native_documented_call_format": "openai tool_calls via engine tool parser qwen3_coder",
+        "plan_sha256": "fe3778471f56ae2952c0087865e6234c5b8e382eb338cedb9e8bbdb3b42d9cfe",
+        "provider": "local vLLM served by @logic on bariton (#11019 qualification; #11046 full runs, identical argv); plain chat serving of the published weights, not the maker's decision engine",
+        "requested_name": "Elephant-1 (decision model, plain vLLM)",
+        "revision": "b3f8a93462fb1051a9de031e94a7ff380e254072",
+        "thinking_mode": "off"
+      },
+      "tiers": {
+        "all": 2,
+        "original": 2,
+        "renamed": 2
+      },
+      "total_tokens": 2638083,
+      "tracks": {
+        "original": {
+          "attempted": 72,
+          "pass_rate": 0.5138888888888888,
+          "passed": 37,
+          "scored": 72,
+          "unscored": 0
+        },
+        "renamed": {
+          "attempted": 72,
+          "pass_rate": 0.6666666666666666,
+          "passed": 48,
+          "scored": 72,
+          "unscored": 0
+        }
+      },
+      "unscored_reasons": {},
+      "visibility": {
+        "private": {
+          "attempted": 36,
+          "pass_rate": 0.6111111111111112,
+          "passed": 22,
+          "scored": 36,
+          "unscored": 0
+        },
+        "public": {
+          "attempted": 108,
+          "pass_rate": 0.5833333333333334,
+          "passed": 63,
+          "scored": 108,
+          "unscored": 0
+        }
+      }
+    },
+    {
+      "categories": {
+        "branching": {
+          "attempted": 24,
+          "pass_rate": 1.0,
+          "passed": 24,
+          "scored": 24,
+          "unscored": 0
+        },
+        "cascading-recovery": {
+          "attempted": 24,
+          "pass_rate": 0.9583333333333334,
+          "passed": 23,
+          "scored": 24,
+          "unscored": 0
+        },
+        "computed-args": {
+          "attempted": 24,
+          "pass_rate": 0.7083333333333334,
+          "passed": 17,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-chain": {
+          "attempted": 24,
+          "pass_rate": 1.0,
+          "passed": 24,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-output": {
+          "attempted": 24,
+          "pass_rate": 0.4782608695652174,
+          "passed": 11,
+          "scored": 23,
+          "unscored": 1
+        },
+        "multi-constraint": {
+          "attempted": 24,
+          "pass_rate": 1.0,
+          "passed": 24,
+          "scored": 24,
+          "unscored": 0
+        }
+      },
+      "classification": {
+        "class_key": "small",
+        "class_label": "Open \u00b7 9.0B",
+        "classification_basis": "total_parameters",
+        "classification_source": "https://huggingface.co/baselabs/elephant-1/blob/b3f8a93462fb1051a9de031e94a7ff380e254072/README.md",
+        "maker": "Base Labs",
+        "params_active": 9.0,
+        "params_total": 9.0,
+        "precision": "BF16",
+        "quantization": null
+      },
+      "cost_usd": null,
+      "failure_tags": {
+        "bad_format": 3,
+        "wrong_args": 17
+      },
+      "gpu": {
+        "card": "bariton GPU 3 (RTX PRO 6000, 96 GB)",
+        "gpu_count": 1,
+        "gpu_seconds": 185.3,
+        "in_flight": 16,
+        "rate_usd_per_gpu_hour": 2.49,
+        "server_max_num_seqs": 16
+      },
+      "latency_seconds": {
+        "mean": 16.979744112243225,
+        "total": 2445.0831521630244
+      },
+      "note": "Not tiered: one of its 144 task runs is unscored. On a long-output task the server refused the request because the prompt plus the fixed 32,768-token answer budget exceeded its 69,632-token context (HTTP 400). Serving and configuration errors are not counted as model failures; the score is over the scored runs. Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795).",
+      "overall": {
+        "attempted": 144,
+        "pass_rate": 0.8601398601398601,
+        "passed": 123,
+        "scored": 143,
+        "unscored": 1
+      },
+      "public_tasks": [
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "unscored",
+          "tag": null,
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        }
+      ],
+      "rankable": false,
+      "setup": {
+        "chat_template_revision": "b3f8a93462fb1051a9de031e94a7ff380e254072",
+        "engine_tool_parser": "qwen3_coder",
+        "exact_model_id": "baselabs/elephant-1",
+        "native_documented_call_format": "openai tool_calls via engine tool parser qwen3_coder",
+        "plan_sha256": "fe3778471f56ae2952c0087865e6234c5b8e382eb338cedb9e8bbdb3b42d9cfe",
+        "provider": "local vLLM served by @logic on bariton (#11019 qualification; #11046 full runs, identical argv); plain chat serving of the published weights, not the maker's decision engine",
+        "requested_name": "Elephant-1 (decision model, plain vLLM)",
+        "revision": "b3f8a93462fb1051a9de031e94a7ff380e254072",
+        "thinking_mode": "on"
+      },
+      "total_tokens": null,
+      "tracks": {
+        "original": {
+          "attempted": 72,
+          "pass_rate": 0.875,
+          "passed": 63,
+          "scored": 72,
+          "unscored": 0
+        },
+        "renamed": {
+          "attempted": 72,
+          "pass_rate": 0.8450704225352113,
+          "passed": 60,
+          "scored": 71,
+          "unscored": 1
+        }
+      },
+      "unscored_reasons": {
+        "infrastructure": 1
+      },
+      "visibility": {
+        "private": {
+          "attempted": 36,
+          "pass_rate": 0.9722222222222222,
+          "passed": 35,
+          "scored": 36,
+          "unscored": 0
+        },
+        "public": {
+          "attempted": 108,
+          "pass_rate": 0.822429906542056,
+          "passed": 88,
+          "scored": 107,
+          "unscored": 1
+        }
+      }
+    },
+    {
+      "categories": {
+        "branching": {
+          "attempted": 24,
+          "pass_rate": 0.08333333333333333,
+          "passed": 2,
+          "scored": 24,
+          "unscored": 0
+        },
+        "cascading-recovery": {
+          "attempted": 24,
+          "pass_rate": 0.125,
+          "passed": 3,
+          "scored": 24,
+          "unscored": 0
+        },
+        "computed-args": {
+          "attempted": 24,
+          "pass_rate": 0.0,
+          "passed": 0,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-chain": {
+          "attempted": 24,
+          "pass_rate": 0.0,
+          "passed": 0,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-output": {
+          "attempted": 24,
+          "pass_rate": 0.0,
+          "passed": 0,
+          "scored": 24,
+          "unscored": 0
+        },
+        "multi-constraint": {
+          "attempted": 24,
+          "pass_rate": 0.0,
+          "passed": 0,
+          "scored": 24,
+          "unscored": 0
+        }
+      },
+      "classification": {
+        "class_key": "small",
+        "class_label": "Open \u00b7 9.0B",
+        "classification_basis": "total_parameters",
+        "classification_source": "https://huggingface.co/PelaAI/KnowLine-9B-Gen2/blob/8ec8eb609bc10aa6050ae3754aee419d458fae42/README.md",
+        "maker": "PelaAI",
+        "params_active": 9.0,
+        "params_total": 9.0,
+        "precision": "BF16",
+        "quantization": null
+      },
+      "cost_usd": null,
+      "failure_tags": {
+        "bad_format": 1,
+        "gave_up_or_loop": 4,
+        "no_call": 1,
+        "wrong_args": 117,
+        "wrong_tool": 16
+      },
+      "gpu": {
+        "card": "bariton GPU 3 (RTX PRO 6000, 96 GB)",
+        "gpu_count": 1,
+        "gpu_seconds": 959.5,
+        "in_flight": 16,
+        "rate_usd_per_gpu_hour": 2.49,
+        "server_max_num_seqs": 16
+      },
+      "latency_seconds": {
+        "mean": 73.9490764065136,
+        "total": 10648.667002537957
+      },
+      "note": "Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795).",
+      "overall": {
+        "attempted": 144,
+        "pass_rate": 0.034722222222222224,
+        "passed": 5,
+        "scored": 144,
+        "unscored": 0
+      },
+      "public_tasks": [
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "gave_up_or_loop",
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "gave_up_or_loop",
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-03-renamed"
+        }
+      ],
+      "rankable": true,
+      "setup": {
+        "chat_template_revision": "8ec8eb609bc10aa6050ae3754aee419d458fae42",
+        "engine_tool_parser": "qwen3_coder",
+        "exact_model_id": "PelaAI/KnowLine-9B-Gen2",
+        "native_documented_call_format": "openai tool_calls via engine tool parser qwen3_coder",
+        "plan_sha256": "3af069bb833141a20522aea06a900c3523cde28567c73dc1d2230743650531ae",
+        "provider": "local vLLM served by @logic on bariton (#11025 qualification; #11053 full runs, identical argv); plain chat serving of the published weights, not the maker's decision engine",
+        "requested_name": "KnowLine-9B-Gen2 (decision model, plain vLLM)",
+        "revision": "8ec8eb609bc10aa6050ae3754aee419d458fae42",
+        "thinking_mode": "off"
+      },
+      "tiers": {
+        "all": 4,
+        "original": 3,
+        "renamed": 3
+      },
+      "total_tokens": 3351807,
+      "tracks": {
+        "original": {
+          "attempted": 72,
+          "pass_rate": 0.05555555555555555,
+          "passed": 4,
+          "scored": 72,
+          "unscored": 0
+        },
+        "renamed": {
+          "attempted": 72,
+          "pass_rate": 0.013888888888888888,
+          "passed": 1,
+          "scored": 72,
+          "unscored": 0
+        }
+      },
+      "unscored_reasons": {},
+      "visibility": {
+        "private": {
+          "attempted": 36,
+          "pass_rate": 0.05555555555555555,
+          "passed": 2,
+          "scored": 36,
+          "unscored": 0
+        },
+        "public": {
+          "attempted": 108,
+          "pass_rate": 0.027777777777777776,
+          "passed": 3,
+          "scored": 108,
+          "unscored": 0
+        }
+      }
+    },
+    {
+      "categories": {
+        "branching": {
+          "attempted": 24,
+          "pass_rate": 0.875,
+          "passed": 21,
+          "scored": 24,
+          "unscored": 0
+        },
+        "cascading-recovery": {
+          "attempted": 24,
+          "pass_rate": 0.7916666666666666,
+          "passed": 19,
+          "scored": 24,
+          "unscored": 0
+        },
+        "computed-args": {
+          "attempted": 24,
+          "pass_rate": 0.5,
+          "passed": 12,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-chain": {
+          "attempted": 24,
+          "pass_rate": 0.8333333333333334,
+          "passed": 20,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-output": {
+          "attempted": 24,
+          "pass_rate": 0.20833333333333334,
+          "passed": 5,
+          "scored": 24,
+          "unscored": 0
+        },
+        "multi-constraint": {
+          "attempted": 24,
+          "pass_rate": 0.75,
+          "passed": 18,
+          "scored": 24,
+          "unscored": 0
+        }
+      },
+      "classification": {
+        "class_key": "small",
+        "class_label": "Open \u00b7 9.0B",
+        "classification_basis": "total_parameters",
+        "classification_source": "https://huggingface.co/PelaAI/KnowLine-9B-Gen2/blob/8ec8eb609bc10aa6050ae3754aee419d458fae42/README.md",
+        "maker": "PelaAI",
+        "params_active": 9.0,
+        "params_total": 9.0,
+        "precision": "BF16",
+        "quantization": null
+      },
+      "cost_usd": null,
+      "failure_tags": {
+        "bad_format": 3,
+        "gave_up_or_loop": 1,
+        "wrong_args": 43,
+        "wrong_tool": 2
+      },
+      "gpu": {
+        "card": "bariton GPU 3 (RTX PRO 6000, 96 GB)",
+        "gpu_count": 1,
+        "gpu_seconds": 599.8,
+        "in_flight": 16,
+        "rate_usd_per_gpu_hour": 2.49,
+        "server_max_num_seqs": 16
+      },
+      "latency_seconds": {
+        "mean": 25.54807018674314,
+        "total": 3678.922106891012
+      },
+      "note": "Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795).",
+      "overall": {
+        "attempted": 144,
+        "pass_rate": 0.6597222222222222,
+        "passed": 95,
+        "scored": 144,
+        "unscored": 0
+      },
+      "public_tasks": [
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "gave_up_or_loop",
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        }
+      ],
+      "rankable": true,
+      "setup": {
+        "chat_template_revision": "8ec8eb609bc10aa6050ae3754aee419d458fae42",
+        "engine_tool_parser": "qwen3_coder",
+        "exact_model_id": "PelaAI/KnowLine-9B-Gen2",
+        "native_documented_call_format": "openai tool_calls via engine tool parser qwen3_coder",
+        "plan_sha256": "3af069bb833141a20522aea06a900c3523cde28567c73dc1d2230743650531ae",
+        "provider": "local vLLM served by @logic on bariton (#11025 qualification; #11053 full runs, identical argv); plain chat serving of the published weights, not the maker's decision engine",
+        "requested_name": "KnowLine-9B-Gen2 (decision model, plain vLLM)",
+        "revision": "8ec8eb609bc10aa6050ae3754aee419d458fae42",
+        "thinking_mode": "on"
+      },
+      "tiers": {
+        "all": 2,
+        "original": 2,
+        "renamed": 2
+      },
+      "total_tokens": 2549122,
+      "tracks": {
+        "original": {
+          "attempted": 72,
+          "pass_rate": 0.6527777777777778,
+          "passed": 47,
+          "scored": 72,
+          "unscored": 0
+        },
+        "renamed": {
+          "attempted": 72,
+          "pass_rate": 0.6666666666666666,
+          "passed": 48,
+          "scored": 72,
+          "unscored": 0
+        }
+      },
+      "unscored_reasons": {},
+      "visibility": {
+        "private": {
+          "attempted": 36,
+          "pass_rate": 0.6944444444444444,
+          "passed": 25,
+          "scored": 36,
+          "unscored": 0
+        },
+        "public": {
+          "attempted": 108,
+          "pass_rate": 0.6481481481481481,
+          "passed": 70,
+          "scored": 108,
+          "unscored": 0
+        }
+      }
+    },
+    {
+      "categories": {
+        "branching": {
+          "attempted": 24,
+          "pass_rate": 0.9166666666666666,
+          "passed": 22,
+          "scored": 24,
+          "unscored": 0
+        },
+        "cascading-recovery": {
+          "attempted": 24,
+          "pass_rate": 1.0,
+          "passed": 24,
+          "scored": 24,
+          "unscored": 0
+        },
+        "computed-args": {
+          "attempted": 24,
+          "pass_rate": 0.875,
+          "passed": 21,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-chain": {
+          "attempted": 24,
+          "pass_rate": 0.625,
+          "passed": 15,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-output": {
+          "attempted": 24,
+          "pass_rate": 0.375,
+          "passed": 9,
+          "scored": 24,
+          "unscored": 0
+        },
+        "multi-constraint": {
+          "attempted": 24,
+          "pass_rate": 1.0,
+          "passed": 24,
+          "scored": 24,
+          "unscored": 0
+        }
+      },
+      "classification": {
+        "class_key": "medium",
+        "class_label": "Open \u00b7 27B",
+        "classification_basis": "total_parameters",
+        "classification_source": "https://huggingface.co/baselabs/mammoth-1/blob/61cec44c281c693992e3d6ebeb44dd3402dfa186/README.md",
+        "maker": "Base Labs",
+        "params_active": 27.0,
+        "params_total": 27.0,
+        "precision": "BF16",
+        "quantization": null
+      },
+      "cost_usd": null,
+      "failure_tags": {
+        "extra_call": 2,
+        "wrong_args": 27
+      },
+      "gpu": {
+        "card": "bariton GPU 3 (RTX PRO 6000, 96 GB)",
+        "gpu_count": 1,
+        "gpu_seconds": 222.6,
+        "in_flight": 16,
+        "rate_usd_per_gpu_hour": 2.49,
+        "server_max_num_seqs": 16
+      },
+      "latency_seconds": {
+        "mean": 22.738744822604886,
+        "total": 3274.3792544551034
+      },
+      "note": "Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795).",
+      "overall": {
+        "attempted": 144,
+        "pass_rate": 0.7986111111111112,
+        "passed": 115,
+        "scored": 144,
+        "unscored": 0
+      },
+      "public_tasks": [
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02-renamed"
+        }
+      ],
+      "rankable": true,
+      "setup": {
+        "chat_template_revision": "61cec44c281c693992e3d6ebeb44dd3402dfa186",
+        "engine_tool_parser": "qwen3_coder",
+        "exact_model_id": "baselabs/mammoth-1",
+        "native_documented_call_format": "openai tool_calls via engine tool parser qwen3_coder",
+        "plan_sha256": "03f1b40479a5afd1079fc61366e3deaef375e2b1374e28fb8664a44a242da0f5",
+        "provider": "local vLLM served by @logic on bariton (#11035 qualification; #11104 full runs, identical argv); plain chat serving of the published weights, not the maker's decision engine",
+        "requested_name": "Mammoth-1 (decision model, plain vLLM)",
+        "revision": "61cec44c281c693992e3d6ebeb44dd3402dfa186",
+        "thinking_mode": "off"
+      },
+      "tiers": {
+        "all": 1,
+        "original": 1,
+        "renamed": 1
+      },
+      "total_tokens": 2089107,
+      "tracks": {
+        "original": {
+          "attempted": 72,
+          "pass_rate": 0.8055555555555556,
+          "passed": 58,
+          "scored": 72,
+          "unscored": 0
+        },
+        "renamed": {
+          "attempted": 72,
+          "pass_rate": 0.7916666666666666,
+          "passed": 57,
+          "scored": 72,
+          "unscored": 0
+        }
+      },
+      "unscored_reasons": {},
+      "visibility": {
+        "private": {
+          "attempted": 36,
+          "pass_rate": 0.9444444444444444,
+          "passed": 34,
+          "scored": 36,
+          "unscored": 0
+        },
+        "public": {
+          "attempted": 108,
+          "pass_rate": 0.75,
+          "passed": 81,
+          "scored": 108,
+          "unscored": 0
+        }
+      }
+    },
+    {
+      "categories": {
+        "branching": {
+          "attempted": 24,
+          "pass_rate": 0.9166666666666666,
+          "passed": 22,
+          "scored": 24,
+          "unscored": 0
+        },
+        "cascading-recovery": {
+          "attempted": 24,
+          "pass_rate": 0.9166666666666666,
+          "passed": 22,
+          "scored": 24,
+          "unscored": 0
+        },
+        "computed-args": {
+          "attempted": 24,
+          "pass_rate": 0.875,
+          "passed": 21,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-chain": {
+          "attempted": 24,
+          "pass_rate": 0.9583333333333334,
+          "passed": 23,
+          "scored": 24,
+          "unscored": 0
+        },
+        "long-output": {
+          "attempted": 24,
+          "pass_rate": 0.6666666666666666,
+          "passed": 16,
+          "scored": 24,
+          "unscored": 0
+        },
+        "multi-constraint": {
+          "attempted": 24,
+          "pass_rate": 0.9166666666666666,
+          "passed": 22,
+          "scored": 24,
+          "unscored": 0
+        }
+      },
+      "classification": {
+        "class_key": "medium",
+        "class_label": "Open \u00b7 27B",
+        "classification_basis": "total_parameters",
+        "classification_source": "https://huggingface.co/baselabs/mammoth-1/blob/61cec44c281c693992e3d6ebeb44dd3402dfa186/README.md",
+        "maker": "Base Labs",
+        "params_active": 27.0,
+        "params_total": 27.0,
+        "precision": "BF16",
+        "quantization": null
+      },
+      "cost_usd": null,
+      "failure_tags": {
+        "bad_format": 7,
+        "wrong_args": 11
+      },
+      "gpu": {
+        "card": "bariton GPU 3 (RTX PRO 6000, 96 GB)",
+        "gpu_count": 1,
+        "gpu_seconds": 505.5,
+        "in_flight": 16,
+        "rate_usd_per_gpu_hour": 2.49,
+        "server_max_num_seqs": 16
+      },
+      "latency_seconds": {
+        "mean": 50.55439465313162,
+        "total": 7279.832830050953
+      },
+      "note": "Decision model, served here as a plain chat model: its published weights on vLLM v0.30.0 with its own chat template and the engine's tool parser, not the maker's own decision engine (untested). Sampling from its card or generation_config, else the base model's presets (\u00dcmit #10795).",
+      "overall": {
+        "attempted": 144,
+        "pass_rate": 0.875,
+        "passed": 126,
+        "scored": 144,
+        "unscored": 0
+      },
+      "public_tasks": [
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-cascading-recovery-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-long-output-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "hard-computed-args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-multi-constraint-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-computed-args-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-branching-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-chain-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-cascading-recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "hard-long-output-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "hard-long-output-01-renamed"
+        }
+      ],
+      "rankable": true,
+      "setup": {
+        "chat_template_revision": "61cec44c281c693992e3d6ebeb44dd3402dfa186",
+        "engine_tool_parser": "qwen3_coder",
+        "exact_model_id": "baselabs/mammoth-1",
+        "native_documented_call_format": "openai tool_calls via engine tool parser qwen3_coder",
+        "plan_sha256": "03f1b40479a5afd1079fc61366e3deaef375e2b1374e28fb8664a44a242da0f5",
+        "provider": "local vLLM served by @logic on bariton (#11035 qualification; #11104 full runs, identical argv); plain chat serving of the published weights, not the maker's decision engine",
+        "requested_name": "Mammoth-1 (decision model, plain vLLM)",
+        "revision": "61cec44c281c693992e3d6ebeb44dd3402dfa186",
+        "thinking_mode": "on"
+      },
+      "tiers": {
+        "all": 1,
+        "original": 1,
+        "renamed": 1
+      },
+      "total_tokens": 2234833,
+      "tracks": {
+        "original": {
+          "attempted": 72,
+          "pass_rate": 0.8888888888888888,
+          "passed": 64,
+          "scored": 72,
+          "unscored": 0
+        },
+        "renamed": {
+          "attempted": 72,
+          "pass_rate": 0.8611111111111112,
+          "passed": 62,
+          "scored": 72,
+          "unscored": 0
+        }
+      },
+      "unscored_reasons": {},
+      "visibility": {
+        "private": {
+          "attempted": 36,
+          "pass_rate": 0.9444444444444444,
+          "passed": 34,
+          "scored": 36,
+          "unscored": 0
+        },
+        "public": {
+          "attempted": 108,
+          "pass_rate": 0.8518518518518519,
+          "passed": 92,
           "scored": 108,
           "unscored": 0
         }
