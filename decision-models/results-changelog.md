@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 830f35db (17 November 2026)
+
+- English reading again on one RTX PRO 6000 for the four decision models that had run only on a DGX Spark (Ümit #11585): the same checkpoint and the maker's server on logic's x86 build of the Spark environment, one request at a time, GPU time at the card's rate; each a setup of its own beside the Spark one, told apart by its route tag ("RTX PRO 6000", "DGX Spark"). English, RTX against Spark: KnowLine 31B Gen1.5 511 of 547 (93.4%; run 1398; weights from Hub commit 56ca884, byte-identical to the Spark run's 8e56aa1, which the Hub no longer has) against 512; Sieve 31B v3 498 (91.0%; run 1392) against 496; Turion Jev 31B 498 (91.0%; run 1400; FP8 as on the Spark) against 496; GLiDE 27B 494 (90.3%; run 1391) against 497. Their English "I don't know" runs: 1402, 1396, 1404, 1394.
+- All benches: Answer Check's Drex 2.0 row (our GPU, the same weights as Nace's hosted Drex 2.0) joins the Drex 2.0 of Reading and Logic & Math, so Drex 2.0 has a Decision Index (Ümit #11660); each bench's row and source keep their own run and route.
+- The browser-tab icon is the benchmarks' own (Hilde's copper leaf on a dark tile with three bars), no longer Hilde Reader's (Ümit #11630, #11673).
+
 ## Results 05da44b8 (17 November 2026)
 
 - English reading for Nemotron-Labs-Sigma-8B-instruct (`nvidia/Nemotron-Labs-Sigma-8B-instruct` at `e5aab18`, 8,492,044,322 parameters counted; the card says 8B), set up as the 3B (logic's wrapper around the maker's Transformers code, thinking off, the card's 8,192-token limit for prompt and reply), two copies on one RTX PRO 6000, two requests at a time, shared with logic's Logic & Math and compactor's Answer Check runs. Its 20-question smoke (run 1384) failed the plain-answer gate (6 of 20 replies without the answer line, most ending in a boxed letter); its English run went ahead on Zeki's decision (#11314), those replies counted wrong. English 310 of 547 (56.7%; run 1385; 113 without a readable answer line). Its English "I don't know" run was stopped at 96 of 547 when Ümit ended the Sigma runs (#11586, #11587), so it is not shown. Runner: GPU-time entries for the RTX PRO 6000 reruns of four DGX Spark decision models' English reading (Ümit #11585), runs to come.

@@ -1495,8 +1495,24 @@ SETUP_OF: dict[str, str] = {
     "gemma-4-e4b-it-think-32k": "gemma-4-e4b-it",
     "gemma-4-12b-it-think-32k": "gemma-4-12b-it",
 }
+# DGX Spark decision models whose English reading ran again on one RTX PRO 6000 (Ümit #11585), a setup of their own
+# beside the Spark one: the same checkpoint and the maker's server on logic's x86 build of the Spark environment, asked
+# as on the Spark ("-rtx" is our label). They take the Spark setup's records but their hardware; the name stays the
+# model's, and the route tag (page_config.json display_names.routes: "RTX PRO 6000", "DGX Spark") tells the two apart.
+RTX_OF: dict[str, str] = {
+    "glide-27b-rtx": "glide-27b",
+    "sthanika-ai/Sieve-31B-v3-rtx": "sthanika-ai/Sieve-31B-v3",
+    "PelaAI/KnowLine-31B-Gen1.5-rtx": "PelaAI/KnowLine-31B-Gen1.5",
+    "turion-ai/turion-jev-31b-rtx": "turion-ai/turion-jev-31b",
+}
+SETUP_OF.update(RTX_OF)
 MODELS.update({setup: dict(MODELS[base]) for setup, base in SETUP_OF.items()})
 SIZES.update({setup: SIZES[base] for setup, base in SETUP_OF.items()})
+for _setup, _base in RTX_OF.items():
+    MODELS[_setup].update({
+        "note": MODELS[_base].get("note", "").replace("(one DGX Spark)", "(one RTX PRO 6000)")
+        + " This row: its English reading again on one RTX PRO 6000 (Ümit #11585); the other row is its DGX Spark run.",
+        "hardware": MODELS[_base]["hardware"].replace(f"1 × {SPARK}", f"1 × {GPU}")})
 # The variant a Perplexity mode adds to a setup's name in tables and charts.
 MODE_VARIANTS = {"web_grounding": "with web"}
 

@@ -1179,6 +1179,7 @@ class Site:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/analysis/hilde-bench-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/analysis/hilde-bench-icon-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/analysis/hilde-bench-icon-180.png">
   <title>{esc(title)} · Hilde</title>
   <link rel="canonical" href="{esc(self.config['site_url'] + path)}">
   <meta name="description" content="{esc(description)}">{preview}

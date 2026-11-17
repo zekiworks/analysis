@@ -375,6 +375,7 @@ def page(title: str, body: str, header_html: str = "", *, lang: str = "en", css:
     scripts = "".join(f'\n  <script src="{esc(src)}" defer></script>' for src in js)
     return (f'<!doctype html>\n<html lang="{esc(lang)}"{attrs({"data-theme": theme})}>\n<head>\n  <meta charset="utf-8">\n'
             '  <meta name="viewport" content="width=device-width, initial-scale=1">\n'
+            '  <link rel="icon" type="image/svg+xml" href="/analysis/hilde-bench-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/analysis/hilde-bench-icon-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/analysis/hilde-bench-icon-180.png">\n'
             f'  <title>{esc(title)}</title>\n'
             '  <script>document.documentElement.classList.add("zw-js");</script>'
             f'{links}{scripts}{head_extra}\n</head>\n<body>\n{header_html}\n<main id="main">\n{body}\n</main>\n</body>\n</html>\n')

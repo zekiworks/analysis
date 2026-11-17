@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "05da44b8",
-  "updated": "2026-11-17T15:24:21Z",
+  "results_version": "830f35db",
+  "updated": "2026-11-17T16:35:37Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -420776,6 +420776,334 @@
     ],
     "english_only": [
       {
+        "name": "KnowLine 31B Gen1.5",
+        "model": "PelaAI/KnowLine-31B-Gen1.5-rtx",
+        "provider": "knowline",
+        "reasoning": null,
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1398,
+        "runs": [
+          1398
+        ],
+        "dates": [
+          "2026-11-17"
+        ],
+        "parameters": 31273086512,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model (tied embeddings) + 0.58B vision encoder",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, PelaAI/KnowLine-31B-Gen1.5@8e56aa1",
+          "https://huggingface.co/PelaAI/KnowLine-31B-Gen1.5"
+        ],
+        "parameters_read": "2026-11-10",
+        "setup_of": "PelaAI/KnowLine-31B-Gen1.5",
+        "group": "decision",
+        "access": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "english_where": "RTX PRO 6000",
+        "note": "PelaAI's released KnowLine-31B-Gen1.5 (PelaAI/KnowLine-31B-Gen1.5 at 8e56aa1), a merged LoRA fine-tune of Gemma-4-31B-it whose weights are those of Gen1; Gen1.5 changes only how long requests are served. It ran on our hardware (one RTX PRO 6000), one request at a time, through the card's serve_knowline.sh (SGLang 0.5.21 in BF16 and the repository's knowline_server.py, which reads a request of up to 3,000 tokens twice), with vision on. Its card lists English and Chinese. This row: its English reading again on one RTX PRO 6000 (Ümit #11585); the other row is its DGX Spark run.",
+        "cost": {
+          "english": {
+            "usd": 0.10920731222909538,
+            "per_1000": 0.19964773716470818,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 425283,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 547
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 157.89008996977645
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 0.2732352129969513,
+            "p90_request_seconds": 0.3516742597974371,
+            "concurrency": 1,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 511,
+          "wrong": 36,
+          "invalid": 0,
+          "accuracy": 0.9341864716636198
+        },
+        "decision_score": {
+          "score": 94.26424567691467,
+          "accuracy": 0.9341864716636198,
+          "brier": 0.04890155812532629,
+          "n": 547,
+          "run": 1398
+        }
+      },
+      {
+        "name": "Sieve 31B v3",
+        "model": "sthanika-ai/Sieve-31B-v3-rtx",
+        "provider": "sieve",
+        "reasoning": null,
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1392,
+        "runs": [
+          1392
+        ],
+        "dates": [
+          "2026-11-17"
+        ],
+        "parameters": 31273086512,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model (tied embeddings) + 0.58B vision encoder (not read by its server)",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, sthanika-ai/Sieve-31B-v3@8fcee85",
+          "https://huggingface.co/sthanika-ai/Sieve-31B-v3"
+        ],
+        "parameters_read": "2026-11-10",
+        "setup_of": "sthanika-ai/Sieve-31B-v3",
+        "group": "decision",
+        "access": "Sieve server (sieve-serve, the maker's release code), self-hosted, BF16",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "english_where": "RTX PRO 6000",
+        "note": "sthanika-ai's released Sieve-31B-v3 (sthanika-ai/Sieve-31B-v3 at 8fcee85), a full fine-tune of Gemma-4-31B-it with bidirectional attention in its global layers, read in two option orders. It ran on our hardware (one RTX PRO 6000), one request at a time, through the server its card names (sieve-serve from the Sieve repository's main at 1e64657, on torch 2.14 where the card tested torch 2.8), text only. Probabilities rounded to 4 decimals by its own code; they sum to 1 only within that rounding. Its server reports no token counts. Its card lists English only. This row: its English reading again on one RTX PRO 6000 (Ümit #11585); the other row is its DGX Spark run.",
+        "cost": {
+          "english": {
+            "usd": 0.12389784523668787,
+            "per_1000": 0.22650428745281145,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 0,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 0
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 179.12941480003064
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 0.31406842700380366,
+            "p90_request_seconds": 0.4092237612057943,
+            "concurrency": 1,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 498,
+          "wrong": 49,
+          "invalid": 0,
+          "accuracy": 0.9104204753199269
+        },
+        "decision_score": {
+          "score": 92.6663501535649,
+          "accuracy": 0.9104204753199269,
+          "brier": 0.05709347224862889,
+          "n": 547,
+          "run": 1392
+        }
+      },
+      {
+        "name": "Turion Jev 31B",
+        "model": "turion-ai/turion-jev-31b-rtx",
+        "provider": "turion-jev",
+        "reasoning": null,
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1400,
+        "runs": [
+          1400
+        ],
+        "dates": [
+          "2026-11-17"
+        ],
+        "parameters": 31273086512,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model (tied embeddings) + 0.58B vision encoder (not read by its server)",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, turion-ai/turion-jev-31b@866c0fc",
+          "https://huggingface.co/turion-ai/turion-jev-31b"
+        ],
+        "parameters_read": "2026-11-10",
+        "setup_of": "turion-ai/turion-jev-31b",
+        "group": "decision",
+        "access": "Turion Jev server (turion_jev.serve on vLLM, the maker's release code), self-hosted, FP8 at load",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); FP8 at load",
+        "english_where": "RTX PRO 6000",
+        "note": "Turion AI's released Turion Jev 31B (turion-ai/turion-jev-31b at 866c0fc), a merged LoRA fine-tune of Gemma-4-31B-it. It ran on our hardware (one RTX PRO 6000), one request at a time, through the server its package ships (python -m turion_jev.serve on vLLM), with the BF16 weights quantised to FP8 at load and --no-recheck (no second reading of unsure questions), both as in the card's own benchmark run, text only. Probabilities rounded to 6 decimals by its own code; they sum to 1 only within that rounding. This row: its English reading again on one RTX PRO 6000 (Ümit #11585); the other row is its DGX Spark run.",
+        "cost": {
+          "english": {
+            "usd": 0.06108792093418294,
+            "per_1000": 0.11167810042812239,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 441146,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 0
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 88.31988568797533
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 0.15288022099412046,
+            "p90_request_seconds": 0.20269909579947126,
+            "concurrency": 1,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 498,
+          "wrong": 49,
+          "invalid": 0,
+          "accuracy": 0.9104204753199269
+        },
+        "decision_score": {
+          "score": 91.80838842693949,
+          "accuracy": 0.9104204753199269,
+          "brier": 0.07425270678113711,
+          "n": 547,
+          "run": 1400
+        }
+      },
+      {
+        "name": "GLiDE 27B (open)",
+        "model": "glide-27b-rtx",
+        "provider": "glide",
+        "reasoning": null,
+        "variant": "local",
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1391,
+        "runs": [
+          1391
+        ],
+        "dates": [
+          "2026-11-17"
+        ],
+        "parameters": 26086635760,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model (no LM head) + 0.46B vision encoder + 255-way readout",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, fastino/GLiDE-27B@4d32743",
+          "https://huggingface.co/fastino/GLiDE-27B"
+        ],
+        "parameters_read": "2026-11-10",
+        "setup_of": "glide-27b",
+        "group": "decision",
+        "access": "GLiDE server (Fastino's release code), self-hosted",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "english_where": "RTX PRO 6000",
+        "note": "Fastino's released GLiDE 27B (fastino/GLiDE-27B at 4d32743, 5 November 2026), a modified Qwen3.8-27B whose layers 24 to 47 run twice (recurrent depth, its decision_config.json), run on our hardware through the server it ships. The same repository's earlier checkpoint, kept at its tag glide-v1.2, is the Fastino GLiDE v1.2 row. This row: its English reading again on one RTX PRO 6000 (Ümit #11585); the other row is its DGX Spark run.",
+        "cost": {
+          "english": {
+            "usd": 0.05858910804312316,
+            "per_1000": 0.10710988673331474,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 198928,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 0
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 84.70714415873226
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 0.14346009500150103,
+            "p90_request_seconds": 0.18416915699781383,
+            "concurrency": 1,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 494,
+          "wrong": 53,
+          "invalid": 0,
+          "accuracy": 0.903107861060329
+        },
+        "decision_score": {
+          "score": 92.09287141414615,
+          "accuracy": 0.903107861060329,
+          "brier": 0.06125043277740621,
+          "n": 547,
+          "run": 1391
+        }
+      },
+      {
         "name": "Gemma 4 12B",
         "model": "gemma-4-12b-it",
         "provider": "vllm-plain",
@@ -428298,6 +428626,31 @@
           }
         },
         {
+          "name": "GLiDE 27B (open)",
+          "model": "glide-27b-rtx",
+          "provider": "glide",
+          "group": "decision",
+          "text_run": null,
+          "reading_run": 1391,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1394,
+            "runs": [
+              1394
+            ],
+            "invalid_replies": null,
+            "right": 489,
+            "wrong": 36,
+            "dont_know": 22,
+            "invalid": 0,
+            "accuracy": 0.8939670932358318,
+            "attempt_rate": 0.9597806215722121,
+            "non_hallucination": 0.3793103448275862,
+            "mean_dont_know_probability": 0.09292955369865799
+          }
+        },
+        {
           "name": "Claude Fable 5.2",
           "model": "claude-fable-5-2",
           "provider": "claude",
@@ -428631,6 +428984,31 @@
           }
         },
         {
+          "name": "Turion Jev 31B",
+          "model": "turion-ai/turion-jev-31b-rtx",
+          "provider": "turion-jev",
+          "group": "decision",
+          "text_run": null,
+          "reading_run": 1400,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1404,
+            "runs": [
+              1404
+            ],
+            "invalid_replies": null,
+            "right": 500,
+            "wrong": 42,
+            "dont_know": 5,
+            "invalid": 0,
+            "accuracy": 0.9140767824497258,
+            "attempt_rate": 0.9908592321755028,
+            "non_hallucination": 0.10638297872340426,
+            "mean_dont_know_probability": 0.02272083546617916
+          }
+        },
+        {
           "name": "Qwen3.5-2B",
           "model": "qwen3.5-2b",
           "provider": "vllm-plain",
@@ -428738,6 +429116,56 @@
             "attempt_rate": 0.9780621572212066,
             "non_hallucination": 0.03355704697986577,
             "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "Sieve 31B v3",
+          "model": "sthanika-ai/Sieve-31B-v3-rtx",
+          "provider": "sieve",
+          "group": "decision",
+          "text_run": null,
+          "reading_run": 1392,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1396,
+            "runs": [
+              1396
+            ],
+            "invalid_replies": null,
+            "right": 502,
+            "wrong": 44,
+            "dont_know": 1,
+            "invalid": 0,
+            "accuracy": 0.9177330895795247,
+            "attempt_rate": 0.9981718464351006,
+            "non_hallucination": 0.022222222222222223,
+            "mean_dont_know_probability": 0.007850457038391224
+          }
+        },
+        {
+          "name": "KnowLine 31B Gen1.5",
+          "model": "PelaAI/KnowLine-31B-Gen1.5-rtx",
+          "provider": "knowline",
+          "group": "decision",
+          "text_run": null,
+          "reading_run": 1398,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1402,
+            "runs": [
+              1402
+            ],
+            "invalid_replies": null,
+            "right": 509,
+            "wrong": 38,
+            "dont_know": 0,
+            "invalid": 0,
+            "accuracy": 0.9305301645338209,
+            "attempt_rate": 1.0,
+            "non_hallucination": 0.0,
+            "mean_dont_know_probability": 0.0023657622466342256
           }
         }
       ]

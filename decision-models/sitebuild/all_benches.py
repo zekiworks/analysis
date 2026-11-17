@@ -1944,6 +1944,7 @@ def frame(data: Data, path: str, title: str, description: str, body: str, image:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/analysis/hilde-bench-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/analysis/hilde-bench-icon-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/analysis/hilde-bench-icon-180.png">
   <title>{esc(named)}</title>
   <link rel="canonical" href="{esc(home + path)}">
   <meta name="description" content="{esc(description)}">{preview}
@@ -2099,6 +2100,7 @@ def redirect(site: Site, old: str, new: str) -> str:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/analysis/hilde-bench-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/analysis/hilde-bench-icon-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/analysis/hilde-bench-icon-180.png">
   <title>Moved: {TITLE} · {BRAND}</title>
   <link rel="canonical" href="{esc(site.config["all_benches"]["url"] + new)}">
   <meta http-equiv="refresh" content="0; url={target}">
