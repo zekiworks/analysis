@@ -4552,6 +4552,9 @@ def reported_decimals(value: float) -> int:
 ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
     ("nace", "drex-v2.0"): 4, ("baselabs", "baselabs/elephant-1"): 6, ("baselabs", "baselabs/mammoth-1"): 6,
     ("meragpt", "decider-1"): 4, ("clef", "clef"): 4, ("clef", "clef-flash"): 4,
+    # Drex 2.0 on our own GPU (Ümit #11301 item 6): the same weights and code/kev/api.py (line 140, round(float(x), 4) at
+    # nace-ai/drex-v2.0 @e6466744) behind the maker's serve.py, asked through the drex-max client (logic #11409).
+    ("drex-max", "drex-v2.0"): 4,
     # Clef-Omni's release code (Cloudflare/clef-omni @ f32dfc06, joint_schema_model.py lines 673-674) rounds each
     # option's probability to 4 places with the same lines as Clef's, so the Clef rule of #1152 applies (Ümit #3514).
     ("clef", "clef-omni"): 4,
