@@ -855,6 +855,10 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("vllm-plain", "spark-x2.6-4b"): 1,
     ("vllm-plain", "granite-4.2-3b"): 1,
     ("vllm-plain", "granite-4.2-30b"): 1,
+    # Nemotron-Labs-Sigma (Ümit via Zeki #11225): the maker's Transformers code behind logic's sigma_server.py, several
+    # copies on one RTX PRO 6000 (3B five, 8B two; logic #11282).
+    ("vllm-plain", "nemotron-labs-sigma-3b"): 1,
+    ("vllm-plain", "nemotron-labs-sigma-8b"): 1,
     # No list price for v1.3 (Perplexity's announcement offers it only free on OpenRouter for a week), so GPU time.
     ("pplx-decider", "pplx-decider-flash-v1.3"): 1,
     ("pplx-decider", "pplx-decider-v1.3"): 1,

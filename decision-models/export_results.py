@@ -879,6 +879,16 @@ MODELS: dict[str, dict[str, Any]] = {
            ("granite-4.2-30b", "Granite-4.2-30B", "vLLM v0.30.0", "ibm-granite/granite-4.2-30b@9e668ce"),
            ("raon-1-nano", "Raon-1 nano", "KRAFTON's vLLM fork (krafton-ai/vllm@13a5dd8; not a vLLM release)",
             "KRAFTON/Raon-1-nano@fcf2d1d"),
+           # NVIDIA's continuous-diffusion models: no vLLM support, so the maker's own Transformers generate() behind
+           # logic's OpenAI-style wrapper, with its two loader workarounds disclosed (logic #11282, #11318).
+           ("nemotron-labs-sigma-3b", "Nemotron-Labs-Sigma-3B",
+            "the maker's Transformers code (generate, DDIM 32 steps per 32-token block) behind logic's sigma_server.py "
+            "(sha256 32ef0aad; it loads the checkpoint's own schedule endpoints and lets '<|im_end|>' stop a reply)",
+            "nvidia/Nemotron-Labs-Sigma-3B-instruct@057a084"),
+           ("nemotron-labs-sigma-8b", "Nemotron-Labs-Sigma-8B",
+            "the maker's Transformers code (generate, DDIM 32 steps per 32-token block) behind logic's sigma_server.py "
+            "(sha256 32ef0aad; it loads the checkpoint's own schedule endpoints and lets '<|im_end|>' stop a reply)",
+            "nvidia/Nemotron-Labs-Sigma-8B-instruct@e5aab18"),
        )},
 }
 # Setups whose model ID another setup shares, by (provider, model, Perplexity mode): their entry replaces the model's in
@@ -1451,6 +1461,16 @@ SIZES: dict[str, dict[str, Any]] = {
                                 "only), counted; the card says 24.0B total, 2.45B active",
                        "sources": ["counted from the checkpoint's safetensors, LiquidAI/LFM2.5-24B-A2B@1769516",
                                    "https://huggingface.co/LiquidAI/LFM2.5-24B-A2B"], "read": "2026-11-12"},
+    # Nemotron-Labs-Sigma (logic #11282): every tensor of the pinned checkpoint, its embedding tables included; the
+    # cards say "3 billion (3B)" and "8 billion (8B)".
+    **{key: {"total": total, "scope": "the whole checkpoint as served (continuous-diffusion language model, text only)",
+             "repo": repo, "commit": commit,
+             "sources": [f"counted from the checkpoint's safetensors, {repo}@{commit}", f"https://huggingface.co/{repo}"],
+             "read": "2026-11-17"}
+       for key, total, repo, commit in (
+           ("nemotron-labs-sigma-3b", 3_834_051_618, "nvidia/Nemotron-Labs-Sigma-3B-instruct", "057a084"),
+           ("nemotron-labs-sigma-8b", 8_492_044_322, "nvidia/Nemotron-Labs-Sigma-8B-instruct", "e5aab18"),
+       )},
     # Raon-1 nano (logic #8180): the whole checkpoint as served, 1,624,805,632 of it the per-layer embedding table; the
     # card says 1.5B effective, 3.1B total including a 1.5B per-layer embedding table, and 55M more in its MTP module.
     "raon-1-nano": {"total": 3_529_911_568,
