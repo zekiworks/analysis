@@ -1152,6 +1152,12 @@ GRADING_MEASURES = (
      "conflicting answer, the share labelled so (recall); under it, false alarms: 'conflicting' given on the "
      "{false_alarms} pairs that state the answer or give none. An invalid reply counts as missed, never as a correct "
      "rejection."),
+    # As on Logic & Math (logic's 'decision score (chosen-answer Brier)'), from the probabilities in the runs (Ümit
+    # #11301 item 5; compactor #11327): null for chat rows, never over a subset.
+    ("decision", "Decision score", "0–100 · chosen-answer Brier under it", True, "The mean over all 2,069 pairs of 50 × (1 + c − "
+     "(p − c)²), p the probability the run gave its chosen label and c 1 when that label is right: accuracy with a "
+     "penalty for confident mistakes, the same formula as Logic & Math's. Under it, the chosen-answer Brier score, the "
+     "mean of (p − c)², lower is better. Only where the run gives option probabilities: none for chat models."),
     ("latency", "Latency", "median, p90 under it", False, "Client wall time per request: the median, the 90th "
      "percentile under it, and how many requests ran at once. Runs at different concurrency are not speeds under the "
      "same load, and neither are runs on different hardware (our RTX PRO 6000, a DGX Spark or the maker's API, named in "
@@ -1251,6 +1257,7 @@ class GradingBench(ui.Bench):
         error = row.get("calibration_error")
         return {"score": row["score_0_100"], "accuracy": row["raw"]["value"],
                 "calibration": None if error is None else 100 * error, "caught": metrics["wrong_answer_recall"],
+                "decision": metrics.get("decision_score"),
                 "latency": metrics["latency_s_median"], "price": metrics["api_cost_per_1000_usd_list_price"],
                 "gpu": metrics["gpu_seconds_per_1000"]}[key or "score"]
 
@@ -1259,7 +1266,7 @@ class GradingBench(ui.Bench):
         Whether a row ran on our GPU is its hardware (grading_hardware), not whether its GPU time is in: a self-hosted
         row may publish none (grading #7319: Gemma 4 12B's run split by a restart, its time partly estimated)."""
         ours = grading_hardware(model["scores"][GRADING]) is not None
-        return {"calibration": "No probabilities", "price": "Our GPU" if ours else "Not verified",
+        return {"calibration": "No probabilities", "decision": "No probabilities", "price": "Our GPU" if ours else "Not verified",
                 "gpu": "Not measured" if ours else "API", "latency": "Not measured"}.get(key or "", "–")
 
     def written(self, model: dict[str, Any], key: str) -> tuple[str, tuple[str, ...]] | None:
@@ -1294,6 +1301,7 @@ class GradingBench(ui.Bench):
             "accuracy": lambda: (f"{100 * value:.1f}%", span(lambda accuracy, digits: f"{100 * accuracy:.{digits}f}%")),
             "calibration": lambda: (number(value), ()),
             "caught": lambda: (f"{100 * value:.1f}%", (f"{100 * metrics['false_alarm_rate']:.1f}%\u00a0false\u00a0alarms",) + mean),
+            "decision": lambda: (f"{value:.2f}", (f"chosen-answer\u00a0Brier\u00a0{metrics['chosen_answer_brier']:.4f}",)),
             "latency": lambda: (seconds(value), ((f"p90\u00a0{seconds(metrics['latency_s_p90'])}",) if metrics["latency_s_p90"] is not None else ())
                                 + (f"{metrics['requests_in_flight']}\u00a0at\u00a0a\u00a0time",) + pooled),
             "price": lambda: (f"${value:.3f}" if value < 1 else f"${value:.2f}", ()),

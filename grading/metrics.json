@@ -1,6 +1,6 @@
 {
  "bench": "grading",
- "updated": "2026-11-17T01:55:00Z",
+ "updated": "2026-11-17T09:22:12Z",
  "feed": {
   "file": "bench-scores.json",
   "sha256": "780f4698ef5127380328cc69454390163c2fb55f8207a4bb5f0e0163976dc645"
@@ -22,6 +22,8 @@
   "invalid": "replies without a usable label; for chat, no last matching ANSWER marker in the visible output under answer rule v2 (keyword in any letter case, option an uppercase A, B or C); counted wrong",
   "measurement_gap": "present only where a run was interrupted and resumed: latency and gpu_seconds_per_1000 are then null, with the reason; scores are unaffected",
   "probabilities": "this run's records hold per-option probabilities for every pair; says nothing about other runs of the model; no confidence is derived for chat models; calibration_error stays in bench-scores.json",
+  "decision_score": "Artificial Analysis's Decision Score: the mean over all pairs of 50 x (1 + c - (p - c)^2), p the probability the model gave its chosen label, c 1 if that label is right else 0 (100: sure and right; 0: sure and wrong); equals 50 x (1 + accuracy - chosen_answer_brier). Null for chat models (no probabilities) and for any run where a pair's p is missing or not in [0, 1], never over a subset",
+  "chosen_answer_brier": "the mean over the same pairs of (p - c)^2 for the chosen label; lower is better",
   "seed_groups": "a row with 'runs' covers three full runs with seeds 0, 1, 2 under its first run's id: recalls and false_alarm_rate are the mean of the three, latency is over all their requests, gpu_seconds_per_1000 the mean rate; 'invalid' is null and each seed's count is in invalid_per_seed"
  },
  "models": [
@@ -43,7 +45,9 @@
    "wrong_answer_recall": 0.8085,
    "false_alarm_rate": 0.0454,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 90.5972,
+   "chosen_answer_brier": 0.0861
   },
   {
    "run": "grading:gemini-v1",
@@ -63,7 +67,9 @@
    "wrong_answer_recall": 0.5106,
    "false_alarm_rate": 0.0178,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 87.6227,
+   "chosen_answer_brier": 0.0943
   },
   {
    "run": "grading:site-liquid-d1-v1",
@@ -83,7 +89,9 @@
    "wrong_answer_recall": 0.6626,
    "false_alarm_rate": 0.0529,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 88.3664,
+   "chosen_answer_brier": 0.094
   },
   {
    "run": "grading:site-liquid-d1.1-v1",
@@ -103,7 +111,9 @@
    "wrong_answer_recall": 0.7052,
    "false_alarm_rate": 0.0414,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 89.6732,
+   "chosen_answer_brier": 0.0901
   },
   {
    "run": "grading:site-liquid-d1.2-v1",
@@ -123,7 +133,9 @@
    "wrong_answer_recall": 0.8176,
    "false_alarm_rate": 0.0649,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 89.2659,
+   "chosen_answer_brier": 0.0914
   },
   {
    "run": "grading:site-liquid-d1.2-ultra-v1",
@@ -143,7 +155,9 @@
    "wrong_answer_recall": 0.8541,
    "false_alarm_rate": 0.0443,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 91.7817,
+   "chosen_answer_brier": 0.074
   },
   {
    "run": "grading:site-fastino-glide-v1",
@@ -163,7 +177,9 @@
    "wrong_answer_recall": 0.6869,
    "false_alarm_rate": 0.0172,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 91.5555,
+   "chosen_answer_brier": 0.0693
   },
   {
    "run": "grading:site-subq-snap-1.1-v1",
@@ -183,7 +199,9 @@
    "wrong_answer_recall": 0.7812,
    "false_alarm_rate": 0.0414,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 91.4318,
+   "chosen_answer_brier": 0.0708
   },
   {
    "run": "grading:site-jev-1.13.0-v1",
@@ -203,7 +221,9 @@
    "wrong_answer_recall": 0.7994,
    "false_alarm_rate": 0.0598,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 90.5641,
+   "chosen_answer_brier": 0.0751
   },
   {
    "run": "grading:site-jev-1.14.0-v1",
@@ -223,7 +243,9 @@
    "wrong_answer_recall": 0.7204,
    "false_alarm_rate": 0.0351,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 90.7233,
+   "chosen_answer_brier": 0.0763
   },
   {
    "run": "grading:site-microsoft-decision-1-v1",
@@ -243,7 +265,9 @@
    "wrong_answer_recall": 0.8237,
    "false_alarm_rate": 0.0649,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 90.7728,
+   "chosen_answer_brier": 0.0772
   },
   {
    "run": "grading:site-meragpt-decider-1-v1",
@@ -263,7 +287,9 @@
    "wrong_answer_recall": 0.3191,
    "false_alarm_rate": 0.1759,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 70.7716,
+   "chosen_answer_brier": 0.2066
   },
   {
    "run": "grading:site-liquid-d1-2b-v1",
@@ -283,7 +309,9 @@
    "wrong_answer_recall": 0.8571,
    "false_alarm_rate": 0.3218,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 74.4959,
+   "chosen_answer_brier": 0.1742
   },
   {
    "run": "grading:site-glide-2b-v1",
@@ -303,7 +331,9 @@
    "wrong_answer_recall": 0.6079,
    "false_alarm_rate": 0.108,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 81.3803,
+   "chosen_answer_brier": 0.1433
   },
   {
    "run": "grading:site-knowline-31b-gen1.5-v1",
@@ -323,7 +353,9 @@
    "wrong_answer_recall": 0.8359,
    "false_alarm_rate": 0.0305,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 93.355,
+   "chosen_answer_brier": 0.0585
   },
   {
    "run": "grading:site-glide-27b-v1",
@@ -343,7 +375,9 @@
    "wrong_answer_recall": 0.7477,
    "false_alarm_rate": 0.0149,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 92.0723,
+   "chosen_answer_brier": 0.0658
   },
   {
    "run": "grading:site-sieve-31b-v3-v1",
@@ -363,7 +397,9 @@
    "wrong_answer_recall": 0.7933,
    "false_alarm_rate": 0.0213,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 92.6819,
+   "chosen_answer_brier": 0.0671
   },
   {
    "run": "grading:site-fastino-glide-v1.2-v1",
@@ -383,7 +419,9 @@
    "wrong_answer_recall": 0.693,
    "false_alarm_rate": 0.0184,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 91.4321,
+   "chosen_answer_brier": 0.0708
   },
   {
    "run": "grading:site-reax-1.3-v1",
@@ -403,7 +441,9 @@
    "wrong_answer_recall": 0.6748,
    "false_alarm_rate": 0.0121,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 92.7661,
+   "chosen_answer_brier": 0.0577
   },
   {
    "run": "grading:site-turion-jev-31b-v1",
@@ -423,7 +463,9 @@
    "wrong_answer_recall": 0.6626,
    "false_alarm_rate": 0.0167,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 92.1025,
+   "chosen_answer_brier": 0.0676
   },
   {
    "run": "grading:site-perplexity-decider-27b-v1.3-v1",
@@ -443,7 +485,9 @@
    "wrong_answer_recall": 0.8267,
    "false_alarm_rate": 0.0351,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 92.2597,
+   "chosen_answer_brier": 0.063
   },
   {
    "run": "grading:site-perplexity-decider-flash-v1.3-v1",
@@ -463,7 +507,9 @@
    "wrong_answer_recall": 0.6748,
    "false_alarm_rate": 0.0557,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 88.0189,
+   "chosen_answer_brier": 0.0985
   },
   {
    "run": "grading:site-perplexity-decider-flash-v1.2-v1",
@@ -483,7 +529,9 @@
    "wrong_answer_recall": 0.4772,
    "false_alarm_rate": 0.0397,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 87.312,
+   "chosen_answer_brier": 0.1015
   },
   {
    "run": "grading:site-glide-9b-v1",
@@ -503,7 +551,9 @@
    "wrong_answer_recall": 0.6991,
    "false_alarm_rate": 0.0379,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 89.7242,
+   "chosen_answer_brier": 0.0871
   },
   {
    "run": "grading:site-elephant-1-v1",
@@ -523,7 +573,9 @@
    "wrong_answer_recall": 0.4103,
    "false_alarm_rate": 0.019,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 87.7403,
+   "chosen_answer_brier": 0.091
   },
   {
    "run": "grading:site-karpo-decision-31b-v1",
@@ -543,7 +595,9 @@
    "wrong_answer_recall": 0.8085,
    "false_alarm_rate": 0.0167,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 94.1096,
+   "chosen_answer_brier": 0.0511
   },
   {
    "run": "grading:site-copernicus-31b-v1",
@@ -563,7 +617,9 @@
    "wrong_answer_recall": 0.8146,
    "false_alarm_rate": 0.0253,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 92.7797,
+   "chosen_answer_brier": 0.0709
   },
   {
    "run": "grading:site-knowline-9b-gen1-v1",
@@ -583,7 +639,9 @@
    "wrong_answer_recall": 0.5076,
    "false_alarm_rate": 0.0379,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 86.7344,
+   "chosen_answer_brier": 0.1063
   },
   {
    "run": "grading:site-adjudex-9b-v5-v1",
@@ -603,7 +661,9 @@
    "wrong_answer_recall": 0.6505,
    "false_alarm_rate": 0.0489,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 88.8601,
+   "chosen_answer_brier": 0.0923
   },
   {
    "run": "grading:site-knowline-4b-gen5.5-v1",
@@ -623,7 +683,9 @@
    "wrong_answer_recall": 0.6201,
    "false_alarm_rate": 0.0339,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 88.9413,
+   "chosen_answer_brier": 0.0921
   },
   {
    "run": "grading:site-knowline-9b-gen2-v1",
@@ -643,7 +705,9 @@
    "wrong_answer_recall": 0.3587,
    "false_alarm_rate": 0.0144,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 86.3453,
+   "chosen_answer_brier": 0.1083
   },
   {
    "run": "grading:site-knowline-12b-gen1-v1",
@@ -663,7 +727,9 @@
    "wrong_answer_recall": 0.6109,
    "false_alarm_rate": 0.0356,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 89.3284,
+   "chosen_answer_brier": 0.0858
   },
   {
    "run": "grading:site-knowline-31b-gen2-v1",
@@ -683,7 +749,9 @@
    "wrong_answer_recall": 0.8632,
    "false_alarm_rate": 0.0362,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 92.5062,
+   "chosen_answer_brier": 0.0677
   },
   {
    "run": "grading:site-jeffan-9b-1211-v1",
@@ -703,7 +771,9 @@
    "wrong_answer_recall": 0.5988,
    "false_alarm_rate": 0.0247,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 90.3308,
+   "chosen_answer_brier": 0.0798
   },
   {
    "run": "grading:site-cerno-9b-v1.2-v1",
@@ -723,7 +793,9 @@
    "wrong_answer_recall": 0.6535,
    "false_alarm_rate": 0.0305,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 89.7801,
+   "chosen_answer_brier": 0.0836
   },
   {
    "run": "grading:site-chinese-decision-pointer-4b-v1",
@@ -743,7 +815,9 @@
    "wrong_answer_recall": 0.69,
    "false_alarm_rate": 0.0603,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 87.3593,
+   "chosen_answer_brier": 0.1069
   },
   {
    "run": "grading:site-logits-sigma-1-duo-v1",
@@ -763,7 +837,9 @@
    "wrong_answer_recall": 0.6383,
    "false_alarm_rate": 0.0086,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 91.6085,
+   "chosen_answer_brier": 0.0687
   },
   {
    "run": "grading:site-startlux-decision-v1.1-4b-v1",
@@ -783,7 +859,9 @@
    "wrong_answer_recall": 0.8936,
    "false_alarm_rate": 0.0828,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 88.7054,
+   "chosen_answer_brier": 0.1036
   },
   {
    "run": "grading:site-startlux-decision-v1.1-9b-v1",
@@ -803,7 +881,9 @@
    "wrong_answer_recall": 0.8875,
    "false_alarm_rate": 0.0954,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 87.7897,
+   "chosen_answer_brier": 0.1031
   },
   {
    "run": "grading:site-verdin-4b-v1.1-v1",
@@ -823,7 +903,9 @@
    "wrong_answer_recall": 0.4681,
    "false_alarm_rate": 0.0374,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 86.5194,
+   "chosen_answer_brier": 0.1053
   },
   {
    "run": "grading:site-valen-decision-1.5-9b-v1",
@@ -843,7 +925,9 @@
    "wrong_answer_recall": 0.3982,
    "false_alarm_rate": 0.0276,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 86.22,
+   "chosen_answer_brier": 0.104
   },
   {
    "run": "grading:site-vera-medium-omni-v1",
@@ -863,7 +947,9 @@
    "wrong_answer_recall": 0.7599,
    "false_alarm_rate": 0.0569,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 89.8225,
+   "chosen_answer_brier": 0.0948
   },
   {
    "run": "grading:site-dexy-decision-9b-v2-v1",
@@ -883,7 +969,9 @@
    "wrong_answer_recall": 0.6474,
    "false_alarm_rate": 0.0391,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 89.3451,
+   "chosen_answer_brier": 0.087
   },
   {
    "run": "grading:site-clef-flash-v1",
@@ -903,7 +991,9 @@
    "wrong_answer_recall": 0.3769,
    "false_alarm_rate": 0.0391,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 83.5389,
+   "chosen_answer_brier": 0.1277
   },
   {
    "run": "grading:site-cygnet-v1",
@@ -923,7 +1013,9 @@
    "wrong_answer_recall": 0.2918,
    "false_alarm_rate": 0.0207,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 84.9436,
+   "chosen_answer_brier": 0.1204
   },
   {
    "run": "grading:site-winnow-12b-v1",
@@ -943,7 +1035,9 @@
    "wrong_answer_recall": 0.5167,
    "false_alarm_rate": 0.0379,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 86.3871,
+   "chosen_answer_brier": 0.1161
   },
   {
    "run": "grading:site-metask-jev-4b-v1",
@@ -963,7 +1057,9 @@
    "wrong_answer_recall": 0.231,
    "false_alarm_rate": 0.0339,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 78.9383,
+   "chosen_answer_brier": 0.166
   },
   {
    "run": "grading:site-strands-decider-2b-v1",
@@ -983,7 +1079,9 @@
    "wrong_answer_recall": 0.0456,
    "false_alarm_rate": 0.008,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 77.9848,
+   "chosen_answer_brier": 0.1759
   },
   {
    "run": "grading:site-glide-0.8b-v1",
@@ -1003,7 +1101,9 @@
    "wrong_answer_recall": 0.3131,
    "false_alarm_rate": 0.0655,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 79.1504,
+   "chosen_answer_brier": 0.1555
   },
   {
    "run": "grading:site-glide-0.4b-v1",
@@ -1023,7 +1123,9 @@
    "wrong_answer_recall": 0.31,
    "false_alarm_rate": 0.1684,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 71.7692,
+   "chosen_answer_brier": 0.1939
   },
   {
    "run": "grading:site-startlux-decision-v1.1-2b-v1",
@@ -1043,7 +1145,9 @@
    "wrong_answer_recall": 0.6748,
    "false_alarm_rate": 0.1397,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 81.3325,
+   "chosen_answer_brier": 0.1467
   },
   {
    "run": "grading:site-startlux-decision-v1.1-0.8b-instant-v1",
@@ -1063,7 +1167,9 @@
    "wrong_answer_recall": 0.7234,
    "false_alarm_rate": 0.2649,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 73.321,
+   "chosen_answer_brier": 0.1928
   },
   {
    "run": "grading:site-onejev1.6-0.8b-v1",
@@ -1083,7 +1189,9 @@
    "wrong_answer_recall": 0.3343,
    "false_alarm_rate": 0.1437,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 74.4015,
+   "chosen_answer_brier": 0.179
   },
   {
    "run": "grading:site-knowline-2b-gen1-v1",
@@ -1103,7 +1211,9 @@
    "wrong_answer_recall": 0.1641,
    "false_alarm_rate": 0.027,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 79.2829,
+   "chosen_answer_brier": 0.1548
   },
   {
    "run": "grading:site-knowline-0.8b-gen1-v1",
@@ -1123,7 +1233,9 @@
    "wrong_answer_recall": 0.1003,
    "false_alarm_rate": 0.0356,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 67.8956,
+   "chosen_answer_brier": 0.2322
   },
   {
    "run": "grading:site-gliclass-v4-edge-v1",
@@ -1143,7 +1255,9 @@
    "wrong_answer_recall": 0.3495,
    "false_alarm_rate": 0.1057,
    "invalid": 0,
-   "probabilities": true
+   "probabilities": true,
+   "decision_score": 71.5126,
+   "chosen_answer_brier": 0.1986
   },
   {
    "run": "grading:chat-qwen3.5-4b-nothink-v1",
@@ -1174,7 +1288,9 @@
     25,
     15
    ],
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-qwen3.5-2b-nothink-v1",
@@ -1205,7 +1321,9 @@
     45,
     43
    ],
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-gemma-4-e4b-think-v1",
@@ -1225,7 +1343,9 @@
    "wrong_answer_recall": 0.6748,
    "false_alarm_rate": 0.0448,
    "invalid": 2,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-raon-1-nano-think-v1",
@@ -1245,7 +1365,9 @@
    "wrong_answer_recall": 0.5714,
    "false_alarm_rate": 0.0644,
    "invalid": 7,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-raon-1-nano-nothink-v1",
@@ -1276,7 +1398,9 @@
     1,
     1
    ],
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-granite-4.2-3b-think-v1",
@@ -1296,7 +1420,9 @@
    "wrong_answer_recall": 0.7903,
    "false_alarm_rate": 0.0902,
    "invalid": 0,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-granite-4.2-3b-nothink-v1",
@@ -1316,7 +1442,9 @@
    "wrong_answer_recall": 0.5866,
    "false_alarm_rate": 0.1943,
    "invalid": 9,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-lfm2.5-8b-a1b-think-v1",
@@ -1336,7 +1464,9 @@
    "wrong_answer_recall": 0.0881,
    "false_alarm_rate": 0.008,
    "invalid": 0,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-gemini-4-hydrogen-v1",
@@ -1356,7 +1486,9 @@
    "wrong_answer_recall": 0.6869,
    "false_alarm_rate": 0.0218,
    "invalid": 0,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-inkling-2-small-v1",
@@ -1376,7 +1508,9 @@
    "wrong_answer_recall": 0.7356,
    "false_alarm_rate": 0.0241,
    "invalid": 0,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-lfm3-1.7b-seed0-replay-v1",
@@ -1407,7 +1541,9 @@
     1,
     1
    ],
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-minicpm5-2b-seed0-r2-v1",
@@ -1438,7 +1574,9 @@
     0,
     1
    ],
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-gemma-4-12b-r2-v1",
@@ -1458,7 +1596,9 @@
    "wrong_answer_recall": 0.5198,
    "false_alarm_rate": 0.0264,
    "invalid": 0,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-lfm3-1.7b-nothink-r2-v1",
@@ -1489,7 +1629,9 @@
     2,
     1
    ],
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-gemma-4-e2b-think-r2-v1",
@@ -1509,7 +1651,9 @@
    "wrong_answer_recall": 0.4954,
    "false_alarm_rate": 0.0511,
    "invalid": 0,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-qwen3.5-2b-r2-v1",
@@ -1529,7 +1673,9 @@
    "wrong_answer_recall": 0.5532,
    "false_alarm_rate": 0.0431,
    "invalid": 78,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-minicpm5-2b-nothink-r2-v1",
@@ -1560,7 +1706,9 @@
     5,
     4
    ],
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-gemma-4-12b-think-r2-v1",
@@ -1580,7 +1728,9 @@
    "wrong_answer_recall": 0.3799,
    "false_alarm_rate": 0.0069,
    "invalid": 296,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-qwen3.5-4b-r2-v1",
@@ -1600,7 +1750,9 @@
    "wrong_answer_recall": 0.7325,
    "false_alarm_rate": 0.0615,
    "invalid": 179,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-gemma-4-e2b-r2-v1",
@@ -1620,7 +1772,9 @@
    "wrong_answer_recall": 0.0608,
    "false_alarm_rate": 0.0132,
    "invalid": 0,
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-gemma-4-e2b-sampled-seed0-v1",
@@ -1651,7 +1805,9 @@
     0,
     1
    ],
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   },
   {
    "run": "grading:chat-gemma-4-e4b-think-sampled-seed0-v1",
@@ -1682,7 +1838,9 @@
     31,
     30
    ],
-   "probabilities": false
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
   }
  ]
 }
