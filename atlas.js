@@ -1,8 +1,9 @@
 'use strict';
 const dates=[]; // data/index.json's snapshots, its default first (init)
-const sections=['Reading & Grammar','All benches','Logic & Math','Backgammon','Answer Check','Toolbench'];
-const pages=['decision-models/','all-benches/','logic/','backgammon/','grading/','tool-calling/'];
-const initialTracks=['Turkish Reading & Grammar','Combined','Logic','League 1','Grading','Candidate setups'];
+// All benches last, after the five benches (Ümit #11580).
+const sections=['Reading & Grammar','Logic & Math','Backgammon','Answer Check','Toolbench','All benches'];
+const pages=['decision-models/','logic/','backgammon/','grading/','tool-calling/','all-benches/'];
+const initialTracks=['Turkish Reading & Grammar','Logic','League 1','Grading','Candidate setups','Combined'];
 const sourceViews=new Map(), guides=new Map();
 const data=new Map(), records=new Map(), commits=new Map();
 const originSite='https://zekiworks.github.io/analysis/';
