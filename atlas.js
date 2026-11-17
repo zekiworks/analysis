@@ -59,7 +59,10 @@ function fromURL(){
 }
 let s=fromURL(), mobileOpen=false;
 function serialize(){
- const p=new URLSearchParams({v:'2',ui:s.ui,snapshot:s.snapshot});
+ // The snapshot only when it is not the newest: an address the page wrote for the newest must not pin it once a newer
+ // one is out (Ümit #11706 reopened a 14:04 address at 17:22 and saw old rows); a chosen older one stays in the link.
+ const p=new URLSearchParams({v:'2',ui:s.ui});
+ if(s.snapshot&&s.snapshot!==dates[0])p.set('snapshot',s.snapshot);
  for(const key of Object.keys(blank()))if(key!=='ids'&&s[key]!==''&&s[key]!==blank()[key])p.set(key,s[key]);
  for(const id of s.ids)p.append('pick',id);
  return p.toString();
@@ -146,7 +149,7 @@ function reader(){
  return '<article class="panel guide"><div class="eyelabel">'+safe(s.section)+' · '+safe(dateLabel(s.snapshot))+'</div><h2>'+safe(resource?.title||s.panel)+'</h2><div class="guideLinks">'+links+'</div>'+(s.ui==='tr'?'<p class="sourceNote">Yayımlanmış kaynaktan alıntılar İngilizcedir.</p>':'')+'<div data-verbatim lang="en">'+body+'</div></article>';
 }
 // Toolbench's first results were labelled a pilot; the bench is no longer called one, in any snapshot (Ümit #11253).
-function trackLabel(t){return t==='Pilot results'?'Results':t}
+function trackLabel(t){return {'Pilot results':'Results','Risk judgement ranking':'Risk judgement'}[t]||t}
 function resultNote(f){
  // An older snapshot than the newest: say so, with the way to the newest (Ümit #11253 looked at an old one).
  const old=dates.length&&s.snapshot!==dates[0]?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('You are looking at an older snapshot:'))+' '+safe(dateLabel(s.snapshot))+'. <button class="textLink" data-newest="1">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Show the newest'))+'</button> ('+safe(dateLabel(dates[0]))+')</div>':'';
@@ -252,7 +255,14 @@ function resultSurface(f){
  const measure=one?metric(one)[0]:'Outcome';
  const popular={'Reading & Grammar':['Turkish Reading & Grammar','Turkish Reading','Turkish Grammar','English Reading'], 'Logic & Math':['Logic','Math','Logic and Math'],Backgammon:['Risk judgement ranking','League 1','League 2','League 3'], 'All benches':['Combined','Turkish Reading','Turkish Grammar','English Reading','Logic','Math','Backgammon','Answer Check']};
  const visibleTracks=(['Learning','Learning pilot','Vision'].includes(s.panel)?f.tracks:popular[s.section]||[]).filter(t=>f.tracks.includes(t));
- const trackTabs=visibleTracks.length>1?'<div class="trackTabs" role="group" aria-label="Experiment tabs">'+visibleTracks.map(t=>'<button data-track="'+safe(t)+'" aria-pressed="'+(t===f.chosen)+'">'+safe(trackLabel(t))+'</button>').join('')+'</div>':'';
+ // Backgammon as its own page has it (Ümit #11706, #11710): Risk judgement and Learning first, the leagues after;
+ // Learning is its own panel, so its tab switches panels and the others come back to Results.
+ const bgTabs=s.section==='Backgammon'&&['Results','Learning'].includes(s.panel)&&(data.get(s.snapshot)||[]).some(r=>r.section==='Backgammon'&&r.track.startsWith('Learning ·'));
+ const trackTabs=bgTabs?'<div class="trackTabs" role="group" aria-label="Experiment tabs">'+popular.Backgammon.filter(t=>(data.get(s.snapshot)||[]).some(r=>r.section==='Backgammon'&&r.track===t)).flatMap((t,i)=>{
+   const tab='<button data-bg-track="'+safe(t)+'" aria-pressed="'+(s.panel==='Results'&&t===f.chosen)+'">'+safe(trackLabel(t))+'</button>';
+   return i===0?[tab,'<button data-panel="Learning" aria-pressed="'+(s.panel==='Learning')+'">'+safe(trackLabel('Learning'))+'</button>']:[tab];
+  }).join('')+'</div>'
+  :visibleTracks.length>1?'<div class="trackTabs" role="group" aria-label="Experiment tabs">'+visibleTracks.map(t=>'<button data-track="'+safe(t)+'" aria-pressed="'+(t===f.chosen)+'">'+safe(trackLabel(t))+'</button>').join('')+'</div>':'';
  const opts=f.tracks.map(v=>'<option value="'+safe(v)+'" '+(v===f.chosen?'selected':'')+'>'+safe(trackLabel(v))+'</option>').join('');
  const dims=key=>uniq(f.rows.map(r=>r[key]).filter(v=>v!==undefined));
  const labels=[s.section,...['lang','mode'].map(k=>dims(k).length===1?dims(k)[0]:null),dims('n').length===1&&dims('unit').length===1&&f.rows.every(r=>has(r.n))?fmtNum(dims('n')[0])+' '+(one?.unit||''):null].filter(Boolean);
@@ -447,6 +457,7 @@ document.addEventListener('click',e=>{
  if(d.theme){chooseTheme(d.theme);return}
  if(d.cohort){s[d.cohort]=d.value;s.page=1;render();persist(true);return}
  if(d.track){s.track=d.track;s.page=1;render();persist(true);return}
+ if(d.bgTrack){s.panel='Results';s.track=d.bgTrack;s.page=1;openView('results');return}
  if(d.act==='share'){persist();copy(location.href);return}
  if(d.act==='reset'){const keep={ui:s.ui,ids:s.ids,section:s.section,view:s.view,panel:s.panel};Object.assign(s,blank(),keep);s.track=initialTracks[sections.indexOf(s.section)];render();persist(true);return}
  if(d.act==='close'){closeModal();return}
