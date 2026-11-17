@@ -681,9 +681,15 @@
         wide.dataset.zwAdopted = '';
         wide.firstElementChild.addEventListener('scroll', () => fit(wide), { passive: true });
         if (watch) [wide, wide.querySelector('table')].forEach(node => watch.observe(node));
-        else fit(wide);
+        // Measured now and once the fonts and the page are in too, not only from the observer: a browser that renders no
+        // frame yet (a background or automated tab) delivers no observer callback, and the table spilled into the page
+        // (Zeki #11624).
+        fit(wide);
       });
-      if (!watch) addEventListener('resize', () => host.querySelectorAll('.zw-wide').forEach(fit));
+      const refit = () => host.querySelectorAll('.zw-wide').forEach(fit);
+      addEventListener('resize', refit);
+      addEventListener('load', refit);
+      document.fonts?.ready.then(refit);
       adopt(host);
       return { adopt };
     })();

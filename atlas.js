@@ -3,7 +3,7 @@ const dates=[]; // data/index.json's snapshots, its default first (init)
 // All benches last, after the five benches (Ümit #11580).
 const sections=['Reading & Grammar','Logic & Math','Backgammon','Answer Check','Toolbench','All benches'];
 const pages=['decision-models/','logic/','backgammon/','grading/','tool-calling/','all-benches/'];
-const initialTracks=['Turkish Reading & Grammar','Logic','League 1','Grading','Candidate setups','Combined'];
+const initialTracks=['Turkish Reading & Grammar','Logic','Risk judgement ranking','Grading','Candidate setups','Combined'];
 const sourceViews=new Map(), guides=new Map();
 const data=new Map(), records=new Map(), commits=new Map();
 const originSite='https://zekiworks.github.io/analysis/';
@@ -250,7 +250,7 @@ function resultSurface(f){
  const rows=f.rows.slice((s.page-1)*pageSize,s.page*pageSize);
  const one=rows.find(r=>metric(r)[1]!==null)||rows[0];
  const measure=one?metric(one)[0]:'Outcome';
- const popular={'Reading & Grammar':['Turkish Reading & Grammar','Turkish Reading','Turkish Grammar','English Reading'], 'Logic & Math':['Logic','Math','Logic and Math'],Backgammon:['League 1','League 2','League 3'], 'All benches':['Combined','Turkish Reading','Turkish Grammar','English Reading','Logic','Math','Backgammon','Answer Check']};
+ const popular={'Reading & Grammar':['Turkish Reading & Grammar','Turkish Reading','Turkish Grammar','English Reading'], 'Logic & Math':['Logic','Math','Logic and Math'],Backgammon:['Risk judgement ranking','League 1','League 2','League 3'], 'All benches':['Combined','Turkish Reading','Turkish Grammar','English Reading','Logic','Math','Backgammon','Answer Check']};
  const visibleTracks=(['Learning','Learning pilot','Vision'].includes(s.panel)?f.tracks:popular[s.section]||[]).filter(t=>f.tracks.includes(t));
  const trackTabs=visibleTracks.length>1?'<div class="trackTabs" role="group" aria-label="Experiment tabs">'+visibleTracks.map(t=>'<button data-track="'+safe(t)+'" aria-pressed="'+(t===f.chosen)+'">'+safe(trackLabel(t))+'</button>').join('')+'</div>':'';
  const opts=f.tracks.map(v=>'<option value="'+safe(v)+'" '+(v===f.chosen?'selected':'')+'>'+safe(trackLabel(v))+'</option>').join('');

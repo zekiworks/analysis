@@ -826,6 +826,13 @@ GPU_RATE = GpuRate(
 # runs took turns, so each run's request time is its own. Erk-14B ran at the same time as Qwen3-14B, on another GPU
 # (each vLLM server reserved 85% of a GPU's memory).
 GPU_TIME: dict[tuple[str, str], int] = {
+    # The DGX Spark decision models' English reading again on one RTX PRO 6000 (Ümit #11585): the same checkpoint and
+    # maker's server on logic's x86 builds, a setup of its own beside the Spark one ("-rtx": our label; the server is
+    # asked as the Spark one was), GPU time at the card's rate.
+    ("glide", "glide-27b-rtx"): 1,
+    ("sieve", "sthanika-ai/Sieve-31B-v3-rtx"): 1,
+    ("knowline", "PelaAI/KnowLine-31B-Gen1.5-rtx"): 1,
+    ("turion-jev", "turion-ai/turion-jev-31b-rtx"): 1,
     ("open-jev", "open-jev-27b-v1.1"): 1,
     ("laya", "laya"): 1,
     ("laya", "laya-multilingual"): 1,
@@ -4571,6 +4578,8 @@ ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
     # which CernoEngine's answers come from (the decider vendored at f02a632, third_party/decider/decider/systemone.py, 4).
     ("onejev", "OmniJev/OneJev1.6-0.8B"): 6, ("turion-jev", "turion-ai/turion-jev-31b"): 6,
     ("sieve", "sthanika-ai/Sieve-31B-v3"): 4, ("cerno", "apertixai/cerno-9b-v1.2"): 4,
+    # The same servers on an RTX PRO 6000 (Ümit #11585): the same rounding.
+    ("sieve", "sthanika-ai/Sieve-31B-v3-rtx"): 4, ("turion-jev", "turion-ai/turion-jev-31b-rtx"): 6,
     # joey-1 (Ümit #4578) through the loader of elephant-1 and mammoth-1, whose answers round to 6 places (qev/answers.py
     # _round at OneJev 81ce62f with the checkpoint's serve.patch, which joey-1 ships unchanged).
     ("baselabs", "baselabs/joey-1"): 6,

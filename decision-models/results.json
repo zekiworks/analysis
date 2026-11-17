@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "673d1cdb",
-  "updated": "2026-11-17T13:06:37Z",
+  "results_version": "05da44b8",
+  "updated": "2026-11-17T15:24:21Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -421571,6 +421571,80 @@
           "wrong": 160,
           "invalid": 10,
           "accuracy": 0.6892138939670932
+        }
+      },
+      {
+        "name": "Nemotron-Labs-Sigma-8B-instruct",
+        "model": "nemotron-labs-sigma-8b",
+        "provider": "vllm-plain",
+        "reasoning": "default",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1385,
+        "runs": [
+          1385
+        ],
+        "dates": [
+          "2026-11-17"
+        ],
+        "parameters": 8492044322,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "the whole checkpoint as served (continuous-diffusion language model, text only)",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, nvidia/Nemotron-Labs-Sigma-8B-instruct@e5aab18",
+          "https://huggingface.co/nvidia/Nemotron-Labs-Sigma-8B-instruct"
+        ],
+        "parameters_read": "2026-11-17",
+        "group": "chat",
+        "access": "our GPU (logic's server, the maker's Transformers code (generate, DDIM 32 steps per 32-token block) behind logic's sigma_server.py (sha256 32ef0aad; it loads the checkpoint's own schedule endpoints and lets '<|im_end|>' stop a reply) BF16, revision nvidia/Nemotron-Labs-Sigma-8B-instruct@e5aab18), one question per request, plain answer line ANSWER: X (no answer schema); sampling temperature 0.0; output cap 8,192",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "english_where": "RTX PRO 6000",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 12.990991808924491,
+            "per_1000": 23.749527987064884,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 152854,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 139823
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 18782.156832179986
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 58.540689595,
+            "p90_request_seconds": 91.46836061560025,
+            "concurrency": 2,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 310,
+          "wrong": 124,
+          "invalid": 113,
+          "accuracy": 0.56672760511883
         }
       },
       {
