@@ -227,7 +227,9 @@ function usage(r){
  const seconds=r.latency??ref?.latency;
  const latBasis=r.latBasis&&has(r.latency)?r.latBasis:ref?.latBasis;
  return {
-  cost:{value:has(amount)?money(amount,rate?.upper??r.costUpper):null,unit:rate?.unit||r.costUnit,basis,summary:priceBasis(basis),scope:(!r.unitCost&&ref?.unitCost)?ref.scope:null},
+  // A subscription run has no per-use charge: its 0 is not a cost, so it reads as such until its owner estimates one
+  // from its tokens at list price (Ümit #11858).
+  cost:{value:has(amount)?(amount===0&&/subscription/i.test(basis)?'Subscription · not estimated':money(amount,rate?.upper??r.costUpper)):null,unit:rate?.unit||r.costUnit,basis,summary:priceBasis(basis),scope:(!r.unitCost&&ref?.unitCost)?ref.scope:null},
   time:{value:has(seconds)?duration(seconds):null,basis:latBasis,total:r.totalRequestTime,scope:!has(r.latency)&&has(ref?.latency)?ref.scope:null}
  };
 }
