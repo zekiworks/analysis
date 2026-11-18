@@ -437,6 +437,9 @@ PRICES: dict[tuple[str, str], Price] = {
     # SubQ Snap 1.1, SubQ's default decision model since it replaced Snap Preview (docs.subq.ai/using-the-api/models, read
     # 1 November 2026): input tokens only, output free.
     ("subq", "subq-snap-1.1"): Price("SubQ's list price", "https://docs.subq.ai/using-the-api/models/", "2026-11-01", 0.04),
+    # SubQ Snap 1.2, which SubQ's API has served since 11 November 2026 (for the old names too; its release notes); its list
+    # price as logic read it on docs.subq.ai/using-the-api/models on 18 November 2026 (logic #11849): input only, output free.
+    ("subq", "subq-snap-1.2"): Price("SubQ's list price", "https://docs.subq.ai/using-the-api/models/", "2026-11-18", 0.04),
     # Nothing is generated, so output is never billed (meragpt.com/docs/models).
     ("meragpt", "decider-1"): Price("meraGPT's Decider 1 price", "https://meragpt.com/docs/models", "2026-10-19", 0.04),
     # Nace.AI's Drex Max (nace.ai/drex, read 30 October 2026): $0.06 per 1M input tokens list, and $0.03 during the launch
