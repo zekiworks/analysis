@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 6f602bee (18 November 2026)
+
+- Tencent's Hy4 flash (Ümit #12072, #12075; through the API, #12195), open weights too big for our GPUs (220B total, 12B active by its card), through OpenRouter on Tencent's own endpoint (fp8), reasoning effort high, output cap 32,768 tokens, 16 questions per request, the answer schema: English 512 of 547 (93.6%; run 1443), English "I don't know" run 1464, Turkish Text 1,391 of 2,198 (63.3%; run 1445), Turkish "Bilmiyorum" run 1465. On Turkish, 43 of 138 requests (run 1445) and 46 (run 1465) spent the whole 32,768-token allowance on reasoning without an answer; by the standing rule those 688 and 736 questions count wrong, so its Turkish scores are understated (on the 1,510 Turkish Text questions it answered, 1,391 were right, 92.1%), as with SubQ Savant 1.4 and Inkling 2 Small. Its 20-question smoke run (1441) is not exported: one of its two requests ended with Tencent's content filter (finish reason content_filter) after 7,634 tokens, so 16 of 20 had no answer; no request of the four runs ended that way. $1.15 for all its runs at OpenRouter's price for Tencent's endpoint ($0.035 input, $0.14 output per 1M tokens).
+- The compact letter display of the rankings gains 15 Cyrillic lowercase letters after the Greek ones: the Turkish ranking needed 77 letters with Hy4 flash.
+
 ## Results 52fbd785 (18 November 2026)
 
 - Microsoft-Decision-1.1, Microsoft's successor to Decision 1 (17 November 2026; Ümit #12080, #12086), through OpenRouter's System One route as Decision 1; every reply names microsoft-decision-1.1-20261117. Turkish Text 1,456 of 2,198 (66.2%; run 1425; its four repeats 1426 and 1433 to 1435 changed no answer), against Decision 1's 1,021 (46.5%); English 468 of 547 (85.6%; run 1428), Decision 1 469. English "I don't know" run 1430, Turkish "Bilmiyorum" run 1432, option-word check run 1437. $0.22 for all its runs at $0.042 per 1M input tokens, output free.
