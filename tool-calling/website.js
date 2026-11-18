@@ -19,7 +19,7 @@
                 choice:tabs.find(a=>a.getAttribute('href')==='#tool-choice'),tasks:tabs.find(a=>a.getAttribute('href')==='#tasks')};
   const method=document.getElementById('method');
   const methodHashes=['#method','#our-toolbench-vs-tool-choice'];
-  const hashView={'#tool-choice':'choice','#tasks':'tasks'};
+  const hashView={'#tool-choice':'choice','#tool-choice-consistency':'choice','#tasks':'tasks'};
   let current='ours';
   const remembered=()=>history.state&&views[history.state.tbView]?history.state.tbView:null;
   const render=()=>{
