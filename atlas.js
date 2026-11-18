@@ -149,13 +149,15 @@ function reader(){
  return '<article class="panel guide"><div class="eyelabel">'+safe(s.section)+' · '+safe(dateLabel(s.snapshot))+'</div><h2>'+safe(resource?.title||s.panel)+'</h2><div class="guideLinks">'+links+'</div>'+(s.ui==='tr'?'<p class="sourceNote">Yayımlanmış kaynaktan alıntılar İngilizcedir.</p>':'')+'<div data-verbatim lang="en">'+body+'</div></article>';
 }
 // Toolbench's first results were labelled a pilot; the bench is no longer called one, in any snapshot (Ümit #11253).
-function trackLabel(t){return {'Pilot results':'Our bench','Results':'Our bench','Tool choice (decision models)':'Tool choice','Risk judgement ranking':'Risk judgement'}[t]||t}
+function trackLabel(t){return {'Pilot results':'Our Toolbench','Results':'Our Toolbench','Tool choice (decision models)':'Tool choice','Risk judgement ranking':'Risk judgement'}[t]||t}
 function resultNote(f){
+ // Toolbench: one small link to what each tab measures, on Toolbench's page; no explanation on the tabs (Ümit #12107).
+ const what=s.section==='Toolbench'&&['Results','Tool choice (decision models)'].includes(f?.chosen)?'<p class="whatLink"><a href="/analysis/tool-calling/#our-toolbench-vs-tool-choice">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('What this measures →'))+'</a></p>':'';
  // An older snapshot than the newest: say so, with the way to the newest (Ümit #11253 looked at an old one).
  const old=dates.length&&s.snapshot!==dates[0]?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('You are looking at an older snapshot:'))+' '+safe(dateLabel(s.snapshot))+'. <button class="textLink" data-newest="1">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Show the newest'))+'</button> ('+safe(dateLabel(dates[0]))+')</div>':'';
  // A track the snapshot did not re-read keeps its rows from an earlier snapshot: say from when (Zeki #9682)
  const from=uniq((f?.rows||[]).map(r=>r.carriedFrom).filter(Boolean));
- return old+(from.length?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Copied unchanged from an earlier snapshot; its source files were not read again for this one:'))+' '+safe(from.map(dateLabel).join(', '))+'</div>':'')+resultNoteText();
+ return what+old+(from.length?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Copied unchanged from an earlier snapshot; its source files were not read again for this one:'))+' '+safe(from.map(dateLabel).join(', '))+'</div>':'')+resultNoteText();
 }
 function resultNoteText(){
  if(s.panel==='Learning')return '<div class="notice neutral">The source gives each setup its own improvement verdict. Before and after refer to empty context and the final lessons evaluation. A paused or running setup has no final verdict.</div>';
