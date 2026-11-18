@@ -4596,8 +4596,10 @@ ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
 # November 2026), and the self-hosted GLiNER2.5 Multi (decide and base) and Metask servers, as their published Turkish runs
 # (135, 122, 126) show (the project lead's decision through Zeki, bus #1330, 5 November 2026). Their smoke acceptance
 # allows the sum to miss 1 by one 32-bit machine epsilon (2^-23) per option when every value is an exact 32-bit float.
+# SubQ Snap 1.2 likewise (Reading's smoke run 1405, 18 November 2026: all 20 replies exact 32-bit floats, the sum within
+# 0.19 of that allowance; logic #11849 asked for the entry only if a smoke showed it).
 FLOAT32_PROBABILITIES: set[tuple[str, str]] = {
-    ("subq", "subq-snap-1.1"), ("subq", "subq-snap-preview"), ("gliner", "gliner2.5-multi-decide"),
+    ("subq", "subq-snap-1.1"), ("subq", "subq-snap-1.2"), ("subq", "subq-snap-preview"), ("gliner", "gliner2.5-multi-decide"),
     ("gliner", "gliner2.5-multi-v1"), ("metask", "metask-jev-4b-policy-mix"),
 }
 
