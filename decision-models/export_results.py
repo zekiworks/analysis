@@ -279,6 +279,15 @@ MODELS: dict[str, dict[str, Any]] = {
         "access": "SubQ's chat completions API, reasoning effort high (SubQ's default; it cannot be turned off), "
                   "temperature 1 (the only value the API takes), output cap 32,768 tokens, reasoning included; the answer schema",
     },
+    # Tencent's Hy4 flash (Ümit #12072, #12075 'Then API' #12195): open weights too big for our GPUs (FP8 287 GB),
+    # so run through OpenRouter on Tencent's own endpoint.
+    "tencent/hy4-flash": {
+        "name": "Hy4 flash",
+        "note": "Tencent's released model (Tencent Hy License, 220B total incl. 64B Engram, 12B active), too big for our "
+                "GPUs, so run through OpenRouter",
+        "access": "OpenRouter chat API, Tencent's endpoint (fp8, the maker's), fallbacks off, reasoning effort high, "
+                  "output cap 32,768 tokens, reasoning included; the answer schema",
+    },
     "qwen/qwen4-max": {
         "name": "Qwen4-Max",
         "note": "Alibaba's closed flagship chat model (OpenRouter id qwen/qwen4-max, listed 16 November 2026)",
@@ -979,6 +988,8 @@ SIZES: dict[str, dict[str, Any]] = {
                                          "sources": ["https://huggingface.co/thinkingmachines/Inkling-2-Small/blob/"
                                                      "2ad1157016e1aac77b6ff1b770e7c05229403134/README.md"],
                                          "read": "2026-11-16"},
+    "tencent/hy4-flash": {"total": 220_251_201_958, "active": [11_730_000_000],
+                          "sources": ["https://huggingface.co/tencent/Hy4-flash/blob/d88c9dfd96ba4f2e6b92adba0b8e8f1c8696f959/README.md"], "read": "2026-11-18"},
     "qwen/qwen4-max": {"total": None, "sources": ["https://openrouter.ai/qwen/qwen4-max"], "read": "2026-11-16"},
     "subq-savant-1.4": {"total": None, "sources": ["https://docs.subq.ai/using-the-api/models/"], "read": "2026-11-18"},
     "qwen/qwen3.8-flash": {"total": None, "sources": ["https://www.alibabacloud.com/help/en/model-studio/model-pricing",

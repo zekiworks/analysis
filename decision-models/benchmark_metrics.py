@@ -330,8 +330,9 @@ def tied_groups(count: int, separated: Callable[[int, int], bool]) -> list[str]:
         columns = [column for column in unique if not any(column < other for other in unique)]
     # One character per letter, so a run's letters can be read back from their string: the Latin letters, then the Greek
     # lowercase letters that look like no Latin one (the Text tab's ranking needed 53 on 13 November 2026), then the Greek
-    # capitals that look like no Latin one (69 on 16 November 2026).
-    alphabet = string.ascii_lowercase + string.ascii_uppercase + "αβγδζηθλμξπσφψ" + "ΓΔΘΛΞΠΣΦΨΩ"
+    # capitals that look like no Latin one (69 on 16 November 2026), then the Cyrillic lowercase letters that look like no
+    # Latin or Greek one (77 on 18 November 2026, with Hy4 flash).
+    alphabet = string.ascii_lowercase + string.ascii_uppercase + "αβγδζηθλμξπσφψ" + "ΓΔΘΛΞΠΣΦΨΩ" + "бгджзилцчшщыэюя"
     ordered = sorted(columns, key=lambda column: sorted(column))
     if len(ordered) > len(alphabet):
         raise ValueError(f"{len(ordered)} letters needed, more than the {len(alphabet)} available")
