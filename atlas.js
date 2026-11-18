@@ -149,7 +149,7 @@ function reader(){
  return '<article class="panel guide"><div class="eyelabel">'+safe(s.section)+' · '+safe(dateLabel(s.snapshot))+'</div><h2>'+safe(resource?.title||s.panel)+'</h2><div class="guideLinks">'+links+'</div>'+(s.ui==='tr'?'<p class="sourceNote">Yayımlanmış kaynaktan alıntılar İngilizcedir.</p>':'')+'<div data-verbatim lang="en">'+body+'</div></article>';
 }
 // Toolbench's first results were labelled a pilot; the bench is no longer called one, in any snapshot (Ümit #11253).
-function trackLabel(t){return {'Pilot results':'Results','Risk judgement ranking':'Risk judgement'}[t]||t}
+function trackLabel(t){return {'Pilot results':'Our bench','Results':'Our bench','Tool choice (decision models)':'Tool choice','Risk judgement ranking':'Risk judgement'}[t]||t}
 function resultNote(f){
  // An older snapshot than the newest: say so, with the way to the newest (Ümit #11253 looked at an old one).
  const old=dates.length&&s.snapshot!==dates[0]?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('You are looking at an older snapshot:'))+' '+safe(dateLabel(s.snapshot))+'. <button class="textLink" data-newest="1">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Show the newest'))+'</button> ('+safe(dateLabel(dates[0]))+')</div>':'';
