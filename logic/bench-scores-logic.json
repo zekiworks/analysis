@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-18T15:02:51Z",
+ "updated": "2026-11-18T16:39:57Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -293,6 +293,38 @@
     "logic:claude-sonnet-5.5-sub_en_dontknow"
    ],
    "notes": "hosted API (the maker's service)",
+   "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "repo": null,
+   "commit": null,
+   "model_key": "hy4-flash",
+   "name": "Hy4 flash",
+   "display_name": "Hy4 flash",
+   "tag": "on · chat",
+   "class_label": "Open · 220B MoE · 12B active",
+   "base_model": null,
+   "setup_label": "Hy4 Flash",
+   "maker": null,
+   "kind": "chat",
+   "params_total": 220.0,
+   "params_active": 12.0,
+   "quantization": null,
+   "score_0_100": 94.33333333333333,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9546666666666667,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:hy4-flash_en",
+    "logic:hy4-flash_en_dontknow"
+   ],
+   "notes": "hosted API via OpenRouter",
    "gpu_hours": null,
    "gpu_cost_usd": null
   },
@@ -836,7 +868,7 @@
     "logic:lfm3-1.7b-vllm-nothink_en",
     "logic:lfm3-1.7b-vllm-nothink_en_dontknow"
    ],
-   "notes": "on our NVIDIA DGX Spark (GB10); other setups of this model under its row, not in this entry: LFM3-1.7B (on · chat), LFM3-1.7B (off · chat · NVIDIA RTX PRO 6000 Blackwell)",
+   "notes": "on our NVIDIA DGX Spark (GB10); other setups of this model under its row, not in this entry: LFM3-1.7B (on · chat), LFM3-1.7B (off · chat · NVIDIA RTX PRO 6000 Blackwell), LFM3-1.7B (on · chat)",
    "gpu_hours": 2.5730555555555554,
    "gpu_cost_usd": 0.5475920897283448
   },
