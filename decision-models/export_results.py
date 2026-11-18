@@ -149,6 +149,8 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "agbench": {"access": "Google Antigravity through Can's agbench bridge, Google AI Ultra subscription", "scoring": False,
                 "billing": "subscription"},
     "openrouter-chat": {"access": "OpenRouter chat API, one provider endpoint, fallbacks off", "scoring": False, "billing": "api"},
+    # SubQ's chat models through SubQ's own chat completions API (Can #11971).
+    "subq-chat": {"access": "SubQ chat completions API", "scoring": False, "billing": "api"},
 }
 # The token totals a price applies to (TOKEN_KINDS in benchmark_ollama.py): every prompt token, the cache reads
 # and writes among them, and the output.
@@ -269,6 +271,13 @@ MODELS: dict[str, dict[str, Any]] = {
                 "through OpenRouter",
         "access": "OpenRouter chat API, Nebius's endpoint (fp4), fallbacks off, reasoning effort high, output cap 32,768 "
                   "tokens, reasoning included; the answer schema",
+    },
+    # Can #11971 ("also test savant"): SubQ's long-context reasoning model, early access, enabled for our key.
+    "subq-savant-1.4": {
+        "name": "SubQ Savant 1.4",
+        "note": "SubQ's long-context reasoning model (4M-token context window), in early access; closed weights",
+        "access": "SubQ's chat completions API, reasoning effort high (SubQ's default; it cannot be turned off), "
+                  "temperature 1 (the only value the API takes), output cap 32,768 tokens, reasoning included; the answer schema",
     },
     "qwen/qwen4-max": {
         "name": "Qwen4-Max",
@@ -751,6 +760,15 @@ MODELS: dict[str, dict[str, Any]] = {
         "epsilon (2^-23) per option when every value is an exact 32-bit float, instead of 7 decimal places; this is our "
         "tolerance, not an error bound SubQ states. The values are stored as SubQ returned them.",
     },
+    # SubQ's subq-snap-1.2 (served since 11 November 2026, the old Snap names route to it), through the same Decisions
+    # API; its option probabilities arrive as 32-bit floats too (smoke run 1405).
+    "subq-snap-1.2": {
+        "name": "SubQ Snap 1.2",
+        "note": "SubQ's subq-snap-1.2 through its Decisions API, which also takes images. Its option probabilities arrive "
+        "as 32-bit floats, so they sum to 1 only within 32-bit rounding; the check before its runs accepted a sum within one "
+        "32-bit epsilon (2^-23) per option when every value is an exact 32-bit float, as for SubQ Snap 1.1. The values are "
+        "stored as SubQ returned them.",
+    },
     "decider-1": {"name": "meraGPT Decider 1", "note": "Hosted decision model; meraGPT serves its current version under this name"},
     "d1:free": {"name": "Liquid d1", "billing": "free"},
     "d1-ultra": {"name": "Liquid d1-ultra"},
@@ -956,6 +974,7 @@ SIZES: dict[str, dict[str, Any]] = {
                                                      "2ad1157016e1aac77b6ff1b770e7c05229403134/README.md"],
                                          "read": "2026-11-16"},
     "qwen/qwen4-max": {"total": None, "sources": ["https://openrouter.ai/qwen/qwen4-max"], "read": "2026-11-16"},
+    "subq-savant-1.4": {"total": None, "sources": ["https://docs.subq.ai/using-the-api/models/"], "read": "2026-11-18"},
     "qwen/qwen3.8-flash": {"total": None, "sources": ["https://www.alibabacloud.com/help/en/model-studio/model-pricing",
                                                        "https://openrouter.ai/qwen/qwen3.8-flash"],
                            "read": "2026-11-11"},
@@ -995,6 +1014,7 @@ SIZES: dict[str, dict[str, Any]] = {
     "d1.2-ultra": {"total": None, "sources": ["https://www.liquid.ai/blog/d1-2"], "read": "2026-11-16"},
     "subq-snap-preview": {"total": None, "sources": ["https://docs.subq.ai/using-the-api/models/"], "read": READ},
     "subq-snap-1.1": {"total": None, "sources": ["https://docs.subq.ai/using-the-api/models/"], "read": READ},
+    "subq-snap-1.2": {"total": None, "sources": ["https://docs.subq.ai/using-the-api/models/"], "read": "2026-11-18"},
     # "it is a small model", with no number; the ID now serves Decider 1.1, whose weights meraGPT does not publish.
     "decider-1": {"total": None, "sources": ["https://meragpt.com/models/decider-1",
                                              "https://meragpt.com/blog/introducing-decider-1"], "read": READ},

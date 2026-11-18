@@ -4,7 +4,7 @@
    "bench": "reading-text",
    "title": "Reading · Turkish",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-17T16:35:37Z",
+   "updated": "2026-11-18T08:53:15Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
@@ -858,6 +858,31 @@
     {
      "repo": null,
      "commit": null,
+     "name": "SubQ Savant 1.4",
+     "tag": "high · chat",
+     "model_key": "subq-savant-1.4",
+     "maker": "Subquadratic",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 66.16242038216559,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7292993630573248,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.0665715948777622,
+     "improvement_points": null,
+     "runs": [
+      "text:1409"
+     ],
+     "notes": "SubQ's chat completions API, reasoning effort high (SubQ's default; it cannot be turned off), temperature 1 (the only value the API takes), output cap 32,768 tokens, reasoning included; the answer schema"
+    },
+    {
+     "repo": null,
+     "commit": null,
      "name": "MiMo-V2.6-Flash",
      "tag": "high · chat",
      "model_key": "mimo-v2.6-flash",
@@ -1255,6 +1280,31 @@
       "text:862"
      ],
      "notes": "OpenRouter chat API, MiniMax's own endpoint, fallbacks off, output cap 65,536 tokens, reasoning included; JSON mode without the answer schema (the endpoint has no structured outputs), so the prompt adds a paragraph stating the answer layout"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "SubQ Snap 1.2",
+     "tag": "",
+     "model_key": "subq-snap-1.2",
+     "maker": "Subquadratic",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 57.85941765241128,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6628753412192903,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.06590805023067967,
+     "improvement_points": null,
+     "runs": [
+      "text:1406"
+     ],
+     "notes": "SubQ Decisions API (public preview)"
     },
     {
      "repo": null,
@@ -2962,7 +3012,7 @@
    "bench": "turkish-reading",
    "title": "Turkish Reading",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-17T16:35:37Z",
+   "updated": "2026-11-18T08:53:15Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 656 Turkish reading questions (units 1 to 6) right (accuracy 100%)"
@@ -3430,6 +3480,31 @@
       "text:1165"
      ],
      "notes": "Copernicus server (the card's copernicus_server.py, Transformers), self-hosted, BF16"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "SubQ Savant 1.4",
+     "tag": "high · chat",
+     "model_key": "subq-savant-1.4",
+     "maker": "Subquadratic",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 91.42530487804879,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9314024390243902,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.06524390243902682,
+     "improvement_points": null,
+     "runs": [
+      "text:1409"
+     ],
+     "notes": "SubQ's chat completions API, reasoning effort high (SubQ's default; it cannot be turned off), temperature 1 (the only value the API takes), output cap 32,768 tokens, reasoning included; the answer schema"
     },
     {
      "repo": "PelaAI/KnowLine-31B-Gen1.5",
@@ -4134,6 +4209,31 @@
      "improvement_points": null,
      "runs": [
       "text:177"
+     ],
+     "notes": "SubQ Decisions API (public preview)"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "SubQ Snap 1.2",
+     "tag": "",
+     "model_key": "subq-snap-1.2",
+     "maker": "Subquadratic",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 84.375,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.875,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.01409533479046533,
+     "improvement_points": null,
+     "runs": [
+      "text:1406"
      ],
      "notes": "SubQ Decisions API (public preview)"
     },
@@ -5920,7 +6020,7 @@
    "bench": "turkish-grammar",
    "title": "Turkish Grammar",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-17T16:35:37Z",
+   "updated": "2026-11-18T08:53:15Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 1,542 Turkish grammar questions (units 7 to 20) right (accuracy 100%)"
@@ -6797,6 +6897,31 @@
      "notes": "vLLM, self-hosted, FP8"
     },
     {
+     "repo": null,
+     "commit": null,
+     "name": "SubQ Savant 1.4",
+     "tag": "high · chat",
+     "model_key": "subq-savant-1.4",
+     "maker": "Subquadratic",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 55.41504539559015,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6433203631647212,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.06795668549906034,
+     "improvement_points": null,
+     "runs": [
+      "text:1409"
+     ],
+     "notes": "SubQ's chat completions API, reasoning effort high (SubQ's default; it cannot be turned off), temperature 1 (the only value the API takes), output cap 32,768 tokens, reasoning included; the answer schema"
+    },
+    {
      "repo": "fastino/GLiDE-27B",
      "commit": "4d32743",
      "name": "GLiDE 27B",
@@ -7146,6 +7271,31 @@
       "text:145"
      ],
      "notes": "Perplexity Decisions API"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "SubQ Snap 1.2",
+     "tag": "",
+     "model_key": "subq-snap-1.2",
+     "maker": "Subquadratic",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 46.57911802853436,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.5726329442282749,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.09040832075008931,
+     "improvement_points": null,
+     "runs": [
+      "text:1406"
+     ],
+     "notes": "SubQ Decisions API (public preview)"
     },
     {
      "repo": "baselabs/mammoth-1",
@@ -8878,7 +9028,7 @@
    "bench": "reading-english",
    "title": "Reading · English",
    "url": "https://zekiworks.github.io/analysis/decision-models/english/",
-   "updated": "2026-11-17T16:35:37Z",
+   "updated": "2026-11-18T08:53:15Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 547 kept reading questions, translated into English, right (accuracy 100%)"
@@ -9258,6 +9408,31 @@
       "english:1398"
      ],
      "notes": "KnowLine server (knowline_server.py over SGLang 0.5.21, PelaAI's release code), self-hosted, BF16; the kept reading questions in English"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "SubQ Savant 1.4",
+     "tag": "high · chat",
+     "model_key": "subq-savant-1.4",
+     "maker": "Subquadratic",
+     "kind": "chat",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 91.54478976234005,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.9323583180987203,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.0747714808043891,
+     "improvement_points": null,
+     "runs": [
+      "english:1408"
+     ],
+     "notes": "SubQ's chat completions API, reasoning effort high (SubQ's default; it cannot be turned off), temperature 1 (the only value the API takes), output cap 32,768 tokens, reasoning included; the answer schema; the kept reading questions in English"
     },
     {
      "repo": "Poindexter-Labs/Copernicus-31B",
@@ -10170,6 +10345,31 @@
       "english:575"
      ],
      "notes": "Liquid AI decisions API; the kept reading questions in English"
+    },
+    {
+     "repo": null,
+     "commit": null,
+     "name": "SubQ Snap 1.2",
+     "tag": "",
+     "model_key": "subq-snap-1.2",
+     "maker": "Subquadratic",
+     "kind": "decision",
+     "params_total": null,
+     "params_active": null,
+     "quantization": null,
+     "score_0_100": 85.14625228519196,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.8811700182815356,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.01822381846647591,
+     "improvement_points": null,
+     "runs": [
+      "english:1412"
+     ],
+     "notes": "SubQ Decisions API (public preview); the kept reading questions in English"
     },
     {
      "repo": null,
@@ -12213,7 +12413,7 @@
    "bench": "reading-vision",
    "title": "Reading · Vision",
    "url": "https://zekiworks.github.io/analysis/decision-models/vision/",
-   "updated": "2026-11-17T16:21:30Z",
+   "updated": "2026-11-18T08:39:14Z",
    "score": {
     "zero": "chance: 1 of each question's options right on every question (accuracy 20% with 5 options)",
     "hundred": "every one of the 763 questions that depend on the printed page right, read from the page image alone (accuracy 100%)"

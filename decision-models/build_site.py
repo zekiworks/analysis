@@ -939,14 +939,15 @@ def copy_checks(data: Data) -> list[str]:
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
     check("SubQ Snap Preview seventeenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 16)
     # Its routing places in front of Opus and Astra (Decider 27B v1.3 joined above it on 14 November 2026, d1.2-ultra
-    # and, at one question per request in front of Opus, d1.2 on 16 November).
-    for size, opus_place, opus_word in ((16, 24, "twenty-fourth"), (1, 25, "twenty-fifth")):
-        for key, place, word in (("opus", opus_place, opus_word), ("astra", 22, "twenty-second")):
-            frontier = data.named(key, size)["run"]
-            ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
-                            key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
-            check(f"SubQ Snap Preview {word} in front of {key} ({size} per request): place {ranked.index(subq) + 1}",
-                  ranked.index(subq) + 1 == place)
+    # and, at one question per request in front of Opus, d1.2 on 16 November; SubQ Snap 1.2 at 16 per request on 18
+    # November).
+    for size, key, place, word in ((16, "opus", 25, "twenty-fifth"), (1, "opus", 25, "twenty-fifth"),
+                                   (16, "astra", 23, "twenty-third"), (1, "astra", 22, "twenty-second")):
+        frontier = data.named(key, size)["run"]
+        ranked = sorted((run for run in decision if (run["run"], frontier) in cascades),
+                        key=lambda run: -cascades[(run["run"], frontier)]["held_out"]["answered"])
+        check(f"SubQ Snap Preview {word} in front of {key} ({size} per request): place {ranked.index(subq) + 1}",
+              ranked.index(subq) + 1 == place)
     for run, text in ((subq, 98.6), (decider, 99.3), (glide, 99.5)):
         check(f"{run['name']}'s most confident fifth was {text}% right",
               round(100 * run["confidence"]["coverage_accuracy"]["0.20"], 1) == text)
