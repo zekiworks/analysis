@@ -1398,7 +1398,13 @@ class GradingBench(ui.Bench):
             if outside:
                 lines.append(f"Outside the three: its first run, {esc(outside['run'])}, {esc(outside['why'])}; not "
                              f'ranked, kept in <a href="{esc(outside["file"])}">the file published before the seeds</a>')
-        if price is not None:
+        if price is not None and "subscription" in (metrics.get("cost_basis") or ""):
+            # A subscription run's figure: the tokens its route reports at the list price, an estimate, never a bill; its
+            # own caveat as metrics.json words it (grading #11901, compactor #11904).
+            lines.append(f"Estimated cost, not billed: {esc(metrics['cost_basis'])}; "
+                         f'<a href="{esc(metrics["price_source"])}">price source</a> ({esc(metrics["price_date"])})'
+                         + (f"; {esc(metrics['price_note'])}" if metrics.get("price_note") else ""))
+        elif price is not None:
             lines.append(f"List price ${metrics['price_usd_per_million_input']} per 1M input tokens, "
                          f'<a href="{esc(metrics["price_source"])}">its source</a> ({esc(metrics["price_date"])})')
         return lines
