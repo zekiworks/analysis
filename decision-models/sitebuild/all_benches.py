@@ -1176,7 +1176,8 @@ GRADING_MEASURES = (
      "same load, and neither are runs on different hardware (our RTX PRO 6000, a DGX Spark or the maker's API, named in "
      "the model's box), even at the same concurrency."),
     ("price", "List price", "$ per 1,000 pairs", False, "Input tokens billed × the maker's list price, per 1,000 pairs "
-     "(the price, its source and date in the model's box); a list price, not an invoice. Not verified: no list price "
+     "(the price, its source and date in the model's box); a list price, not an invoice. A subscription run (no per-use "
+     "charge) shows its tokens at the list price, marked 'estimated: subscription'. Not verified: no list price "
      "of that model at that date could be checked; never a zero."),
     ("gpu", "GPU time", "s per 1,000 pairs", False, "Measured wall time of the whole run on the row's own GPU, named "
      "under the value (our RTX PRO 6000 or a DGX Spark), model load excluded, over all the pairs it answered, per 1,000 "
@@ -1317,7 +1318,9 @@ class GradingBench(ui.Bench):
             "decision": lambda: (f"{value:.2f}", (f"chosen-answer\u00a0Brier\u00a0{metrics['chosen_answer_brier']:.4f}",)),
             "latency": lambda: (seconds(value), ((f"p90\u00a0{seconds(metrics['latency_s_p90'])}",) if metrics["latency_s_p90"] is not None else ())
                                 + (f"{metrics['requests_in_flight']}\u00a0at\u00a0a\u00a0time",) + pooled),
-            "price": lambda: (f"${value:.3f}" if value < 1 else f"${value:.2f}", ()),
+            # A subscription run's figure is its tokens at the list price: an estimate, said under it (Ümit #11866).
+            "price": lambda: (f"${value:.3f}" if value < 1 else f"${value:.2f}",
+                              ("estimated:\u00a0subscription",) if "subscription" in (metrics.get("cost_basis") or "") else ()),
             "gpu": lambda: (f"{value:,.0f} s" if value >= 10 else f"{value:.1f} s", self.on_hardware(model) + mean),
         }[key]()
 
@@ -1429,7 +1432,9 @@ class GradingBench(ui.Bench):
             # columns still hold every measure.
             text = lambda measure: (self.written(model, measure) or ("",))[0]  # noqa: E731
             on = " ".join(f"on {short}" for short in self.on_hardware(model)).replace("\u00a0", " ")
-            cost = (f"List price {text('price')}/1,000" if self.value(model, "price") is not None else
+            estimate = "subscription" in (self.metrics[model["scores"][GRADING]["runs"][0]].get("cost_basis") or "")
+            cost = (f"{'Estimated (subscription) at list price' if estimate else 'List price'} {text('price')}/1,000"
+                    if self.value(model, "price") is not None else
                     f"GPU time {text('gpu')}/1,000 {on}".rstrip() if self.value(model, "gpu") is not None else
                     f"GPU time not measured {on}".rstrip() if on else "List price not verified")
             glance = ((f"Latency {text('latency')}",) if self.value(model, "latency") is not None else ()) + (cost,)
