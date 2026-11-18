@@ -1158,7 +1158,7 @@ DONT_KNOW_PROMPT_VERSION = hashlib.sha256(
 # word in English, DONT_KNOW_WORD_OPTION instead of DONT_KNOW_OPTION, in the option and in the instructions' last
 # sentence; the instructions' start, the options heading and the questions stay as in the Turkish runs.
 # DONT_KNOW_WORD_PROMPT_VERSION identifies these prompts, computed as PROMPT_VERSION is.
-DONT_KNOW_WORDS = ("turkish", "english")
+DONT_KNOW_WORDS = ("turkish", "english", "reworded")
 DONT_KNOW_WORD_OPTION = "I don't know"
 DONT_KNOW_WORD_SENTENCE = f"If you do not know the answer, choose {DONT_KNOW_WORD_OPTION}."
 DONT_KNOW_WORD_INSTRUCTIONS = f"{JEV_INSTRUCTIONS} {DONT_KNOW_WORD_SENTENCE}"
@@ -1173,7 +1173,9 @@ DONT_KNOW_WORD_PROMPT_VERSION = hashlib.sha256(
 def dont_know_option(english: bool, word: str | None) -> str:
     """The "I don't know" option's text of a run in English (--english) or with the option word `word`
     (--dont-know-word; None for Turkish)."""
-    return ENGLISH_DONT_KNOW_OPTION if english else DONT_KNOW_WORD_OPTION if word == "english" else DONT_KNOW_OPTION
+    if english:
+        return ENGLISH_DONT_KNOW_REWORDED_OPTION if word == "reworded" else ENGLISH_DONT_KNOW_OPTION
+    return DONT_KNOW_WORD_OPTION if word == "english" else DONT_KNOW_OPTION
 
 
 # English reading (--english): the kept reading questions in English translation (a JSONL file of question_id and
@@ -1199,6 +1201,20 @@ ENGLISH_DONT_KNOW_PROMPTS = {
 }
 ENGLISH_DONT_KNOW_PROMPT_VERSION = hashlib.sha256(
     json.dumps(ENGLISH_DONT_KNOW_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+).hexdigest()[:12]
+# The consistency track's reworded "I don't know" (Ümit #12211, wording as logic's, #12213): an English "I don't know"
+# run (--english --dont-know --dont-know-word reworded) whose option and instructions' last sentence say
+# ENGLISH_DONT_KNOW_REWORDED_OPTION instead; everything else as the English "I don't know" runs. Kept out of the main
+# tables (dont_know_word is set).
+ENGLISH_DONT_KNOW_REWORDED_OPTION = "I cannot determine the answer"
+ENGLISH_DONT_KNOW_REWORDED_SENTENCE = f"If you do not know the answer, choose {ENGLISH_DONT_KNOW_REWORDED_OPTION}."
+ENGLISH_DONT_KNOW_REWORDED_INSTRUCTIONS = f"{ENGLISH_INSTRUCTIONS} {ENGLISH_DONT_KNOW_REWORDED_SENTENCE}"
+ENGLISH_DONT_KNOW_REWORDED_PROMPTS = {
+    **ENGLISH_PROMPTS, "system_one_instructions": ENGLISH_DONT_KNOW_REWORDED_INSTRUCTIONS,
+    "dont_know_option": ENGLISH_DONT_KNOW_REWORDED_OPTION,
+}
+ENGLISH_DONT_KNOW_REWORDED_PROMPT_VERSION = hashlib.sha256(
+    json.dumps(ENGLISH_DONT_KNOW_REWORDED_PROMPTS, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
 ).hexdigest()[:12]
 
 
@@ -1343,6 +1359,8 @@ def run_prompt_version(provider: str, english: bool, dont_know: bool, dont_know_
         return PLAIN_PROMPT_VERSIONS[plain_variant(english, dont_know)]
     decision = provider in DECISION_PROVIDERS
     if english:
+        if dont_know and dont_know_word == "reworded":
+            return ENGLISH_DONT_KNOW_REWORDED_PROMPT_VERSION
         if dont_know:
             return ENGLISH_DONT_KNOW_PROMPT_VERSION if decision else ENGLISH_DONT_KNOW_CHAT_PROMPT_VERSION
         return ENGLISH_PROMPT_VERSION if decision else ENGLISH_CHAT_PROMPT_VERSION
@@ -1965,7 +1983,8 @@ def parse_args() -> argparse.Namespace:
         type=int,
         metavar="SEED",
         help="show each question's options in a fixed random order for this seed, relettered from A; "
-        "answers are stored under the question bank's letters",
+        f"{REVERSED_LETTERS} keeps their order and reverses the letters (first option E ... last A); answers are stored "
+        "under the question bank's letters. With --english as well (System One providers): the consistency track",
     )
     variant.add_argument(
         "--replace-key-text",
@@ -1986,10 +2005,12 @@ def parse_args() -> argparse.Namespace:
         choices=DONT_KNOW_WORDS,
         default="turkish",
         help=f'with --dont-know: the option word; english offers "{DONT_KNOW_WORD_OPTION}" and ends the instructions '
-        f'with "{DONT_KNOW_WORD_SENTENCE}", everything else as in the Turkish runs (the option-word check); kept out '
+        f'with "{DONT_KNOW_WORD_SENTENCE}", everything else as in the Turkish runs (the option-word check); reworded, '
+        f'with --english only, offers "{ENGLISH_DONT_KNOW_REWORDED_OPTION}" (the consistency track); kept out '
         "of the main tables, the repeats, the pipelines and the batching comparison",
     )
-    # --english combines with --dont-know only (English "I don't know"); parse_args rejects the other variants with it.
+    # --english combines with --dont-know (English "I don't know") and --shuffle-options (the consistency track);
+    # parse_args rejects --replace-key-text with it.
     parser.add_argument(
         "--english",
         type=Path,
@@ -2110,16 +2131,19 @@ def parse_args() -> argparse.Namespace:
     if args.perplexity_mode is not None and args.provider != "perplexity":
         parser.error("--perplexity-mode is only supported by --provider perplexity")
     if args.english is not None:
-        for flag, value in (("--shuffle-options", args.shuffle_options), ("--replace-key-text", args.replace_key_text)):
-            if value is not None:
-                parser.error(f"argument --english: not allowed with argument {flag}")
+        # Shuffled or reversed letters are allowed in English for the consistency track (Ümit #12211); a replaced key text
+        # is not.
+        if args.replace_key_text is not None:
+            parser.error("argument --english: not allowed with argument --replace-key-text")
+        if args.shuffle_options is not None and args.provider not in SYSTEM_ONE:
+            parser.error("--english with --shuffle-options is only supported by the System One providers")
         if args.questions is None:
             parser.error("--english needs --questions, the kept question IDs")
     if args.dont_know_word != "turkish":
         if not args.dont_know:
             parser.error("--dont-know-word needs --dont-know")
-        if args.english is not None:
-            parser.error("argument --dont-know-word: not allowed with argument --english")
+        if (args.english is not None) != (args.dont_know_word == "reworded"):
+            parser.error("--dont-know-word reworded goes with --english, and english with Turkish questions only")
         if args.provider not in SYSTEM_ONE:
             parser.error("--dont-know-word is only supported by the System One providers")
     if args.rerun is not None:
@@ -2360,6 +2384,10 @@ def parse_options(row: sqlite3.Row) -> tuple[Option, ...]:
     return tuple(options)
 
 
+# --shuffle-options -1: no shuffle, the letters reversed (the consistency track's "letters swapped", Ümit #12211, #12213).
+REVERSED_LETTERS = -1
+
+
 def shuffle_options(
     options: tuple[Option, ...], answer: str, seed: int, question_id: int
 ) -> tuple[tuple[Option, ...], str, tuple[str, ...]]:
@@ -2368,6 +2396,11 @@ def shuffle_options(
     Returns the options as shown, the key's letter among them, and each shown option's original letter.
     """
     order = list(options)
+    if seed == REVERSED_LETTERS:
+        # The options in their own order, lettered from the last letter back (first option E ... last A).
+        shown = tuple(Option(chr(ord("A") + len(order) - 1 - index), option.text) for index, option in enumerate(order))
+        original_labels = tuple(option.label for option in order)
+        return shown, shown[original_labels.index(answer)].label, original_labels
     random.Random(f"{seed}:{question_id}").shuffle(order)
     shown = tuple(Option(chr(ord("A") + index), option.text) for index, option in enumerate(order))
     original_labels = tuple(option.label for option in order)
@@ -2570,13 +2603,16 @@ def load_questions(
     )
 
 
-def english_selection(selection: Selection, path: Path, dont_know: bool = False) -> Selection:
+def english_selection(selection: Selection, path: Path, dont_know: bool = False,
+                      dont_know_text: str = ENGLISH_DONT_KNOW_OPTION) -> Selection:
     """The selection with each question in its English translation from `path` (--english), a JSONL file of objects
     {"question_id": int, "english": {"body": str, "options": {letter: str}}}: the English options under the bank's
     letters, in the bank's order, and a prompt composed as compose_prompt composes one, the English body (everything
     before the options) followed by the options under ENGLISH_OPTIONS_HEADING. Every selected question needs a
     translation with the same option letters as the bank and no empty text. With `dont_know` (a selection loaded with
-    it), each question's last option, DONT_KNOW_OPTION, becomes ENGLISH_DONT_KNOW_OPTION under the same letter."""
+    it), each question's last option, DONT_KNOW_OPTION, becomes `dont_know_text` under the same letter. A question shown
+    with its options shuffled or relettered (original_labels) gets each option's English text by its bank letter, in the
+    order and under the letters it is shown with."""
     translations: dict[int, dict[str, Any]] = {}
     for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         if not line.strip():
@@ -2598,18 +2634,19 @@ def english_selection(selection: Selection, path: Path, dont_know: bool = False)
             if own[-1].text != DONT_KNOW_OPTION:
                 raise ValueError(f"question {question.question_id}: the last option is not {DONT_KNOW_OPTION!r}")
             own = own[:-1]
-        labels = [option.label for option in own]
-        if list(english["options"]) != labels:
+        labels = list(question.original_labels) if question.original_labels else [option.label for option in own]
+        if (sorted(english["options"]) if question.original_labels else list(english["options"])) != (
+                sorted(labels) if question.original_labels else labels):
             raise ValueError(
                 f"{path}: question {question.question_id} has the option letters {list(english['options'])}, "
                 f"the bank {labels}"
             )
         body = str(english["body"]).strip()
-        options = tuple(Option(label, str(text).strip()) for label, text in english["options"].items())
+        options = tuple(Option(option.label, str(english["options"][bank]).strip()) for option, bank in zip(own, labels))
         if not body or not all(option.text for option in options):
             raise ValueError(f"{path}: question {question.question_id} has an empty English text")
         if dont_know:
-            options = (*options, Option(question.options[-1].label, ENGLISH_DONT_KNOW_OPTION))
+            options = (*options, Option(question.options[-1].label, dont_know_text))
         choices = "\n".join(f"{option.label}. {option.text}" for option in options)
         questions.append(replace(question, prompt=f"{body}\n\n{ENGLISH_OPTIONS_HEADING}{choices}", options=options))
     return replace(selection, questions=tuple(questions))
@@ -5708,6 +5745,8 @@ def rescue_runs(
 def decision_instructions(args: argparse.Namespace) -> str:
     """The instructions the decision-model requests carry (System One `choice` and Open-Jev's yes/no prompt)."""
     if args.english is not None:
+        if args.dont_know and getattr(args, "dont_know_word", None) == "reworded":
+            return ENGLISH_DONT_KNOW_REWORDED_INSTRUCTIONS
         return ENGLISH_DONT_KNOW_INSTRUCTIONS if args.dont_know else ENGLISH_INSTRUCTIONS
     if args.dont_know_word == "english":
         return DONT_KNOW_WORD_INSTRUCTIONS
@@ -5918,7 +5957,8 @@ def variant_note(result: dict[str, Any]) -> str:
     """How the run differs from its configuration's main run, if it does."""
     notes = []
     if result.get("shuffle_options") is not None:
-        notes.append(f"options shuffled (seed {result['shuffle_options']})")
+        notes.append("letters reversed, order kept" if result["shuffle_options"] == REVERSED_LETTERS
+                     else f"options shuffled (seed {result['shuffle_options']})")
     if result.get("replace_key_text") is not None:
         notes.append(f"correct option's text replaced (seed {result['replace_key_text']})")
     if result.get("question_list"):
@@ -6735,7 +6775,9 @@ def render_report(results: dict[str, dict[str, Any]], comparisons: dict[str, lis
                 f"Tokens: {result['input_tokens']:,} input and {result['output_tokens']:,} output, with no price "
                 "to apply"
             )
-        options = [] if result.get("shuffle_options") is None else [f"Options: shuffled with seed {result['shuffle_options']}  "]
+        options = [] if result.get("shuffle_options") is None else [
+            "Options: letters reversed, order kept  " if result["shuffle_options"] == REVERSED_LETTERS
+            else f"Options: shuffled with seed {result['shuffle_options']}  "]
         if result.get("replace_key_text") is not None:
             options.append(f"Correct option: shows a random wrong option's text, seed {result['replace_key_text']}  ")
         if result.get("dont_know"):
@@ -8160,7 +8202,7 @@ def main() -> int:
         args.english_sha256 = None
         if args.english is not None:
             args.english_sha256 = file_sha256(args.english)
-            selection = english_selection(selection, args.english, args.dont_know)
+            selection = english_selection(selection, args.english, args.dont_know, dont_know_option(True, args.dont_know_word))
         print(
             f"Extraction validation: source={selection.source_total}, "
             f"filtered={selection.filtered_total}, eligible={selection.eligible_total}, "

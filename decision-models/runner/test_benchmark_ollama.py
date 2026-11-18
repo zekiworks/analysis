@@ -1020,12 +1020,17 @@ class EnglishTests(unittest.TestCase):
 
     def test_listed_questions_take_it_and_never_with_another_variant(self) -> None:
         base = ["benchmark_ollama.py", "subq-snap-1.1", "--english", "t.jsonl", "--questions", "kept.txt"]
-        for argv in ([*base, "--provider", "subq", "--replace-key-text", "1"], [*base, "--provider", "subq", "--shuffle-options", "1"],
-                     [*base[:4], "--provider", "subq"], [*base, "--provider", "vllm-yes-no", "--dont-know"]):
+        # Shuffled options in English are the consistency track's (Ümit #12211), for the System One providers only.
+        for argv in ([*base, "--provider", "subq", "--replace-key-text", "1"], [*base, "--provider", "vllm", "--shuffle-options", "1"],
+                     [*base[:4], "--provider", "subq"], [*base, "--provider", "vllm-yes-no", "--dont-know"],
+                     [*base, "--provider", "subq", "--dont-know", "--dont-know-word", "english"]):
             with self.subTest(argv=argv), mock.patch("sys.argv", argv), mock.patch("sys.stderr"), self.assertRaises(SystemExit):
                 parse_args()
         for provider in ("subq", "vllm-yes-no", "vllm", "vllm-stated"):
             with mock.patch("sys.argv", [*base, "--provider", provider]):
+                self.assertEqual(parse_args().english, Path("t.jsonl"))
+        for extra in (["--shuffle-options", "1"], ["--shuffle-options", "-1"], ["--dont-know", "--dont-know-word", "reworded"]):
+            with mock.patch("sys.argv", [*base, "--provider", "subq", *extra]):
                 self.assertEqual(parse_args().english, Path("t.jsonl"))
         with mock.patch("sys.argv", [*base, "--provider", "subq", "--repeat", "2"]):
             args = parse_args()
