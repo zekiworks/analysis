@@ -12061,6 +12061,198 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-ms-decision-1.1_en"><h3>Logic · ms-decision-1.1_en</h3><dl class="facts"><dt>Name</dt><dd>Microsoft-Decision-1.1</dd><dt>Setup</dt><dd>Microsoft-Decision-1.1 · decision model</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1.1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01478 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run ms-decision-1.1_en · first answer 2026-11-18 13:23:59 UTC · last answer 2026-11-18 13:30:02 UTC · span 363.0 s, pauses included (not charged) · charged 363.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not disclosed by maker (closed weights) · source <a href="https://openrouter.ai/microsoft/microsoft-decision-1.1">https://openrouter.ai/microsoft/microsoft-decision-1.1</a> · read 2026-11-18</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>18 Nov 2026 13:23 UTC; last answer 18 Nov 2026 13:30 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1.1 (site run None); runner 1cc2ce5d9; via OpenRouter, as Decision 1; latency includes OpenRouter&#x27;s time; run on Umit&#x27;s #12080/#12086 (&#x27;run this&#x27;, &#x27;run, test&#x27;), payment cleared #12121</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;microsoft/microsoft-decision-1.1&quot;,
+    &quot;--provider&quot;,
+    &quot;openrouter&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;7abf5e36cfbfbb2fe52ea1d50653c8ccb2b7a6c1&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;microsoft/microsoft-decision-1.1&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;OpenRouter&#x27;s Microsoft-Decision-1.1 price&quot;,
+    &quot;date&quot;: &quot;2026-11-18&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.042,
+      &quot;cache_write_input_tokens&quot;: 0.042,
+      &quot;cached_input_tokens&quot;: 0.042,
+      &quot;input_tokens&quot;: 0.042,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://openrouter.ai/microsoft/microsoft-decision-1.1&quot;,
+    &quot;text&quot;: &quot;$0.042 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;openrouter&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 350.47320905848756,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;7c849d85e7dc63feb4a1df8a30a7c1b60c650d4c94a5890bb0bccbcd493b330c&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;1cc2ce5d9e9148092d004abf953cbbbffa12110a&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 351915,
+    &quot;output_tokens&quot;: 1125
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://openrouter.ai/api/v1/systemone
+{
+ &quot;model&quot;: &quot;microsoft/microsoft-decision-1.1&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-logic-gpt-6.2-astra-max-sub_en"><h3>Logic · gpt-6.2-astra-max-sub_en</h3><dl class="facts"><dt>Name</dt><dd>GPT-6.2 Astra <span class="name-tag">chat</span></dd><dt>Setup</dt><dd>GPT-6.2 Astra (max) · chat model</dd><dt>Model</dt><dd><code>gpt-6.2-astra</code> · provider chatgpt-subscription</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$5.29 for the run, estimated (subscription, list price) · estimated: subscription at API list price (subscription, billed $0)</dd><dt>Answer time</dt><dd>run gpt-6.2-astra-max-sub_en · first answer 2026-11-18 13:27:08 UTC · last answer 2026-11-18 14:02:24 UTC · span 2116.0 s, pauses included (not charged) · charged 2116.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not on record yet</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>codex-chatgpt-subscription</code></dd><dt>Started</dt><dd>18 Nov 2026 13:26 UTC; last answer 18 Nov 2026 14:02 UTC</dd><dt>Progress</dt><dd>87 answered of 1,125 asked; 0 request errors; in progress</dd><dt>Notes</dt><dd>GPT-6.2 Astra (max) on the ChatGPT subscription through the Codex CLI (`codex exec`, ChatGPT sign-in from OMP&#x27;s openai-codex login in a private CODEX_HOME, no refresh token, since 13 Nov 19:35 UTC; as turkce&#x27;s ask_openai), model gpt-6.2-astra, model_reasoning_effort max (Reading&#x27;s setting); no output limit sent (Codex has no setting for it) and no temperature; Codex&#x27;s agent instructions replaced by a neutral one-line system prompt, web search and tool features off, read-only sandbox, no user config, rules or saved session, API-key variables removed; one question per request, one request at a time; a usage-limit reply stops the run without retrying it (resumable); cost $0 (ChatGPT subscription); api_equivalent_usd is the tokens at OpenAI&#x27;s API list price {&quot;input&quot;: 8.0, &quot;cached_input&quot;: 0.4, &quot;cache_write&quot;: 10.0, &quot;output&quot;: 40.0} per 1M tokens, not a cost. Codex reports no served model id. English translations.</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;disabled_features&quot;: [
+    &quot;shell_tool&quot;,
+    &quot;unified_exec&quot;,
+    &quot;goals&quot;,
+    &quot;apps&quot;,
+    &quot;plugins&quot;,
+    &quot;remote_plugin&quot;,
+    &quot;tool_suggest&quot;,
+    &quot;skill_search&quot;,
+    &quot;view_image&quot;,
+    &quot;image_generation&quot;,
+    &quot;sleep_tool&quot;,
+    &quot;browser_use&quot;,
+    &quot;browser_use_external&quot;,
+    &quot;computer_use&quot;,
+    &quot;in_app_browser&quot;,
+    &quot;multi_agent&quot;,
+    &quot;unbounded_connection_retries&quot;
+  ],
+  &quot;effort&quot;: &quot;max&quot;,
+  &quot;list_price_per_mtok&quot;: {
+    &quot;cache_write&quot;: 10.0,
+    &quot;cached_input&quot;: 0.4,
+    &quot;input&quot;: 8.0,
+    &quot;output&quot;: 40.0
+  },
+  &quot;max_output_tokens&quot;: null,
+  &quot;route&quot;: &quot;codex exec (ChatGPT sign-in)&quot;,
+  &quot;sandbox&quot;: &quot;read-only&quot;,
+  &quot;system_prompt&quot;: &quot;You are taking a multiple-choice benchmark. Follow the instructions in the user&#x27;s message.&quot;,
+  &quot;web_search&quot;: &quot;disabled&quot;
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">Solve the following multiple-choice question. On the last line of your reply write only &#x27;ANSWER: X&#x27; (X = A, B, C, D or E).
+
+{question}</pre></dd></dl></section><section class="run-record" id="run-logic-ms-decision-1.1_en_dontknow"><h3>Logic · ms-decision-1.1_en_dontknow</h3><dl class="facts"><dt>Name</dt><dd>Microsoft-Decision-1.1</dd><dt>Setup</dt><dd>Microsoft-Decision-1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1.1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01626 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run ms-decision-1.1_en_dontknow · first answer 2026-11-18 13:41:49 UTC · last answer 2026-11-18 13:47:53 UTC · span 364.0 s, pauses included (not charged) · charged 364.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not disclosed by maker (closed weights) · source <a href="https://openrouter.ai/microsoft/microsoft-decision-1.1">https://openrouter.ai/microsoft/microsoft-decision-1.1</a> · read 2026-11-18</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>18 Nov 2026 13:41 UTC; last answer 18 Nov 2026 13:47 UTC</dd><dt>Progress</dt><dd>1,125 answered of 1,125 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1.1 (site run None); runner 1cc2ce5d9; via OpenRouter, as Decision 1; latency includes OpenRouter&#x27;s time; run on Umit&#x27;s #12080/#12086 (&#x27;run this&#x27;, &#x27;run, test&#x27;), payment cleared #12121</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;logic_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;22e405875f10e1c8b4f401786b85b203b9001479c0dbd22ad09300ec75693172&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;microsoft/microsoft-decision-1.1&quot;,
+    &quot;--provider&quot;,
+    &quot;openrouter&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/logic_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/logic_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;9435c6570e1f49c0dafeff7c17dedf1c58df4a1fefbdafb7f9251e81c37d9ebc&quot;,
+  &quot;harness_commit&quot;: &quot;7abf5e36cfbfbb2fe52ea1d50653c8ccb2b7a6c1&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;microsoft/microsoft-decision-1.1&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;OpenRouter&#x27;s Microsoft-Decision-1.1 price&quot;,
+    &quot;date&quot;: &quot;2026-11-18&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.042,
+      &quot;cache_write_input_tokens&quot;: 0.042,
+      &quot;cached_input_tokens&quot;: 0.042,
+      &quot;input_tokens&quot;: 0.042,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://openrouter.ai/microsoft/microsoft-decision-1.1&quot;,
+    &quot;text&quot;: &quot;$0.042 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;openrouter&quot;,
+  &quot;questions&quot;: 1125,
+  &quot;request_seconds&quot;: 354.5622758146201,
+  &quot;requests&quot;: 1125,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;8523350da720376922585f0f7453fdf8ba03ca8771099278265b7539a170d456&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;1cc2ce5d9e9148092d004abf953cbbbffa12110a&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;6a30d4def0bdb04adb92407cff7341c4cef595219cd7daf19cca161acda5f274&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 387054,
+    &quot;output_tokens&quot;: 1125
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://openrouter.ai/api/v1/systemone
+{
+ &quot;model&quot;: &quot;microsoft/microsoft-decision-1.1&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-qwen3.8-27b-bf16_en_low"><h3>Math · qwen3.8-27b-bf16_en_low</h3><dl class="facts"><dt>Name</dt><dd>Qwen3.8-27B <span class="name-tag">low · chat</span></dd><dt>Setup</dt><dd>Qwen3.8-27B (chat, reasoning low, on our GPU) · chat model</dd><dt>Model</dt><dd><code>qwen38-27b-bf16</code> · provider vllm</dd><dt>GPU</dt><dd>NVIDIA RTX PRO 6000 Blackwell (96 GB)</dd><dt>Cost</dt><dd>$1.146 for the run, RTX PRO 6000 Blackwell · estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h · GPU time, at most: 0.46 h × $2.49/h on an NVIDIA RTX PRO 6000 Blackwell (96 GB) = $1.146. GPU time = first to last stored answer, less gaps of more than 10 minutes; pauses left out: 2026-11-06 22:08:53–11:29:53 UTC</dd><dt>GPU time</dt><dd>run qwen3.8-27b-bf16_en_low · first answer 2026-11-06 21:41:16 UTC · last answer 2026-11-12 11:29:53 UTC · span 481717.0 s, pauses included (not charged) · charged 1657.0 s in 2 stretchs (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out) · GPU-time cost $1.1461 for the run (charged seconds × $2.49/GPU-hour × 1 NVIDIA RTX PRO 6000 Blackwell (96 GB), at most)</dd><dt>Requests in flight</dt><dd>≈ 16.2 in flight (sum of request latencies / active time)</dd><dt>Output limit</dt><dd>60,000 tokens · 0 answers cut off at it with no letter (counted wrong) · 1 empty reply asked once more</dd><dt>Model size</dt><dd>Parameters: 27B dense · source <a href="https://huggingface.co/Qwen/Qwen3.8-27B">https://huggingface.co/Qwen/Qwen3.8-27B</a> · read 2026-11-10 · the card states Number of Parameters: 27B (Ümit/jevgammon #4260: the maker&#x27;s figure is shown); checkpoint count 27.78B (counted from the checkpoint (27,781,427,952, the vision encoder included); the card says 27B)</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>http://127.0.0.1:8022/v1/chat/completions</code></dd><dt>Started</dt><dd>6 Nov 2026 21:41 UTC; last answer 12 Nov 2026 11:29 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Qwen3.8-27B BF16 (vLLM v0.30.0, MTP, GPU 1 of our GPU host), thinking on at reasoning_effort low, model generation config sampling (1.0/0.95/20, seed 0), JSON answer schema; English translations (DeepSeek + review); empty-reply retry under the 8 Nov rule done on 12 Nov 2026 (11:18–11:30 UTC, same server and request settings): question kk1-temel-kavramlar-test-15-14, first reply empty at 30,440 tokens (kept in empty_retries), retry also empty (finish stop, 35,217 tokens), scored wrong; score unchanged 2,146/2,163 Original latency of the empty first reply to kk1-temel-kavramlar-test-15-14 (overwritten by the 12 Nov retry write): 576.77 s, recovered from the 11 Nov backup ~/T9/logic-backup/2026-11-11/math-benchmark.db (row created 2026-11-06T22:15:53Z, 30,440 completion tokens) (zeki #5304).</dd><dt>Parameters</dt><dd><pre class="input-text">{
   &quot;chat_template_kwargs&quot;: {
     &quot;enable_thinking&quot;: true,
@@ -23952,13 +24144,171 @@
   }
  }
 }
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-ms-decision-1.1_en"><h3>Math · ms-decision-1.1_en</h3><dl class="facts"><dt>Name</dt><dd>Microsoft-Decision-1.1</dd><dt>Setup</dt><dd>Microsoft-Decision-1.1 · decision model</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1.1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01404 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run ms-decision-1.1_en · first answer 2026-11-18 13:30:10 UTC · last answer 2026-11-18 13:41:39 UTC · span 689.0 s, pauses included (not charged) · charged 689.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not disclosed by maker (closed weights) · source <a href="https://openrouter.ai/microsoft/microsoft-decision-1.1">https://openrouter.ai/microsoft/microsoft-decision-1.1</a> · read 2026-11-18</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>18 Nov 2026 13:30 UTC; last answer 18 Nov 2026 13:41 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1.1 (site run None); runner 1cc2ce5d9; via OpenRouter, as Decision 1; latency includes OpenRouter&#x27;s time; run on Umit&#x27;s #12080/#12086 (&#x27;run this&#x27;, &#x27;run, test&#x27;), payment cleared #12121</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;microsoft/microsoft-decision-1.1&quot;,
+    &quot;--provider&quot;,
+    &quot;openrouter&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: false,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;7abf5e36cfbfbb2fe52ea1d50653c8ccb2b7a6c1&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;microsoft/microsoft-decision-1.1&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;OpenRouter&#x27;s Microsoft-Decision-1.1 price&quot;,
+    &quot;date&quot;: &quot;2026-11-18&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.042,
+      &quot;cache_write_input_tokens&quot;: 0.042,
+      &quot;cached_input_tokens&quot;: 0.042,
+      &quot;input_tokens&quot;: 0.042,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://openrouter.ai/microsoft/microsoft-decision-1.1&quot;,
+    &quot;text&quot;: &quot;$0.042 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;47f5776e71db&quot;,
+  &quot;provider&quot;: &quot;openrouter&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 674.0361277718039,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;479730308f4434116d8f978ff56e2e05b6d0c0f4ad3b35b857d970c06c63094d&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;1cc2ce5d9e9148092d004abf953cbbbffa12110a&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 334373,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://openrouter.ai/api/v1/systemone
+{
+ &quot;model&quot;: &quot;microsoft/microsoft-decision-1.1&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question?&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;
+   }
+  }
+ }
+}
+([...] only when the question has a context)</pre></dd></dl></section><section class="run-record" id="run-math-ms-decision-1.1_en_dontknow"><h3>Math · ms-decision-1.1_en_dontknow</h3><dl class="facts"><dt>Name</dt><dd>Microsoft-Decision-1.1</dd><dt>Setup</dt><dd>Microsoft-Decision-1.1 · decision model · with the I don't know option F</dd><dt>Model</dt><dd><code>microsoft/microsoft-decision-1.1</code> · provider openrouter</dd><dt>GPU</dt><dd>—</dd><dt>Cost</dt><dd>$0.01687 for the run · provider price × reported usage</dd><dt>Answer time</dt><dd>run ms-decision-1.1_en_dontknow · first answer 2026-11-18 13:48:03 UTC · last answer 2026-11-18 13:59:32 UTC · span 689.0 s, pauses included (not charged) · charged 689.0 s in 1 stretch (estimated from the answer times: a gap of more than 10 minutes between answers is taken as the run being stopped and resumed, and left out)</dd><dt>Requests in flight</dt><dd>≈ 1.0 in flight (sum of request latencies / active time)</dd><dt>Model size</dt><dd>Parameters: not disclosed by maker (closed weights) · source <a href="https://openrouter.ai/microsoft/microsoft-decision-1.1">https://openrouter.ai/microsoft/microsoft-decision-1.1</a> · read 2026-11-18</dd><dt>Input</dt><dd>text, English</dd><dt>Endpoint</dt><dd><code>https://openrouter.ai/api</code></dd><dt>Started</dt><dd>18 Nov 2026 13:48 UTC; last answer 18 Nov 2026 13:59 UTC</dd><dt>Progress</dt><dd>2,163 answered of 2,163 asked; 0 request errors; complete</dd><dt>Notes</dt><dd>Decision model, published setup Microsoft-Decision-1.1 (site run None); runner 1cc2ce5d9; via OpenRouter, as Decision 1; latency includes OpenRouter&#x27;s time; run on Umit&#x27;s #12080/#12086 (&#x27;run this&#x27;, &#x27;run, test&#x27;), payment cleared #12121</dd><dt>Parameters</dt><dd><pre class="input-text">{
+  &quot;bank&quot;: &quot;math_en.sqlite&quot;,
+  &quot;bank_sha256&quot;: &quot;5ae5d81916a347f75aecd53f7b9a8f77518164845b344d54bdea605a092a7a33&quot;,
+  &quot;batch_size&quot;: 1,
+  &quot;command&quot;: [
+    &quot;microsoft/microsoft-decision-1.1&quot;,
+    &quot;--provider&quot;,
+    &quot;openrouter&quot;,
+    &quot;--timeout&quot;,
+    &quot;30&quot;,
+    &quot;--dont-know&quot;,
+    &quot;--english&quot;,
+    &quot;banks/math_en.jsonl&quot;,
+    &quot;--questions&quot;,
+    &quot;banks/math_all.txt&quot;
+  ],
+  &quot;concurrency&quot;: 1,
+  &quot;dont_know&quot;: true,
+  &quot;english_sha256&quot;: &quot;c0b080e95f4eb8d61ed1d77447bf461f918eb4870678fe928b993984b20f4d61&quot;,
+  &quot;harness_commit&quot;: &quot;7abf5e36cfbfbb2fe52ea1d50653c8ccb2b7a6c1&quot;,
+  &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+  &quot;kind&quot;: &quot;api&quot;,
+  &quot;model&quot;: &quot;microsoft/microsoft-decision-1.1&quot;,
+  &quot;perplexity_mode&quot;: null,
+  &quot;price&quot;: {
+    &quot;applies_to&quot;: &quot;billed&quot;,
+    &quot;basis&quot;: &quot;OpenRouter&#x27;s Microsoft-Decision-1.1 price&quot;,
+    &quot;date&quot;: &quot;2026-11-18&quot;,
+    &quot;extra_input_per_request&quot;: 0,
+    &quot;per_request&quot;: 0.0,
+    &quot;rates_per_1m&quot;: {
+      &quot;cache_write_1h_input_tokens&quot;: 0.042,
+      &quot;cache_write_input_tokens&quot;: 0.042,
+      &quot;cached_input_tokens&quot;: 0.042,
+      &quot;input_tokens&quot;: 0.042,
+      &quot;output_tokens&quot;: 0.0
+    },
+    &quot;source&quot;: &quot;https://openrouter.ai/microsoft/microsoft-decision-1.1&quot;,
+    &quot;text&quot;: &quot;$0.042 input, output free per 1M tokens&quot;
+  },
+  &quot;prompt_version&quot;: &quot;413d6775fc58&quot;,
+  &quot;provider&quot;: &quot;openrouter&quot;,
+  &quot;questions&quot;: 2163,
+  &quot;request_seconds&quot;: 673.2277932921133,
+  &quot;requests&quot;: 2163,
+  &quot;results_db&quot;: &quot;(local file, not published)&quot;,
+  &quot;run_key&quot;: &quot;1c01c1b395876b241b8266ce6244ab55a6074eb0d894f20eef3f36c8838aebe4&quot;,
+  &quot;runner&quot;: &quot;benchmark_ollama.py&quot;,
+  &quot;runner_commit&quot;: &quot;1cc2ce5d9e9148092d004abf953cbbbffa12110a&quot;,
+  &quot;runner_run_id&quot;: 2,
+  &quot;selection_sha256&quot;: &quot;31614a3d3234dcf437f693c611a53ed05cee2bf1e8ad7596cdacb74a2b9e2c6d&quot;,
+  &quot;site_run&quot;: null,
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;timeout&quot;: 30.0,
+  &quot;tokens&quot;: {
+    &quot;cache_write_1h_input_tokens&quot;: 0,
+    &quot;cache_write_input_tokens&quot;: 0,
+    &quot;cached_input_tokens&quot;: 0,
+    &quot;input_tokens&quot;: 401695,
+    &quot;output_tokens&quot;: 2163
+  }
+}</pre></dd><dt>Prompt template</dt><dd><pre class="input-text">POST https://openrouter.ai/api/v1/systemone
+{
+ &quot;model&quot;: &quot;microsoft/microsoft-decision-1.1&quot;,
+ &quot;state&quot;: &quot;[Shared text / context:\n{context}\n\n]{question}\n\nOptions:\nA. {option_A}\nB. {option_B}\nC. {option_C}\nD. {option_D}\nE. {option_E}\nF. I don&#x27;t know&quot;,
+ &quot;questions&quot;: {
+  &quot;answer&quot;: {
+   &quot;type&quot;: &quot;choice&quot;,
+   &quot;instructions&quot;: &quot;Which option is the correct answer to this English multiple-choice question? If you do not know the answer, choose I don&#x27;t know.&quot;,
+   &quot;criteria&quot;: {
+    &quot;A&quot;: &quot;{option_A}&quot;,
+    &quot;B&quot;: &quot;{option_B}&quot;,
+    &quot;C&quot;: &quot;{option_C}&quot;,
+    &quot;D&quot;: &quot;{option_D}&quot;,
+    &quot;E&quot;: &quot;{option_E}&quot;,
+    &quot;F&quot;: &quot;I don&#x27;t know&quot;
+   }
+  }
+ }
+}
 ([...] only when the question has a context)</pre></dd></dl></section>
     </section>
   </main>
   <footer class="footer">
     <nav class="footer-links" aria-label="About this site"><a href="../about/">About</a><a href="../method/">Method</a><a href="../about/#data">Data</a></nav>
     <p>Aggregate results only: totals, charts, tables and the method; no question text.</p>
-    <p>Built 18 Nov 2026 06:52 UTC from the logic and math benchmark.db files (830,425 graded answers in 531 runs; Logic 1,125 questions, Math 2,163 questions).</p>
+    <p>Built 18 Nov 2026 14:02 UTC from the logic and math benchmark.db files (837,088 graded answers in 536 runs; Logic 1,125 questions, Math 2,163 questions).</p>
   </footer>
 </body>
 </html>
