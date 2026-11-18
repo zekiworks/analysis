@@ -486,6 +486,11 @@ PRICES: dict[tuple[str, str], Price] = {
     ("openrouter", "microsoft/microsoft-decision-1"): Price(
         "OpenRouter's Microsoft-Decision-1 price", "https://openrouter.ai/microsoft/microsoft-decision-1", "2026-10-17", 0.042
     ),
+    # Microsoft-Decision-1.1 (17 November 2026; Ümit #12080, #12086), the same route and OpenRouter price as Decision 1:
+    # $0.042 per 1M input tokens, output free (read 18 November 2026).
+    ("openrouter", "microsoft/microsoft-decision-1.1"): Price(
+        "OpenRouter's Microsoft-Decision-1.1 price", "https://openrouter.ai/microsoft/microsoft-decision-1.1", "2026-11-18", 0.042
+    ),
     ("openrouter", "inception/mercury-decide"): Price(
         "OpenRouter's Mercury Decide price", "https://openrouter.ai/inception/mercury-decide", "2026-10-17", 0.02
     ),
