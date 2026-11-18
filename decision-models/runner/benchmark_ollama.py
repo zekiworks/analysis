@@ -573,6 +573,14 @@ PRICES: dict[tuple[str, str], Price] = {
     ("agbench", "gemini-4-hydrogen"): Price(
         "Google's Gemini API price", GEMINI_PRICING, "2026-11-12", 1.50, 7.50, cached_input=0.075
     ),
+    # MAI Code 2 Flash through Can's Copilot subscription bridge (Ümit #12072, #12075; Can #12435): $0 billed (the
+    # Copilot subscription), so its cost is the same tokens at GitHub Copilot's list price for it, promotional until
+    # 17 May 2027 (read 18 November 2026).
+    ("copilot", "mai-code-2-flash"): Price(
+        "GitHub Copilot's list price", "https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing",
+        "2026-11-18", 0.05, 0.25, cached_input=0.005,
+        change="from 17 May 2027: $0.10 input, $0.50 output and $0.01 cached input per 1M tokens",
+    ),
     # Read 28 October 2026.
     ("xai", "grok-4.7"): Price("xAI's API list price", "https://docs.x.ai/docs/models/grok-4.7", "2026-10-28", 2.00, 6.00, cached_input=0.50),
     ("claude", "claude-fable-5-1"): Price(
@@ -1026,7 +1034,7 @@ VLLM_TOP_LOGPROBS = 10
 PROBABILITY_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no", "vllm")
 STATED_CONFIDENCE_PROVIDERS = (
     "vllm-verbal", "vllm-stated", "claude", "openai", "gemini", "xai", "antigravity", "openrouter-chat", "agbench",
-    "subq-chat",
+    "copilot", "subq-chat",
 )
 READING_UNITS = range(1, 7)  # units 1–6 test reading, units 7–20 grammar
 # Within-unit shuffles behind the p-value of the decision-model doubt analysis.
@@ -1657,6 +1665,11 @@ SPEND_GUARD: SpendGuard | None = None
 AGBENCH_URL = "http://192.168.1.120:8899/v1/chat/completions"
 AGBENCH_THINKING = "high"
 AGBENCH_MAX_TOKENS = 32768
+# Can's GitHub Copilot subscription bridge (copilot; Can #12422, #12435): the same OpenAI-compatible chat endpoint and
+# request as agbench's (ask_agbench), with no tools; Copilot's models take a reasoning effort, sent as
+# reasoning_effort. Its usage reports uncached input as prompt_tokens and cache reads apart as cache_read_tokens.
+COPILOT_URL = "http://192.168.1.129:8898/v1/chat/completions"
+COPILOT_REASONING = "high"
 # OMP's credential store, opened read-only for a login's stored fields (Antigravity's project id); its tokens come
 # from `omp token PROVIDER`, which refreshes them when due.
 OMP_AGENT_DB = Path("~/.omp/agent/agent.db")
@@ -1762,7 +1775,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("model", nargs="?", help="Provider model name (not needed with --refresh-report)")
     parser.add_argument(
         "--provider",
-        choices=("ollama", "openai", "claude", "gemini", "xai", "antigravity", "openrouter-chat", "agbench", "subq-chat",
+        choices=("ollama", "openai", "claude", "gemini", "xai", "antigravity", "openrouter-chat", "agbench", "copilot",
+                 "subq-chat",
                  *SYSTEM_ONE_PROVIDERS, *VLLM_PROVIDERS),
         default="ollama",
         help="Inference provider (default: ollama)",
@@ -1913,6 +1927,13 @@ def parse_args() -> argparse.Namespace:
         default=AGBENCH_URL,
         help=f"the chat completions URL of Can's Antigravity subscription bridge for --provider agbench (default: "
         f"{AGBENCH_URL}); a bearer token is sent only when AGBENCH_KEY is set",
+    )
+    parser.add_argument(
+        "--copilot-reasoning",
+        choices=("low", "medium", "high", "xhigh", "max"),
+        default=COPILOT_REASONING,
+        help=f"with --provider copilot, the reasoning effort sent as reasoning_effort (default: {COPILOT_REASONING}); "
+        f"--agbench-url's default becomes {COPILOT_URL}",
     )
     parser.add_argument(
         "--agbench-answer-layout",
@@ -2089,7 +2110,9 @@ def parse_args() -> argparse.Namespace:
     if args.concurrency < 1:
         parser.error("--concurrency must be at least 1")
     concurrent = ("vllm", "vllm-stated", "vllm-plain", "gemini", "xai", "antigravity", "openrouter-chat", "agbench",
-                  "subq-chat")
+                  "copilot", "subq-chat")
+    if args.provider == "copilot" and args.agbench_url == AGBENCH_URL:
+        args.agbench_url = COPILOT_URL
     if args.concurrency > 1 and args.rescue is None and args.provider not in concurrent and args.provider not in SYSTEM_ONE:
         parser.error(f"--concurrency is only supported by --provider {', '.join(concurrent)} and the System One providers")
     if args.provider == "openrouter-chat" and (args.openrouter_reasoning is None or not args.openrouter_order):
@@ -4455,12 +4478,14 @@ def read_chat_reply(
 def ask_agbench(
     url: str, model: str, batch: list[Question], timeout: float, verbose_log: TextIO | None,
     prompts: ChatPrompts = TURKISH_CHAT, answer_layout: bool = False, retry_empty: bool = True,
+    reasoning_effort: str | None = None, label: str = "agbench",
 ) -> tuple[list[str | None], str]:
     """Answer a batch with a stated 0-1 confidence per question through Can's Antigravity subscription bridge
     (agbench), an OpenAI-compatible chat endpoint: the prompt, system prompt and schema of the other chat providers,
     temperature 1.0 and max_tokens AGBENCH_MAX_TOKENS (the bridge ignores both), none of OpenRouter's fields. With
     answer_layout, no response format and the answer layout paragraph ends the user message, as in
-    ask_openrouter_chat. A bearer token only when AGBENCH_KEY is set. Empty and broken replies as ask_openrouter_chat's."""
+    ask_openrouter_chat. A bearer token only when AGBENCH_KEY is set. Empty and broken replies as ask_openrouter_chat's.
+    Can's Copilot bridge (label "copilot") takes the same request plus reasoning_effort."""
     user = make_prompt(batch, prompts.confidence_instruction, prompts)
     if answer_layout:
         user += "\n\n" + answer_layout_text(batch, prompts)
@@ -4473,6 +4498,8 @@ def ask_agbench(
         "temperature": 1.0,
         "max_tokens": AGBENCH_MAX_TOKENS,
     }
+    if reasoning_effort is not None:
+        payload["reasoning_effort"] = reasoning_effort
     if not answer_layout:
         payload["response_format"] = {
             "type": "json_schema", "json_schema": {"name": "answers", "schema": confidence_schema(batch), "strict": True}
@@ -4481,8 +4508,8 @@ def ask_agbench(
     key = os.environ.get("AGBENCH_KEY", "").strip()
     if key:
         headers["Authorization"] = f"Bearer {key}"
-    result, first = post_chat(url, payload, headers, timeout, verbose_log, "agbench", retry_empty)
-    return read_chat_reply(result, first, batch, answer_layout, "agbench response")
+    result, first = post_chat(url, payload, headers, timeout, verbose_log, label, retry_empty)
+    return read_chat_reply(result, first, batch, answer_layout, f"{label} response")
 
 
 def ask_subq_chat(
@@ -5386,7 +5413,7 @@ def retry_cut_requests(
 # The providers whose chat replies follow the rule on empty and broken replies (project lead, bus #3215): their paths
 # ask an EMPTY reply once more and read a BROKEN reply's clearly readable letters, and --rescue applies the rule to
 # their finished runs. vllm-plain's reader reads every reply whole (reads_whole), so only its empty replies are re-asked.
-RESCUE_PROVIDERS = ("openrouter-chat", "agbench", "subq-chat", "vllm", "vllm-stated", "vllm-plain")
+RESCUE_PROVIDERS = ("openrouter-chat", "agbench", "copilot", "subq-chat", "vllm", "vllm-stated", "vllm-plain")
 # Why an answer is still invalid, as --rescue and the report count it; "error reply": an error stored in place of the
 # model's reply (reply_error), which --rescue asks again.
 INVALID_KINDS = ("empty after retry", "empty, not retried", "cut off", "unreadable", "letter not allowed", "error reply")
@@ -5442,7 +5469,7 @@ def run_reader(run: sqlite3.Row) -> tuple[str, str]:
         return "stated", "confidence"
     if run["provider"] == "subq-chat":
         return "json", "confidence"
-    if run["provider"] == "agbench":
+    if run["provider"] in ("agbench", "copilot"):
         return ("layout" if agbench_settings(run["ollama_url"])["agbench_answer_layout"] else "json"), "confidence"
     return ("layout" if openrouter_pin(run["ollama_url"])["openrouter_answer_layout"] else "json"), "confidence"
 
@@ -5475,8 +5502,10 @@ def rescue_settings(run: sqlite3.Row, timeout: float, re_ask: bool = True) -> tu
     if provider == "openrouter-chat":
         vars(settings).update(openrouter_pin(run["ollama_url"]), openrouter_reasoning=run["thinking_mode"])
         return settings, run["thinking_mode"]
-    if provider == "agbench":
+    if provider in ("agbench", "copilot"):
         vars(settings).update(agbench_settings(run["ollama_url"]))
+        if provider == "copilot":
+            settings.copilot_reasoning = run["thinking_mode"]
         return settings, run["thinking_mode"]
     if provider == "subq-chat":
         return settings, run["thinking_mode"]
@@ -5814,10 +5843,10 @@ def ask_batch(
         )
     if args.provider == "subq-chat":
         return ask_subq_chat(args.model, questions, args.timeout, verbose_log, prompts, retry_empty)
-    if args.provider == "agbench":
+    if args.provider in ("agbench", "copilot"):
         return ask_agbench(
             args.agbench_url, args.model, questions, args.timeout, verbose_log, prompts, args.agbench_answer_layout,
-            retry_empty,
+            retry_empty, args.copilot_reasoning if args.provider == "copilot" else None, args.provider,
         )
     return ask_ollama(
         args.ollama_url, args.model, questions, args.timeout, args.seed, thinking, args.num_ctx, verbose_log, prompts
@@ -6889,7 +6918,7 @@ def answer_usage(
         input_tokens = sum(int(usage.get("promptTokenCount") or 0) for usage in usages) if usages[0] else None
         output_tokens = sum(int(usage.get("candidatesTokenCount") or 0) + int(usage.get("thoughtsTokenCount") or 0) for usage in usages)
         cache = {"cached_input_tokens": sum(int(usage.get("cachedContentTokenCount") or 0) for usage in usages)}
-    elif provider == "agbench":
+    elif provider in ("agbench", "copilot"):
         # The bridge's chat completions usage where it reports one (completion_tokens includes thinking), with that of
         # the first reply of a request asked once more after an EMPTY one; None where neither reports usage.
         usages = [
@@ -6899,10 +6928,12 @@ def answer_usage(
         score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
         if not usages:
             return dict.fromkeys(("input_tokens", "output_tokens", "cached_input_tokens")), score_value(score)
-        input_tokens = sum(int(usage.get("prompt_tokens") or 0) for usage in usages)
+        # Copilot's bridge counts cache reads apart (cache_read_tokens, not in prompt_tokens): input is both.
+        input_tokens = sum(int(usage.get("prompt_tokens") or 0) + int(usage.get("cache_read_tokens") or 0) for usage in usages)
         output_tokens = sum(int(usage.get("completion_tokens") or 0) for usage in usages)
         cache = {"cached_input_tokens": sum(
-            int((usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0) for usage in usages)}
+            int((usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0) + int(usage.get("cache_read_tokens") or 0)
+            for usage in usages)}
     elif provider in RESCUE_PROVIDERS:
         # A request whose first reply was EMPTY and asked once more (post_chat, --rescue) also counts the tokens of the
         # first reply its record keeps under "empty_first_reply".
@@ -8147,8 +8178,8 @@ def main() -> int:
             thinking = args.antigravity_thinking
             endpoint = ANTIGRAVITY_URLS[0]
             image_input = False
-        elif args.provider == "agbench":
-            thinking = AGBENCH_THINKING
+        elif args.provider in ("agbench", "copilot"):
+            thinking = AGBENCH_THINKING if args.provider == "agbench" else args.copilot_reasoning
             # The answer layout in the prompt (a prompt difference) is part of the run's identity.
             endpoint = agbench_endpoint(args.agbench_url, args.agbench_answer_layout)
             image_input = False

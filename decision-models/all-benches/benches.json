@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-18T14:57:01Z",
+    "updated": "2026-11-18T16:39:57Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -300,6 +300,38 @@
        "logic:claude-sonnet-5.5-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "hy4-flash",
+      "name": "Hy4 flash",
+      "display_name": "Hy4 flash",
+      "tag": "on · chat",
+      "class_label": "Open · 220B MoE · 12B active",
+      "base_model": null,
+      "setup_label": "Hy4 Flash",
+      "maker": null,
+      "kind": "chat",
+      "params_total": 220.0,
+      "params_active": 12.0,
+      "quantization": null,
+      "score_0_100": 94.33333333333333,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9546666666666667,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:hy4-flash_en",
+       "logic:hy4-flash_en_dontknow"
+      ],
+      "notes": "hosted API via OpenRouter",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -843,7 +875,7 @@
        "logic:lfm3-1.7b-vllm-nothink_en",
        "logic:lfm3-1.7b-vllm-nothink_en_dontknow"
       ],
-      "notes": "on our NVIDIA DGX Spark (GB10); other setups of this model under its row, not in this entry: LFM3-1.7B (on · chat), LFM3-1.7B (off · chat · NVIDIA RTX PRO 6000 Blackwell)",
+      "notes": "on our NVIDIA DGX Spark (GB10); other setups of this model under its row, not in this entry: LFM3-1.7B (on · chat), LFM3-1.7B (off · chat · NVIDIA RTX PRO 6000 Blackwell), LFM3-1.7B (on · chat)",
       "gpu_hours": 2.5730555555555554,
       "gpu_cost_usd": 0.5475920897283448
      },
@@ -3409,7 +3441,7 @@
      }
     ]
    },
-   "sha256": "21f965b64a5290e88c26df93deebd64088a1d57615e2a855104140e0672c83f7"
+   "sha256": "bb4849b692d33488b22166954d5c283f9cc8818c5e0dadeed5666e456658ff8b"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3419,7 +3451,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-18T14:57:01Z",
+    "updated": "2026-11-18T16:39:57Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -6850,7 +6882,7 @@
      }
     ]
    },
-   "sha256": "f7a593c57559037b1cb3d71a4ad6ca08e6f0eaa522d81ca403dd51b2c3564206"
+   "sha256": "e95e5d3671e37c400f770874bb95cccab39993594b9d3f1671ba09515444554e"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -6860,7 +6892,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-18T14:57:01Z",
+    "updated": "2026-11-18T16:39:57Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -10436,12 +10468,12 @@
      }
     ]
    },
-   "sha256": "8c3405e333f50a853ae2b95465a768b42e6c35c4f1fe96ad38b7fcb0c870f36f"
+   "sha256": "3600542521f37917143b49429ffc22e4094b36964fd1a207ddefd4bdd0b18488"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
    "published": true,
-   "seen": "2026-11-17",
+   "seen": "2026-11-18",
    "file": {
     "bench": "backgammon",
     "models": [
@@ -11052,7 +11084,7 @@
       "kind": "decision",
       "maker": "Liquid AI",
       "model_key": "liquid-d1.2-ultra",
-      "name": "ultra d1.2",
+      "name": "d1.2-ultra",
       "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 17 of 19 matches; GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (not attempted: outside the requested scope); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (not attempted: outside the requested scope); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #62 (Ümit via Zeki #10928/#10931, 16 Nov 2026). Liquid AI's d1.2-ultra through its decisions API (provider liquid, paid tier; the larger of the two d1.2 models), never on our GPUs; the request format of Liquid d1-ultra's League 1 decisions. First stage 16 Nov 2026, 19:56–20:01 UTC: its 9 program and hosted opponents (#1527–#1541); local stage 16 Nov 2026, 22:16–22:39 UTC: the 8 setups we run ourselves, one at a time on our GPU 0 (#1542–#1549). Runner 38024d6 (target/gemini-decision, map-check v2) for every match, started by the scripts of tools/v3/late-d12 (branch late-d12ultra, 39ad4b3; locals 0bedcfa). Its pairs with GPT-6 Luna (Decisions API) and Mercury Decide were not played: outside the requested scope (Ümit, 12 Nov).; hosted (API or subscription)",
       "params_active": null,
       "params_total": null,
@@ -11926,10 +11958,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-17T17:05Z",
+    "updated": "2026-11-18T15:07Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "cf29c12865cccebf0d126bd93757c91ffd84d4743571b5186a1e6b8400aac478"
+   "sha256": "db6da649198f03d1e7d1e507a50eb81fd14aaf0054d4e642bb7ed84fa09613a4"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
