@@ -11841,7 +11841,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-17T14:07:44Z",
+    "updated": "2026-11-18T13:53:12Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -12156,6 +12156,34 @@
       "gpu_cost_usd": null
      },
      {
+      "name": "Microsoft-Decision-1.1",
+      "display_name": "Microsoft-Decision-1.1",
+      "tag": "",
+      "model_key": "microsoft-decision-1.1",
+      "maker": "Microsoft",
+      "kind": "decision",
+      "repo": null,
+      "commit": null,
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 85.42774287095214,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.902851619139681,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.029739304688901555,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-microsoft-decision-1.1-v1"
+      ],
+      "notes": "OpenRouter decisions API (openrouter.ai/api, model microsoft/microsoft-decision-1.1); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
       "name": "Logits Sigma-1 Duo",
       "display_name": "Logits Sigma-1 Duo",
       "tag": "",
@@ -12236,6 +12264,34 @@
        "grading:site-subq-snap-1.1-v1"
       ],
       "notes": "SubQ decisions API (api.subq.ai, model subq-snap-1.1); its probabilities were byte-identical to SubQ Snap Preview's on all 2,069 pairs; one question per request, 8 requests at a time (latency not comparable across different concurrency)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "SubQ Snap 1.2",
+      "display_name": "SubQ Snap 1.2",
+      "tag": "",
+      "model_key": "subq-snap-1.2",
+      "maker": "Subquadratic",
+      "kind": "decision",
+      "repo": null,
+      "commit": null,
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 84.92025132914449,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8994683421942967,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": 0.02284575354194461,
+      "improvement_points": null,
+      "runs": [
+       "grading:site-subq-snap-1.2-v1"
+      ],
+      "notes": "SubQ decisions API (api.subq.ai, model subq-snap-1.2); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -14433,7 +14489,7 @@
      }
     ]
    },
-   "sha256": "c98026e69b31e58267f79f0470fe29d9d0df4d7c32f2fe4d0146d85616f795f0"
+   "sha256": "945cb9edb8b05d296ada744890c3cc11153c3be9bc32e4ee130a91857dd429fd"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -14441,10 +14497,10 @@
    "seen": "2026-11-18",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-18T01:40:06Z",
+    "updated": "2026-11-18T13:53:19Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "c98026e69b31e58267f79f0470fe29d9d0df4d7c32f2fe4d0146d85616f795f0"
+     "sha256": "945cb9edb8b05d296ada744890c3cc11153c3be9bc32e4ee130a91857dd429fd"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -14655,6 +14711,29 @@
       "chosen_answer_brier": 0.0708
      },
      {
+      "run": "grading:site-subq-snap-1.2-v1",
+      "model_key": "subq-snap-1.2",
+      "latency_s_median": 0.392,
+      "latency_s_p90": 0.409,
+      "requests_in_flight": 8,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": 0.0364,
+      "cost_basis": "billed route at API list price",
+      "price_usd_per_million_input": 0.04,
+      "price_source": "https://docs.subq.ai/using-the-api/models/",
+      "price_date": "2026-11-18",
+      "gpu_seconds_per_1000": null,
+      "recall_reference": 0.9193,
+      "recall_other": 0.7812,
+      "recall_none": 0.9248,
+      "wrong_answer_recall": 0.7812,
+      "false_alarm_rate": 0.0414,
+      "invalid": 0,
+      "probabilities": true,
+      "decision_score": 91.4318,
+      "chosen_answer_brier": 0.0708
+     },
+     {
       "run": "grading:site-jev-1.13.0-v1",
       "model_key": "jev-1.13.0",
       "latency_s_median": 0.169,
@@ -14722,6 +14801,29 @@
       "probabilities": true,
       "decision_score": 90.7728,
       "chosen_answer_brier": 0.0772
+     },
+     {
+      "run": "grading:site-microsoft-decision-1.1-v1",
+      "model_key": "microsoft-decision-1.1",
+      "latency_s_median": 0.304,
+      "latency_s_p90": 0.33,
+      "requests_in_flight": 8,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": 0.0368,
+      "cost_basis": "billed route at API list price",
+      "price_usd_per_million_input": 0.042,
+      "price_source": "https://openrouter.ai/microsoft/microsoft-decision-1.1",
+      "price_date": "2026-11-18",
+      "gpu_seconds_per_1000": null,
+      "recall_reference": 0.9193,
+      "recall_other": 0.7812,
+      "recall_none": 0.9336,
+      "wrong_answer_recall": 0.7812,
+      "false_alarm_rate": 0.0448,
+      "invalid": 0,
+      "probabilities": true,
+      "decision_score": 91.5179,
+      "chosen_answer_brier": 0.0725
      },
      {
       "run": "grading:site-meragpt-decider-1-v1",
@@ -16449,7 +16551,7 @@
      }
     ]
    },
-   "sha256": "f1363a62336c7e7c72f27e1ecc92d699f1ce4a2bb99b152dd67e0a7bc747edac"
+   "sha256": "35546ea481cabd424e13b549563b4140f8727d58971ba7b47a5115aba0cbc83e"
   }
  }
 }
