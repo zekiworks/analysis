@@ -506,7 +506,7 @@
       "coverage": 100.0,
       "median_ms": 208.5,
       "model": "SubQ Snap Preview",
-      "note": null,
+      "note": "Answers identical to the other SubQ row on all 6,627 requests.",
       "requests": 6627,
       "route": "hosted API; requested alias. SubQ release notes (11 Nov 2026) say Snap Preview and Snap 1.1 requests route to Snap 1.2; the response names only the requested alias, so the checkpoint that answered is not established",
       "status": "complete",
@@ -591,6 +591,101 @@
       "when2call_plain": 72.89
     },
     {
+      "benchmarks": {
+        "1": 96.49,
+        "2": 63.75,
+        "3": 84.35,
+        "62": 65.49,
+        "9": 72.73
+      },
+      "coverage": 100.0,
+      "median_ms": 513.7,
+      "model": "OneJev-27B",
+      "note": "2 ToolRet requests failed in transport (one HTTP 500, one dropped connection) and were sent again by the kit's errors-only resume; both were then answered. To read the cause, each had also been sent once outside the kit; those 2 replies were not recorded or scored.",
+      "requests": 6627,
+      "route": "our GPU: maker decision server",
+      "status": "complete",
+      "tools_skill": 77.59,
+      "unsupported": 0,
+      "when2call_plain": 74.12
+    },
+    {
+      "benchmarks": {
+        "1": 94.74,
+        "2": 60.86,
+        "3": 0.0,
+        "62": 73.64,
+        "9": 51.14
+      },
+      "coverage": 77.02,
+      "median_ms": 1172.8,
+      "model": "Open-Jev 27B v1.1",
+      "note": "Its own server (jev.server, --max-length 4096, as for its Logic & Math run) refuses prompts over 4,096 tokens: all 508 API-Bank requests and 34 others (542). They count as unsupported (wrong), so API-Bank scores 0.",
+      "requests": 6627,
+      "route": "our GPU: maker decision server",
+      "status": "complete",
+      "tools_skill": 55.43,
+      "unsupported": 542,
+      "when2call_plain": 80.23
+    },
+    {
+      "benchmarks": {
+        "1": 91.55,
+        "2": 55.87,
+        "3": 86.35,
+        "62": 86.2,
+        "9": 51.14
+      },
+      "coverage": 100.0,
+      "median_ms": 24.0,
+      "model": "d1-2B",
+      "note": null,
+      "requests": 6627,
+      "route": "our GPU: maker decision server",
+      "status": "complete",
+      "tools_skill": 75.31,
+      "unsupported": 0,
+      "when2call_plain": 89.65
+    },
+    {
+      "benchmarks": {
+        "1": 90.52,
+        "2": 51.34,
+        "3": 80.54,
+        "62": 85.84,
+        "9": 38.64
+      },
+      "coverage": 100.0,
+      "median_ms": 26.1,
+      "model": "d1-Omni-2B",
+      "note": null,
+      "requests": 6627,
+      "route": "our GPU: maker decision server",
+      "status": "complete",
+      "tools_skill": 70.57,
+      "unsupported": 0,
+      "when2call_plain": 89.38
+    },
+    {
+      "benchmarks": {
+        "1": 95.54,
+        "2": 63.99,
+        "3": 85.75,
+        "62": 91.6,
+        "9": 88.64
+      },
+      "coverage": 100.0,
+      "median_ms": 213.9,
+      "model": "SubQ Snap 1.1",
+      "note": "Answers identical to the other SubQ row on all 6,627 requests.",
+      "requests": 6627,
+      "route": "hosted API; requested alias. SubQ release notes (11 Nov 2026) say Snap Preview and Snap 1.1 requests route to Snap 1.2; the response names only the requested alias, so the checkpoint that answered is not established",
+      "status": "complete",
+      "tools_skill": 85.51,
+      "unsupported": 0,
+      "when2call_plain": 93.7
+    },
+    {
       "benchmarks": null,
       "coverage": null,
       "median_ms": null,
@@ -598,20 +693,7 @@
       "note": null,
       "requests": 6627,
       "route": "hosted API",
-      "status": "Incomplete: the account's prepaid credit ran out after 2,407 of 6,627 requests; no score",
-      "tools_skill": null,
-      "unsupported": null,
-      "when2call_plain": null
-    },
-    {
-      "benchmarks": null,
-      "coverage": null,
-      "median_ms": null,
-      "model": "SubQ Snap 1.1",
-      "note": null,
-      "requests": 6627,
-      "route": "hosted API; requested alias. SubQ release notes (11 Nov 2026) say Snap Preview and Snap 1.1 requests route to Snap 1.2; the response names only the requested alias, so the checkpoint that answered is not established",
-      "status": "Incomplete: the account's prepaid credit ran out after 2,143 of 6,627 requests; no score",
+      "status": "Not finished: the account's prepaid credit ran out after 2,407 of 6,627 requests. A separate GLiDE v1.2 run on our GPU through Fastino's own server scored 88.1.",
       "tools_skill": null,
       "unsupported": null,
       "when2call_plain": null
