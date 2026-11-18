@@ -160,8 +160,6 @@ function resultNote(f){
 function resultNoteText(){
  if(s.panel==='Learning')return '<div class="notice neutral">The source gives each setup its own improvement verdict. Before and after refer to empty context and the final lessons evaluation. A paused or running setup has no final verdict.</div>';
  if(s.panel==='Learning pilot')return '<div class="notice neutral">Gemma 4 31B with reasoning off. T0 is one shared baseline across arms. Each later checkpoint keeps its own context condition.</div>';
- if(s.section==='Toolbench'&&(data.get(s.snapshot)||[]).some(r=>r.section==='Toolbench'&&r.track==='Pilot results'))return '<div class="notice neutral">Task pass rate over 42 tasks on each of two tracks (original and renamed tools), 3 repetitions, no chance correction. A setup that failed qualification has no score.</div>';
- if(s.section==='Toolbench'&&(data.get(s.snapshot)||[]).some(r=>r.section==='Toolbench'&&r.track==='Results'))return '<div class="notice neutral">Task pass rate over 42 tasks on each of two tracks (original and renamed tools), 3 repetitions, no chance correction. Tiers are within each size class, never across classes. A setup that failed qualification has no score. The Medium class is held back until the harder task set.</div>';
  if(s.section==='Toolbench')return '<div class="notice neutral">The source records zero model runs in this snapshot. Candidates appear with their preparation status.</div>';
  return '';
 }
