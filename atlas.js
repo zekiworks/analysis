@@ -211,7 +211,8 @@ function priceBasis(basis){
  const t=(basis||'').toLowerCase();
  if(!t)return 'Pricing basis unspecified';
  if(t.includes('local compute cost not estimated'))return 'API spend only';
- if(t.includes('subscription')&&/(list|equivalent|priced as the api)/.test(t))return 'Subscription at API prices';
+ // A subscription run's tokens at the API list price: an estimate, not a charge (Ümit #11858).
+ if(t.includes('subscription')&&/(list|equivalent|priced as the api|estimate)/.test(t))return 'Estimated: subscription at API list price';
  if(t.includes('subscription'))return 'Subscription';
  if(/gpu|nvidia|runpod/.test(t))return 'Estimated GPU cost';
  if(/provider price × reported usage/.test(t))return 'Price × reported usage';
