@@ -436,6 +436,11 @@ PRICES: dict[tuple[str, str], Price] = {
     ("subq", "subq-snap-preview"): Price("SubQ's Decisions API price", "https://docs.subq.ai/using-the-api/models/", "2026-10-13", 0.05),
     # SubQ Snap 1.1, SubQ's default decision model since it replaced Snap Preview (docs.subq.ai/using-the-api/models, read
     # 1 November 2026): input tokens only, output free.
+    # SubQ Savant 1.4 through SubQ's chat completions (Can #11971): list price read on docs.subq.ai/using-the-api/models on
+    # 18 November 2026; reasoning bills as output, cached input $0.01.
+    ("subq-chat", "subq-savant-1.4"): Price(
+        "SubQ's list price", "https://docs.subq.ai/using-the-api/models/", "2026-11-18", 0.10, 0.50, cached_input=0.01
+    ),
     ("subq", "subq-snap-1.1"): Price("SubQ's list price", "https://docs.subq.ai/using-the-api/models/", "2026-11-01", 0.04),
     # SubQ Snap 1.2, which SubQ's API has served since 11 November 2026 (for the old names too; its release notes); its list
     # price as logic read it on docs.subq.ai/using-the-api/models on 18 November 2026 (logic #11849): input only, output free.
@@ -1010,6 +1015,7 @@ VLLM_TOP_LOGPROBS = 10
 PROBABILITY_PROVIDERS = (*SYSTEM_ONE_PROVIDERS, "vllm-yes-no", "vllm")
 STATED_CONFIDENCE_PROVIDERS = (
     "vllm-verbal", "vllm-stated", "claude", "openai", "gemini", "xai", "antigravity", "openrouter-chat", "agbench",
+    "subq-chat",
 )
 READING_UNITS = range(1, 7)  # units 1–6 test reading, units 7–20 grammar
 # Within-unit shuffles behind the p-value of the decision-model doubt analysis.
@@ -1360,6 +1366,11 @@ OPENROUTER_EFFORTS = ("none", "minimal", "low", "medium", "high", "xhigh", "max"
 # The output cap of an OpenRouter chat request (--openrouter-max-tokens), reasoning included: 32,768 unless a run asks
 # for more, as MiMo V2.6 Flash's do (its Turkish smoke batch spent all 32,768 on reasoning, run 835).
 OPENROUTER_MAX_TOKENS = 32768
+# SubQ Savant through SubQ's own chat completions API (Can #11971): reasoning at SubQ's default effort, high (it cannot be
+# turned off), temperature 1 (the only value the API takes), output capped as the other chat providers'.
+SUBQ_CHAT_URL = "https://api.subq.ai/v1/chat/completions"
+SUBQ_CHAT_EFFORT = "high"
+SUBQ_CHAT_MAX_TOKENS = 32768
 
 
 # A paid route's spending cap (Zeki #9930, #9996): every request a --provider openrouter-chat run sends, each retry and
@@ -1722,7 +1733,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("model", nargs="?", help="Provider model name (not needed with --refresh-report)")
     parser.add_argument(
         "--provider",
-        choices=("ollama", "openai", "claude", "gemini", "xai", "antigravity", "openrouter-chat", "agbench",
+        choices=("ollama", "openai", "claude", "gemini", "xai", "antigravity", "openrouter-chat", "agbench", "subq-chat",
                  *SYSTEM_ONE_PROVIDERS, *VLLM_PROVIDERS),
         default="ollama",
         help="Inference provider (default: ollama)",
@@ -2045,7 +2056,8 @@ def parse_args() -> argparse.Namespace:
         parser.error("--retry-cut is only supported by --provider antigravity, without --restart")
     if args.concurrency < 1:
         parser.error("--concurrency must be at least 1")
-    concurrent = ("vllm", "vllm-stated", "vllm-plain", "gemini", "xai", "antigravity", "openrouter-chat", "agbench")
+    concurrent = ("vllm", "vllm-stated", "vllm-plain", "gemini", "xai", "antigravity", "openrouter-chat", "agbench",
+                  "subq-chat")
     if args.concurrency > 1 and args.rescue is None and args.provider not in concurrent and args.provider not in SYSTEM_ONE:
         parser.error(f"--concurrency is only supported by --provider {', '.join(concurrent)} and the System One providers")
     if args.provider == "openrouter-chat" and (args.openrouter_reasoning is None or not args.openrouter_order):
@@ -4425,6 +4437,38 @@ def ask_agbench(
     return read_chat_reply(result, first, batch, answer_layout, "agbench response")
 
 
+def ask_subq_chat(
+    model: str, batch: list[Question], timeout: float, verbose_log: TextIO | None,
+    prompts: ChatPrompts = TURKISH_CHAT, retry_empty: bool = True,
+) -> tuple[list[str | None], str]:
+    """Answer a batch with a stated 0-1 confidence per question through SubQ's chat completions (SubQ Savant; Can
+    #11971): the prompt, system prompt and schema of the other chat providers, temperature 1.0, reasoning effort
+    SUBQ_CHAT_EFFORT, output capped at SUBQ_CHAT_MAX_TOKENS. Paid: sent only under --spend-cap-usd and --spend-ledger;
+    the API reports no cost, so each request is settled at its worst case and the run's cost is computed from its
+    usage afterwards. Empty and broken replies as ask_openrouter_chat's."""
+    key = os.environ.get("SUBQ_API_KEY", "").strip()
+    if not key:
+        raise ValueError("--provider subq-chat requires SUBQ_API_KEY")
+    if SPEND_GUARD is None:
+        raise ValueError("--provider subq-chat is paid: it sends only under --spend-cap-usd and --spend-ledger")
+    payload: dict[str, Any] = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": prompts.confidence_system},
+            {"role": "user", "content": make_prompt(batch, prompts.confidence_instruction, prompts)},
+        ],
+        "temperature": 1.0,
+        "max_tokens": SUBQ_CHAT_MAX_TOKENS,
+        "reasoning_effort": SUBQ_CHAT_EFFORT,
+        "response_format": {
+            "type": "json_schema", "json_schema": {"name": "answers", "schema": confidence_schema(batch), "strict": True}
+        },
+    }
+    headers = {"Content-Type": "application/json", "Authorization": f"Bearer {key}"}
+    result, first = post_chat(SUBQ_CHAT_URL, payload, headers, timeout, verbose_log, "SubQ", retry_empty, SPEND_GUARD)
+    return read_chat_reply(result, first, batch, False, "SubQ chat response")
+
+
 class NoRedirect(HTTPRedirectHandler):
     """Refuse redirects so the bearer token is sent only to the configured endpoint."""
 
@@ -5294,7 +5338,7 @@ def retry_cut_requests(
 # The providers whose chat replies follow the rule on empty and broken replies (project lead, bus #3215): their paths
 # ask an EMPTY reply once more and read a BROKEN reply's clearly readable letters, and --rescue applies the rule to
 # their finished runs. vllm-plain's reader reads every reply whole (reads_whole), so only its empty replies are re-asked.
-RESCUE_PROVIDERS = ("openrouter-chat", "agbench", "vllm", "vllm-stated", "vllm-plain")
+RESCUE_PROVIDERS = ("openrouter-chat", "agbench", "subq-chat", "vllm", "vllm-stated", "vllm-plain")
 # Why an answer is still invalid, as --rescue and the report count it; "error reply": an error stored in place of the
 # model's reply (reply_error), which --rescue asks again.
 INVALID_KINDS = ("empty after retry", "empty, not retried", "cut off", "unreadable", "letter not allowed", "error reply")
@@ -5348,6 +5392,8 @@ def run_reader(run: sqlite3.Row) -> tuple[str, str]:
         return "plain", "letter"
     if run["provider"] == "vllm-stated":
         return "stated", "confidence"
+    if run["provider"] == "subq-chat":
+        return "json", "confidence"
     if run["provider"] == "agbench":
         return ("layout" if agbench_settings(run["ollama_url"])["agbench_answer_layout"] else "json"), "confidence"
     return ("layout" if openrouter_pin(run["ollama_url"])["openrouter_answer_layout"] else "json"), "confidence"
@@ -5383,6 +5429,8 @@ def rescue_settings(run: sqlite3.Row, timeout: float, re_ask: bool = True) -> tu
         return settings, run["thinking_mode"]
     if provider == "agbench":
         vars(settings).update(agbench_settings(run["ollama_url"]))
+        return settings, run["thinking_mode"]
+    if provider == "subq-chat":
         return settings, run["thinking_mode"]
     settings.vllm_url = run["ollama_url"]
     if provider == "vllm-plain":
@@ -5714,6 +5762,8 @@ def ask_batch(
             args.openrouter_require_parameters, args.openrouter_json_object, verbose_log, prompts,
             args.openrouter_max_tokens, args.openrouter_answer_layout, retry_empty,
         )
+    if args.provider == "subq-chat":
+        return ask_subq_chat(args.model, questions, args.timeout, verbose_log, prompts, retry_empty)
     if args.provider == "agbench":
         return ask_agbench(
             args.agbench_url, args.model, questions, args.timeout, verbose_log, prompts, args.agbench_answer_layout,
@@ -6816,7 +6866,7 @@ def answer_usage(
             score = ((record.get("answers") or {}).get(str(question_id)) or {}).get("confidence")
         input_tokens = int(usage.get("prompt_tokens") or 0) + int(first.get("prompt_tokens") or 0)
         output_tokens = int(usage.get("completion_tokens") or 0) + int(first.get("completion_tokens") or 0)
-        if provider == "openrouter-chat":
+        if provider in ("openrouter-chat", "subq-chat"):
             cache = {"cached_input_tokens": sum(
                 int((item.get("prompt_tokens_details") or {}).get("cached_tokens") or 0) for item in (usage, first))}
     elif provider in VOTE_PROVIDERS:
@@ -8049,6 +8099,10 @@ def main() -> int:
             # The answer layout in the prompt (a prompt difference) is part of the run's identity.
             endpoint = agbench_endpoint(args.agbench_url, args.agbench_answer_layout)
             image_input = False
+        elif args.provider == "subq-chat":
+            if not os.environ.get("SUBQ_API_KEY", "").strip():
+                raise ValueError("--provider subq-chat requires SUBQ_API_KEY")
+            thinking, endpoint, image_input = SUBQ_CHAT_EFFORT, SUBQ_CHAT_URL, False
         elif args.provider == "openrouter-chat":
             if not os.environ.get("OPENROUTER_API_KEY", "").strip():
                 raise ValueError("--provider openrouter-chat requires OPENROUTER_API_KEY")
