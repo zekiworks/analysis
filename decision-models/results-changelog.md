@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 52fbd785 (18 November 2026)
+
+- Microsoft-Decision-1.1, Microsoft's successor to Decision 1 (17 November 2026; Ümit #12080, #12086), through OpenRouter's System One route as Decision 1; every reply names microsoft-decision-1.1-20261117. Turkish Text 1,456 of 2,198 (66.2%; run 1425; its four repeats 1426 and 1433 to 1435 changed no answer), against Decision 1's 1,021 (46.5%); English 468 of 547 (85.6%; run 1428), Decision 1 469. English "I don't know" run 1430, Turkish "Bilmiyorum" run 1432, option-word check run 1437. $0.22 for all its runs at $0.042 per 1M input tokens, output free.
+
 ## Results 7f0129a5 (18 November 2026)
 
 - SubQ Snap 1.2, the decision model SubQ has served since 11 November (the older Snap names now route to it), through its Decisions API as Snap 1.1 (Ümit #11848): Turkish Text 1,457 of 2,198 (66.3%; run 1406; its four repeats 1410 and 1421 to 1423 changed no answer), English 482 of 547 (88.1%; run 1412), English "I don't know" run 1414, Turkish "Bilmiyorum" run 1417, option-word check run 1420. Snap 1.1 had 1,404 (63.9%) and 470 of 547 (85.9%). Its option probabilities arrive as 32-bit floats, checked as Snap 1.1's (smoke run 1405). $0.16 for all its runs, smoke runs included, at $0.04 per 1M input tokens, output free.

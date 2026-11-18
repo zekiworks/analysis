@@ -4,8 +4,8 @@ expression: "charts::buffer_text(&charts::render(&figure))"
 ---
 How large are the accuracy gaps, and how uncertain are they?
 Each row is model A minus model B, on the same 2,198 questions. Dots: the observed gap. Lines: its 95% interval. A line that crosses zero did not establish a difference; the colour
-shows a related but separate test, adjusted across these 140 comparisons (7 pass).
-━━ passes the Holm adjustment across these 140 comparisons   ━━ does not pass
+shows a related but separate test, adjusted across these 141 comparisons (7 pass).
+━━ passes the Holm adjustment across these 141 comparisons   ━━ does not pass
 
                                                Gemini 4 Carbon · high · chat minus Claude Fable 5.2 · max · chat                         ⠠⣷⠤                                     +0.3
                                               Claude Fable 5.2 · max · chat minus Gemini 3.8 Flash · high · chat                        ⠠⠤⡧⠄                                     +0.0
@@ -49,7 +49,7 @@ DeepSeek-V4.1-Flash · reasoning on · chat · first release minus DeepSeek-V4.1
                                                             Gemma 4 31B · reasoning off · chat minus GLiDE · API                          ⡇      ⠤⠤⠤⠤⠤⢴⠤⠤⠤⠤⠤                     +5.2
                                          SubQ Savant 1.4 · high · chat minus Kimi K3.1 Pro · no reasoning · chat                     ⠤⠤⠤⠤⠤⣷⠤⠤⠤⠤⠤                                 +0.2
                                          Kimi K3.1 Pro · no reasoning · chat minus MiMo-V2.6-Flash · high · chat                      ⠤⠤⠤⠤⡧⡦⠤⠤⠤⠤⠤                                +0.6
-                                                       MiMo-V2.6-Flash · high · chat minus GLiDE 27B · DGX Spark                       ⠤⠤⠤⡧⠤⡧⠤⠤⠤⠤⠤                               +1.0
+                                                       MiMo-V2.6-Flash · high · chat minus GLiDE 27B · DGX Spark                       ⠤⠤⠤⡧⠤⡦⠤⠤⠤⠤⠤                               +1.0
                                         GLiDE 27B · DGX Spark minus Perplexity Decider 27B v1.2 · API · with web                          ⡇⠠⠤⠤⠤⢼⠤⠤⠤⠤                             +2.4
                                                  Perplexity Decider 27B v1.2 · API · with web minus GLiDE · v1.2                      ⠠⠤⠤⠤⣿⠤⠤⠤⠄                                  +0.3
                                                                   GLiDE · v1.2 minus Perplexity Decider 27B v1.3                      ⠠⠤⠤⠤⡧⠤⠤⠄                                   +0.0
@@ -69,7 +69,8 @@ DeepSeek-V4.1-Flash · reasoning on · chat · first release minus DeepSeek-V4.1
                                                      Perplexity Decider 27B v1.1 minus Perplexity Decider 27B v1                          ⡇          ⠤⠤⠤⠤⢼⠤⠤⠤⠤                   +6.5
                                         MiniMax-M3.1-Flash · high · chat minus Perplexity Decider 27B v1.2 · API                    ⠠⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤                                 +0.1
                                                            Perplexity Decider 27B v1.2 · API minus SubQ Snap 1.2                      ⠠⠤⠤⠤⡧⠤⠤⠄                                   +0.0
-                                           SubQ Snap 1.2 minus DeepSeek-V4.1-Flash · reasoning off · chat · 1017                     ⠤⠤⠤⠤⠤⣿⠤⠤⠤⠤⠤                                 +0.3
+                                                                      SubQ Snap 1.2 minus Microsoft-Decision-1.1                     ⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠄                                 +0.0
+                                  Microsoft-Decision-1.1 minus DeepSeek-V4.1-Flash · reasoning off · chat · 1017                     ⠠⠤⠤⠤⠤⣿⠤⠤⠤⠤⠤                                 +0.2
                            DeepSeek-V4.1-Flash · reasoning off · chat · 1017 minus Inkling 2 Small · high · chat                    ⠠⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤                                 +0.0
                   Inkling 2 Small · high · chat minus DeepSeek-V4.1-Flash · reasoning off · chat · first release                    ⠤⠤⠤⠤⠤⠤⡧⠤⠤⠤⠤⠤                                 +0.0
                               DeepSeek-V4.1-Flash · reasoning off · chat · first release minus SubQ Snap Preview                      ⠠⠤⠤⠤⡧⢼⠤⠤⠤⠤⠤                                +0.7
@@ -104,7 +105,7 @@ DeepSeek-V4.1-Flash · reasoning on · chat · first release minus DeepSeek-V4.1
                                                                             KnowLine-9B-Gen1 minus Cerno 9B v1.2                     ⠐⠒⠒⠒⠒⡗⠒⠒⠒⠒                                  +0.1
                                              Cerno 9B v1.2 minus Qwen3.8-27B · vote share · reasoning off · chat                     ⠒⠒⠒⠒⠒⡗⠒⠒⠒⠒⠒                                 +0.1
     Qwen3.8-27B · vote share · reasoning off · chat minus Qwen3.8-27B · stated confidence · reasoning off · chat                       ⠒⠒⠒⡗⠒⠒⠂                                   +0.1
-                                   Qwen3.8-27B · stated confidence · reasoning off · chat minus KnowLine-9B-Gen2                      ⠐⠒⠒⠒⡗⠒⡗⠒⠒⠒⠒⠂                               +0.9
+                                   Qwen3.8-27B · stated confidence · reasoning off · chat minus KnowLine-9B-Gen2                      ⠐⠒⠒⠒⡗⠒⠗⠒⠒⠒⠒⠂                               +0.9
                                                                             KnowLine-9B-Gen2 minus Adjudex 9B v5                      ⠒⠒⠒⠒⡗⠒⠒⠒⠒                                  +0.1
                                                                                   Adjudex 9B v5 minus Elephant-1                       ⠐⠒⠒⡗⠺⠒⠒⠒⠒                                 +0.8
                                                                                        Elephant-1 minus GLiDE 9B                      ⠐⠒⠒⠒⡿⠒⠒⠒⠒⠂                                 +0.3

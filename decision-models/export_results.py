@@ -786,6 +786,12 @@ MODELS: dict[str, dict[str, Any]] = {
         "name": "Microsoft-Decision-1",
         "note": "Microsoft's decision model, called through OpenRouter's System One route.",
     },
+    # Its successor (17 November 2026; Ümit #12080), on the same route: it also reads images, up to 8 per request.
+    "microsoft/microsoft-decision-1.1": {
+        "name": "Microsoft-Decision-1.1",
+        "note": "Microsoft's decision model, Decision 1's successor, called through OpenRouter's System One route; every "
+        "reply names microsoft-decision-1.1-20261117.",
+    },
     "google/gemini-decision-1": {
         "name": "Gemini Decision 1",
         "note": "Google's decision model, called through OpenRouter's System One route on its one endpoint, Google AI "
@@ -1005,6 +1011,8 @@ SIZES: dict[str, dict[str, Any]] = {
     # Microsoft names its base model (post-trained from Qwen3.5-9B, to be rebased on other models), not a size.
     "microsoft/microsoft-decision-1": {"total": None, "sources": [
         "https://commandline.microsoft.com/microsoft-decision-1-model-foundry/"], "read": READ},
+    "microsoft/microsoft-decision-1.1": {"total": None, "sources": [
+        "https://openrouter.ai/microsoft/microsoft-decision-1.1"], "read": "2026-11-18"},
     "d1:free": {"total": None, "sources": ["https://www.liquid.ai/blog/d1-decision-model"], "read": READ},
     # "we based d1-ultra on a larger open-weight model", unnamed.
     "d1-ultra": {"total": None, "sources": ["https://www.liquid.ai/blog/d1-ultra"], "read": READ},

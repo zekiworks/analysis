@@ -937,7 +937,8 @@ def copy_checks(data: Data) -> list[str]:
     check("and accuracy falls 0.16 points (replay)", round(-100 * one["difference"], 2) == 0.16)
     order = sorted((run for run in decision if (run["run"], sonnet16["run"]) in cascades),
                    key=lambda run: -cascades[(run["run"], sonnet16["run"])]["held_out"]["answered"])
-    check("SubQ Snap Preview seventeenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 16)
+    # Eighteenth since Microsoft-Decision-1.1 joined above it (18 November 2026).
+    check("SubQ Snap Preview eighteenth among decision models in front of Sonnet (16 per request)", order.index(subq) == 17)
     # Its routing places in front of Opus and Astra (Decider 27B v1.3 joined above it on 14 November 2026, d1.2-ultra
     # and, at one question per request in front of Opus, d1.2 on 16 November; SubQ Snap 1.2 at 16 per request on 18
     # November).
