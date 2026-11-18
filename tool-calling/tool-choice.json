@@ -1,4 +1,110 @@
 {
+  "consistency": [
+    {
+      "benchmarks": 5,
+      "confidence_change": 0.0305,
+      "flip": {
+        "v0": 0.0,
+        "v1": 3.19,
+        "v2": 1.12,
+        "v3": 3.59,
+        "v4": 3.61
+      },
+      "model": "d1-2B",
+      "note": "Server shared with other agents' runs during this pass (before the one-at-a-time rule); its unchanged form still flipped 0.0%."
+    },
+    {
+      "benchmarks": 5,
+      "confidence_change": 0.0433,
+      "flip": {
+        "v0": 0.0,
+        "v1": 5.41,
+        "v2": 2.93,
+        "v3": 4.83,
+        "v4": 4.89
+      },
+      "model": "d1-Omni-2B",
+      "note": "Server shared with other agents' runs during this pass (before the one-at-a-time rule); its unchanged form still flipped 0.0%."
+    },
+    {
+      "benchmarks": 5,
+      "confidence_change": 0.0074,
+      "flip": {
+        "v0": 0.0,
+        "v1": 0.23,
+        "v2": 0.3,
+        "v3": 0.34,
+        "v4": 0.35
+      },
+      "model": "GLiDE 27B",
+      "note": null
+    },
+    {
+      "benchmarks": 5,
+      "confidence_change": 0.0118,
+      "flip": {
+        "v0": 0.0,
+        "v1": 1.22,
+        "v2": 0.75,
+        "v3": 1.9,
+        "v4": 1.25
+      },
+      "model": "GLiDE 2B",
+      "note": "Server shared with other agents' runs during this pass (before the one-at-a-time rule); its unchanged form still flipped 0.0%."
+    },
+    {
+      "benchmarks": 5,
+      "confidence_change": 0.0078,
+      "flip": {
+        "v0": 0.0,
+        "v1": 0.41,
+        "v2": 0.42,
+        "v3": 0.74,
+        "v4": 0.55
+      },
+      "model": "GLiDE v1.2",
+      "note": null
+    },
+    {
+      "benchmarks": 5,
+      "confidence_change": 0.0082,
+      "flip": {
+        "v0": 0.0,
+        "v1": 0.7,
+        "v2": 0.21,
+        "v3": 0.83,
+        "v4": 0.97
+      },
+      "model": "Karpo Decision 31B",
+      "note": null
+    },
+    {
+      "benchmarks": 3,
+      "confidence_change": 0.0578,
+      "flip": {
+        "v0": 0.0,
+        "v1": 6.81,
+        "v2": 1.61,
+        "v3": 7.47,
+        "v4": 8.42
+      },
+      "model": "Metask-Jev 4B",
+      "note": "3 benchmarks: its server refuses every ToolRet and API-Bank question, as on its Tool choice row."
+    },
+    {
+      "benchmarks": 5,
+      "confidence_change": 0.0714,
+      "flip": {
+        "v0": 0.19,
+        "v1": 14.5,
+        "v2": 3.1,
+        "v3": 15.56,
+        "v4": 15.32
+      },
+      "model": "Strands Decider 2B",
+      "note": "Its server cuts prompts over 4,096 tokens instead of refusing them, as on its Tool choice row. An earlier pass that overlapped other agents' runs failed (server errors) and is kept apart, unscored; only the completed pass, run alone, counts."
+    }
+  ],
   "kit": "apolinario/decision-index@25c6ec7 (MIT), Tools & Automation area, edition 0.3 scorer",
   "rows": [
     {
