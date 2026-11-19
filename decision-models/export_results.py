@@ -148,6 +148,9 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     # time, tools denied; the bridge applies no response format, so the prompt adds a paragraph stating the answer layout.
     "agbench": {"access": "Google Antigravity through Can's agbench bridge, Google AI Ultra subscription", "scoring": False,
                 "billing": "subscription"},
+    # Can's GitHub Copilot subscription bridge (Can #12422, #12435): no tools, one request at a time.
+    "copilot": {"access": "GitHub Copilot through Can's Copilot bridge, Copilot subscription", "scoring": False,
+                "billing": "subscription"},
     "openrouter-chat": {"access": "OpenRouter chat API, one provider endpoint, fallbacks off", "scoring": False, "billing": "api"},
     # SubQ's chat models through SubQ's own chat completions API (Can #11971).
     "subq-chat": {"access": "SubQ chat completions API", "scoring": False, "billing": "api"},
@@ -224,6 +227,13 @@ MODELS: dict[str, dict[str, Any]] = {
     },
     "grok-4.7": {"name": "Grok 4.7"},
     "gemini-4-argon": {"name": "Gemini 4 Argon"},
+    # Microsoft's MAI Code 2 Flash (Ümit #12072, #12075; Can #12435): hosted only, reached through GitHub Copilot.
+    "mai-code-2-flash": {
+        "name": "MAI Code 2 Flash",
+        "note": "Microsoft's hosted coding model (about 398B total, 12B active by its card; weights not released)",
+        "access": "GitHub Copilot through Can's Copilot bridge (Copilot subscription), one request at a time, reasoning "
+                  "effort high, no tools, the bridge forwarding the answer schema; output cap 32,768 tokens",
+    },
     "gemini-4-carbon": {
         "name": "Gemini 4 Carbon",
         # The bridge starts a new Antigravity agent conversation per request: Antigravity's agent instructions and tool
@@ -969,6 +979,7 @@ SIZES: dict[str, dict[str, Any]] = {
     "gemini-3.8-flash": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-3-8-flash/"], "read": READ},
     # The card: "a large scale sparse mixture-of-experts (MoE) ... transformer-based model", with no number.
     "gemini-4-argon": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-argon/"], "read": READ},
+    "mai-code-2-flash": {"total": None, "sources": ["https://microsoft.ai/pdf/MAI-Code-2-And-MAI-Code-2-Flash-Model-Card.pdf"], "read": "2026-11-19"},
     "gemini-4-carbon": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-carbon/"], "read": "2026-11-11"},
     "gemini-4-hydrogen": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-hydrogen/"], "read": "2026-11-12"},
     "grok-4.7": {"total": None, "sources": ["https://media.x.ai/v1/website/4p7card-5eccc980.pdf", "https://x.ai/news/grok-4-7",

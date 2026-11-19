@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-19T00:24:56Z",
+    "updated": "2026-11-19T07:22:51Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -776,9 +776,10 @@
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "logic:sensenova-loop-9b_en"
+       "logic:sensenova-loop-9b_en",
+       "logic:sensenova-loop-9b_en_dontknow"
       ],
-      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 2.982222222222222,
       "gpu_cost_usd": 7.425733333333334
      },
@@ -3472,7 +3473,7 @@
      }
     ]
    },
-   "sha256": "3d16467051f42bec3ed67f76aae7a2d03bdfc09d33712945bd12d9d4beaf1e78"
+   "sha256": "c821470d9300e5ceae75275f383d7d77a1728c90d1e1f7cc657a8a564aff9c4c"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3482,7 +3483,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-19T00:24:56Z",
+    "updated": "2026-11-19T07:22:51Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -4190,6 +4191,38 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
       "gpu_hours": 0.4602777777777778,
       "gpu_cost_usd": 1.1460916666666667
+     },
+     {
+      "repo": "sensenova/SenseNova-Loop-9B",
+      "commit": "3e1ba6e8ac98090f9f7c03a55f26269eb3850fb6",
+      "model_key": "sensenova-loop-9b",
+      "name": "SenseNova-Loop-9B",
+      "display_name": "SenseNova-Loop-9B",
+      "tag": "on · chat",
+      "class_label": "",
+      "base_model": null,
+      "setup_label": "SenseNova-Loop-9B (chat, thinking on, on our GPU)",
+      "maker": null,
+      "kind": "chat",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 98.90198797965787,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9912159038372631,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:sensenova-loop-9b_en",
+       "math:sensenova-loop-9b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 1.1511111111111112,
+      "gpu_cost_usd": 2.866266666666667
      },
      {
       "repo": "LiquidAI/LFM2.5-24B-A2B",
@@ -6913,7 +6946,7 @@
      }
     ]
    },
-   "sha256": "b5fe3bf70fcd1a8f6973eb42a905534b3fac3871ce09343dedf0f6126eec1ecb"
+   "sha256": "51dc6f2fc8560b2aa2e53da11ba7060b65999b207262ea4dfcdd06a64f1bd66c"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -6923,7 +6956,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-19T00:24:56Z",
+    "updated": "2026-11-19T07:22:51Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -7642,6 +7675,40 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Granite-4.2-3B (off · chat)",
       "gpu_hours": 5.599722222222223,
       "gpu_cost_usd": 13.943308333333334
+     },
+     {
+      "repo": "sensenova/SenseNova-Loop-9B",
+      "commit": "3e1ba6e8ac98090f9f7c03a55f26269eb3850fb6",
+      "model_key": "sensenova-loop-9b",
+      "name": "SenseNova-Loop-9B",
+      "display_name": "SenseNova-Loop-9B",
+      "tag": "on · chat",
+      "class_label": "",
+      "base_model": null,
+      "setup_label": "SenseNova-Loop-9B (chat, thinking on, on our GPU)",
+      "maker": null,
+      "kind": "chat",
+      "params_total": 9.0,
+      "params_active": 9.0,
+      "quantization": "BF16",
+      "score_0_100": 95.59002433090025,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9647201946472019,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:sensenova-loop-9b_en",
+       "math:sensenova-loop-9b_en",
+       "logic:sensenova-loop-9b_en_dontknow",
+       "math:sensenova-loop-9b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 4.133333333333333,
+      "gpu_cost_usd": 10.292000000000002
      },
      {
       "repo": "openbmb/MiniCPM5-2B",
@@ -10499,12 +10566,12 @@
      }
     ]
    },
-   "sha256": "fa4acfca2bcf6823f854b45d8e9e90debf0289a14d91a2becca9417a9040d69f"
+   "sha256": "17997631d32d69335a89035054f12cb43e4374cccad432651709ec27ea272bf3"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
    "published": true,
-   "seen": "2026-11-18",
+   "seen": "2026-11-19",
    "file": {
     "bench": "backgammon",
     "models": [
@@ -11989,10 +12056,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-18T15:07Z",
+    "updated": "2026-11-19T07:50Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "db6da649198f03d1e7d1e507a50eb81fd14aaf0054d4e642bb7ed84fa09613a4"
+   "sha256": "2fd41c4568647b3d6493d9d58abbd7bdc07abc109f73f1305428bc053dd41b90"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
