@@ -4,7 +4,7 @@
    "bench": "reading-text",
    "title": "Reading · Turkish",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-19T07:34:14Z",
+   "updated": "2026-11-19T12:45:38Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
@@ -3087,7 +3087,7 @@
    "bench": "turkish-reading",
    "title": "Turkish Reading",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-19T07:34:14Z",
+   "updated": "2026-11-19T12:45:38Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 656 Turkish reading questions (units 1 to 6) right (accuracy 100%)"
@@ -6170,7 +6170,7 @@
    "bench": "turkish-grammar",
    "title": "Turkish Grammar",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-19T07:34:14Z",
+   "updated": "2026-11-19T12:45:38Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 1,542 Turkish grammar questions (units 7 to 20) right (accuracy 100%)"
@@ -9253,7 +9253,7 @@
    "bench": "reading-english",
    "title": "Reading · English",
    "url": "https://zekiworks.github.io/analysis/decision-models/english/",
-   "updated": "2026-11-19T07:34:14Z",
+   "updated": "2026-11-19T12:45:38Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 547 kept reading questions, translated into English, right (accuracy 100%)"
@@ -12583,6 +12583,31 @@
      "notes": "our GPU (logic's server, KRAFTON's vLLM fork (krafton-ai/vllm@13a5dd8; not a vLLM release) BF16, revision KRAFTON/Raon-1-nano@fcf2d1d), one question per request, plain answer line ANSWER: X (no answer schema); sampling presence_penalty 1.5, seed 0, temperature 0.1, thinking off; output cap 32,768; the kept reading questions in English"
     },
     {
+     "repo": "microsoft/Aion-1.0-Instruct-2.3B",
+     "commit": "28902cb",
+     "name": "Aion 1.0 Instruct",
+     "tag": "default reasoning · chat · microsoft/Aion-1.0-Instruct-2.3B@28902cbfd9f4e0347d6c853aa1301f5d559b2fc0",
+     "model_key": "aion-1.0-instruct",
+     "maker": "Microsoft",
+     "kind": "chat",
+     "params_total": 2.29,
+     "params_active": 2.29,
+     "quantization": "BF16",
+     "score_0_100": 37.38574040219378,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4990859232175503,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": null,
+     "improvement_points": null,
+     "runs": [
+      "english:1504"
+     ],
+     "notes": "our GPU (logic's server, vLLM v0.30.0, Transformers backend (--model-impl transformers, its own modeling code) BF16, revision microsoft/Aion-1.0-Instruct-2.3B@28902cb), one question per request, plain answer line ANSWER: X (no answer schema); sampling seed 0, temperature 0.0; output cap 31,232; the kept reading questions in English"
+    },
+    {
      "repo": "StrandsAgents/strands-decider-2B-hobson-v21",
      "commit": "2b52a62",
      "name": "Strands Decider 2B",
@@ -12713,7 +12738,7 @@
    "bench": "reading-vision",
    "title": "Reading · Vision",
    "url": "https://zekiworks.github.io/analysis/decision-models/vision/",
-   "updated": "2026-11-19T07:19:38Z",
+   "updated": "2026-11-19T12:30:39Z",
    "score": {
     "zero": "chance: 1 of each question's options right on every question (accuracy 20% with 5 options)",
     "hundred": "every one of the 763 questions that depend on the printed page right, read from the page image alone (accuracy 100%)"

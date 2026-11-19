@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results ad6fabd6 (19 November 2026)
+
+- Microsoft's Aion 1.0 Instruct (Ümit #12586), open weights (MIT; `microsoft/Aion-1.0-Instruct-2.3B` at `28902cb`, 2,288,831,488 parameters counted, the card's ~2.29B), on one RTX PRO 6000 on logic's load: its own modeling code on vLLM's Transformers backend (no vLLM release has the architecture), temperature 0 and seed 0 as logic's Logic & Math rows (the card names no sampling; its quickstart is greedy), no thinking switch, output cap 31,232 tokens within its 32,768-token context, 32 requests in flight while logic's runs shared the load. English 273 of 547 (49.9%; run 1504, 5 replies without a readable answer), English "I don't know" run 1505. Its card lists English, German, Spanish, Portuguese, Italian, French, Chinese and Japanese, not Turkish, so it was not asked in Turkish (Ümit #12587).
+
 ## Results f6c73f3c (19 November 2026)
 
 - Microsoft's MAI Code 2 Flash (Ümit #12072, #12075), hosted only (about 398B total, 12B active by its model card; weights not released), through Can's GitHub Copilot subscription bridge (Can #12422, #12435): one request at a time, 16 questions per request, reasoning effort high, no tools, the answer schema (forwarded by the bridge from 17:47 CET on 18 November, before the first run). English 480 of 547 (87.8%; run 1467), English "I don't know" run 1494, Turkish Text 1,747 of 2,198 (79.5%; run 1468), Turkish "Bilmiyorum" run 1495; every reply readable. Its card names English only. Billed $0 (the Copilot subscription, 348 premium requests); the same tokens at GitHub Copilot's list price ($0.05 input, $0.005 cached input, $0.25 output per 1M tokens, promotional until 17 May 2027) are about $0.78 for all its runs, shown as an estimate.

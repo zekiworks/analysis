@@ -1,0 +1,335 @@
+{
+ "bench": "Answer Check",
+ "cohort": "no-code",
+ "feed_sha256": "945cb9edb8b05d296ada744890c3cc11153c3be9bc32e4ee130a91857dd429fd",
+ "report_sha256": "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
+ "definitions": {
+  "forms": "each no-code pair asked again: 'control' the scored request unchanged; 'order1', 'order2' the three options in two different changed orders (the same orders for every model); 'names' the options' keys replaced by plain letters in reverse; 'dontknow' the not-stated option reworded. Question, reference answer and text never change.",
+  "flip_rate": "share of pairs whose chosen option, by meaning, differs from the model's own scored Answer Check run",
+  "mean_confidence_change": "mean absolute change in the probability the model gives its scored run's pick",
+  "control": "the scored request repeated unchanged on the consistency load, read against the model's scored run: a difference can come from the setup as well as from repetition (see a model's note); the other forms are read against it",
+  "model_echo_checked": "true when every reply named the same model as the scored run's replies; false when the model's replies name none, so the load's pinned weights are the identity evidence",
+  "scope": "our-GPU decision models only, each on the same pinned weights and server software as its scored run unless its note says otherwise, one request at a time; separate from every score, the ranking and the Decision Index"
+ },
+ "not_included": {
+  "claim_negation": "the form with the reference answer rewritten to its opposite (plan #12220) is not run: its rewrites need review first",
+  "hosted_models": "hosted decision APIs are not run (their budget is not approved)",
+  "models": {
+   "glide-27b": "in Ümit's priority six (#12404) but not run: its Answer Check row was scored on a DGX Spark, and the consistency load ran on an RTX PRO 6000, so it would not be its scored setup"
+  }
+ },
+ "models": [
+  {
+   "model_key": "fastino-glide-v1.2",
+   "display_name": "GLiDE",
+   "tag": "v1.2",
+   "label": "GLiDE v1.2",
+   "run": "grading:site-fastino-glide-v1.2-v1",
+   "note": "the consistency load ran its server allowing up to 16 requests in a batch (its scored run: 1); requests were sent one at a time",
+   "coverage": null,
+   "model_echo_checked": false,
+   "forms": {
+    "control": {
+     "pairs": 2069,
+     "flip_rate": 0.0024,
+     "mean_confidence_change": 0.0027,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order1": {
+     "pairs": 2069,
+     "flip_rate": 0.0155,
+     "mean_confidence_change": 0.0117,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order2": {
+     "pairs": 2069,
+     "flip_rate": 0.014,
+     "mean_confidence_change": 0.0118,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "names": {
+     "pairs": 2069,
+     "flip_rate": 0.0169,
+     "mean_confidence_change": 0.0121,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "dontknow": {
+     "pairs": 2069,
+     "flip_rate": 0.0092,
+     "mean_confidence_change": 0.0095,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    }
+   }
+  },
+  {
+   "model_key": "karpo-decision-31b",
+   "display_name": "karpo-decision-31B",
+   "tag": "",
+   "label": "karpo-decision-31B",
+   "run": "grading:site-karpo-decision-31b-v1",
+   "note": null,
+   "coverage": null,
+   "model_echo_checked": false,
+   "forms": {
+    "control": {
+     "pairs": 2069,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order1": {
+     "pairs": 2069,
+     "flip_rate": 0.0077,
+     "mean_confidence_change": 0.0113,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order2": {
+     "pairs": 2069,
+     "flip_rate": 0.0092,
+     "mean_confidence_change": 0.0114,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "names": {
+     "pairs": 2069,
+     "flip_rate": 0.0169,
+     "mean_confidence_change": 0.015,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "dontknow": {
+     "pairs": 2069,
+     "flip_rate": 0.0121,
+     "mean_confidence_change": 0.0094,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    }
+   }
+  },
+  {
+   "model_key": "knowline-31b-gen2",
+   "display_name": "KnowLine-31B-Gen2",
+   "tag": "",
+   "label": "KnowLine-31B-Gen2",
+   "run": "grading:site-knowline-31b-gen2-v1",
+   "note": null,
+   "coverage": null,
+   "model_echo_checked": true,
+   "forms": {
+    "control": {
+     "pairs": 2069,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0001,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order1": {
+     "pairs": 2069,
+     "flip_rate": 0.0184,
+     "mean_confidence_change": 0.0193,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order2": {
+     "pairs": 2069,
+     "flip_rate": 0.0155,
+     "mean_confidence_change": 0.0197,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "names": {
+     "pairs": 2069,
+     "flip_rate": 0.0135,
+     "mean_confidence_change": 0.0218,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "dontknow": {
+     "pairs": 2069,
+     "flip_rate": 0.0126,
+     "mean_confidence_change": 0.0149,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    }
+   }
+  },
+  {
+   "model_key": "mammoth-1",
+   "display_name": "Mammoth-1",
+   "tag": "",
+   "label": "Mammoth-1",
+   "run": "grading:site-mammoth-1-v1",
+   "note": null,
+   "coverage": null,
+   "model_echo_checked": true,
+   "forms": {
+    "control": {
+     "pairs": 2069,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order1": {
+     "pairs": 2069,
+     "flip_rate": 0.0111,
+     "mean_confidence_change": 0.0133,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order2": {
+     "pairs": 2069,
+     "flip_rate": 0.015,
+     "mean_confidence_change": 0.0135,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "names": {
+     "pairs": 2069,
+     "flip_rate": 0.0101,
+     "mean_confidence_change": 0.0123,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "dontknow": {
+     "pairs": 2069,
+     "flip_rate": 0.0068,
+     "mean_confidence_change": 0.0098,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    }
+   }
+  },
+  {
+   "model_key": "metask-jev-4b",
+   "display_name": "Metask-Jev-4B",
+   "tag": "",
+   "label": "Metask-Jev-4B",
+   "run": "grading:site-metask-jev-4b-v1",
+   "note": null,
+   "coverage": "not in the priority six: run first, as the first load of the queue before #12404",
+   "model_echo_checked": false,
+   "forms": {
+    "control": {
+     "pairs": 2069,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order1": {
+     "pairs": 2069,
+     "flip_rate": 0.0667,
+     "mean_confidence_change": 0.0534,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order2": {
+     "pairs": 2069,
+     "flip_rate": 0.0725,
+     "mean_confidence_change": 0.0561,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "names": {
+     "pairs": 2069,
+     "flip_rate": 0.0614,
+     "mean_confidence_change": 0.0846,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "dontknow": {
+     "pairs": 2069,
+     "flip_rate": 0.0135,
+     "mean_confidence_change": 0.0149,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    }
+   }
+  },
+  {
+   "model_key": "perplexity-decider-27b-v1.3",
+   "display_name": "Perplexity Decider 27B v1.3",
+   "tag": "",
+   "label": "Perplexity Decider 27B v1.3",
+   "run": "grading:site-perplexity-decider-27b-v1.3-v1",
+   "note": null,
+   "coverage": null,
+   "model_echo_checked": false,
+   "forms": {
+    "control": {
+     "pairs": 2069,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order1": {
+     "pairs": 2069,
+     "flip_rate": 0.0145,
+     "mean_confidence_change": 0.0147,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "order2": {
+     "pairs": 2069,
+     "flip_rate": 0.0169,
+     "mean_confidence_change": 0.0153,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "names": {
+     "pairs": 2069,
+     "flip_rate": 0.015,
+     "mean_confidence_change": 0.0147,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    },
+    "dontknow": {
+     "pairs": 2069,
+     "flip_rate": 0.0135,
+     "mean_confidence_change": 0.0117,
+     "uncertain_total": 0,
+     "unusable_total": 0,
+     "resent": 0
+    }
+   }
+  }
+ ]
+}
