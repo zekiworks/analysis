@@ -923,6 +923,10 @@ MODELS: dict[str, dict[str, Any]] = {
             "vLLM v0.30.0, Transformers backend (--model-impl transformers, its own modeling code)",
             "microsoft/Aion-1.0-Instruct-2.3B@28902cb"),
            ("granite-4.2-8b", "Granite-4.2-8B", "vLLM v0.30.0", "ibm-granite/granite-4.2-8b@a704214"),
+           # SenseTime's SenseNova-Loop-9B (Ümit #12072, #12075): no vLLM or SGLang release serves its looped
+           # architecture, so LightLLM as its card shows (logic #12210; thinking in message.reasoning).
+           ("sensenova-loop-9b", "SenseNova-Loop-9B", "LightLLM (its card's server; reasoning parser qwen3)",
+            "sensenova/SenseNova-Loop-9B@3e1ba6e"),
            ("lfm2.5-24b-a2b", "LFM2.5-24B-A2B", "vLLM v0.30.0", "LiquidAI/LFM2.5-24B-A2B@1769516"),
            ("granite-4.2-30b", "Granite-4.2-30B", "vLLM v0.30.0", "ibm-granite/granite-4.2-30b@9e668ce"),
            ("raon-1-nano", "Raon-1 nano", "KRAFTON's vLLM fork (krafton-ai/vllm@13a5dd8; not a vLLM release)",
@@ -1507,6 +1511,8 @@ SIZES: dict[str, dict[str, Any]] = {
             "microsoft/Aion-1.0-Instruct-2.3B", "28902cb"),
            ("granite-4.2-3b", 3_659_737_600, "language model with its LM head, text only", "ibm-granite/granite-4.2-3b",
             "4e9c275"),
+           ("sensenova-loop-9b", 9_412_963_952, "the whole checkpoint, vision encoder included", "sensenova/SenseNova-Loop-9B",
+            "3e1ba6e"),
            ("granite-4.2-8b", 8_791_592_960, "language model with its LM head, text only", "ibm-granite/granite-4.2-8b",
             "a704214"),
            ("granite-4.2-30b", 29_276_770_304, "language model with its LM head, text only", "ibm-granite/granite-4.2-30b",
