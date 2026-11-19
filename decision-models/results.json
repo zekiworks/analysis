@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "ad6fabd6",
-  "updated": "2026-11-19T12:45:38Z",
+  "results_version": "1ec09d37",
+  "updated": "2026-11-19T14:39:51Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -1993,6 +1993,20 @@
     {
       "provider": "vllm-plain",
       "model": "qwen3.5-4b-nothink",
+      "perplexity_mode": null,
+      "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+      "source": "https://www.runpod.io/pricing",
+      "date": "2026-11-05",
+      "change": null,
+      "applies_to": "gpu",
+      "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+      "gpus": 1,
+      "usd_per_gpu_hour": 2.49,
+      "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+    },
+    {
+      "provider": "vllm-plain",
+      "model": "sensenova-loop-9b",
       "perplexity_mode": null,
       "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
       "source": "https://www.runpod.io/pricing",
@@ -53630,6 +53644,112 @@
       "single_question_latency": null
     },
     {
+      "run": 1496,
+      "model": "sensenova-loop-9b",
+      "name": "SenseNova-Loop-9B",
+      "variant": null,
+      "reasoning": "on",
+      "provider": "vllm-plain",
+      "perplexity_mode": null,
+      "note": null,
+      "parameters": 9412963952,
+      "active_parameters": null,
+      "effective_parameters": null,
+      "parameters_scope": "the whole checkpoint, vision encoder included",
+      "parameters_source": [
+        "counted from the checkpoint's safetensors, sensenova/SenseNova-Loop-9B@3e1ba6e",
+        "https://huggingface.co/sensenova/SenseNova-Loop-9B"
+      ],
+      "parameters_read": "2026-11-12",
+      "access": "our GPU (logic's server, LightLLM (its card's server; reasoning parser qwen3) BF16, revision sensenova/SenseNova-Loop-9B@3e1ba6e), one question per request, plain answer line CEVAP: X (no answer schema); sampling temperature 1.0, top_p 0.95, thinking on; output cap 32,768",
+      "questions_per_request": 1,
+      "concurrency": 32,
+      "correct": 1052,
+      "invalid": 316,
+      "invalid_replies": {
+        "invalid_without_rule": 351,
+        "read_from_broken_replies": 0,
+        "read_without_confidence": 0,
+        "empty_replies_asked_again": 42,
+        "asked_again_with_answers": 35,
+        "answers_after_asking_again": 35,
+        "error_replies_asked_again": 0,
+        "invalid_by_kind": {
+          "cut off": 299,
+          "unreadable": 17
+        }
+      },
+      "answered_questions": 2198,
+      "groups": {
+        "reading": {
+          "questions": 656,
+          "correct": 483
+        },
+        "grammar": {
+          "questions": 1542,
+          "correct": 569
+        },
+        "without_suspect": {
+          "questions": 2186,
+          "correct": 1050
+        }
+      },
+      "tyt_mix": 0.6720066294169751,
+      "questions_per_minute": 4.196736233323813,
+      "request_seconds": 31424.419517437986,
+      "median_request_seconds": 123.7085267855,
+      "p90_request_seconds": 1604.3796638177942,
+      "billing": "local",
+      "api_equivalent_usd": 21.735223499561275,
+      "cost_basis": "gpu",
+      "cost_upper_bound": false,
+      "requests": 2240,
+      "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+      "input_tokens": 590062,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "cache_write_1h_input_tokens": 0,
+      "output_tokens": 18127985,
+      "confidence": null,
+      "previous": null,
+      "units": [
+        85,
+        125,
+        40,
+        83,
+        67,
+        83,
+        61,
+        20,
+        35,
+        35,
+        30,
+        18,
+        59,
+        34,
+        33,
+        50,
+        9,
+        42,
+        59,
+        84
+      ],
+      "started": "2026-11-18T22:38:49Z",
+      "updated": "2026-11-19T07:25:58Z",
+      "format_of": null,
+      "group": "λμξπ",
+      "latency": {
+        "source": "run",
+        "runs": [
+          1496
+        ],
+        "concurrency": 32,
+        "median_request_seconds": 123.7085267855,
+        "p90_request_seconds": 1604.3796638177942
+      },
+      "single_question_latency": null
+    },
+    {
       "run": 1236,
       "model": "startlux-models/StartLux-Decision-v1.1-4B-Instant",
       "name": "StartLux-Decision v1.1 4B",
@@ -57478,7 +57598,7 @@
       "started": "2026-10-06T12:25:34Z",
       "updated": "2026-10-06T12:32:15Z",
       "format_of": null,
-      "group": "π",
+      "group": "πσ",
       "latency": {
         "source": "run",
         "runs": [
@@ -66623,7 +66743,7 @@
       "single_question_latency": null
     }
   ],
-  "group_pairs": 10153,
+  "group_pairs": 10296,
   "paired": [
     {
       "first": 1108,
@@ -66726,7 +66846,7 @@
       "low": 0.00315656599695682,
       "high": 0.013221959935709241,
       "p": 0.0021024015732109547,
-      "p_holm": 0.2817218108102679,
+      "p_holm": 0.2838242123834789,
       "p_holm_all": 1.0
     },
     {
@@ -66765,7 +66885,7 @@
       "low": 0.0036661100122780893,
       "high": 0.019081842671980327,
       "p": 0.0052282430040142824,
-      "p_holm": 0.6953563195338995,
+      "p_holm": 0.7005845625379139,
       "p_holm_all": 1.0
     },
     {
@@ -66882,8 +67002,8 @@
       "low": 0.03225197249317953,
       "high": 0.06419934688807616,
       "p": 4.460847421739139e-09,
-      "p_holm": 6.245186390434794e-07,
-      "p_holm_all": 7.35593739844784e-06
+      "p_holm": 6.289794864652186e-07,
+      "p_holm_all": 7.4674585839913185e-06
     },
     {
       "first": 939,
@@ -67155,8 +67275,8 @@
       "low": 0.030679166621566563,
       "high": 0.07396141572602216,
       "p": 2.7673699726562264e-06,
-      "p_holm": 0.00038189705622655924,
-      "p_holm_all": 0.003619719924234344
+      "p_holm": 0.00038466442619921546,
+      "p_holm_all": 0.0036750673236874685
     },
     {
       "first": 1409,
@@ -67207,7 +67327,7 @@
       "low": 0.0068147555519082505,
       "high": 0.04050098603134926,
       "p": 0.006946613741516137,
-      "p_holm": 0.9169530138801301,
+      "p_holm": 0.9238996276216461,
       "p_holm_all": 1.0
     },
     {
@@ -67272,8 +67392,8 @@
       "low": -0.06598964347625874,
       "high": -0.027731921582885947,
       "p": 2.0485146663561087e-06,
-      "p_holm": 0.0002847435386234991,
-      "p_holm_all": 0.0027019908449237074
+      "p_holm": 0.00028679205328985524,
+      "p_holm_all": 0.0027429611382508295
     },
     {
       "first": 1347,
@@ -67311,8 +67431,8 @@
       "low": 0.056521036069118194,
       "high": 0.09361545164698735,
       "p": 3.678091628881056e-15,
-      "p_holm": 5.2228901130111e-13,
-      "p_holm_all": 7.959390284898606e-12
+      "p_holm": 5.25967102929991e-13,
+      "p_holm_all": 8.088123491909442e-12
     },
     {
       "first": 259,
@@ -67415,8 +67535,8 @@
       "low": 0.047455943209440694,
       "high": 0.08266234614451745,
       "p": 6.670084191087266e-13,
-      "p_holm": 9.404818709433044e-11,
-      "p_holm_all": 1.3160076109015175e-09
+      "p_holm": 9.471519551343917e-11,
+      "p_holm_all": 1.3353508550556706e-09
     },
     {
       "first": 862,
@@ -67675,7 +67795,7 @@
       "low": 0.008033138518606254,
       "high": 0.04929170224572496,
       "p": 0.007404857447081556,
-      "p_holm": 0.9700363255676838,
+      "p_holm": 0.9774411830147653,
       "p_holm_all": 1.0
     },
     {
@@ -67857,8 +67977,8 @@
       "low": 0.01794483214073702,
       "high": 0.05757837077100093,
       "p": 0.00022780042456489667,
-      "p_holm": 0.031208658165390844,
-      "p_holm_all": 0.23395103602814887
+      "p_holm": 0.031436458589955744,
+      "p_holm_all": 0.23782364324575214
     },
     {
       "first": 127,
@@ -68070,14 +68190,27 @@
     },
     {
       "first": 1236,
+      "second": 1496,
+      "questions": 2198,
+      "first_only": 355,
+      "second_only": 355,
+      "difference": 0.0,
+      "low": -0.023760608448743847,
+      "high": 0.023760608448743847,
+      "p": 1.0,
+      "p_holm": 1.0,
+      "p_holm_all": 1.0
+    },
+    {
+      "first": 1496,
       "second": 223,
       "questions": 2198,
-      "first_only": 180,
-      "second_only": 178,
+      "first_only": 363,
+      "second_only": 361,
       "difference": 0.0009099181073703367,
-      "low": -0.015962168372104776,
-      "high": 0.01778200458684545,
-      "p": 0.957859928292544,
+      "low": -0.023083776152629944,
+      "high": 0.02490361236737062,
+      "p": 0.9703570914038716,
       "p_holm": 1.0,
       "p_holm_all": 1.0
     },
@@ -68195,8 +68328,8 @@
       "low": 0.017970916928709595,
       "high": 0.06665146705673171,
       "p": 0.0007641053000487032,
-      "p_holm": 0.10391832080662364,
-      "p_holm_all": 0.7297205615465115
+      "p_holm": 0.10468242610667233,
+      "p_holm_all": 0.7419462463472908
     },
     {
       "first": 126,
@@ -68208,7 +68341,7 @@
       "low": 0.015331309546318252,
       "high": 0.06383156579490104,
       "p": 0.0015873691578223686,
-      "p_holm": 0.21429483630601975,
+      "p_holm": 0.21588220546384213,
       "p_holm_all": 1.0
     },
     {
@@ -68481,8 +68614,8 @@
       "low": 0.100425868701859,
       "high": 0.13706275732179884,
       "p": 2.1991384606646548e-36,
-      "p_holm": 3.1447679987504563e-34,
-      "p_holm_all": 7.606819935439041e-33
+      "p_holm": 3.166759383357103e-34,
+      "p_holm_all": 7.723374273854268e-33
     }
   ],
   "cascades": [
@@ -421808,6 +421941,45 @@
         }
       },
       {
+        "name": "SenseNova-Loop-9B",
+        "model": "sensenova-loop-9b",
+        "provider": "vllm-plain",
+        "perplexity_mode": null,
+        "group": "chat",
+        "run": 1502,
+        "runs": [
+          1502
+        ],
+        "right": 1049,
+        "wrong": 765,
+        "dont_know": 46,
+        "invalid": 338,
+        "invalid_replies": {
+          "invalid_without_rule": 376,
+          "read_from_broken_replies": 0,
+          "read_without_confidence": 0,
+          "empty_replies_asked_again": 56,
+          "asked_again_with_answers": 38,
+          "answers_after_asking_again": 38,
+          "error_replies_asked_again": 0,
+          "invalid_by_kind": {
+            "empty after retry": 5,
+            "cut off": 321,
+            "unreadable": 12
+          }
+        },
+        "accuracy": 0.47725204731574156,
+        "attempt_rate": 0.8252957233848953,
+        "non_hallucination": 0.05672009864364982,
+        "mean_dont_know_probability": null,
+        "spread": null,
+        "answers_changed": null,
+        "original_run": 1496,
+        "original_accuracy": 0.4786169244767971,
+        "derived": null,
+        "vs_confidence": null
+      },
+      {
         "name": "Valen-Decision-1.5-9B",
         "model": "valen",
         "provider": "valen",
@@ -433212,7 +433384,7 @@
           "english_only_right": 74,
           "turkish_only_right": 23,
           "p": 2.027109075312698e-07,
-          "p_holm": 2.4730730718814916e-05
+          "p_holm": 2.4933441626346187e-05
         },
         "decision_score": {
           "score": 88.1004137009927,
@@ -433880,6 +434052,96 @@
           "turkish_only_right": 22,
           "p": 1.0,
           "p_holm": 1.0
+        }
+      },
+      {
+        "name": "SenseNova-Loop-9B",
+        "model": "sensenova-loop-9b",
+        "provider": "vllm-plain",
+        "run": 1444,
+        "runs": [
+          1444
+        ],
+        "dates": [
+          "2026-11-18"
+        ],
+        "perplexity_mode": null,
+        "turkish_run": 1496,
+        "turkish_runs": [
+          1496
+        ],
+        "english_machine": null,
+        "english_where": "RTX PRO 6000",
+        "cost": {
+          "english": {
+            "usd": 0.9140523600011408,
+            "per_1000": 1.6710280804408424,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 150831,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 626308
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 1321.5214843389986
+          },
+          "turkish": {
+            "usd": 21.735223499561275,
+            "per_1000": 9.88863671499603,
+            "basis": "gpu",
+            "upper_bound": false
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 23.210151960985968,
+            "p90_request_seconds": 75.73977768818732,
+            "concurrency": 32,
+            "questions_per_request": 1
+          },
+          "turkish": {
+            "median_request_seconds": 123.7085267855,
+            "p90_request_seconds": 1604.3796638177942,
+            "concurrency": 32,
+            "questions_per_request": 1,
+            "source": "run"
+          }
+        },
+        "english": {
+          "right": 464,
+          "wrong": 82,
+          "invalid": 1,
+          "accuracy": 0.8482632541133455
+        },
+        "turkish": {
+          "right": 417,
+          "wrong": 110,
+          "invalid": 20,
+          "accuracy": 0.7623400365630713
+        },
+        "difference": 0.08592321755027421,
+        "spread": null,
+        "answers_changed": null,
+        "paired": {
+          "english_only_right": 77,
+          "turkish_only_right": 30,
+          "p": 6.2776102965905504e-06,
+          "p_holm": 0.0007595908458874566
         }
       },
       {
@@ -435870,7 +436132,7 @@
           "english_only_right": 90,
           "turkish_only_right": 35,
           "p": 9.23997771897882e-07,
-          "p_holm": 0.00011180373039964372
+          "p_holm": 0.0001127277281715416
         },
         "decision_score": {
           "score": 82.21084905828268,
@@ -435972,7 +436234,7 @@
           "english_only_right": 175,
           "turkish_only_right": 33,
           "p": 1.474858241680115e-24,
-          "p_holm": 1.9615614614345529e-22
+          "p_holm": 1.976310043851354e-22
         }
       },
       {
@@ -436157,7 +436419,7 @@
           "english_only_right": 221,
           "turkish_only_right": 42,
           "p": 1.6141574661170747e-30,
-          "p_holm": 2.179112579258051e-28
+          "p_holm": 2.1952541539192218e-28
         },
         "seeds": {
           "of": 3,
@@ -436246,7 +436508,7 @@
           "english_only_right": 112,
           "turkish_only_right": 39,
           "p": 2.271450283600249e-09,
-          "p_holm": 2.839312854500311e-07
+          "p_holm": 2.8620273573363136e-07
         },
         "decision_score": {
           "score": 77.81582860891653,
@@ -436348,7 +436610,7 @@
           "english_only_right": 166,
           "turkish_only_right": 40,
           "p": 1.9435372906100788e-19,
-          "p_holm": 2.5460338506992032e-17
+          "p_holm": 2.565469223605304e-17
         },
         "seeds": {
           "of": 3,
@@ -436468,7 +436730,7 @@
           "english_only_right": 264,
           "turkish_only_right": 27,
           "p": 4.958685573905816e-50,
-          "p_holm": 6.842986091990026e-48
+          "p_holm": 6.892572947729085e-48
         }
       },
       {
@@ -436527,7 +436789,7 @@
           "english_only_right": 135,
           "turkish_only_right": 49,
           "p": 1.7218675720944863e-10,
-          "p_holm": 2.1695531408390527e-08
+          "p_holm": 2.1867718165599978e-08
         },
         "decision_score": {
           "score": 76.87952031780596,
@@ -436593,7 +436855,7 @@
           "english_only_right": 129,
           "turkish_only_right": 53,
           "p": 1.6944120417192497e-08,
-          "p_holm": 2.1010709317318697e-06
+          "p_holm": 2.118015052149062e-06
         },
         "decision_score": {
           "score": 76.66106513904887,
@@ -436690,7 +436952,7 @@
           "english_only_right": 337,
           "turkish_only_right": 6,
           "p": 2.4594255756266907e-91,
-          "p_holm": 3.4186015501211e-89
+          "p_holm": 3.443195805877367e-89
         },
         "seeds": {
           "of": 3,
@@ -436811,7 +437073,7 @@
           "english_only_right": 207,
           "turkish_only_right": 40,
           "p": 2.42022559679353e-28,
-          "p_holm": 3.2431022997033306e-26
+          "p_holm": 3.2673045556712656e-26
         }
       },
       {
@@ -436914,7 +437176,7 @@
           "english_only_right": 171,
           "turkish_only_right": 41,
           "p": 4.536077925178257e-20,
-          "p_holm": 5.987622861235299e-18
+          "p_holm": 6.032983640487082e-18
         },
         "decision_score": {
           "score": 74.15855038077375,
@@ -436980,7 +437242,7 @@
           "english_only_right": 141,
           "turkish_only_right": 61,
           "p": 1.7907697844040562e-08,
-          "p_holm": 2.2026468348169893e-06
+          "p_holm": 2.22055453266103e-06
         },
         "decision_score": {
           "score": 70.59346383621033,
@@ -437046,7 +437308,7 @@
           "english_only_right": 161,
           "turkish_only_right": 39,
           "p": 8.323830722852912e-19,
-          "p_holm": 1.0820979939708786e-16
+          "p_holm": 1.0904218246937315e-16
         },
         "decision_score": {
           "score": 70.08836424032732,
@@ -437112,7 +437374,7 @@
           "english_only_right": 222,
           "turkish_only_right": 38,
           "p": 8.493716039465006e-33,
-          "p_holm": 1.1636390974067058e-30
+          "p_holm": 1.1721328134461707e-30
         },
         "decision_score": {
           "score": 69.84327454412265,
@@ -437178,7 +437440,7 @@
           "english_only_right": 148,
           "turkish_only_right": 57,
           "p": 1.6384792484557003e-10,
-          "p_holm": 2.0808686455387392e-08
+          "p_holm": 2.0972534380232963e-08
         },
         "decision_score": {
           "score": 69.81580413306096,
@@ -437244,7 +437506,7 @@
           "english_only_right": 150,
           "turkish_only_right": 48,
           "p": 2.027549129468913e-13,
-          "p_holm": 2.5952628857202086e-11
+          "p_holm": 2.615538377014898e-11
         },
         "decision_score": {
           "score": 69.65402914139592,
@@ -437310,7 +437572,7 @@
           "english_only_right": 206,
           "turkish_only_right": 34,
           "p": 3.328240035956695e-31,
-          "p_holm": 4.526406448901105e-29
+          "p_holm": 4.559688849260672e-29
         },
         "decision_score": {
           "score": 69.05212318938176,
@@ -437425,7 +437687,7 @@
           "english_only_right": 152,
           "turkish_only_right": 47,
           "p": 4.1558518126437847e-14,
-          "p_holm": 5.3610488383104825e-12
+          "p_holm": 5.40260735643692e-12
         },
         "decision_score": {
           "score": 67.46941180530165,
@@ -440078,7 +440340,7 @@
             "english_only_wrong": 80,
             "turkish_only_wrong": 133,
             "p": 0.00034406318274259637,
-            "p_holm": 0.0189234750508428
+            "p_holm": 0.019267538233585395
           }
         },
         {
@@ -440521,7 +440783,7 @@
             "english_only_wrong": 45,
             "turkish_only_wrong": 95,
             "p": 2.877574547626978e-05,
-            "p_holm": 0.0016114417466711077
+            "p_holm": 0.0016402174921473773
           }
         },
         {
@@ -440861,7 +441123,7 @@
             "english_only_wrong": 126,
             "turkish_only_wrong": 37,
             "p": 1.473591352172994e-12,
-            "p_holm": 8.546829842603365e-11
+            "p_holm": 8.694188977820665e-11
           }
         },
         {
@@ -441154,7 +441416,7 @@
             "english_only_wrong": 44,
             "turkish_only_wrong": 160,
             "p": 1.1281099734141455e-16,
-            "p_holm": 6.655848843143458e-15
+            "p_holm": 6.768659840484873e-15
           }
         },
         {
@@ -441217,7 +441479,7 @@
             "english_only_wrong": 68,
             "turkish_only_wrong": 137,
             "p": 1.6455457800434282e-06,
-            "p_holm": 9.379610946247541e-05
+            "p_holm": 9.544165524251884e-05
           }
         },
         {
@@ -441643,7 +441905,7 @@
             "english_only_wrong": 79,
             "turkish_only_wrong": 115,
             "p": 0.011780425578763857,
-            "p_holm": 0.6125821300957206
+            "p_holm": 0.6243625556744844
           }
         },
         {
@@ -441801,7 +442063,7 @@
             "english_only_wrong": 50,
             "turkish_only_wrong": 173,
             "p": 4.61331874192297e-17,
-            "p_holm": 2.767991245153782e-15
+            "p_holm": 2.8141244325730115e-15
           }
         },
         {
@@ -442268,7 +442530,7 @@
             "english_only_wrong": 25,
             "turkish_only_wrong": 7,
             "p": 0.0021024015732109547,
-            "p_holm": 0.11352968495339155
+            "p_holm": 0.1156320865266025
           }
         },
         {
@@ -443024,6 +443286,75 @@
             "english_only_wrong": 33,
             "turkish_only_wrong": 20,
             "p": 0.09837064844049181,
+            "p_holm": 1.0
+          }
+        },
+        {
+          "name": "SenseNova-Loop-9B",
+          "model": "sensenova-loop-9b",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": 1496,
+          "english": {
+            "run": 1451,
+            "runs": [
+              1451
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 3,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {
+                "cut off": 3
+              }
+            },
+            "right": 450,
+            "wrong": 89,
+            "dont_know": 5,
+            "invalid": 3,
+            "accuracy": 0.8226691042047533,
+            "attempt_rate": 0.9853747714808044,
+            "non_hallucination": 0.05319148936170213,
+            "mean_dont_know_probability": null
+          },
+          "turkish": {
+            "run": 1502,
+            "runs": [
+              1502
+            ],
+            "subset": false,
+            "invalid_replies": {
+              "invalid_without_rule": 376,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 56,
+              "asked_again_with_answers": 38,
+              "answers_after_asking_again": 38,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {
+                "empty after retry": 5,
+                "cut off": 321,
+                "unreadable": 12
+              }
+            },
+            "right": 432,
+            "wrong": 97,
+            "dont_know": 1,
+            "invalid": 17,
+            "accuracy": 0.7897623400365631,
+            "attempt_rate": 0.9670932358318098,
+            "non_hallucination": 0.01020408163265306,
+            "mean_dont_know_probability": null
+          },
+          "spread": null,
+          "paired": {
+            "english_only_wrong": 46,
+            "turkish_only_wrong": 54,
+            "p": 0.4841184136072915,
             "p_holm": 1.0
           }
         },
@@ -443958,7 +444289,7 @@
             "english_only_wrong": 52,
             "turkish_only_wrong": 86,
             "p": 0.004786266356000327,
-            "p_holm": 0.2536721168680173
+            "p_holm": 0.25845838322401765
           }
         },
         {
@@ -794899,6 +795230,53 @@
           ]
         },
         {
+          "name": "SenseNova-Loop-9B",
+          "text_run": 1496,
+          "native": [
+            {
+              "language": "Turkish",
+              "wording": "Bilmiyorum",
+              "run": 1502,
+              "full_bank_restricted": true,
+              "right": 432,
+              "wrong": 97,
+              "abstained": 1,
+              "invalid": 17,
+              "coverage": 0.9670932358318098,
+              "risk": 0.1833648393194707
+            },
+            {
+              "language": "Turkish",
+              "wording": "I don't know",
+              "run": null
+            },
+            {
+              "language": "English",
+              "wording": "I don't know",
+              "run": 1451,
+              "full_bank_restricted": false,
+              "right": 450,
+              "wrong": 89,
+              "abstained": 5,
+              "invalid": 3,
+              "coverage": 0.9853747714808044,
+              "risk": 0.16512059369202226
+            }
+          ],
+          "curves": [
+            {
+              "language": "Turkish",
+              "run": 1496,
+              "points": []
+            },
+            {
+              "language": "English",
+              "run": 1444,
+              "points": []
+            }
+          ]
+        },
+        {
           "name": "MiniMax-M3.1-Flash",
           "text_run": 862,
           "native": [
@@ -1001973,6 +1002351,23 @@
           "paired": null
         },
         {
+          "name": "SenseNova-Loop-9B",
+          "text_run": 1496,
+          "english": {
+            "run": 1451,
+            "right": 450,
+            "wrong": 89,
+            "dont_know": 5,
+            "invalid": 3,
+            "accuracy": 0.8226691042047533,
+            "attempt_rate": 0.9853747714808044,
+            "non_hallucination": 0.05319148936170213,
+            "mean_dont_know_probability": null
+          },
+          "turkish": null,
+          "paired": null
+        },
+        {
           "name": "MiniMax-M3.1-Flash",
           "text_run": 862,
           "english": {
@@ -1005460,6 +1005855,18 @@
           ]
         },
         {
+          "name": "SenseNova-Loop-9B",
+          "text_run": 1496,
+          "five_option_run": 1496,
+          "wrong": null,
+          "wrong_of_answers": null,
+          "difference": null,
+          "interval": null,
+          "p": null,
+          "p_holm": null,
+          "wrong_by_rank": ""
+        },
+        {
           "name": "StartLux-Decision v1.1 4B",
           "text_run": 1236,
           "five_option_run": 1236,
@@ -1007910,6 +1008317,19 @@
           "points": []
         },
         {
+          "name": "SenseNova-Loop-9B",
+          "text_run": 1496,
+          "five_option_run": 1444,
+          "wrong": null,
+          "wrong_of_answers": null,
+          "difference": null,
+          "interval": null,
+          "p": null,
+          "p_holm": null,
+          "wrong_by_rank": "",
+          "points": []
+        },
+        {
           "name": "MiniMax-M3.1-Flash",
           "text_run": 862,
           "five_option_run": 863,
@@ -1010069,6 +1010489,12 @@
         "text_run": 965,
         "kept": 274,
         "wrong": 6
+      },
+      {
+        "name": "SenseNova-Loop-9B",
+        "text_run": 1496,
+        "kept": null,
+        "wrong": null
       },
       {
         "name": "StartLux-Decision v1.1 4B",
