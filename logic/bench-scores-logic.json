@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-19T07:22:51Z",
+ "updated": "2026-11-19T12:18:11Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -3335,6 +3335,37 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.010555555555555556,
    "gpu_cost_usd": 0.002246410386449002
+  },
+  {
+   "repo": "microsoft/Aion-1.0-Instruct-2.3B",
+   "commit": "28902cbfd9f4e0347d6c853aa1301f5d559b2fc0",
+   "model_key": "aion-1.0-instruct",
+   "name": "Aion 1.0 Instruct",
+   "display_name": "Aion 1.0 Instruct",
+   "tag": "chat",
+   "class_label": "",
+   "base_model": null,
+   "setup_label": "Aion 1.0 Instruct (chat, on our GPU)",
+   "maker": null,
+   "kind": "chat",
+   "params_total": 2.29,
+   "params_active": 2.29,
+   "quantization": "BF16",
+   "score_0_100": 7.7777777777777795,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.26222222222222225,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:aion-1.0-instruct_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 0.08583333333333333,
+   "gpu_cost_usd": 0.21372500000000003
   },
   {
    "repo": "startlux-models/StartLux-Decision-v1.1-0.8B-Instant",
