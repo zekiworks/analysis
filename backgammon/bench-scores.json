@@ -278,6 +278,31 @@
   },
   {
    "calibration_error": null,
+   "commit": null,
+   "improvement_points": null,
+   "kind": "chat",
+   "maker": "Subquadratic",
+   "model_key": "subq-savant-1.4",
+   "name": "SubQ Savant 1.4",
+   "notes": "League 1; calibration definition pending Ümit; late entry: its own decisions in late-entry matches against League 1's field (different positions from the league's); scored against League 1's Random; played 16 of 19 matches; not played: Fastino GLiDE (opponent's API out of funds (402)); GPT-6 Luna (Decisions API): outside the requested scope (Ümit, 12 Nov); not played (not attempted: outside the requested scope); Inception Mercury Decide: outside the requested scope (Ümit, 12 Nov); not played (not attempted: outside the requested scope); Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #63 (Can #11963, 18 Nov 2026). SubQ's Savant 1.4 through SubQ's OpenAI-compatible Chat Completions API, never on our GPUs; the League 1 letter prompt with the letter constrained to the options (strict json_schema enum), as for Muse Ember (max). SubQ refuses logprobs for this model (400 unsupported_parameter), so it answers with one letter, read from the reply, no probability; 7.87 M of its 7.89 M output tokens were reasoning. First stage 18 Nov 2026, 06:41–08:12 UTC: its program and hosted opponents (#1558–#1566); local stage 19 Nov 2026, 07:18–09:20 UTC: the 8 setups we run ourselves, one at a time on our GPU 0 (#1567–#1574). Runner 38024d6 for every match, started by the scripts on branch late-savant (1198670, b15609f). It played 16 of its 19 opponents: its pairs with GPT-6 Luna and Mercury Decide were not played (outside the requested scope), and its pair with Fastino GLiDE (Fastino's hosted API) was not played because that API answers 402, out of funds, since 18 Nov ~08:00 UTC and no funds could be added (Can #12559; match #1565 aborted before any move); not a loss. Fastino GLiDE v1.2 (local), the released weights on our server, was played. Invalid answers: 0. Entry spend $4.35 (it and its paid opponents).; hosted (API or subscription)",
+   "params_active": null,
+   "params_total": null,
+   "quantization": null,
+   "raw": {
+    "metric": "error rate (PR, lower is better)",
+    "options": null,
+    "questions": 1809,
+    "value": 25.685799441461473
+   },
+   "repo": null,
+   "runs": [
+    "backgammon:subq-savant-1.4"
+   ],
+   "score_0_100": 78.79,
+   "tag": ""
+  },
+  {
+   "calibration_error": null,
    "commit": "8e56aa1b236a6dd1064dcfd22ba1e5e360e4c140",
    "improvement_points": null,
    "kind": "decision",
@@ -1482,6 +1507,6 @@
   "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
  },
  "title": "Backgammon",
- "updated": "2026-11-19T09:32Z",
+ "updated": "2026-11-19T09:36Z",
  "url": "https://zekiworks.github.io/analysis/backgammon/"
 }

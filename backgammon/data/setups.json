@@ -3941,6 +3941,38 @@
   {
    "confidence_source": "none",
    "dataset": "late-entry",
+   "date_run": "18–19 Nov 2026",
+   "missing": [],
+   "model": "SubQ Savant 1.4",
+   "model_id": "subq-savant-1.4 (SubQ Chat Completions API, pinned, not the subq-savant-latest alias; early access; closed weights)",
+   "model_type": "chat model, one letter",
+   "name": "SubQ Savant 1.4",
+   "notes": "Late entry to the original League 1 table (not in standings, not eligible for the Hype Cup), late-entry league #63 (Can #11963, 18 Nov 2026). SubQ's Savant 1.4 through SubQ's OpenAI-compatible Chat Completions API, never on our GPUs; the League 1 letter prompt with the letter constrained to the options (strict json_schema enum), as for Muse Ember (max). SubQ refuses logprobs for this model (400 unsupported_parameter), so it answers with one letter, read from the reply, no probability; 7.87 M of its 7.89 M output tokens were reasoning. First stage 18 Nov 2026, 06:41–08:12 UTC: its program and hosted opponents (#1558–#1566); local stage 19 Nov 2026, 07:18–09:20 UTC: the 8 setups we run ourselves, one at a time on our GPU 0 (#1567–#1574). Runner 38024d6 for every match, started by the scripts on branch late-savant (1198670, b15609f). It played 16 of its 19 opponents: its pairs with GPT-6 Luna and Mercury Decide were not played (outside the requested scope), and its pair with Fastino GLiDE (Fastino's hosted API) was not played because that API answers 402, out of funds, since 18 Nov ~08:00 UTC and no funds could be added (Can #12559; match #1565 aborted before any move); not a loss. Fastino GLiDE v1.2 (local), the released weights on our server, was played. Invalid answers: 0. Entry spend $4.35 (it and its paid opponents).",
+   "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
+   "price": {
+    "date": "2026-11-18",
+    "input_per_mtok": 0.1,
+    "label": "API price",
+    "output_per_mtok": 0.5,
+    "source": "docs.subq.ai/using-the-api/models ($0.10/M input, $0.01/M cached input, $0.50/M output, reasoning billed as output), read 2026-11-18; cost is the list price × our recorded tokens (turns.cost_usd, cached input counted at the full input rate)"
+   },
+   "provider": "SubQ Chat Completions API (api.subq.ai/v1/chat/completions, model subq-savant-1.4), direct; at most 2 matches deciding at once",
+   "reasoning": "reasoning effort high (sent explicitly; SubQ's default; the model always reasons)",
+   "rules_text": "long",
+   "runs_on": "API",
+   "sampling": "temperature 1.0 (fixed by SubQ)",
+   "setting": null,
+   "slug": "subq-savant-1.4",
+   "sources": [
+    "players.settings (v3.db, read-only)",
+    "turns.provider/probability_source/cost_usd/reasoning_tokens/harness_commit (v3.db, read-only)",
+    "mailbox/Late entry SubQ Savant 1.4 - status.md"
+   ],
+   "weights": "closed"
+  },
+  {
+   "confidence_source": "none",
+   "dataset": "late-entry",
    "date_run": null,
    "missing": [
     "price.date"
