@@ -491,7 +491,7 @@ $('#modal').addEventListener('click',e=>{if(e.target===$('#modal')){const q=e.ta
 window.addEventListener('popstate',()=>{const next=fromURL();if($('#modal').open)$('#modal').close();s=next;render();if(records.has(s.detail))showDetail(records.get(s.detail))});
 function applyLanguage(){
  document.documentElement.lang=s.ui;
- document.title=s.ui==='tr'?'Hilde Model Testleri':'Hilde Benchmarks';
+ document.title=s.ui==='tr'?'Model Atlası':'Model Atlas';  // Ümit #12533-#12538: the site is Model Atlas
  document.querySelectorAll('[data-ui]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ui===s.ui));
  HildeI18n.localize(document.body,s.ui);
 }
