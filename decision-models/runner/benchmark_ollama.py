@@ -581,6 +581,11 @@ PRICES: dict[tuple[str, str], Price] = {
         "2026-11-18", 0.05, 0.25, cached_input=0.005,
         change="from 17 May 2027: $0.10 input, $0.50 output and $0.01 cached input per 1M tokens",
     ),
+    # Gemini 4 Neon through the same bridge and subscription (Ümit #12721; antigravity-benchmark #12725: the bridge's
+    # gemini-4-neon is high thinking), at the Gemini API's standard paid-tier price for it (read 19 November 2026).
+    ("agbench", "gemini-4-neon"): Price(
+        "Google's Gemini API price", GEMINI_PRICING, "2026-11-19", 3.00, 15.00, cached_input=0.15
+    ),
     # Read 28 October 2026.
     ("xai", "grok-4.7"): Price("xAI's API list price", "https://docs.x.ai/docs/models/grok-4.7", "2026-10-28", 2.00, 6.00, cached_input=0.50),
     ("claude", "claude-fable-5-1"): Price(
