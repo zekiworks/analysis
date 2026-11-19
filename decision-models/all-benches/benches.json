@@ -12187,12 +12187,12 @@
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
    "published": true,
-   "seen": "2026-11-18",
+   "seen": "2026-11-19",
    "file": {
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-18T13:53:12Z",
+    "updated": "2026-11-19T13:17:44Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -14811,6 +14811,34 @@
       "gpu_cost_usd": null
      },
      {
+      "name": "Aion 1.0 Instruct",
+      "display_name": "Aion 1.0 Instruct",
+      "tag": "no separate thinking mode · chat",
+      "model_key": "aion-1.0-instruct",
+      "maker": "Microsoft",
+      "kind": "chat",
+      "repo": "microsoft/Aion-1.0-Instruct-2.3B",
+      "commit": "28902cbfd9f4e0347d6c853aa1301f5d559b2fc0",
+      "params_total": 2.29,
+      "params_active": 2.29,
+      "quantization": "BF16",
+      "score_0_100": 31.343644272595462,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.5422909618173031,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-aion-1.0-instruct-v1"
+      ],
+      "notes": "microsoft/Aion-1.0-Instruct-2.3B@28902cbf, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; its own modeling code (trust_remote_code) on vLLM's Transformers backend (--model-impl transformers), as no vLLM release has the architecture; one question per request, 30 requests at a time (latency not comparable across different concurrency); the server also answered other benchmarks' requests (Logic & Math, Reading) during the run, so its latency and GPU time are shared-load figures; no separate thinking mode; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 36 of 2069 replies (2%) had no answer marker and count wrong (0 of them cut off at the 28,672-token reply limit (its 32,768-token context minus room for the prompt)); every reply kept",
+      "gpu_hours": 0.026714298600828273,
+      "gpu_cost_usd": null
+     },
+     {
       "name": "Nemotron-Labs-Sigma-3B-instruct",
       "display_name": "Nemotron-Labs-Sigma-3B-instruct",
       "tag": "thinking off · chat",
@@ -14840,18 +14868,18 @@
      }
     ]
    },
-   "sha256": "945cb9edb8b05d296ada744890c3cc11153c3be9bc32e4ee130a91857dd429fd"
+   "sha256": "39f254bafbe7df3eecaed972ba5b228705d77234b69a3149952f060991c9150f"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
    "published": true,
-   "seen": "2026-11-18",
+   "seen": "2026-11-19",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-18T13:53:19Z",
+    "updated": "2026-11-19T13:17:50Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "945cb9edb8b05d296ada744890c3cc11153c3be9bc32e4ee130a91857dd429fd"
+     "sha256": "39f254bafbe7df3eecaed972ba5b228705d77234b69a3149952f060991c9150f"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -16472,6 +16500,29 @@
       "chosen_answer_brier": null
      },
      {
+      "run": "grading:chat-aion-1.0-instruct-v1",
+      "model_key": "aion-1.0-instruct",
+      "latency_s_median": 1.209,
+      "latency_s_p90": 2.463,
+      "requests_in_flight": 30,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "cost_basis": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 46.5,
+      "recall_reference": 0.8142,
+      "recall_other": 0.0517,
+      "recall_none": 0.4236,
+      "wrong_answer_recall": 0.0517,
+      "false_alarm_rate": 0.0195,
+      "invalid": 36,
+      "probabilities": false,
+      "decision_score": null,
+      "chosen_answer_brier": null
+     },
+     {
       "run": "grading:chat-lfm2.5-8b-a1b-think-v1",
       "model_key": "lfm2.5-8b-a1b-think",
       "latency_s_median": 9.579,
@@ -16902,7 +16953,7 @@
      }
     ]
    },
-   "sha256": "35546ea481cabd424e13b549563b4140f8727d58971ba7b47a5115aba0cbc83e"
+   "sha256": "4cd8849975a1f12810a00d62132c21f1954f2f6d597f5843b459cb23552c926a"
   },
   "grading-consistency": {
    "url": "https://zekiworks.github.io/analysis/grading/consistency.json",
@@ -16911,7 +16962,7 @@
    "file": {
     "bench": "Answer Check",
     "cohort": "no-code",
-    "feed_sha256": "945cb9edb8b05d296ada744890c3cc11153c3be9bc32e4ee130a91857dd429fd",
+    "feed_sha256": "39f254bafbe7df3eecaed972ba5b228705d77234b69a3149952f060991c9150f",
     "report_sha256": "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
     "definitions": {
      "forms": "each no-code pair asked again: 'control' the scored request unchanged; 'order1', 'order2' the three options in two different changed orders (the same orders for every model); 'names' the options' keys replaced by plain letters in reverse; 'dontknow' the not-stated option reworded. Question, reference answer and text never change.",
@@ -17243,7 +17294,7 @@
      }
     ]
    },
-   "sha256": "7e4a534afc8bdab984c5674b3e6ac000bfb34df870b0c9655220a360ad3e1561"
+   "sha256": "f45807ae9a3fbf9560a725653a5bb355a689dfd66dfc7fa091557c00da84edfa"
   }
  }
 }
