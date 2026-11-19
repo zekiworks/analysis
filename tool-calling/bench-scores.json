@@ -763,6 +763,39 @@
     {
       "base_model": null,
       "calibration_error": null,
+      "class_label": "Open \u00b7 2.3B",
+      "commit": "28902cbfd9f4e0347d6c853aa1301f5d559b2fc0",
+      "display_name": "Aion 1.0 Instruct",
+      "gpu_cost_usd": 0.007954166666666667,
+      "gpu_hours": 0.0031944444444444446,
+      "improvement_points": null,
+      "kind": "chat",
+      "maker": "Microsoft",
+      "model_key": "toolbench-b21df88dd36e985e",
+      "name": "Aion 1.0 Instruct",
+      "notes": "original/renamed paired, no chance correction; provider local vLLM v0.30.0 served by @logic on bariton (#12609), Transformers backend (trust_remote_code: the architecture is not in any vLLM release), one RTX PRO 6000, BF16; No thinking switch; greedy (temperature 0), as the card's quickstart and our other benches; output cap 4,096 tokens because its context is 32,768 (no prompt or reply came near either limit). Served with vLLM's Transformers backend and a tool parser for its <|tool_call|> tags (the architecture is not in vLLM).",
+      "params_active": 2.29,
+      "params_total": 2.29,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 0.5476190476190477
+      },
+      "repo": "microsoft/Aion-1.0-Instruct-2.3B",
+      "runs": [
+        "report:b21df88dd36e985e1b53f83af1644bd0ca94725d621396496adbadd5d58821b1"
+      ],
+      "score_0_100": 54.761904761904766,
+      "setup_label": "off",
+      "tag": "chat"
+    },
+    {
+      "base_model": null,
+      "calibration_error": null,
       "class_label": "Open \u00b7 9.0B",
       "commit": "b3f8a93462fb1051a9de031e94a7ff380e254072",
       "display_name": "Elephant-1 (decision model, plain vLLM)",
@@ -1162,6 +1195,6 @@
     "zero": "No tasks passed"
   },
   "title": "Can a small model use tools?",
-  "updated": "2026-11-19T00:32:54+01:00",
+  "updated": "2026-11-19T13:59:10+01:00",
   "url": "https://zekiworks.github.io/analysis/tool-calling/"
 }
