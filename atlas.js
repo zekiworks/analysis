@@ -39,7 +39,7 @@ function renderField(title,key,values,allLabel){
  const list=allLabel?['',...values]:values;
  return '<label class="field"><span class="fieldTitle">'+title+'</span><select data-filter="'+key+'">'+list.map(v=>'<option value="'+safe(v)+'" '+(s[key]===v?'selected':'')+'>'+safe(v?(key==='snapshot'?dateLabel(v):v):allLabel)+'</option>').join('')+'</select></label>';
 }
-function blank(){return {ui:'en',section:sections[0],panel:'Results',track:initialTracks[0],model:'',models:'all',size:'all',language:'',mode:'',status:'',snapshot:dates[0],view:'results',layout:'table',page:1,ids:[],detail:''}}
+function blank(){return {ui:'en',section:sections[0],panel:'Results',track:initialTracks[0],model:'',models:'all',size:'all',language:'',mode:'',status:'',snapshot:dates[0],view:'results',layout:'table',sort:'',page:1,ids:[],detail:''}}
 const legacyLabels={"T\u00fcrk\u00e7e \u00b7 Genel":"Turkish Reading & Grammar","Metin":"Text","Yay\u0131mlanm\u0131\u015f":"Published","T\u00fcrk\u00e7e":"Turkish","T\u00fcrk\u00e7e \u00b7 Okuma":"Turkish Reading","T\u00fcrk\u00e7e \u00b7 Dil bilgisi":"Turkish Grammar","English reading":"English Reading","\u0130ngilizce":"English","Bilmiyorum \u00b7 T\u00fcrk\u00e7e":"Turkish abstention option","Se\u00e7enek dili \u00b7 T\u00fcrk\u00e7e":"Turkish option wording","\u00c7al\u0131\u015ft\u0131r\u0131lmad\u0131":"Not run","I don\u2019t know \u00b7 English":"English abstention option","Sayfa deneyi \u00b7 Metin":"Page input \u00b7 Text","Sayfa deneyi \u00b7 Yaln\u0131z g\u00f6r\u00fcnt\u00fc":"Page input \u00b7 Image only","Yaln\u0131z g\u00f6r\u00fcnt\u00fc":"Image only","Sayfa deneyi \u00b7 Metin + g\u00f6r\u00fcnt\u00fc":"Page input \u00b7 Text and image","Metin + g\u00f6r\u00fcnt\u00fc":"Text and image","Sayfa deneyi \u00b7 D chandra-ocr-2":"Page input \u00b7 D chandra-ocr-2","OCR metni":"OCR text","Sayfa deneyi \u00b7 D dots-mocr":"Page input \u00b7 D dots-mocr","Sayfa deneyi \u00b7 D surya-ocr-2":"Page input \u00b7 D surya-ocr-2","Sayfa deneyi \u00b7 D unlimited-ocr-2":"Page input \u00b7 D unlimited-ocr-2","Sayfa deneyi \u00b7 \u00c7al\u0131\u015ft\u0131r\u0131lmad\u0131":"Page input \u00b7 Not run","G\u00f6rsel deney":"Board image experiment","Lig 1":"League 1","Belirtilmemi\u015f":"Unspecified","Lig 2":"League 2","Lig 3":"League 3","Ge\u00e7 kat\u0131l\u0131m \u00b7 Lig 3":"Late entry \u00b7 League 3","Ge\u00e7 kat\u0131l\u0131m \u00b7 Lig 1":"Late entry \u00b7 League 1","v1 pozisyonlar\u0131":"v1 position set","K\u0131sa test \u00b7 Part A":"Smoke test \u00b7 Part A","Nackgammon \u00b7 \u0130lk bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 First look \u00b7 standard","Nackgammon \u00b7 \u0130lk bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 First look \u00b7 nackgammon","Nackgammon \u00b7 Son bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 Final look \u00b7 standard","Nackgammon \u00b7 Son bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 Final look \u00b7 nackgammon","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 \u0130lk bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 Late entry \u00b7 First look \u00b7 standard","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 \u0130lk bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 Late entry \u00b7 First look \u00b7 nackgammon","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 Son bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 Late entry \u00b7 Final look \u00b7 standard","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 Son bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 Late entry \u00b7 Final look \u00b7 nackgammon","Analiz durumu":"Analysis status","Analiz bekliyor":"Analysis pending","\u00d6l\u00e7\u00fclmedi":"Not measured","Tahta g\u00f6r\u00fcnt\u00fcs\u00fc":"Board image","Birle\u015fik kaynak puan\u0131":"Published combined score","Karma":"Mixed","Kapsam eksik":"Incomplete coverage","Web grounding \u00b7 turkish":"Web grounding \u00b7 Turkish","Web grounding \u00b7 english":"Web grounding \u00b7 English","Engellendi":"Blocked","Sayfa tekrar\u0131 \u00b7 B":"Page repeat \u00b7 B","Sayfa tekrar\u0131 \u00b7 C":"Page repeat \u00b7 C"};
 function fromURL(){
  let params=new URLSearchParams(location.search);
@@ -55,6 +55,7 @@ function fromURL(){
  if(!dates.includes(st.snapshot))st.snapshot=dates[0];
  if(!['results','compare','drafts'].includes(st.view))st.view='results';
  if(!['chart','table','metrics','resources'].includes(st.layout))st.layout='table';
+ if(!['','cost','latency'].includes(st.sort))st.sort='';
  st.page=Math.max(1,parseInt(st.page,10)||1);return st
 }
 let s=fromURL(), mobileOpen=false;
@@ -252,7 +253,20 @@ function usageTable(rows){
 function checkbox(r){return '<input type="checkbox" aria-label="'+safe(r.name)+' select for comparison" data-pick="'+safe(r.id)+'" '+(s.ids.includes(r.id)?'checked':'')+'>'}
 function recButton(r){return '<button class="rowName" data-detail="'+r.id+'">'+branded(r,safe(r.name))+'</button><span class="sub">'+safe([r.setup||r.tag||r.ref||r.track, r.seeds?r.seeds.length+' run average':null].filter(Boolean).join(' · '))+'</span>'}
 function headingActions(){return '<div class="actions"><button class="outline" data-act="share">'+ic('link')+' Copy link</button>'+(s.ids.length?'<button class="primary" data-goto="compare">'+ic('compare')+' Selected ('+s.ids.length+')</button>':'')+'</div>'}
+// Every table in one order (Ümit #12794): its main measure first (best first; an error rate lowest first), or, after a
+// click on Cost or Latency, the cheapest or fastest first; rows without the value go last, in the main order.
+function costValue(r){const rate=r.unitCost||r.setupReference?.unitCost;const v=rate?.value??r.cost;const basis=rate?.basis||r.costBasis||'';return has(v)&&!(v===0&&/subscription/i.test(basis))?v:null}
+function latencyValue(r){const v=r.latency??r.setupReference?.latency;return has(v)?v:null}
+function ordered(rows){
+ const main=r=>{const [label,v]=metric(r);return v===null?null:(label==='Error rate'?-v:v)};
+ const byMain=(a,b)=>{const x=main(a),y=main(b);return x===null&&y===null?0:x===null?1:y===null?-1:y-x};
+ const key=s.sort==='cost'?costValue:s.sort==='latency'?latencyValue:null;
+ return rows.map((r,i)=>[r,i]).sort(([a,i],[b,j])=>{
+  if(key){const x=key(a),y=key(b);if(x!==null||y!==null){if(x===null)return 1;if(y===null)return -1;if(x!==y)return x-y}}
+  return byMain(a,b)||i-j}).map(([r])=>r);
+}
 function resultSurface(f){
+ f={...f,rows:ordered(f.rows)};
  const n=f.rows.length, pageSize=10;const last=Math.max(1,Math.ceil(n/pageSize));s.page=Math.min(s.page,last);if(f.chosen)s.track=f.chosen;
  const rows=f.rows.slice((s.page-1)*pageSize,s.page*pageSize);
  const one=rows.find(r=>metric(r)[1]!==null)||rows[0];
@@ -286,7 +300,10 @@ function resultSurface(f){
   const md=s.layout==='metrics';
   const candidates=roster;
   const heads=candidates?['Candidate and setup','Run status','Cost','Latency','Model type','Size verification']:md?['Model and setup','Cost','Latency','ECE','Invalid','Abstained']:['Rank¹','Model and setup',measure,s.panel==='Learning'?'Verdict':measure==='Normalized score'?'Raw accuracy':'Norm. score','Cost','Latency'];
-  content='<div class="tableScroll"><table><thead class="tableHead"><tr><th class="checkCol"><span class="sr">Select</span></th>'+heads.map(h=>'<th scope="col">'+safe(h)+'</th>').join('')+'<th><span class="sr">Details</span></th></tr></thead><tbody>'+rows.map(r=>{
+  const sortKey={Cost:'cost',Latency:'latency'};
+  const head=h=>{const k=sortKey[h]??(h===measure?'':null);if(k===null||candidates)return '<th scope="col">'+safe(h)+'</th>';
+   const on=s.sort===k;return '<th scope="col" aria-sort="'+(on?(k?'ascending':'descending'):'none')+'"><button class="sortHead'+(on?' on':'')+'" data-sort="'+k+'">'+safe(h)+(on?' '+(k?'↑':'↓'):'')+'</button></th>'};
+  content='<div class="tableScroll"><table><thead class="tableHead"><tr><th class="checkCol"><span class="sr">Select</span></th>'+heads.map(head).join('')+'<th><span class="sr">Details</span></th></tr></thead><tbody>'+rows.map(r=>{
     const [label,m,u]=metric(r);
     if(candidates)return '<tr><td class="checkCol">'+checkbox(r)+'</td><td>'+recButton(r)+'</td><td>'+statusTag(r)+'</td>'+usageColumns(r)+'<td>'+safe(typeTitles[r.modelType]||'Unclassified')+'</td><td>'+safe(sizeTitles[r.modelClass]||'Unverified')+'</td><td><button class="rowDetails" data-detail="'+r.id+'" aria-label="'+safe(r.name)+' details">'+ic('right')+'</button></td></tr>';
     let main='<td class="checkCol">'+checkbox(r)+'</td>';
@@ -473,6 +490,7 @@ document.addEventListener('click',e=>{
  if(d.toggleDetail){togglePick(d.toggleDetail);render();showDetail(records.get(d.toggleDetail),false);return}
  if(d.history){s.ids=uniq([...s.ids,d.origin,d.history]);openView('compare');return}
  if(d.remove){togglePick(d.remove);render();persist();return}
+ if(d.sort!==undefined&&b.classList.contains('sortHead')){s.sort=d.sort;s.page=1;render();persist(true);return}
  if(d.layout){s.layout=d.layout;render();persist(true);return}
  if(d.page){s.page+=Number(d.page);render();persist(true);return}
  if(d.copy)copy(document.getElementById(d.copy).value)
