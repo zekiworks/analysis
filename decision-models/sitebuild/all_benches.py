@@ -434,6 +434,15 @@ def metrics_file(data: Any) -> None:
         raise ValueError("not in the metrics schema")
 
 
+def consistency_file(data: Any) -> None:
+    """A bench's consistency file (page_config.json benches' consistency: Answer Check's consistency.json, compactor
+    #12608): an object with its bench's feed sha256 and models, each with a label and its forms' flip rates."""
+    if not isinstance(data, dict) or not isinstance(data.get("models"), list) or not isinstance(data.get("feed_sha256"), str) or not all(
+            isinstance(row, dict) and isinstance(row.get("label"), str) and isinstance(row.get("forms"), dict)
+            for row in data["models"]):
+        raise ValueError("not in the consistency schema")
+
+
 def external(site: Site) -> tuple[list[dict[str, Any]], str]:
     """The other sites' benches as page_config.json lists them, one file each, each with its file's bench (or None until
     published) and, for a bench with a metrics address, its metrics file (or None), read now; and the snapshot JSON the
@@ -482,9 +491,14 @@ def external(site: Site) -> tuple[list[dict[str, Any]], str]:
         if spec.get("metrics"):
             found = read(spec["key"] + "-metrics", spec["label"] + " metrics", spec["metrics"], metrics_file)
             metrics = found["file"] if found["published"] else None
+        consistency = None
+        if spec.get("consistency"):
+            found = read(spec["key"] + "-consistency", spec["label"] + " consistency", spec["consistency"], consistency_file)
+            consistency = found["file"] if found["published"] else None
         out.append({"key": spec["key"], "label": spec["label"], "short": spec["label"], "parts": spec.get("parts"),
                     "bench": bench, "feed": spec["url"], "feed_sha256": entry.get("sha256"), "seen": entry["seen"],
-                    "metrics": metrics, "metrics_url": spec.get("metrics"), "history": spec.get("history")})
+                    "metrics": metrics, "metrics_url": spec.get("metrics"), "history": spec.get("history"),
+                    "consistency": consistency, "consistency_url": spec.get("consistency")})
         print(f"all-benches: {spec['label']}: " + (f"published, {len(bench['models'])} rows" if bench else NOT_PUBLISHED)
               + ("" if not spec.get("metrics") else f"; metrics {'published' if metrics else NOT_PUBLISHED}"))
     snapshot = {"about": "The other benches' bench-scores.json (and a bench's metrics file, as <key>-metrics) as this "
@@ -1997,6 +2011,52 @@ def frame(data: Data, path: str, title: str, description: str, body: str, image:
 """
 
 
+# Answer Check's consistency forms in its file's order (compactor #12608), with the words a reader sees.
+CONSISTENCY_FORMS = (("control", "Same again"), ("order1", "Options reordered (1)"), ("order2", "Options reordered (2)"),
+                     ("names", "Option keys renamed"), ("dontknow", "'Not stated' reworded"))
+
+
+def grading_consistency(data: Data) -> str:
+    """Answer Check's consistency table (Ümit #12211; compactor #12608, accepted by Zeki #12606 and grading #12607) under
+    its results, as the Reading and Tool choice pages show theirs: per model and form the flip rate and the mean
+    confidence change, each model's note and coverage, what was not run, and the file's definitions. Empty until the file
+    is live; stops the build when it was made for another bench-scores.json than the one the page shows."""
+    bench = data.by_key[GRADING]
+    file = bench.get("consistency")
+    if not file:
+        return ""
+    if file["feed_sha256"] != bench["feed_sha256"]:
+        raise SystemExit(f"grading consistency: made for bench-scores.json {file['feed_sha256']}, the build read {bench['feed_sha256']}")
+    missing = sorted(f"{row['label']}: {form}" for row in file["models"] for form, _ in CONSISTENCY_FORMS if form not in row["forms"])
+    if missing:
+        raise SystemExit(f"grading consistency: forms missing ({missing})")
+    percent = lambda value: f"{100 * value:.1f}%"
+    head = "".join(f'<th scope="col" class="zw-num">{esc(label)}</th>' for _, label in CONSISTENCY_FORMS)
+    rows = "".join(
+        f'<tr><th scope="row">{esc(row["label"])}</th>'
+        + "".join(f'<td class="zw-num">{percent(row["forms"][form]["flip_rate"])}'
+                  f'<br><small>Δ conf {row["forms"][form]["mean_confidence_change"]:.3f}</small></td>'
+                  for form, _ in CONSISTENCY_FORMS) + "</tr>"
+        for row in file["models"])
+    notes = "".join(f'<li><strong>{esc(row["label"])}</strong>: {esc(text)}</li>'
+                    for row in file["models"] for text in (row.get("note"), row.get("coverage")) if text)
+    left = file.get("not_included") or {}
+    left_items = [text for key, text in left.items() if key != "models" and isinstance(text, str)]
+    names = {row["model_key"]: row.get("display_name") or row["name"] for row in grading_rows(data) or [] if row.get("model_key")}
+    left_items += [f"{names.get(model, model)}: {text}" for model, text in (left.get("models") or {}).items()]
+    defs = "".join(f'<li><strong>{esc(key.replace("_", " "))}</strong>: {esc(text)}</li>'
+                   for key, text in (file.get("definitions") or {}).items())
+    return (f'<section class="zw-block" id="consistency"><h2>Consistency</h2>'
+            f'<p class="zw-scope">Share of the {GRADING_PAIRS:,} pairs whose answer changes when the request changes form, '
+            'and under it (Δ conf) the mean change in the probability of the original pick. Separate from every score.</p>'
+            f'<div class="zw-wide"><div class="zw-wide-box"><table class="zw-table"><thead><tr><th scope="col">Model</th>{head}</tr>'
+            f'</thead><tbody>{rows}</tbody></table></div></div>'
+            + (f'<ul class="zw-note">{notes}</ul>' if notes else "")
+            + (f'<details><summary>Not run</summary><ul>{"".join(f"<li>{esc(text)}</li>" for text in left_items)}</ul></details>' if left_items else "")
+            + f'<details><summary>What this measures</summary><ul>{defs}</ul>'
+            f'<p><a href="{esc(bench["consistency_url"])}">consistency.json</a></p></details></section>')
+
+
 def grading_page(data: Data, image: str) -> str | None:
     """Grading's own page (Ümit #6420, Zeki #6424), at /analysis/grading/ beside its files, its tab in the suite strip,
     on the shared kit (GradingBench, zw_ui v2.6) in the look of the Reading, Logic & Math and Backgammon pages (Ümit
@@ -2010,7 +2070,8 @@ def grading_page(data: Data, image: str) -> str | None:
     up = posixpath.relpath(suite_path(data.site), GRADING_HOME) + "/"
     models = [model for model in data.models.values() if GRADING in model["scores"]]
     name = data.by_key[GRADING]["label"]
-    body = f'<h1 class="visually-hidden" id="top">{esc(name)}</h1>' + ui.results(GradingBench(data, models, metrics, up))
+    body = (f'<h1 class="visually-hidden" id="top">{esc(name)}</h1>' + ui.results(GradingBench(data, models, metrics, up))
+            + grading_consistency(data))
     footer = (f'<nav class="footer-links" aria-label="Site"><a href="./">{esc(name)}</a> · <a href="{up}{METHOD}#grading">'
               f'Methodology</a> · <a href="{up}">{TITLE}</a></nav>')
     return frame(data, "", name, f"{name}: does the text give this answer? Each model's score from 0 (chance) to 100 "

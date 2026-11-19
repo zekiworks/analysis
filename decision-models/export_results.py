@@ -917,6 +917,11 @@ MODELS: dict[str, dict[str, Any]] = {
            ("spark-x2.6-4b", "Spark-X2.6-4B", "llama.cpp (its BF16 GGUF; vLLM v0.30.0 has no Spark2_5ForCausalLM)",
             "XHToken/Spark-X2.6-4B-GGUF@9d71677"),
            ("granite-4.2-3b", "Granite-4.2-3B", "vLLM v0.30.0", "ibm-granite/granite-4.2-3b@4e9c275"),
+           # Microsoft's Aion 1.0 Instruct (Ümit #12586): no vLLM release has its architecture, so its own modeling code
+           # (trust_remote_code) on vLLM's Transformers backend, checked against the card's Transformers path (logic #12609).
+           ("aion-1.0-instruct", "Aion 1.0 Instruct",
+            "vLLM v0.30.0, Transformers backend (--model-impl transformers, its own modeling code)",
+            "microsoft/Aion-1.0-Instruct-2.3B@28902cb"),
            ("granite-4.2-8b", "Granite-4.2-8B", "vLLM v0.30.0", "ibm-granite/granite-4.2-8b@a704214"),
            ("lfm2.5-24b-a2b", "LFM2.5-24B-A2B", "vLLM v0.30.0", "LiquidAI/LFM2.5-24B-A2B@1769516"),
            ("granite-4.2-30b", "Granite-4.2-30B", "vLLM v0.30.0", "ibm-granite/granite-4.2-30b@9e668ce"),
@@ -1498,6 +1503,8 @@ SIZES: dict[str, dict[str, Any]] = {
            ("minicpm5-2b", 2_516_756_480, "language model with its LM head, text only", "openbmb/MiniCPM5-2B", "42433e9"),
            ("spark-x2.6-4b", 4_112_079_360, "language model (tied embeddings, text only)", "XHToken/Spark-X2.6-4B",
             "64ca8f2"),
+           ("aion-1.0-instruct", 2_288_831_488, "language model (tied embeddings), text only",
+            "microsoft/Aion-1.0-Instruct-2.3B", "28902cb"),
            ("granite-4.2-3b", 3_659_737_600, "language model with its LM head, text only", "ibm-granite/granite-4.2-3b",
             "4e9c275"),
            ("granite-4.2-8b", 8_791_592_960, "language model with its LM head, text only", "ibm-granite/granite-4.2-8b",

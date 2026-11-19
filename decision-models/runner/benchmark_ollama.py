@@ -888,6 +888,8 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("vllm-plain", "minicpm5-2b"): 1,
     ("vllm-plain", "spark-x2.6-4b"): 1,
     ("vllm-plain", "granite-4.2-3b"): 1,
+    # Microsoft Aion 1.0 Instruct (Ümit #12586): its own modeling code on vLLM's Transformers backend (logic #12609).
+    ("vllm-plain", "aion-1.0-instruct"): 1,
     ("vllm-plain", "granite-4.2-30b"): 1,
     # Nemotron-Labs-Sigma (Ümit via Zeki #11225): the maker's Transformers code behind logic's sigma_server.py, several
     # copies on one RTX PRO 6000 (3B five, 8B two; logic #11282).
