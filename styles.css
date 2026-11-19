@@ -64,3 +64,6 @@ html[data-theme=dark]{--ink:#f1eff0;--dim:#c0bbbf;--line:#424046;--paper:#19191c
 /* the table's scroll box holds its absolutely placed screen-reader labels too, so none widens the page at 390 px (Zeki #10787) */
 /* Toolbench: the one small link to what a tab measures (Ümit #12107) */
 .whatLink{margin:0 0 8px;font-size:13px}
+
+/* The section's other experiments, behind one disclosure under the main tabs (Ümit #12548) */
+.moreTracks{border-bottom:1px solid var(--line);padding:6px 12px}.moreTracks>summary{cursor:pointer;font-size:13px;color:var(--dim);list-style:none}.moreTracks>summary::before{content:'▸ '}.moreTracks[open]>summary::before{content:'▾ '}.moreTracks>summary::-webkit-details-marker{display:none}.moreTracks .trackTabs{border-bottom:0;padding:6px 0 2px}

@@ -262,12 +262,14 @@ function resultSurface(f){
  // Backgammon as its own page has it (Ümit #11706, #11710): Risk judgement and Learning first, the leagues after;
  // Learning is its own panel, so its tab switches panels and the others come back to Results.
  const bgTabs=s.section==='Backgammon'&&['Results','Learning'].includes(s.panel)&&(data.get(s.snapshot)||[]).some(r=>r.section==='Backgammon'&&r.track.startsWith('Learning ·'));
- const trackTabs=bgTabs?'<div class="trackTabs" role="group" aria-label="Experiment tabs">'+popular.Backgammon.filter(t=>(data.get(s.snapshot)||[]).some(r=>r.section==='Backgammon'&&r.track===t)).flatMap((t,i)=>{
-   const tab='<button data-bg-track="'+safe(t)+'" aria-pressed="'+(s.panel==='Results'&&t===f.chosen)+'">'+safe(trackLabel(t))+'</button>';
-   return i===0?[tab,'<button data-panel="Learning" aria-pressed="'+(s.panel==='Learning')+'">'+safe(trackLabel('Learning'))+'</button>']:[tab];
-  }).join('')+'</div>'
-  :visibleTracks.length>1?'<div class="trackTabs" role="group" aria-label="Experiment tabs">'+visibleTracks.map(t=>'<button data-track="'+safe(t)+'" aria-pressed="'+(t===f.chosen)+'">'+safe(trackLabel(t))+'</button>').join('')+'</div>':'';
- const opts=f.tracks.map(v=>'<option value="'+safe(v)+'" '+(v===f.chosen?'selected':'')+'>'+safe(trackLabel(v))+'</option>').join('');
+ // One way to switch experiments, not a menu beside tabs that list the same ones (Ümit #12548, #12549): the section's
+ // main experiments as tabs, the rest behind 'More experiments', opened while one of them is shown.
+ const main=bgTabs?popular.Backgammon.filter(t=>f.tracks.includes(t)):visibleTracks;
+ const extra=f.tracks.filter(t=>!main.includes(t)&&!(bgTabs&&t.startsWith('Learning ·')));
+ const tabFor=t=>bgTabs?'<button data-bg-track="'+safe(t)+'" aria-pressed="'+(s.panel==='Results'&&t===f.chosen)+'">'+safe(trackLabel(t))+'</button>'
+  :'<button data-track="'+safe(t)+'" aria-pressed="'+(t===f.chosen)+'">'+safe(trackLabel(t))+'</button>';
+ const more=extra.length?'<details class="moreTracks"'+(extra.includes(f.chosen)&&s.panel==='Results'||!bgTabs&&extra.includes(f.chosen)?' open':'')+'><summary>'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('More experiments'))+' <span class="count">'+extra.length+'</span></summary><div class="trackTabs" role="group" aria-label="More experiments">'+extra.map(tabFor).join('')+'</div></details>':'';
+ const trackTabs=main.length+extra.length>1?'<div class="trackTabs" role="group" aria-label="Experiment tabs">'+main.flatMap((t,i)=>bgTabs&&i===0?[tabFor(t),'<button data-panel="Learning" aria-pressed="'+(s.panel==='Learning')+'">'+safe(trackLabel('Learning'))+'</button>']:[tabFor(t)]).join('')+'</div>'+more:'';
  const dims=key=>uniq(f.rows.map(r=>r[key]).filter(v=>v!==undefined));
  const labels=[s.section,...['lang','mode'].map(k=>dims(k).length===1?dims(k)[0]:null),dims('n').length===1&&dims('unit').length===1&&f.rows.every(r=>has(r.n))?fmtNum(dims('n')[0])+' '+(one?.unit||''):null].filter(Boolean);
  const radio=(layout,label,icon)=>'<button aria-pressed="'+(s.layout===layout)+'" class="'+(s.layout===layout?'active':'')+'" data-layout="'+layout+'">'+ic(icon)+label+'</button>';
@@ -296,7 +298,7 @@ function resultSurface(f){
   }).join('')+'</tbody></table></div>'
  }
  const heading=s.section==='Toolbench'?(roster?'Candidate setups':'Results'):s.panel==='Learning'?'Learning results':s.panel==='Learning pilot'?'Learning pilot results':'Experiment results';
- return '<div class="topline"><h2>'+heading+' <span class="count">'+fmtNum(n,0)+'</span></h2>'+headingActions()+'</div><div class="panel"><div class="panelTools"><div class="trackCtl"><label class="sr" for="track">Experiment</label>'+ic('layers')+'<select id="track" class="selectControl" '+(!opts?'disabled':'')+'>'+(opts||'<option>No experiment</option>')+'</select></div><div class="toggleGroup">'+radio('table','Table','table')+radio('resources','Cost & latency','clock')+(s.section==='Toolbench'?'':radio('chart','Chart','chart')+radio('metrics','Metrics','filters'))+'</div></div>'+trackTabs+'<div class="contextStrip"><span class="dot"></span>'+labels.map(safe).join('<span class="divider">/</span>')+'</div>'+content+(n?'<div class="pager"><span>'+((s.page-1)*pageSize+1)+'–'+Math.min(s.page*pageSize,n)+' / '+fmtNum(n,0)+' records</span><div class="actions"><button class="square" data-page="-1" aria-label="Previous page" '+(s.page===1?'disabled':'')+'>'+ic('left')+'</button><span>'+s.page+' / '+last+'</span><button class="square" data-page="1" aria-label="Next page" '+(s.page===last?'disabled':'')+'>'+ic('right')+'</button></div></div>':'')+'</div><p class="smallnote">'+(roster?'Select a candidate to inspect its eligibility and source.':'¹ Published rank or statistical tier. A dash means no value is reported. Select a model to inspect its method and units.')+'</p>'
+ return '<div class="topline"><h2>'+heading+' <span class="count">'+fmtNum(n,0)+'</span></h2>'+headingActions()+'</div><div class="panel"><div class="panelTools"><div class="toggleGroup">'+radio('table','Table','table')+radio('resources','Cost & latency','clock')+(s.section==='Toolbench'?'':radio('chart','Chart','chart')+radio('metrics','Metrics','filters'))+'</div></div>'+trackTabs+'<div class="contextStrip"><span class="dot"></span>'+labels.map(safe).join('<span class="divider">/</span>')+'</div>'+content+(n?'<div class="pager"><span>'+((s.page-1)*pageSize+1)+'–'+Math.min(s.page*pageSize,n)+' / '+fmtNum(n,0)+' records</span><div class="actions"><button class="square" data-page="-1" aria-label="Previous page" '+(s.page===1?'disabled':'')+'>'+ic('left')+'</button><span>'+s.page+' / '+last+'</span><button class="square" data-page="1" aria-label="Next page" '+(s.page===last?'disabled':'')+'>'+ic('right')+'</button></div></div>':'')+'</div><p class="smallnote">'+(roster?'Select a candidate to inspect its eligibility and source.':'¹ Published rank or statistical tier. A dash means no value is reported. Select a model to inspect its method and units.')+'</p>'
 }
 function selected(){return s.ids.map(id=>records.get(id)).filter(Boolean)}
 function statusTag(r){return '<span class="pill '+(r.status==='Published'?'':'mutedPill')+'">'+safe(r.status)+'</span>'}
@@ -478,7 +480,6 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{
  const el=e.target;
  if(el.dataset.filter){s[el.dataset.filter]=el.value;s.page=1;render();persist(true)}
- if(el.id==='track'){s.track=el.value;s.page=1;render();persist(true)}
  if(el.dataset.pick){togglePick(el.dataset.pick);render();persist()}
 });
 document.addEventListener('input',e=>{
