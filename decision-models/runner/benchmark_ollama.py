@@ -911,6 +911,8 @@ GPU_TIME: dict[tuple[str, str], int] = {
     # SmolLM2-1.7B-Instruct and SmolLM2-360M-Instruct (Ümit #13248) on vLLM, logic's load (#13267, #13334)
     ("vllm-plain", "smollm2-1.7b"): 1,
     ("vllm-plain", "smollm2-360m"): 1,
+    # SmolLM3-3B (Ümit #13443, #13489): one RTX PRO 6000 on logic's load, thinking on and off on the same server
+    ("vllm-plain", "smollm3-3b"): 1,
     # SenseNova-Loop-9B (Ümit #12072): LightLLM on logic's load (logic #12210).
     ("vllm-plain", "sensenova-loop-9b"): 1,
     ("vllm-plain", "granite-4.2-30b"): 1,
