@@ -87,6 +87,18 @@
         "source": "https://huggingface.co/sensenova/SenseNova-Loop-9B/blob/3e1ba6e8ac98090f9f7c03a55f26269eb3850fb6/README.md",
         "read": "2026-11-19"
       },
+      "smollm2-1.7b": {
+        "total": 1700000000,
+        "words": "1.7B (the size in the model's official name)",
+        "source": "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct/blob/31b70e2e869a7173562077fd711b654946d38674/README.md",
+        "read": "2026-11-20"
+      },
+      "smollm2-360m": {
+        "total": 360000000,
+        "words": "360M (the size in the model's official name)",
+        "source": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/blob/a10cc1512eabd3dde888204e902eca88bddb4951/README.md",
+        "read": "2026-11-20"
+      },
       "aion-1.0-instruct": {
         "total": 2290000000,
         "words": "~2.29B (tied input/output embeddings)",
@@ -2304,6 +2316,19 @@
         "runs": [
           {
             "provider": "cerno"
+          }
+        ]
+      },
+      {
+        "name": "SmolLM",
+        "runs": [
+          {
+            "provider": "vllm-plain",
+            "model": "smollm2-1.7b"
+          },
+          {
+            "provider": "vllm-plain",
+            "model": "smollm2-360m"
           }
         ]
       }

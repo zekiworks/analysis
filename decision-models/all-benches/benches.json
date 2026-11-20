@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-20T11:46:44Z",
+    "updated": "2026-11-20T15:35:37Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -170,6 +170,38 @@
       "runs": [
        "logic:gpt-6.1-sol-sub_en",
        "logic:gpt-6.1-sol-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gpt-6.2-sol",
+      "name": "GPT-6.2 Sol",
+      "display_name": "GPT-6.2 Sol",
+      "tag": "chat",
+      "class_label": "",
+      "base_model": null,
+      "setup_label": "GPT-6.2 Sol",
+      "maker": "OpenAI",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 95.66666666666667,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9653333333333334,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:gpt-6.2-sol-sub_en",
+       "logic:gpt-6.2-sol-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
@@ -3566,10 +3598,42 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); the repository holds a LoRA and head on Qwen3.5-2B-Base",
       "gpu_hours": 0.0125,
       "gpu_cost_usd": 0.031125000000000003
+     },
+     {
+      "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "commit": "a10cc1512eabd3dde888204e902eca88bddb4951",
+      "model_key": "smollm2-360m-instruct",
+      "name": "SmolLM2-360M-Instruct",
+      "display_name": "SmolLM2-360M-Instruct",
+      "tag": "chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951",
+      "class_label": "Open · 0.4B",
+      "base_model": null,
+      "setup_label": "SmolLM2-360M-Instruct (chat, on our GPU)",
+      "maker": "Hugging Face",
+      "kind": "chat",
+      "params_total": 0.36,
+      "params_active": 0.36,
+      "quantization": "BF16",
+      "score_0_100": -13.518518518518519,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.09185185185185185,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:smollm2-360m_en",
+       "logic:smollm2-360m_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-360M-Instruct (chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951); accuracy is the mean of 3 seed runs (min 0.0907, max 0.0942): seed 0 smollm2-360m_en 102/1125, seed 1 smollm2-360m-seed1_en 102/1125, seed 2 smollm2-360m-seed2_en 106/1125",
+      "gpu_hours": 0.0044444444444444444,
+      "gpu_cost_usd": 0.011066666666666667
      }
     ]
    },
-   "sha256": "3af853fafc4df684c50af5c9162a4f9131bd54cd9e67405c57e136b370652564"
+   "sha256": "3889e7236d5d26d5eb610d2cad03f4fb7d34d8f1e4ef73aed584b5c69469d2f9"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3579,7 +3643,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-20T11:46:44Z",
+    "updated": "2026-11-20T15:35:37Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -7103,10 +7167,42 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.0077777777777777776,
       "gpu_cost_usd": 0.0016552497584361066
+     },
+     {
+      "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "commit": "a10cc1512eabd3dde888204e902eca88bddb4951",
+      "model_key": "smollm2-360m-instruct",
+      "name": "SmolLM2-360M-Instruct",
+      "display_name": "SmolLM2-360M-Instruct",
+      "tag": "chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951",
+      "class_label": "Open · 0.4B",
+      "base_model": null,
+      "setup_label": "SmolLM2-360M-Instruct (chat, on our GPU)",
+      "maker": "Hugging Face",
+      "kind": "chat",
+      "params_total": 0.36,
+      "params_active": 0.36,
+      "quantization": "BF16",
+      "score_0_100": -6.256742179072276,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.1499460625674218,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:smollm2-360m_en",
+       "math:smollm2-360m_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-360M-Instruct (chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951); accuracy is the mean of 3 seed runs (min 0.1489, max 0.1512): seed 0 smollm2-360m_en 327/2163, seed 1 smollm2-360m-seed1_en 322/2163, seed 2 smollm2-360m-seed2_en 324/2163",
+      "gpu_hours": 0.05333333333333334,
+      "gpu_cost_usd": 0.1328
      }
     ]
    },
-   "sha256": "d1fd50d46e6d26775e3c5464674ae8617b269c2649e42832da8b9b1890731628"
+   "sha256": "146fc98015ced150d7f5d8284185d7ec711ea472a32ebdbda1c86f9a82d27d0f"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -7116,7 +7212,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-20T11:46:44Z",
+    "updated": "2026-11-20T15:35:37Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -10791,10 +10887,44 @@
       "notes": "on our NVIDIA DGX Spark (GB10)",
       "gpu_hours": 0.012777777777777777,
       "gpu_cost_usd": 0.0027193388888593177
+     },
+     {
+      "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "commit": "a10cc1512eabd3dde888204e902eca88bddb4951",
+      "model_key": "smollm2-360m-instruct",
+      "name": "SmolLM2-360M-Instruct",
+      "display_name": "SmolLM2-360M-Instruct",
+      "tag": "chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951",
+      "class_label": "Open · 0.4B",
+      "base_model": null,
+      "setup_label": "SmolLM2-360M-Instruct (chat, on our GPU)",
+      "maker": "Hugging Face",
+      "kind": "chat",
+      "params_total": 0.36,
+      "params_active": 0.36,
+      "quantization": "BF16",
+      "score_0_100": -8.741382806163829,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.13006893755068938,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:smollm2-360m_en",
+       "math:smollm2-360m_en",
+       "logic:smollm2-360m_en_dontknow",
+       "math:smollm2-360m_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-360M-Instruct (chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951); accuracy is the mean of 3 seed runs (min 0.1290, max 0.1308): seed 0 smollm2-360m_en+smollm2-360m_en 429/3288, seed 1 smollm2-360m-seed1_en+smollm2-360m-seed1_en 424/3288, seed 2 smollm2-360m-seed2_en+smollm2-360m-seed2_en 430/3288",
+      "gpu_hours": 0.05777777777777778,
+      "gpu_cost_usd": 0.14386666666666667
      }
     ]
    },
-   "sha256": "444632bf93eab2175f8fa9f6370afd1adced34ee2c7b2ad8222c9d2524b5e2c2"
+   "sha256": "ee7a2ace69c468d42d9896288a2ff2944f23b4af4123fa0802b7e93965313c57"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",

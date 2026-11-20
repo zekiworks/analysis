@@ -908,6 +908,9 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("vllm-plain", "granite-4.2-3b"): 1,
     # Microsoft Aion 1.0 Instruct (Ümit #12586): its own modeling code on vLLM's Transformers backend (logic #12609).
     ("vllm-plain", "aion-1.0-instruct"): 1,
+    # SmolLM2-1.7B-Instruct and SmolLM2-360M-Instruct (Ümit #13248) on vLLM, logic's load (#13267, #13334)
+    ("vllm-plain", "smollm2-1.7b"): 1,
+    ("vllm-plain", "smollm2-360m"): 1,
     # SenseNova-Loop-9B (Ümit #12072): LightLLM on logic's load (logic #12210).
     ("vllm-plain", "sensenova-loop-9b"): 1,
     ("vllm-plain", "granite-4.2-30b"): 1,
