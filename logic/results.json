@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-20T01:19:37Z",
+ "generated_at": "2026-11-20T07:29:06Z",
  "tests": {
   "logic": {
    "name": "Logic",
@@ -24,7 +24,7 @@
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
-     "non_hallucination": null,
+     "non_hallucination": 0.6956521739130435,
      "cost_per_1000": null,
      "cost_usd": null,
      "cost_unit": "USD",
@@ -4006,6 +4006,35 @@
      "mixed_concurrency": false
     },
     {
+     "name": "GPT-6.2 Astra",
+     "display_name": "GPT-6.2 Astra",
+     "tag": "chat",
+     "class_label": "",
+     "base_model": null,
+     "setup_label": "GPT-6.2 Astra (max)",
+     "group": "chat",
+     "gpu_or_api": "API",
+     "accuracy": 0.9972260748959778,
+     "wilson_low": 0.993960980972945,
+     "wilson_high": 0.9987281016069722,
+     "right": 2157,
+     "n": 2163,
+     "decision_score": null,
+     "chosen_answer_brier": null,
+     "n_scored": null,
+     "decision_score_lacking": null,
+     "auroc": null,
+     "non_hallucination": 1.0,
+     "cost_per_1000": 24.92345002311604,
+     "cost_usd": 53.9094224,
+     "cost_unit": "USD",
+     "cost_basis": "estimated: subscription at API list price (ChatGPT subscription, billed $0)",
+     "gpu_hours": null,
+     "median_latency_ms": 7540.0,
+     "mean_output_tokens": 195,
+     "mixed_concurrency": false
+    },
+    {
      "name": "Claude Sonnet 5.5",
      "display_name": "Claude Sonnet 5.5",
      "tag": "chat",
@@ -7738,15 +7767,6 @@
    ],
    "running": [
     {
-     "display_name": "GPT-6.2 Astra",
-     "tag": "chat",
-     "answered": 542,
-     "total": 2163,
-     "state": "Running",
-     "modelType": "chat",
-     "maker": "OpenAI"
-    },
-    {
      "display_name": "Gemini 4 Carbon",
      "tag": "high · chat",
      "answered": 54,
@@ -7772,6 +7792,35 @@
    "name": "Logic and Math",
    "questions": 3288,
    "setups": [
+    {
+     "name": "GPT-6.2 Astra",
+     "display_name": "GPT-6.2 Astra",
+     "tag": "chat",
+     "class_label": "",
+     "base_model": null,
+     "setup_label": "GPT-6.2 Astra (max)",
+     "group": "chat",
+     "gpu_or_api": "API",
+     "accuracy": 0.9878345498783455,
+     "wilson_low": 0.9834772956269382,
+     "wilson_high": 0.9910531921097745,
+     "right": 3248,
+     "n": 3288,
+     "decision_score": null,
+     "chosen_answer_brier": null,
+     "n_scored": null,
+     "decision_score_lacking": null,
+     "auroc": null,
+     "non_hallucination": null,
+     "cost_per_1000": 30.458047201946474,
+     "cost_usd": 100.1460592,
+     "cost_unit": "USD",
+     "cost_basis": "estimated: subscription at API list price (ChatGPT subscription, billed $0)",
+     "gpu_hours": null,
+     "median_latency_ms": 8405.000000000002,
+     "mean_output_tokens": 301,
+     "mixed_concurrency": false
+    },
     {
      "name": "GPT-6 Astra",
      "display_name": "GPT-6 Astra",
