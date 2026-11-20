@@ -1672,6 +1672,10 @@ def upper_bound_cost(record: dict[str, Any]) -> bool:
 # Finished runs whose publication is held; the export leaves them out, with their answers, until the hold is lifted.
 HELD_RUNS: dict[int, str] = {
     312: "Gemini 4 Argon (high), after the retry of its 9 cut requests: held by Ümit on 28 October 2026 until approval",
+    # Seed 0 at a model card's recommended sampling (Ümit #13306, #13443: "say whether scores move"): a comparison the
+    # changelog reports beside the setup's temperature-0 runs, not a run of its own on the site
+    1529: "SmolLM2-360M-Instruct, English seed 0 at the card's sampling (temperature 0.2, top_p 0.9): in the changelog",
+    1544: "SmolLM2-1.7B-Instruct, English seed 0 at the card's sampling (temperature 0.2, top_p 0.9): in the changelog",
 }
 # Notes on single runs, after their model's note.
 RUN_NOTES: dict[int, str] = {

@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-20T15:35:37Z",
+    "updated": "2026-11-20T16:22:26Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -3630,10 +3630,42 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-360M-Instruct (chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951); accuracy is the mean of 3 seed runs (min 0.0907, max 0.0942): seed 0 smollm2-360m_en 102/1125, seed 1 smollm2-360m-seed1_en 102/1125, seed 2 smollm2-360m-seed2_en 106/1125",
       "gpu_hours": 0.0044444444444444444,
       "gpu_cost_usd": 0.011066666666666667
+     },
+     {
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "commit": "31b70e2e869a7173562077fd711b654946d38674",
+      "model_key": "smollm2-1.7b-instruct",
+      "name": "SmolLM2-1.7B-Instruct",
+      "display_name": "SmolLM2-1.7B-Instruct",
+      "tag": "chat · HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674",
+      "class_label": "Open · 1.7B",
+      "base_model": null,
+      "setup_label": "SmolLM2-1.7B-Instruct (chat, on our GPU)",
+      "maker": "Hugging Face",
+      "kind": "chat",
+      "params_total": 1.7,
+      "params_active": 1.7,
+      "quantization": "BF16",
+      "score_0_100": -17.814814814814813,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.05748148148148149,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:smollm2-1.7b_en",
+       "logic:smollm2-1.7b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-1.7B-Instruct (chat · HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674); accuracy is the mean of 3 seed runs (min 0.0560, max 0.0596): seed 0 smollm2-1.7b_en 63/1125, seed 1 smollm2-1.7b-seed1_en 67/1125, seed 2 smollm2-1.7b-seed2_en 64/1125",
+      "gpu_hours": 0.03166666666666667,
+      "gpu_cost_usd": 0.07885
      }
     ]
    },
-   "sha256": "3889e7236d5d26d5eb610d2cad03f4fb7d34d8f1e4ef73aed584b5c69469d2f9"
+   "sha256": "d9b7b38a84e9e868ce6e23cf22b116029f9a19bd13166e537e8995192a318603"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3643,7 +3675,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-20T15:35:37Z",
+    "updated": "2026-11-20T16:22:26Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -7199,10 +7231,42 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-360M-Instruct (chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951); accuracy is the mean of 3 seed runs (min 0.1489, max 0.1512): seed 0 smollm2-360m_en 327/2163, seed 1 smollm2-360m-seed1_en 322/2163, seed 2 smollm2-360m-seed2_en 324/2163",
       "gpu_hours": 0.05333333333333334,
       "gpu_cost_usd": 0.1328
+     },
+     {
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "commit": "31b70e2e869a7173562077fd711b654946d38674",
+      "model_key": "smollm2-1.7b-instruct",
+      "name": "SmolLM2-1.7B-Instruct",
+      "display_name": "SmolLM2-1.7B-Instruct",
+      "tag": "chat · HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674",
+      "class_label": "Open · 1.7B",
+      "base_model": null,
+      "setup_label": "SmolLM2-1.7B-Instruct (chat, on our GPU)",
+      "maker": "Hugging Face",
+      "kind": "chat",
+      "params_total": 1.7,
+      "params_active": 1.7,
+      "quantization": "BF16",
+      "score_0_100": -15.657266142703039,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.0747418708583757,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:smollm2-1.7b_en",
+       "math:smollm2-1.7b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-1.7B-Instruct (chat · HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674); accuracy is the mean of 3 seed runs (min 0.0740, max 0.0754): seed 0 smollm2-1.7b_en 162/2163, seed 1 smollm2-1.7b-seed1_en 163/2163, seed 2 smollm2-1.7b-seed2_en 160/2163",
+      "gpu_hours": 0.10527777777777778,
+      "gpu_cost_usd": 0.26214166666666666
      }
     ]
    },
-   "sha256": "146fc98015ced150d7f5d8284185d7ec711ea472a32ebdbda1c86f9a82d27d0f"
+   "sha256": "ffee8d36ab2eddc52c636eae2abd81030341bfe475523535eb1a7c891e8e0f87"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -7212,7 +7276,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-20T15:35:37Z",
+    "updated": "2026-11-20T16:22:26Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -10921,10 +10985,44 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-360M-Instruct (chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951); accuracy is the mean of 3 seed runs (min 0.1290, max 0.1308): seed 0 smollm2-360m_en+smollm2-360m_en 429/3288, seed 1 smollm2-360m-seed1_en+smollm2-360m-seed1_en 424/3288, seed 2 smollm2-360m-seed2_en+smollm2-360m-seed2_en 430/3288",
       "gpu_hours": 0.05777777777777778,
       "gpu_cost_usd": 0.14386666666666667
+     },
+     {
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "commit": "31b70e2e869a7173562077fd711b654946d38674",
+      "model_key": "smollm2-1.7b-instruct",
+      "name": "SmolLM2-1.7B-Instruct",
+      "display_name": "SmolLM2-1.7B-Instruct",
+      "tag": "chat · HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674",
+      "class_label": "Open · 1.7B",
+      "base_model": null,
+      "setup_label": "SmolLM2-1.7B-Instruct (chat, on our GPU)",
+      "maker": "Hugging Face",
+      "kind": "chat",
+      "params_total": 1.7,
+      "params_active": 1.7,
+      "quantization": "BF16",
+      "score_0_100": -16.395478507704787,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.06883617193836172,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:smollm2-1.7b_en",
+       "math:smollm2-1.7b_en",
+       "logic:smollm2-1.7b_en_dontknow",
+       "math:smollm2-1.7b_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-1.7B-Instruct (chat · HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674); accuracy is the mean of 3 seed runs (min 0.0681, max 0.0700): seed 0 smollm2-1.7b_en+smollm2-1.7b_en 225/3288, seed 1 smollm2-1.7b-seed1_en+smollm2-1.7b-seed1_en 230/3288, seed 2 smollm2-1.7b-seed2_en+smollm2-1.7b-seed2_en 224/3288",
+      "gpu_hours": 0.13694444444444445,
+      "gpu_cost_usd": 0.3409916666666667
      }
     ]
    },
-   "sha256": "ee7a2ace69c468d42d9896288a2ff2944f23b4af4123fa0802b7e93965313c57"
+   "sha256": "916ada58082843fec9d3edd27afe980380d0fd7b9f1446427ff25957e10eedca"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
@@ -12447,12 +12545,12 @@
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
    "published": true,
-   "seen": "2026-11-19",
+   "seen": "2026-11-20",
    "file": {
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-19T13:17:44Z",
+    "updated": "2026-11-20T16:59:10Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -12624,6 +12722,34 @@
       ],
       "notes": "decisionmodels/REAX-1.3@fa4bf7ee, REAX Engine reax13 server on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency); before the run, 3 published-cohort pairs were sent in test requests whose outputs were not kept, so their scored rows come from a later request",
       "gpu_hours": 0.42833667592136754,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "Gemini 4 Neon",
+      "display_name": "Gemini 4 Neon",
+      "tag": "thinking on (no off mode) · chat",
+      "model_key": "gemini-4-neon",
+      "maker": "Google",
+      "kind": "chat",
+      "repo": null,
+      "commit": null,
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 86.73272112131464,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9115514741420976,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-gemini-4-neon-v1"
+      ],
+      "notes": "Google Antigravity agent harness through Can's agbench bridge (Google AI Ultra subscription), thinking high, tool descriptions present and tools denied, a fresh conversation per request; $0 billed (the subscription's quota); one question per request, 1 request at a time (latency not comparable across different concurrency); thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 1 of 2069 replies (0.05%) had no answer marker and count wrong (0 of them cut off at the 32,768-token limit); every reply kept",
+      "gpu_hours": null,
       "gpu_cost_usd": null
      },
      {
@@ -15125,21 +15251,197 @@
       "notes": "nvidia/Nemotron-Labs-Sigma-3B-instruct@057a0843, BF16, a local OpenAI-compatible wrapper, sigma_server.py (Transformers custom code, DDIM 32 steps per 32-token block, guidance 3, score temperature 0.3; one request at a time per copy) on one RTX PRO 6000 (ours), self-hosted; the wrapper makes two local fixes to the release's loading. It builds the noise schedule from the checkpoint's own projected_bernstein tensors, because the release's config builds a legacy schedule that leaves them unused. Its stop check reads special tokens, because the release's decode skips its own end-of-turn token. The server's per-reply sampler record was not kept by our client; one question per request, 5 requests at a time (latency not comparable across different concurrency); the server also answered another benchmark's requests (Reading) for part of the run, so its latency and GPU time are shared-load figures; thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 436 of 2069 replies (21%) had no answer marker and count wrong (0 of them cut off at the 8,192-token context (prompt plus reply; the server caps each reply at 8,192 minus its prompt in the model's own tokens)); every reply kept; before the run, 1 published-cohort pair was sent in test requests whose outputs were not kept, so its scored row comes from a later request",
       "gpu_hours": 4.647603207788421,
       "gpu_cost_usd": null
+     },
+     {
+      "name": "SmolLM2-360M-Instruct",
+      "display_name": "SmolLM2-360M-Instruct",
+      "tag": "no separate thinking mode · card quickstart example sampling (temperature 0.2, top_p 0.9) · chat",
+      "model_key": "smollm2-360m-instruct-card",
+      "maker": "Hugging Face",
+      "kind": "chat",
+      "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "commit": "a10cc1512eabd3dde888204e902eca88bddb4951",
+      "params_total": 0.36,
+      "params_active": 0.36,
+      "quantization": "BF16",
+      "score_0_100": -41.01014983083615,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.059932334461092314,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-smollm2-360m-instruct-card-v1"
+      ],
+      "notes": "HuggingFaceTB/SmolLM2-360M-Instruct@a10cc151, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time (latency not comparable across different concurrency); no separate thinking mode; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 1801 of 2069 replies (87%) had no answer marker and count wrong (0 of them cut off at the 5,120-token reply limit (its 8,192-token context minus room for the prompt)); every reply kept",
+      "gpu_hours": 0.0035960689606325215,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "SmolLM2-360M-Instruct",
+      "display_name": "SmolLM2-360M-Instruct",
+      "tag": "no separate thinking mode · chat",
+      "model_key": "smollm2-360m-instruct",
+      "maker": "Hugging Face",
+      "kind": "chat",
+      "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "commit": "a10cc1512eabd3dde888204e902eca88bddb4951",
+      "params_total": 0.36,
+      "params_active": 0.36,
+      "quantization": "BF16",
+      "score_0_100": -42.17013049782503,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.05219913001449976,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-smollm2-360m-instruct-v1",
+       "grading:chat-smollm2-360m-instruct-seed1-v1",
+       "grading:chat-smollm2-360m-instruct-seed2-v1"
+      ],
+      "notes": "HuggingFaceTB/SmolLM2-360M-Instruct@a10cc151, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; replies without an answer marker count wrong: mean rate 90% (per seed in seed_runs; cut off at the token limit per seed: 0, 0, 0); three new runs, seeds 0, 1, 2, every reply kept, with the same model, sampling settings, requests at a time and server, only the seed changed; no earlier run of this setup was published; gpu_hours is the mean of the three runs",
+      "gpu_hours": 0.005182199863954124,
+      "gpu_cost_usd": null,
+      "accuracy_basis": "mean of 3 seeds",
+      "seed_min": 0.049782503624939585,
+      "seed_max": 0.053649105848235866,
+      "seed_runs": [
+       {
+        "run": "grading:chat-smollm2-360m-instruct-v1",
+        "seed": 0,
+        "accuracy": 0.049782503624939585,
+        "invalid": 1875,
+        "cutoff": 0,
+        "wrong_answers_caught": 0
+       },
+       {
+        "run": "grading:chat-smollm2-360m-instruct-seed1-v1",
+        "seed": 1,
+        "accuracy": 0.053165780570323826,
+        "invalid": 1863,
+        "cutoff": 0,
+        "wrong_answers_caught": 0
+       },
+       {
+        "run": "grading:chat-smollm2-360m-instruct-seed2-v1",
+        "seed": 2,
+        "accuracy": 0.053649105848235866,
+        "invalid": 1863,
+        "cutoff": 0,
+        "wrong_answers_caught": 0
+       }
+      ],
+      "invalid_rate_mean": 0.902368293861769
+     },
+     {
+      "name": "SmolLM2-1.7B-Instruct",
+      "display_name": "SmolLM2-1.7B-Instruct",
+      "tag": "no separate thinking mode · card quickstart example sampling (temperature 0.2, top_p 0.9) · chat",
+      "model_key": "smollm2-1.7b-instruct-card",
+      "maker": "Hugging Face",
+      "kind": "chat",
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "commit": "31b70e2e869a7173562077fd711b654946d38674",
+      "params_total": 1.7,
+      "params_active": 1.7,
+      "quantization": "BF16",
+      "score_0_100": -49.99999999999999,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.0,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-smollm2-1.7b-instruct-card-v1"
+      ],
+      "notes": "HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time (latency not comparable across different concurrency); no separate thinking mode; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 2069 of 2069 replies (100%) had no answer marker and count wrong (0 of them cut off at the 5,120-token reply limit (its 8,192-token context minus room for the prompt)); every reply kept",
+      "gpu_hours": 0.009218481816660311,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "SmolLM2-1.7B-Instruct",
+      "display_name": "SmolLM2-1.7B-Instruct",
+      "tag": "no separate thinking mode · chat",
+      "model_key": "smollm2-1.7b-instruct",
+      "maker": "Hugging Face",
+      "kind": "chat",
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "commit": "31b70e2e869a7173562077fd711b654946d38674",
+      "params_total": 1.7,
+      "params_active": 1.7,
+      "quantization": "BF16",
+      "score_0_100": -49.99999999999999,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.0,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-smollm2-1.7b-instruct-v1",
+       "grading:chat-smollm2-1.7b-instruct-seed1-v1",
+       "grading:chat-smollm2-1.7b-instruct-seed2-v1"
+      ],
+      "notes": "HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; replies without an answer marker count wrong: mean rate 100% (per seed in seed_runs; cut off at the token limit per seed: 0, 0, 0); three new runs, seeds 0, 1, 2, every reply kept, with the same model, sampling settings, requests at a time and server, only the seed changed; no earlier run of this setup was published; gpu_hours is the mean of the three runs",
+      "gpu_hours": 0.009008893670811566,
+      "gpu_cost_usd": null,
+      "accuracy_basis": "mean of 3 seeds",
+      "seed_min": 0.0,
+      "seed_max": 0.0,
+      "seed_runs": [
+       {
+        "run": "grading:chat-smollm2-1.7b-instruct-v1",
+        "seed": 0,
+        "accuracy": 0.0,
+        "invalid": 2069,
+        "cutoff": 0,
+        "wrong_answers_caught": 0
+       },
+       {
+        "run": "grading:chat-smollm2-1.7b-instruct-seed1-v1",
+        "seed": 1,
+        "accuracy": 0.0,
+        "invalid": 2069,
+        "cutoff": 0,
+        "wrong_answers_caught": 0
+       },
+       {
+        "run": "grading:chat-smollm2-1.7b-instruct-seed2-v1",
+        "seed": 2,
+        "accuracy": 0.0,
+        "invalid": 2069,
+        "cutoff": 0,
+        "wrong_answers_caught": 0
+       }
+      ],
+      "invalid_rate_mean": 1.0
      }
     ]
    },
-   "sha256": "39f254bafbe7df3eecaed972ba5b228705d77234b69a3149952f060991c9150f"
+   "sha256": "8e8d67fd1fd6837e81a225ed09b5856cdf05e3d394813075b193e11cc53768a5"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
    "published": true,
-   "seen": "2026-11-19",
+   "seen": "2026-11-20",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-19T13:17:50Z",
+    "updated": "2026-11-20T16:59:18Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "39f254bafbe7df3eecaed972ba5b228705d77234b69a3149952f060991c9150f"
+     "sha256": "8e8d67fd1fd6837e81a225ed09b5856cdf05e3d394813075b193e11cc53768a5"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -16783,6 +17085,72 @@
       "chosen_answer_brier": null
      },
      {
+      "run": "grading:chat-smollm2-1.7b-instruct-v1",
+      "model_key": "smollm2-1.7b-instruct",
+      "runs": [
+       "grading:chat-smollm2-1.7b-instruct-v1",
+       "grading:chat-smollm2-1.7b-instruct-seed1-v1",
+       "grading:chat-smollm2-1.7b-instruct-seed2-v1"
+      ],
+      "aggregation": "mean of 3 seeds; latency over all requests of the three runs",
+      "latency_s_median": 0.448,
+      "latency_s_p90": 0.618,
+      "requests_in_flight": 30,
+      "requests_measured": 6207,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 15.7,
+      "recall_reference": 0.0,
+      "recall_other": 0.0,
+      "recall_none": 0.0,
+      "wrong_answer_recall": 0.0,
+      "false_alarm_rate": 0.0,
+      "invalid": null,
+      "invalid_per_seed": [
+       2069,
+       2069,
+       2069
+      ],
+      "probabilities": false,
+      "decision_score": null,
+      "chosen_answer_brier": null
+     },
+     {
+      "run": "grading:chat-smollm2-360m-instruct-v1",
+      "model_key": "smollm2-360m-instruct",
+      "runs": [
+       "grading:chat-smollm2-360m-instruct-v1",
+       "grading:chat-smollm2-360m-instruct-seed1-v1",
+       "grading:chat-smollm2-360m-instruct-seed2-v1"
+      ],
+      "aggregation": "mean of 3 seeds; latency over all requests of the three runs",
+      "latency_s_median": 0.167,
+      "latency_s_p90": 0.204,
+      "requests_in_flight": 30,
+      "requests_measured": 6207,
+      "api_cost_per_1000_usd_list_price": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 9.0,
+      "recall_reference": 0.0,
+      "recall_other": 0.0,
+      "recall_none": 0.1353,
+      "wrong_answer_recall": 0.0,
+      "false_alarm_rate": 0.0006,
+      "invalid": null,
+      "invalid_per_seed": [
+       1875,
+       1863,
+       1863
+      ],
+      "probabilities": false,
+      "decision_score": null,
+      "chosen_answer_brier": null
+     },
+     {
       "run": "grading:chat-lfm2.5-8b-a1b-think-v1",
       "model_key": "lfm2.5-8b-a1b-think",
       "latency_s_median": 9.579,
@@ -16825,6 +17193,30 @@
       "wrong_answer_recall": 0.6869,
       "false_alarm_rate": 0.0218,
       "invalid": 0,
+      "probabilities": false,
+      "decision_score": null,
+      "chosen_answer_brier": null
+     },
+     {
+      "run": "grading:chat-gemini-4-neon-v1",
+      "model_key": "gemini-4-neon",
+      "latency_s_median": 9.951,
+      "latency_s_p90": 38.378,
+      "requests_in_flight": 1,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": 70.3938,
+      "cost_basis": "estimated: subscription at API list price",
+      "price_note": "rate in force on the run's days (from 2026-11-18): $3 input, $15 output, $0.15 cached input per 1M tokens; prices the usage the subscription bridge REPORTS, not a reconstructed API invoice: input is the largest planner step's uncached input, not the sum over the turn's steps, so a multi-step turn is under-counted on input; cache reads on top at the cached rate; output summed over the steps, thinking included",
+      "price_usd_per_million_input": 3.0,
+      "price_source": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/introducing-gemini-4-neon/",
+      "price_date": "2026-11-20",
+      "gpu_seconds_per_1000": null,
+      "recall_reference": 0.9374,
+      "recall_other": 0.6626,
+      "recall_none": 0.9837,
+      "wrong_answer_recall": 0.6626,
+      "false_alarm_rate": 0.0161,
+      "invalid": 1,
       "probabilities": false,
       "decision_score": null,
       "chosen_answer_brier": null
@@ -17123,6 +17515,52 @@
       "chosen_answer_brier": null
      },
      {
+      "run": "grading:chat-smollm2-1.7b-instruct-card-v1",
+      "model_key": "smollm2-1.7b-instruct-card",
+      "latency_s_median": 0.448,
+      "latency_s_p90": 0.636,
+      "requests_in_flight": 30,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "cost_basis": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 16.0,
+      "recall_reference": 0.0,
+      "recall_other": 0.0,
+      "recall_none": 0.0,
+      "wrong_answer_recall": 0.0,
+      "false_alarm_rate": 0.0,
+      "invalid": 2069,
+      "probabilities": false,
+      "decision_score": null,
+      "chosen_answer_brier": null
+     },
+     {
+      "run": "grading:chat-smollm2-360m-instruct-card-v1",
+      "model_key": "smollm2-360m-instruct-card",
+      "latency_s_median": 0.171,
+      "latency_s_p90": 0.21,
+      "requests_in_flight": 30,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "cost_basis": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 6.3,
+      "recall_reference": 0.0,
+      "recall_other": 0.003,
+      "recall_none": 0.1541,
+      "wrong_answer_recall": 0.003,
+      "false_alarm_rate": 0.0011,
+      "invalid": 1801,
+      "probabilities": false,
+      "decision_score": null,
+      "chosen_answer_brier": null
+     },
+     {
       "run": "grading:chat-gemma-4-e2b-sampled-seed0-v1",
       "model_key": "gemma-4-e2b-sampled",
       "runs": [
@@ -17213,16 +17651,16 @@
      }
     ]
    },
-   "sha256": "4cd8849975a1f12810a00d62132c21f1954f2f6d597f5843b459cb23552c926a"
+   "sha256": "39218b9de4358fc530e1ed27ee0d53cff9d2131ca299d0d84b7ad7e30657b185"
   },
   "grading-consistency": {
    "url": "https://zekiworks.github.io/analysis/grading/consistency.json",
    "published": true,
-   "seen": "2026-11-19",
+   "seen": "2026-11-20",
    "file": {
     "bench": "Answer Check",
     "cohort": "no-code",
-    "feed_sha256": "39f254bafbe7df3eecaed972ba5b228705d77234b69a3149952f060991c9150f",
+    "feed_sha256": "8e8d67fd1fd6837e81a225ed09b5856cdf05e3d394813075b193e11cc53768a5",
     "report_sha256": "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
     "definitions": {
      "forms": "each no-code pair asked again: 'control' the scored request unchanged; 'order1', 'order2' the three options in two different changed orders (the same orders for every model); 'names' the options' keys replaced by plain letters in reverse; 'dontknow' the not-stated option reworded. Question, reference answer and text never change.",
@@ -17554,7 +17992,7 @@
      }
     ]
    },
-   "sha256": "f45807ae9a3fbf9560a725653a5bb355a689dfd66dfc7fa091557c00da84edfa"
+   "sha256": "e97c8f5a1e90ab075e49798a36876ce08799f6c84ecfe5cf9f9a31ccd216031c"
   }
  }
 }
