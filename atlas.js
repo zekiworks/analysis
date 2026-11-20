@@ -47,7 +47,9 @@ function fromURL(){
  const st=blank();
  if(!location.search&&!params.has('ui')){try{st.ui=localStorage.getItem('hilde.language')||'en'}catch{}}
  for(const k of Object.keys(st))if(k!=='ids'&&params.has(k))st[k]=params.get(k);
- if(params.get('v')==='1'&&!params.has('snapshot'))st.snapshot='2026-11-15';
+ // No filter panel (Ümit #13474): always the newest snapshot, every language, input condition and run status, and no
+ // model search, whatever an old link or a saved visit holds, since nothing on the page could undo them
+ st.snapshot=dates[0];st.language='';st.mode='';st.status='';st.model='';
  for(const key of ['track','language','mode','status'])st[key]=legacyLabels[st[key]]||st[key];
  st.ids=uniq(params.getAll('pick').filter(x=>dates.includes(x.split(':')[0])&&/^[a-f\d]{14}$/.test(x.split(':')[1]||'')));
  if(st.ui!=='tr')st.ui='en';
@@ -58,7 +60,7 @@ function fromURL(){
  if(!['','cost','latency'].includes(st.sort))st.sort='';
  st.page=Math.max(1,parseInt(st.page,10)||1);return st
 }
-let s=fromURL(), mobileOpen=false;
+let s=fromURL();
 function serialize(){
  // The snapshot only when it is not the newest: an address the page wrote for the newest must not pin it once a newer
  // one is out (Ümit #11706 reopened a 14:04 address at 17:22 and saw old rows); a chosen older one stays in the link.
@@ -94,12 +96,6 @@ function filtered(){
  const tracks=uniq(base.map(r=>r.track));
  const chosen=tracks.includes(s.track)?s.track:tracks.includes(initialTracks[sections.indexOf(s.section)])?initialTracks[sections.indexOf(s.section)]:tracks[0]||'';
  return {base,tracks,chosen,rows:rows.filter(r=>r.track===chosen),total:rows.length}
-}
-function filters(base){
- const all=Array.from(data.values()).flat();
- function vals(key,current){return uniq([...all.map(r=>r[key]),current].filter(Boolean)).sort((a,b)=>a.localeCompare(b,'en'))}
- return '<aside class="sidebar '+(mobileOpen?'open':'')+'"><div class="sideHead">'+ic('filters')+'<h2>Filters</h2><button class="filtersSmall" id="mobileToggle" aria-expanded="'+mobileOpen+'">'+(mobileOpen?'Hide':'Show')+ic('down')+'</button><button class="reset" data-act="reset">Reset</button></div><div class="sideBody"><label class="field"><span class="fieldTitle">Model</span><div class="searchWrap">'+ic('search')+'<input id="modelSearch" type="search" value="'+safe(s.model)+'" placeholder="Search models…" autocomplete="off" list="modelsList"></div></label><datalist id="modelsList">'+uniq(base.map(r=>r.name)).sort().map(v=>'<option value="'+safe(v)+'">').join('')+'</datalist>'+
- renderField('Language','language',vals('lang',s.language),'All languages')+renderField('Input condition','mode',vals('mode',s.mode),'All conditions')+renderField('Run status','status',vals('status',s.status),'All statuses')+renderField('Source snapshot','snapshot',dates,null)+'</div><div class="sideFoot">'+ic('clock')+safe(dateLabel(s.snapshot))+'</div></aside>'
 }
 const typeTitles={all:'All models',decision:'Decision models',chat:'Chat models',program:'Programs',model:'Bare models',agent:'Agents',unclassified:'Unclassified'};
 const sizeTitles={all:'All classes',tiny:'Tiny',small:'Small',medium:'Medium',large:'Large',efficient:'Efficient',workhorse:'Workhorse',flagship:'Flagship',undisclosed:'Undisclosed',unverified:'Unverified',unclassified:'Unclassified'};
@@ -441,17 +437,14 @@ function draftView(){
  }
  return '<div class="topline"><h2>Research drafts</h2><button class="outline" data-goto="compare">'+ic('compare')+' Selected records ('+list.length+')</button></div>'+compareNotice(list)+'<div class="stack">'+editor('summary','Finding summary',drafts.summary,false)+drafts.posts.map((t,i)=>editor('post'+i,'X draft'+(drafts.posts.length>1?' · '+(i+1)+' / '+drafts.posts.length:''),t,true)).join('')+'</div>'
 }
-function render(keepInput=false){
- if(dates.length&&!data.has(s.snapshot)){loadSnapshot(s.snapshot).then(()=>render(keepInput));return} // chosen before it arrived
- const focus=keepInput?document.activeElement?.id:null;
- const cursor=focus==='modelSearch'?document.activeElement.selectionStart:null;
+function render(){
+ if(dates.length&&!data.has(s.snapshot)){loadSnapshot(s.snapshot).then(()=>render());return} // chosen before it arrived
  renderNav();
  if(!panelNames().includes(s.panel))s.panel='Results';
  const f=filtered();
  $('#publicationTabs').innerHTML=s.view==='results'?publicationTabs():'';
- $('#workspace').innerHTML=s.view==='results'?'<div class="workgrid">'+(isRecordPanel()?filters(f.base):'<aside class="sidebar guideSide"><h2>Source</h2>'+renderField('Source snapshot','snapshot',dates,null)+'<button class="outline" data-act="share">'+ic('link')+' Copy link</button></aside>')+'<div class="mainCol">'+(isRecordPanel()?cohortTabs(f)+resultNote(f)+resultSurface(f)+readerSources():reader())+'</div></div>':s.view==='compare'?compareView():draftView();
+ $('#workspace').innerHTML=s.view==='results'?'<div class="workgrid'+(isRecordPanel()?' single':'')+'">'+(isRecordPanel()?'':'<aside class="sidebar guideSide"><h2>Source</h2>'+renderField('Source snapshot','snapshot',dates,null)+'<button class="outline" data-act="share">'+ic('link')+' Copy link</button></aside>')+'<div class="mainCol">'+(isRecordPanel()?cohortTabs(f)+resultNote(f)+resultSurface(f)+readerSources():reader())+'</div></div>':s.view==='compare'?compareView():draftView();
  applyLanguage();
- if(focus==='modelSearch'){const inp=$('#modelSearch');inp.focus({preventScroll:true});if(cursor!==null)inp.setSelectionRange(cursor,cursor)}
 }
 function sourceDialog(){
  const list=dates.map(v=>'<li><span>'+dateLabel(v)+'</span><span>'+ext('data/'+v+'.json','Atlas JSON')+' · '+ext('https://github.com/zekiworks/analysis/tree/'+commits.get(v),'Source revision')+'</span></li>').join('');
@@ -487,7 +480,6 @@ document.addEventListener('click',e=>{
  if(d.act==='reset'){const keep={ui:s.ui,ids:s.ids,section:s.section,view:s.view,panel:s.panel};Object.assign(s,blank(),keep);s.track=initialTracks[sections.indexOf(s.section)];render();persist(true);return}
  if(d.act==='close'){closeModal();return}
  if(b.id==='sourcesBtn'){sourceDialog();return}
- if(b.id==='mobileToggle'){mobileOpen=!mobileOpen;render();return}
  if(d.detail){const r=records.get(d.detail);if(r)showDetail(r);return}
  if(d.toggleDetail){togglePick(d.toggleDetail);render();showDetail(records.get(d.toggleDetail),false);return}
  if(d.history){s.ids=uniq([...s.ids,d.origin,d.history]);openView('compare');return}
@@ -504,7 +496,6 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('input',e=>{
  const el=e.target;
- if(el.id==='modelSearch'){s.model=el.value;s.page=1;render(true);persist()}
  if(el.dataset.edit){edited.set(el.dataset.edit,el.value);const length=document.getElementById('len'+el.id);if(length)length.textContent=xLength(el.value)+' / 280'}
 });
 $('#modal').addEventListener('close',()=>{if(s.detail){s.detail='';persist()}});
