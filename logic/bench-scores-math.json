@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-20T15:35:37Z",
+ "updated": "2026-11-20T16:22:26Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -3558,6 +3558,38 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-360M-Instruct (chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951); accuracy is the mean of 3 seed runs (min 0.1489, max 0.1512): seed 0 smollm2-360m_en 327/2163, seed 1 smollm2-360m-seed1_en 322/2163, seed 2 smollm2-360m-seed2_en 324/2163",
    "gpu_hours": 0.05333333333333334,
    "gpu_cost_usd": 0.1328
+  },
+  {
+   "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "commit": "31b70e2e869a7173562077fd711b654946d38674",
+   "model_key": "smollm2-1.7b-instruct",
+   "name": "SmolLM2-1.7B-Instruct",
+   "display_name": "SmolLM2-1.7B-Instruct",
+   "tag": "chat · HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674",
+   "class_label": "Open · 1.7B",
+   "base_model": null,
+   "setup_label": "SmolLM2-1.7B-Instruct (chat, on our GPU)",
+   "maker": "Hugging Face",
+   "kind": "chat",
+   "params_total": 1.7,
+   "params_active": 1.7,
+   "quantization": "BF16",
+   "score_0_100": -15.657266142703039,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.0747418708583757,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "math:smollm2-1.7b_en",
+    "math:smollm2-1.7b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-1.7B-Instruct (chat · HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674); accuracy is the mean of 3 seed runs (min 0.0740, max 0.0754): seed 0 smollm2-1.7b_en 162/2163, seed 1 smollm2-1.7b-seed1_en 163/2163, seed 2 smollm2-1.7b-seed2_en 160/2163",
+   "gpu_hours": 0.10527777777777778,
+   "gpu_cost_usd": 0.26214166666666666
   }
  ]
 }

@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-20T15:35:37Z",
+ "updated": "2026-11-20T16:22:26Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -3711,6 +3711,40 @@
    "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-360M-Instruct (chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951); accuracy is the mean of 3 seed runs (min 0.1290, max 0.1308): seed 0 smollm2-360m_en+smollm2-360m_en 429/3288, seed 1 smollm2-360m-seed1_en+smollm2-360m-seed1_en 424/3288, seed 2 smollm2-360m-seed2_en+smollm2-360m-seed2_en 430/3288",
    "gpu_hours": 0.05777777777777778,
    "gpu_cost_usd": 0.14386666666666667
+  },
+  {
+   "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+   "commit": "31b70e2e869a7173562077fd711b654946d38674",
+   "model_key": "smollm2-1.7b-instruct",
+   "name": "SmolLM2-1.7B-Instruct",
+   "display_name": "SmolLM2-1.7B-Instruct",
+   "tag": "chat · HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674",
+   "class_label": "Open · 1.7B",
+   "base_model": null,
+   "setup_label": "SmolLM2-1.7B-Instruct (chat, on our GPU)",
+   "maker": "Hugging Face",
+   "kind": "chat",
+   "params_total": 1.7,
+   "params_active": 1.7,
+   "quantization": "BF16",
+   "score_0_100": -16.395478507704787,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.06883617193836172,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:smollm2-1.7b_en",
+    "math:smollm2-1.7b_en",
+    "logic:smollm2-1.7b_en_dontknow",
+    "math:smollm2-1.7b_en_dontknow"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-1.7B-Instruct (chat · HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2e869a7173562077fd711b654946d38674); accuracy is the mean of 3 seed runs (min 0.0681, max 0.0700): seed 0 smollm2-1.7b_en+smollm2-1.7b_en 225/3288, seed 1 smollm2-1.7b-seed1_en+smollm2-1.7b-seed1_en 230/3288, seed 2 smollm2-1.7b-seed2_en+smollm2-1.7b-seed2_en 224/3288",
+   "gpu_hours": 0.13694444444444445,
+   "gpu_cost_usd": 0.3409916666666667
   }
  ]
 }
