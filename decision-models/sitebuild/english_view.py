@@ -40,6 +40,7 @@ from sitebuild.english_reading import (NO_OPTION, NO_RATE, NOT_RUN, PATH as COMP
 from sitebuild import holding_back as hold
 from sitebuild.site import (GROUPS, Site, cost_per, cost_unit_in, esc, family_legend, hbars, measure_rows, more_link, pct,
                             rel, shown)
+from sitebuild.leaderboard import COST_TIP, head as tip_head
 from sitebuild.vision import cell
 
 PATH = "english/"
@@ -302,6 +303,21 @@ def build(site: Site) -> dict[str, str]:
                  ("English non-hallucination",
                   f"of answers not right, % “{option}” · higher is better; answered and error rate under it")]
         heads += measure_heads("cost", ("english",)) + measure_heads("latency", ("english",))
+        # What each column is, on hover, keyboard focus or a tap, as the Leaderboard's heads (Ümit #9110, #9113)
+        tips = [f"Right answers out of the {total:,} machine-translated English reading questions in the setup's first "
+                "English run" + (" (the mean of its three seed runs where it has them)" if seeded else "")
+                + "; a reply without a readable answer counts wrong. Higher is better.",
+                f"{SCORE_NOTE} {SCORE_SCOPE} Computed from the option probabilities of the first English run; the Brier "
+                "score under it. Higher is better.",
+                f"Accuracy on the same {total:,} questions in Turkish, from the setup's Text tab run, for context. "
+                "Higher is better.",
+                f"From the setup's first English run in which it may answer \u201c{option}\u201d: of its answers that are "
+                f"not right, the share that are \u201c{option}\u201d rather than a wrong answer. Higher is better.",
+                COST_TIP.replace("per 1,000 questions", "per 1,000 questions, from the first English run"),
+                "The median wall time of one request of the first English run, in seconds; rows asked with different "
+                "questions per request or requests in flight are not speeds under the same load. Lower is better."]
+        if len(tips) != len(heads):
+            raise SystemExit("english_view: one tip per head of the English table")
         labels = [f"{head} ({note})" for head, note in heads]
         rows = []
         running, paused = turkish_running(site, data), turkish_paused(site, data)
@@ -340,8 +356,8 @@ def build(site: Site) -> dict[str, str]:
                     f'{name_html(site, run, href(site, model), " · ".join(filter(None, (site.detail(run), f"English run {model['run']}", where_title(model)))))}</td>')
             rows.append(f"<tr{row_id}{site.class_attribute(run)}>{name}"
                         + "".join(cell(text, value) for text, value in zip(labels, values)) + "</tr>")
-        head = "".join(f'<th scope="col" class="num">{esc(text)}<span class="small">{cost_unit_in(esc(note))}</span></th>'
-                       for text, note in heads)
+        head = "".join(f'<th scope="col" class="num">{tip_head(esc(text), cost_unit_in(esc(note)), tip)}</th>'
+                       for (text, note), tip in zip(heads, tips))
         alone = [model for model in members if "turkish_run" not in model]
         queued_here = any(counts is None and under_way(site, model["model"], "english") == "queued"
                           for model in members for counts in [held.get(setup_key(model))])
