@@ -1246,14 +1246,14 @@ def method_values(snap: Snapshot) -> dict[str, str]:
     # 25: the two pairs the text walks through, both among the listed (adjacent) comparisons; the text says the first
     # model scored higher, and where each of Astra and Sol's adjusted p values falls against the threshold.
     by_pair = {(item["first"], item["second"]): item for item in results["paired"]}
-    for first, second in (("astra_medium", "sol"), ("qwen4_max", "terra_low")):
+    for first, second in (("sol62", "sol"), ("qwen4_max", "terra_low")):
         item = by_pair[(named[first]["run"], named[second]["run"])]
         if item["difference"] <= 0:
             raise ValueError(f"{first} no longer scores above {second}; rewrite the comparison in #differences")
         out[f"method_pair_{first}_{second}_split"] = count(item["first_only"] + item["second_only"])
-    astra_sol = by_pair[(named["astra_medium"]["run"], named["sol"]["run"])]
-    sides = ["below" if astra_sol[key] < ALPHA else "above" for key in ("p_holm", "p_holm_all")]
-    out["method_pair_astra_medium_sol_relation"] = f"both {sides[0]}" if sides[0] == sides[1] else " and ".join(sides)
+    sol_pair = by_pair[(named["sol62"]["run"], named["sol"]["run"])]
+    sides = ["below" if sol_pair[key] < ALPHA else "above" for key in ("p_holm", "p_holm_all")]
+    out["method_pair_sol62_sol_relation"] = f"both {sides[0]}" if sides[0] == sides[1] else " and ".join(sides)
     out["method_alpha"] = f"{ALPHA:g}"
     # 28: the question set and its repairs.
     extraction = records["extraction"]

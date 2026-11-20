@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 6b8a6a3d (20 November 2026)
+
+- OpenAI's GPT-6.2 Sol at reasoning effort high (Ümit #12132), on the ChatGPT subscription through Codex as GPT-6.2 Astra, 16 questions per request, every reply readable. English 527 of 547 (96.3%; run 1515), English "I don't know" run 1521 (526 right), Turkish Text 2,142 of 2,198 (97.5%; run 1516), Turkish "Bilmiyorum" run 1522 (2,139 right). Billed $0; at OpenAI's API list price ($2 input, $10 output, $0.10 cached input per 1M tokens) its Turkish Text run would cost about $3.35 and its English run $0.77, shown as estimates.
+
 ## Results 44f51b33 (20 November 2026)
 
 - Google's Gemini 4 Neon (Ümit #12721), through Can's Antigravity subscription bridge (agbench) as Gemini 4 Carbon and Hydrogen, thinking high, one request at a time, 16 questions per request, the answer layout stated in the prompt; every reply names `gemini-4-neon`. English 531 of 547 (97.1%; run 1507), English "I don't know" run 1508 (531 right), Turkish Text 2,160 of 2,198 (98.3%; run 1510), Turkish "Bilmiyorum" run 1513 (2,160 right). Billed $0 (subscription); at Gemini API list price ($3 input, $15 output, $0.15 cached input per 1M tokens) its Turkish Text run would cost about $27.62 and its English run $8.27, shown as estimates.
