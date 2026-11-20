@@ -186,6 +186,7 @@ function metric(r){
  if(has(r.acc))return ['Raw accuracy',r.acc*100,'%'];
  if(has(r.risk))return ['Risk judgement',r.risk,'/100'];
  if(has(r.err))return ['Error rate',r.err,' PR'];
+ if(r.lowMetric)return [r.lowMetric.label,r.lowMetric.value,r.lowMetric.unit||''];
  if(has(r.norm))return ['Normalized score',r.norm,'/100'];
  if(has(r.exact))return ['Exact match',r.exact*100,'%'];
  return ['Outcome',null,''];
@@ -258,7 +259,7 @@ function headingActions(){return '<div class="actions"><button class="outline" d
 function costValue(r){const rate=r.unitCost||r.setupReference?.unitCost;const v=rate?.value??r.cost;const basis=rate?.basis||r.costBasis||'';return has(v)&&!(v===0&&/subscription/i.test(basis))?v:null}
 function latencyValue(r){const v=r.latency??r.setupReference?.latency;return has(v)?v:null}
 function ordered(rows){
- const main=r=>{const [label,v]=metric(r);return v===null?null:(label==='Error rate'?-v:v)};
+ const main=r=>{const [label,v]=metric(r);return v===null?null:(label==='Error rate'||r.lowMetric?-v:v)};
  const byMain=(a,b)=>{const x=main(a),y=main(b);return x===null&&y===null?0:x===null?1:y===null?-1:y-x};
  const key=s.sort==='cost'?costValue:s.sort==='latency'?latencyValue:null;
  return rows.map((r,i)=>[r,i]).sort(([a,i],[b,j])=>{
@@ -310,7 +311,7 @@ function resultSurface(f){
     if(!md)main+='<td class="rankCol" title="Published rank or statistical tier">'+(has(r.rank)?safe(r.rank):nil)+'</td>';
     main+='<td>'+recButton(r)+(r.status!=='Published'?'<span class="pill mutedPill">'+safe(r.status)+'</span>':'')+'</td>';
     if(md)main+=usageColumns(r)+'<td>'+numCell(has(r.ece)?r.ece*100:null)+'<span class="sub">'+(has(r.ece)?'points':'')+'</span></td><td>'+numCell(r.invalid)+'</td><td>'+numCell(r.abst)+'</td>';
-    else main+='<td><div class="measure"><span class="value">'+(m===null?nil:val(m,1)+(u==='%'?'%':u===' pp'?' pp':''))+'</span>'+(m!==null&&u!==' PR'&&u!==' pp'?'<div class="miniBar"><span style="width:'+Math.max(0,Math.min(100,m))+'%"></span></div>':'')+'</div>'+(label!==measure&&m!==null?'<span class="sub">'+safe(label)+'</span>':'')+'</td><td>'+(s.panel==='Learning'?(r.verdict?safe(r.verdict):nil):numCell(measure==='Normalized score'?(has(r.acc)?r.acc*100:null):r.norm))+'</td>'+usageColumns(r);
+    else main+='<td><div class="measure"><span class="value">'+(m===null?nil:val(m,r.lowMetric?.digits??1)+(u==='%'?'%':u===' pp'?' pp':''))+'</span>'+(m!==null&&u!==' PR'&&u!==' pp'&&!r.lowMetric?'<div class="miniBar"><span style="width:'+Math.max(0,Math.min(100,m))+'%"></span></div>':'')+'</div>'+(label!==measure&&m!==null?'<span class="sub">'+safe(label)+'</span>':'')+'</td><td>'+(s.panel==='Learning'?(r.verdict?safe(r.verdict):nil):numCell(measure==='Normalized score'?(has(r.acc)?r.acc*100:null):r.norm))+'</td>'+usageColumns(r);
     return '<tr class="'+(s.ids.includes(r.id)?'selectedRow':'')+'">'+main+'<td><button class="rowDetails" data-detail="'+r.id+'" aria-label="'+safe(r.name)+' details">'+ic('right')+'</button></td></tr>'
   }).join('')+'</tbody></table></div>'
  }
@@ -336,9 +337,9 @@ function metricEntries(r){
  entry('Calibration · ECE',has(r.ece)?fmtNum(r.ece*100,2)+' points':null),
  entry('Confidence',p(r.confidence),[r.confType,r.confSource].filter(Boolean).join(' · ')),
  entry('Invalid responses',r.invalid,'responses'),entry('Abstentions',r.abst,'responses'),entry('Risk judgement',has(r.risk)?fmtNum(r.risk,2)+' / 100':null,has(r.riskN)?fmtNum(r.riskN)+' decisions with a risk or safety tradeoff':null),
- entry('Error rate',has(r.err)?fmtNum(r.err,3)+' PR':null),entry('Risk interval',r.riskCI?.map(x=>fmtNum(x,2)).join(' – ')),
+ entry('Error rate',has(r.err)?fmtNum(r.err,3)+' PR':null),...(r.lowMetric?[entry(r.lowMetric.label,has(r.lowMetric.value)?fmtNum(r.lowMetric.value,r.lowMetric.digits??2)+(r.lowMetric.unit||''):null,'lower is better')]:[]),entry('Risk interval',r.riskCI?.map(x=>fmtNum(x,2)).join(' – ')),
  entry(r.section==='Backgammon'?'Brier':'Chosen-answer Brier',has(r.brier)?fmtNum(r.brier,4):null),entry('AUROC',has(r.auroc)?fmtNum(r.auroc,4):null),
- entry('Decision Score',has(r.decisionScore)?fmtNum(r.decisionScore,2):null),entry('Exact match',p(r.exact)),...Object.entries(r.extraMetrics||{}).map(([k,v])=>{const labels={wrong_answer_recall:'Wrong answer recall',false_alarm_rate:'False alarm rate',gpu_seconds_per_1000:'GPU seconds / 1,000 requests',latency_s_p90:'P90 latency (s)',non_hallucination:'Non-hallucination (abstained of answers not right)',seed_min:'Lowest run accuracy',seed_max:'Highest run accuracy',run_cost_usd:'Modeled GPU cost of the whole run (not an invoice)'};return entry(labels[k]||k,k==='run_cost_usd'?'$'+fmtNum(v,4)+' USD':k.endsWith('recall')||k.endsWith('rate')||['non_hallucination','seed_min','seed_max'].includes(k)?p(v):fmtNum(v,3))}),...Object.entries(r.learningMetrics||{}).map(([label,v])=>entry(label,typeof v==='number'?fmtNum(v,3):v)),entry('Published improvement verdict',r.verdict),entry('Confidence ≥ 0.99',r.sure?fmtNum(r.sure.answers)+' answers · '+fmtNum(r.sure.wrong)+' incorrect':null)
+ entry('Decision Score',has(r.decisionScore)?fmtNum(r.decisionScore,2):null),entry('Exact match',p(r.exact)),...Object.entries(r.extraMetrics||{}).map(([k,v])=>{const labels={wrong_answer_recall:'Wrong answer recall',false_alarm_rate:'False alarm rate',gpu_seconds_per_1000:'GPU seconds / 1,000 requests',latency_s_p90:'P90 latency (s)',non_hallucination:'Non-hallucination (abstained of answers not right)',seed_min:'Lowest run accuracy',seed_max:'Highest run accuracy',run_cost_usd:'Modeled GPU cost of the whole run (not an invoice)'};return entry(labels[k]||k,typeof v==='string'?v:k==='run_cost_usd'?'$'+fmtNum(v,4)+' USD':k.endsWith('recall')||k.endsWith('rate')||['non_hallucination','seed_min','seed_max'].includes(k)?p(v):fmtNum(v,3))}),...Object.entries(r.learningMetrics||{}).map(([label,v])=>entry(label,typeof v==='number'?fmtNum(v,3):v)),entry('Published improvement verdict',r.verdict),entry('Confidence ≥ 0.99',r.sure?fmtNum(r.sure.answers)+' answers · '+fmtNum(r.sure.wrong)+' incorrect':null)
  ]}
 function sourceLinks(r){return '<div class="sourceLinks">'+ext(sourcePage(r),'Benchmark page')+ext(fileURL(r),'Pinned source')+(r.additionalSource?ext(fileURL(r,r.additionalSource),'Metric source'):'')+(r.normSource&&has(r.norm)?ext(fileURL(r,r.normSource),'Score source'):'')+(r.rankSource?ext(fileURL(r,r.rankSource),'Source table'):'')+uniq([...(r.performanceSources||[]),r.unitCost?.file,r.setupReference?.unitCost?.file,r.setupReference?.file].filter(f=>f&&![r.file,r.rankSource,r.additionalSource].includes(f))).map(f=>ext(fileURL(r,f),'Cost and timing source')).join('')+'</div>'}
 function detailsDl(r){
@@ -394,6 +395,7 @@ function primaryClaim(r){
  if(has(r.risk))return r.risk.toFixed(1)+'/100 risk judgement';
  if(has(r.norm))return r.norm.toFixed(1)+'/100 normalized score';
  if(has(r.err))return r.err.toFixed(2)+' PR';
+ if(r.lowMetric&&has(r.lowMetric.value))return r.lowMetric.label.toLowerCase()+' '+fmtNum(r.lowMetric.value,r.lowMetric.digits??2)+(r.lowMetric.unit||'');
  if(has(r.exact))return (r.exact*100).toFixed(1)+'% exact match';
  return 'no numeric outcome reported';
 }
