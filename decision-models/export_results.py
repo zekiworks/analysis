@@ -107,6 +107,8 @@ PROVIDERS: dict[str, dict[str, Any]] = {
     "nace": {"access": "Nace.AI System One API", "scoring": True, "billing": "api"},
     "drex-max": {"access": "Drex Max server (Nace's loader, drex_max), self-hosted, BF16", "scoring": True, "billing": "local"},
     "d1-server": {"access": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16", "scoring": True, "billing": "local"},
+    # The same d1-2B on llama.cpp (Ümit #12966, #12988): its own setup beside the d1 server's, English only (#12993).
+    "llama-cpp": {"access": "llama.cpp's llama-server (b12020, LiquidAI/d1-2B-GGUF at 4a18109, BF16), self-hosted, text only", "scoring": True, "billing": "local"},
     "baselabs": {"access": "Base Labs server (qev, the model card's loader), self-hosted, BF16", "scoring": True, "billing": "local"},
     "reax": {"access": "REAX Engine server (reax13 mode, the maker's release code), self-hosted, FP8", "scoring": True, "billing": "local"},
     # The new Decision Index models' servers (Ümit #4057), each as its model card serves it (runner/README.md).
