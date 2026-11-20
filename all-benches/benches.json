@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-20T01:19:37Z",
+    "updated": "2026-11-20T11:46:44Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -40,9 +40,10 @@
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "logic:gemini-4-neon-sub_en"
+       "logic:gemini-4-neon-sub_en",
+       "logic:gemini-4-neon-sub_en_dontknow"
       ],
-      "notes": "hosted API (the maker's service); no complete 'I don't know' run",
+      "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
       "gpu_cost_usd": null
      },
@@ -3568,7 +3569,7 @@
      }
     ]
    },
-   "sha256": "f7795ed7b4e5cd2718174b47d26b40322f86ea403796c1593fcd681399ca110a"
+   "sha256": "3af853fafc4df684c50af5c9162a4f9131bd54cd9e67405c57e136b370652564"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3578,7 +3579,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-20T01:19:37Z",
+    "updated": "2026-11-20T11:46:44Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -3675,6 +3676,38 @@
       "runs": [
        "math:claude-fable-5.1-sub_en",
        "math:claude-fable-5.1-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gpt-6.2-astra",
+      "name": "GPT-6.2 Astra",
+      "display_name": "GPT-6.2 Astra",
+      "tag": "chat",
+      "class_label": "",
+      "base_model": null,
+      "setup_label": "GPT-6.2 Astra (max)",
+      "maker": "OpenAI",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 99.65325936199723,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9972260748959778,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:gpt-6.2-astra-max-sub_en",
+       "math:gpt-6.2-astra-max-sub_en_dontknow"
       ],
       "notes": "hosted API (the maker's service)",
       "gpu_hours": null,
@@ -7073,7 +7106,7 @@
      }
     ]
    },
-   "sha256": "7236a23da45baa78de5f0d32a6c4d2e7b67457f35bee2a893023f3c93683bc11"
+   "sha256": "d1fd50d46e6d26775e3c5464674ae8617b269c2649e42832da8b9b1890731628"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -7083,12 +7116,46 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-20T01:19:37Z",
+    "updated": "2026-11-20T11:46:44Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
     },
     "models": [
+     {
+      "repo": null,
+      "commit": null,
+      "model_key": "gpt-6.2-astra",
+      "name": "GPT-6.2 Astra",
+      "display_name": "GPT-6.2 Astra",
+      "tag": "chat",
+      "class_label": "",
+      "base_model": null,
+      "setup_label": "GPT-6.2 Astra (max)",
+      "maker": "OpenAI",
+      "kind": "chat",
+      "params_total": null,
+      "params_active": null,
+      "quantization": null,
+      "score_0_100": 98.47931873479318,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9878345498783455,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:gpt-6.2-astra-max-sub_en",
+       "math:gpt-6.2-astra-max-sub_en",
+       "logic:gpt-6.2-astra-max-sub_en_dontknow",
+       "math:gpt-6.2-astra-max-sub_en_dontknow"
+      ],
+      "notes": "hosted API (the maker's service)",
+      "gpu_hours": null,
+      "gpu_cost_usd": null
+     },
      {
       "repo": null,
       "commit": null,
@@ -10727,7 +10794,7 @@
      }
     ]
    },
-   "sha256": "3fc6381d2240c850dc3f4bf6aac6aa473c778e907291e1b20c25e440c65e6e92"
+   "sha256": "444632bf93eab2175f8fa9f6370afd1adced34ee2c7b2ad8222c9d2524b5e2c2"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",

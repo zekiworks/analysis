@@ -191,13 +191,61 @@ def repeat_checks(site: Site) -> str:
     </section>"""
 
 
+def serving(site: Site) -> str:
+    """The d1-2B serving section (Ümit #12966, #13012, #13181, #13211): Liquid d1-2B on each serving engine, from
+    d1-serving.json at the repository root: right answers, questions per minute and median seconds per request at 1 and
+    32 requests in flight, answers the same as the reference run, the packing test (15 questions on one text: separate
+    requests, then one request), then each engine's version, weights and flags. Empty without the file."""
+    path = ROOT / "d1-serving.json"
+    if not path.exists():
+        return ""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    questions = data["questions"]
+    dash = '<span class="rc-score" title="Not measured">\u2013</span>'
+
+    def number(value: Any, digits: int = 0, unit: str = "") -> str:
+        return dash if value is None else f"{value:,.{digits}f}{unit}"
+
+    rows, notes = [], []
+    for row in data["rows"]:
+        if row["right"] is None:
+            rows.append(f'<tr><td class="model">{esc(row["engine"])}</td><td colspan="5">{esc(row["note"])}</td></tr>')
+            continue
+        same = "reference" if row["run"] == data["reference_run"] else f'{row["same"]:,} of {questions:,}'
+        packing = (dash if row["pack_one_s"] is None else
+                   f'{row["pack_separate_s"]:.2f} s \u2192 {row["pack_one_s"]:.3f} s'
+                   f'<span class="small">{row["pack_separate_s"] / row["pack_one_s"]:.1f}\u00d7 faster</span>')
+        rows.append(
+            f'<tr><td class="model">{esc(row["engine"])}</td>'
+            f'<td class="num">{score_cell(row, questions)}</td>'
+            f'<td class="num">{number(row["median_s_1"], 3, " s")}<span class="small">32 at once: '
+            f'{number(row["median_s_32"], 3, " s")}</span></td>'
+            f'<td class="num">{number(row["qpm_1"])}<span class="small">32 at once: {number(row["qpm_32"])}</span></td>'
+            f'<td class="num">{same}</td><td class="num">{packing}</td></tr>')
+        notes.append(f'<li><strong>{esc(row["engine"])}</strong>: {esc(row["version"])}; {esc(row["weights"])}; '
+                     f'{esc(row["flags"])}; {esc(row["note"])}.</li>')
+    return f"""
+    <section class="card" id="d1-serving">
+      <h2>Liquid d1-2B on different serving engines</h2>
+      <div class="table-wrap"><table class="lb-table rc-table" aria-label="d1-2B serving engines"><thead><tr>
+        <th scope="col">Engine</th><th scope="col" class="num">English reading<span class="small">% · right / questions</span></th>
+        <th scope="col" class="num">Median per request<span class="small">seconds, 1 at a time</span></th>
+        <th scope="col" class="num">Questions per minute<span class="small">1 at a time</span></th>
+        <th scope="col" class="num">Same answers<span class="small">as run {data["reference_run"]}</span></th>
+        <th scope="col" class="num">Packing<span class="small">15 questions on one text: separate \u2192 one request</span></th>
+      </tr></thead><tbody>{"".join(rows)}</tbody></table></div>
+      <ul class="note">{"".join(notes)}</ul>
+      <p class="note">{esc(data["about"])} Data: <a href="{rel(PATH, "d1-serving.json")}">d1-serving.json</a>.</p>
+    </section>"""
+
+
 def build(site: Site) -> dict[str, str]:
     items = "".join(
         f'<li class="panel exp-card"><h2><a href="{rel(PATH, path)}">{esc(title)}</a></h2><p>{esc(what)}</p>'
         f'<p class="exp-status">{esc(status)}</p></li>' for path, title, what, status in cards(site))
     checks = repeat_checks(site)
     title = "" if checks else "\n      <h1>Experiments</h1>"
-    body = f"""{checks}
+    body = f"""{checks}{serving(site)}
     <section class="card" id="tests">{title}
       <h2>Tests beside the ranking</h2>
       <ul class="exp-cards">{items}</ul>
