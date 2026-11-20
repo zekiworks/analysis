@@ -192,6 +192,8 @@ SPARK = "DGX Spark, GB10 (128 GB unified memory)"
 MODELS: dict[str, dict[str, Any]] = {
     "gpt-6-astra": {"name": "GPT-6 Astra"},
     "gpt-6.1-sol": {"name": "GPT-6.1 Sol"},
+    "gpt-6.2-astra": {"name": "GPT-6.2 Astra"},
+    "gpt-6.2-sol": {"name": "GPT-6.2 Sol"},
     "gpt-6.1-terra": {"name": "GPT-6.1 Terra"},
     "gpt-6-luna": {"name": "GPT-6 Luna"},
     "claude-opus-5-5": {"name": "Claude Opus 5.5"},
@@ -248,6 +250,16 @@ MODELS: dict[str, dict[str, Any]] = {
     # antigravity-benchmark #5668: 'gemini-4-hydrogen' is high effort), asked with Carbon's answer layout.
     "gemini-4-hydrogen": {
         "name": "Gemini 4 Hydrogen",
+        "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, "
+                  "thinking high; each request a new Antigravity agent conversation, so Antigravity's own agent "
+                  "instructions and tool declarations (about 13,000 tokens) come before our prompt, with every tool "
+                  "call denied and, as the bridge's owner reports, no workspace files and no earlier conversation; the "
+                  "bridge applies no response format, so the prompt adds a paragraph stating the answer layout",
+    },
+    # Gemini 4 Neon through the same bridge and subscription (Ümit #12721; antigravity-benchmark #12725: gemini-4-neon is
+    # high thinking), asked with Carbon's answer layout.
+    "gemini-4-neon": {
+        "name": "Gemini 4 Neon",
         "access": "Google Antigravity through Can's agbench bridge (Google AI Ultra subscription), one request at a time, "
                   "thinking high; each request a new Antigravity agent conversation, so Antigravity's own agent "
                   "instructions and tool declarations (about 13,000 tokens) come before our prompt, with every tool "
@@ -976,6 +988,8 @@ SIZES: dict[str, dict[str, Any]] = {
     "gpt-6-astra": {"total": None, "sources": ["https://developers.openai.com/api/docs/models/gpt-6-astra"], "read": READ},
     "gpt-6-luna": {"total": None, "sources": ["https://developers.openai.com/api/docs/models/gpt-6-luna"], "read": READ},
     "gpt-6.1-sol": {"total": None, "sources": ["https://developers.openai.com/api/docs/models/gpt-6.1-sol"], "read": READ},
+    "gpt-6.2-astra": {"total": None, "sources": ["https://developers.openai.com/api/docs/models/gpt-6.2-astra"], "read": "2026-11-20"},
+    "gpt-6.2-sol": {"total": None, "sources": ["https://developers.openai.com/api/docs/models/gpt-6.2-sol"], "read": "2026-11-20"},
     "gpt-6.1-terra": {"total": None, "sources": ["https://developers.openai.com/api/docs/models/gpt-6.1-terra"], "read": READ},
     "claude-opus-5-5": {"total": None, "sources": ["https://www.anthropic.com/claude-opus-5-5",
                                                    "https://platform.claude.com/docs/en/models/overview"], "read": READ},
@@ -990,6 +1004,7 @@ SIZES: dict[str, dict[str, Any]] = {
     "gemini-4-argon": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-argon/"], "read": READ},
     "mai-code-2-flash": {"total": None, "sources": ["https://microsoft.ai/pdf/MAI-Code-2-And-MAI-Code-2-Flash-Model-Card.pdf"], "read": "2026-11-19"},
     "gemini-4-carbon": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-carbon/"], "read": "2026-11-11"},
+    "gemini-4-neon": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-neon/"], "read": "2026-11-19"},
     "gemini-4-hydrogen": {"total": None, "sources": ["https://deepmind.google/models/model-cards/gemini-4-hydrogen/"], "read": "2026-11-12"},
     "grok-4.7": {"total": None, "sources": ["https://media.x.ai/v1/website/4p7card-5eccc980.pdf", "https://x.ai/news/grok-4-7",
                                             "https://docs.x.ai/developers/models"], "read": READ},

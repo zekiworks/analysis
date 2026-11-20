@@ -259,6 +259,10 @@ SYSTEM_ONE = {
     "d1-server": SystemOneService(
         "d1 server", server_url("D1_SERVER_URL"), request_id_header="x-request-id", images="data-urls"
     ),
+    # The same d1-2B weights in GGUF (LiquidAI/d1-2B-GGUF, BF16) behind llama.cpp's llama-server (PR #31275, b11960 and
+    # later), whose /v1/systemone takes the same request and returns the same answers (Ümit #12966; logic #12980): its own
+    # setup beside the d1 server's, for llama.cpp's speed at 1 and 32 requests in flight. Text only.
+    "llama-cpp": SystemOneService("llama.cpp server", server_url("LLAMA_CPP_URL")),
     # Base Labs' elephant-1, mammoth-1 and joey-1 (baselabs/elephant-1, baselabs/mammoth-1, baselabs/joey-1 at 9efbe48) on
     # our GPU, answered by the model card's loader (qev's DecisionEngine from OneJev at 81ce62f with the checkpoint's
     # serve.patch, the runtime its setup.sh installs; the three checkpoints ship the same setup.sh, serve.patch,
@@ -687,6 +691,14 @@ PRICES: dict[tuple[str, str], Price] = {
     ("openai", "gpt-6.1-sol"): Price(
         "OpenAI's API list price", OPENAI_PRICING, "2026-10-08", 2.00, 10.00, cached_input=0.10, cache_write=2.50
     ),
+    # GPT-6.2 Astra and Sol on the ChatGPT subscription (Ümit #12132): OpenAI's API list price for prompts up to 272K
+    # tokens, read 20 November 2026 (developers.openai.com/api/docs/models/gpt-6.2-astra, -sol).
+    ("openai", "gpt-6.2-astra"): Price(
+        "OpenAI's API list price", OPENAI_PRICING, "2026-11-20", 8.00, 40.00, cached_input=0.40, cache_write=10.00
+    ),
+    ("openai", "gpt-6.2-sol"): Price(
+        "OpenAI's API list price", OPENAI_PRICING, "2026-11-20", 2.00, 10.00, cached_input=0.10, cache_write=2.50
+    ),
     # Cache writes at the 30-minute retention rate, as for Astra and Sol.
     ("openai", "gpt-6.1-terra"): Price(
         "OpenAI's API list price", OPENAI_PRICING, "2026-10-28", 1.00, 5.00, cached_input=0.05, cache_write=1.25
@@ -877,6 +889,7 @@ GPU_TIME: dict[tuple[str, str], int] = {
     ("onejev", "OmniJev/OneJev-27B"): 1,
     ("d3-server", "vllm-sr/d3-ultra"): 1,
     ("d1-server", "LiquidAI/d1-2B"): 1,
+    ("llama-cpp", "LiquidAI/d1-2B"): 1,
     ("reax", "reax13"): 1,
     ("vllm-plain", "vibethinker-3b"): 1,
     ("vllm-plain", "lfm2.5-8b-a1b"): 1,
