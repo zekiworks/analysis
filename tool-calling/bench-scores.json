@@ -1188,6 +1188,39 @@
       "score_0_100": 96.42857142857143,
       "setup_label": "on",
       "tag": "decision"
+    },
+    {
+      "base_model": null,
+      "calibration_error": null,
+      "class_label": "Open \u00b7 1.7B",
+      "commit": "31b70e2e869a7173562077fd711b654946d38674",
+      "display_name": "SmolLM2-1.7B-Instruct",
+      "gpu_cost_usd": 0.009130000000000001,
+      "gpu_hours": 0.0036666666666666666,
+      "improvement_points": null,
+      "kind": "chat",
+      "maker": "Hugging Face",
+      "model_key": "toolbench-b71737d009efe20f",
+      "name": "SmolLM2-1.7B-Instruct",
+      "notes": "original/renamed paired, no chance correction; provider local vLLM v0.30.0 served by @logic on bariton (#13276), one RTX PRO 6000, BF16, --max-model-len 8192; No thinking mode; temperature 0, seeds 0/1/2. SmolLM2's chat template has no tool support, so it runs with our template: the card's own function-calling prompt and its <tool_call>[\u2026] call list, read by our vLLM parser (closed tags only). The card shows no way to return a tool result; we send results as <tool_response> turns, and after one the model often repeats the result instead of answering in a sentence. The runner rejected 40 Standard trials for combining state-changing calls in one step; the calls parsed successfully. Context 8,192 tokens, output cap 2,048; every prompt fit, so nothing is unscored. Card quickstart sampling (temperature 0.2, top_p 0.9), seed 0 only: 40.5% standard vs 39.3% at temperature 0 seed 0; harder 0% both.",
+      "params_active": 1.71,
+      "params_total": 1.71,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 0.39285714285714285
+      },
+      "repo": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+      "runs": [
+        "report:b71737d009efe20f13380d1408bd072b214b6aa03e5813eea8d092005d67ffd8"
+      ],
+      "score_0_100": 39.285714285714285,
+      "setup_label": "off",
+      "tag": "chat"
     }
   ],
   "score": {
@@ -1195,6 +1228,6 @@
     "zero": "No tasks passed"
   },
   "title": "Can a small model use tools?",
-  "updated": "2026-11-20T01:58:10+01:00",
+  "updated": "2026-11-20T17:03:12Z",
   "url": "https://zekiworks.github.io/analysis/tool-calling/"
 }

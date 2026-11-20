@@ -73,6 +73,40 @@
       "qualification_evidence_sha256": "4ce031a1a23c3611018abbfcbda8ab523e39fdf07cddcda33953fe158e932cb6",
       "requested_name": "GLiDE 2B (decision model, plain vLLM)",
       "thinking_mode": "on"
+    },
+    {
+      "classification": {
+        "class_key": "tiny",
+        "class_label": "Open \u00b7 0.36B",
+        "classification_basis": "total_parameters",
+        "classification_source": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/blob/a10cc1512eabd3dde888204e902eca88bddb4951/README.md",
+        "maker": "Hugging Face",
+        "params_active": 0.36,
+        "params_total": 0.36,
+        "precision": "BF16",
+        "quantization": null
+      },
+      "finding": "Qualification failed: instead of calling the tool it copied the placeholder names from the function-calling prompt ('func_name1', 'func_name2', \u2026) into an invented call list until the 2,048-token cap; the list never closed, so no call was made.",
+      "qualification_evidence_sha256": "552eb402c38c45b3b3cbdba670bf926bfa8fd3d51d3b9b02aebe17282c42af7f",
+      "requested_name": "SmolLM2-360M-Instruct",
+      "thinking_mode": "off"
+    },
+    {
+      "classification": {
+        "class_key": "tiny",
+        "class_label": "Open \u00b7 0.36B",
+        "classification_basis": "total_parameters",
+        "classification_source": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/blob/a10cc1512eabd3dde888204e902eca88bddb4951/README.md",
+        "maker": "Hugging Face",
+        "params_active": 0.36,
+        "params_total": 0.36,
+        "precision": "BF16",
+        "quantization": null
+      },
+      "finding": "Qualification failed: instead of calling the tool it copied the placeholder names from the function-calling prompt ('func_name1', 'func_name2', \u2026) into an invented call list until the 2,048-token cap; the list never closed, so no call was made.",
+      "qualification_evidence_sha256": "a513fb0327dd48fee7d37bf9b57b6ebc9407aeebfbc7afea26ce9559767a4a39",
+      "requested_name": "SmolLM2-360M-Instruct (card sampling)",
+      "thinking_mode": "off"
     }
   ],
   "report_ids": [
@@ -111,7 +145,8 @@
     "eacd8d77bbb4733fd948846e5010944a15254fe6bc78c1c697e5a011cb377705",
     "856f8d9d5f1bb8443bc3aa030f023a433629fd109814cbbd7aac838b8de40304",
     "8d44a799b6ef0729aff74a3cd77b2ccc0d4600412ec40f7966f23b67e59975d1",
-    "978d24d5e1541735609dba461aaadf505eab745fc066b11449a62de1714035f8"
+    "978d24d5e1541735609dba461aaadf505eab745fc066b11449a62de1714035f8",
+    "b71737d009efe20f13380d1408bd072b214b6aa03e5813eea8d092005d67ffd8"
   ],
   "reports": [
     {
@@ -51868,6 +51903,1447 @@
           "attempted": 186,
           "pass_rate": 0.967741935483871,
           "passed": 180,
+          "scored": 186,
+          "unscored": 0
+        }
+      }
+    },
+    {
+      "categories": {
+        "args": {
+          "attempted": 42,
+          "pass_rate": 0.8571428571428571,
+          "passed": 36,
+          "scored": 42,
+          "unscored": 0
+        },
+        "multi-step": {
+          "attempted": 42,
+          "pass_rate": 0.0,
+          "passed": 0,
+          "scored": 42,
+          "unscored": 0
+        },
+        "recovery": {
+          "attempted": 42,
+          "pass_rate": 0.42857142857142855,
+          "passed": 18,
+          "scored": 42,
+          "unscored": 0
+        },
+        "restraint": {
+          "attempted": 42,
+          "pass_rate": 0.14285714285714285,
+          "passed": 6,
+          "scored": 42,
+          "unscored": 0
+        },
+        "selection": {
+          "attempted": 42,
+          "pass_rate": 0.21428571428571427,
+          "passed": 9,
+          "scored": 42,
+          "unscored": 0
+        },
+        "single": {
+          "attempted": 42,
+          "pass_rate": 0.7142857142857143,
+          "passed": 30,
+          "scored": 42,
+          "unscored": 0
+        }
+      },
+      "classification": {
+        "class_key": "tiny",
+        "class_label": "Open \u00b7 1.7B",
+        "classification_basis": "total_parameters",
+        "classification_source": "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct/blob/31b70e2e869a7173562077fd711b654946d38674/README.md",
+        "maker": "Hugging Face",
+        "params_active": 1.71,
+        "params_total": 1.71,
+        "precision": "BF16",
+        "quantization": null
+      },
+      "cost_usd": null,
+      "failure_tags": {
+        "bad_format": 40,
+        "extra_call": 36,
+        "gave_up_or_loop": 1,
+        "made_up_result": 3,
+        "wrong_args": 70,
+        "wrong_tool": 3
+      },
+      "gpu": {
+        "card": "bariton GPU 2 (RTX PRO 6000, 96 GB)",
+        "gpu_count": 1,
+        "gpu_seconds": 13.2,
+        "in_flight": 16,
+        "rate_usd_per_gpu_hour": 2.49,
+        "server_max_num_seqs": 16
+      },
+      "latency_seconds": {
+        "mean": 0.7218015687773466,
+        "total": 181.89399533189135
+      },
+      "note": "No thinking mode; temperature 0, seeds 0/1/2. SmolLM2's chat template has no tool support, so it runs with our template: the card's own function-calling prompt and its <tool_call>[\u2026] call list, read by our vLLM parser (closed tags only). The card shows no way to return a tool result; we send results as <tool_response> turns, and after one the model often repeats the result instead of answering in a sentence. The runner rejected 40 Standard trials for combining state-changing calls in one step; the calls parsed successfully. Context 8,192 tokens, output cap 2,048; every prompt fit, so nothing is unscored. Card quickstart sampling (temperature 0.2, top_p 0.9), seed 0 only: 40.5% standard vs 39.3% at temperature 0 seed 0; harder 0% both.",
+      "overall": {
+        "attempted": 252,
+        "pass_rate": 0.39285714285714285,
+        "passed": 99,
+        "scored": 252,
+        "unscored": 0
+      },
+      "public_tasks": [
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-06"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "made_up_result",
+          "task_id": "selection-07"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-05"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-04"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-07"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-07"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-06"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "recovery-06"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "single-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "single-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "recovery-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "made_up_result",
+          "task_id": "selection-07"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-05"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-07"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-07"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-04"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-06"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-03"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "single-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "recovery-06"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "single-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-06-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-06-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "recovery-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-04"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-01"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "made_up_result",
+          "task_id": "selection-07"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-02"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-03"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-03"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-05"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-07"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-07"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-06"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-01"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-03"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-04"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "single-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "recovery-06"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-06"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "single-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-06-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "args-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "args-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-04-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "multi-step-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "gave_up_or_loop",
+          "task_id": "recovery-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "multi-step-06-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "recovery-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "bad_format",
+          "task_id": "recovery-06-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "restraint-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-06"
+        }
+      ],
+      "rankable": true,
+      "setup": {
+        "chat_template_revision": "31b70e2e869a7173562077fd711b654946d38674",
+        "engine_tool_parser": "smollm2 (vLLM plugin smollm2_tool_parser.py sha256 b14dbf76: one JSON list of calls per <tool_call> tag)",
+        "exact_model_id": "HuggingFaceTB/SmolLM2-1.7B-Instruct",
+        "native_documented_call_format": "card (1.7B: instructions_function_calling.md): tools in a system prompt, answer <tool_call>[{\"name\": ..., \"arguments\": {...}}]</tool_call>; no documented format for tool results: <tool_response> user turns (our choice, smollm2_tool_template.jinja)",
+        "plan_sha256": "b4ff7baa90b10e26ba70f8d6810657e7b7eba64a00e7977d8e9f29ce4985c49c",
+        "provider": "local vLLM v0.30.0 served by @logic on bariton (#13276), one RTX PRO 6000, BF16, --max-model-len 8192",
+        "requested_name": "SmolLM2-1.7B-Instruct",
+        "revision": "31b70e2e869a7173562077fd711b654946d38674",
+        "thinking_mode": "off"
+      },
+      "tiers": {
+        "all": 3,
+        "original": 2,
+        "renamed": 2
+      },
+      "total_tokens": 904861,
+      "tracks": {
+        "original": {
+          "attempted": 126,
+          "pass_rate": 0.40476190476190477,
+          "passed": 51,
+          "scored": 126,
+          "unscored": 0
+        },
+        "renamed": {
+          "attempted": 126,
+          "pass_rate": 0.38095238095238093,
+          "passed": 48,
+          "scored": 126,
+          "unscored": 0
+        }
+      },
+      "unscored_reasons": {},
+      "visibility": {
+        "private": {
+          "attempted": 66,
+          "pass_rate": 0.5454545454545454,
+          "passed": 36,
+          "scored": 66,
+          "unscored": 0
+        },
+        "public": {
+          "attempted": 186,
+          "pass_rate": 0.3387096774193548,
+          "passed": 63,
           "scored": 186,
           "unscored": 0
         }

@@ -1,8 +1,8 @@
 {
-  "attempted": 9072,
+  "attempted": 9324,
   "full_cohort_approved": true,
   "hard_set": {
-    "attempted": 5184,
+    "attempted": 5328,
     "report_ids": [
       "f6a742942de067fc3de4686e688c564e80be956f0bbeee5b08c5f96d12e160af",
       "49054f114d4aa8ab00b0c970a466e93e09bdb8a8a2b13e094cb3f89fa4ccb6f5",
@@ -39,10 +39,11 @@
       "ee928919a211b55c3a6a48c2eafe79181f83a872c436468ca9379c3efda5bc54",
       "e2e7ade16b00ef797a3f8a519968176a896d4daf470da7671d313e678af65e00",
       "0ec9784f6446f13f70d5d5d801bf77375082743c2310171a51a26d158830fcfc",
-      "4bbcca63e5cb37bd48c371d4a781fec9492cb1a8d4096fc55ff6c7f3046e9484"
+      "4bbcca63e5cb37bd48c371d4a781fec9492cb1a8d4096fc55ff6c7f3046e9484",
+      "defd44f24d09ea63e06f253498cbd28d17b08239ba3559c5726663b56682195a"
     ],
-    "scored": 5182,
-    "setups": 36,
+    "scored": 5326,
+    "setups": 37,
     "unscored": 2
   },
   "not_qualified": [
@@ -119,9 +120,43 @@
       "qualification_evidence_sha256": "4ce031a1a23c3611018abbfcbda8ab523e39fdf07cddcda33953fe158e932cb6",
       "requested_name": "GLiDE 2B (decision model, plain vLLM)",
       "thinking_mode": "on"
+    },
+    {
+      "classification": {
+        "class_key": "tiny",
+        "class_label": "Open \u00b7 0.36B",
+        "classification_basis": "total_parameters",
+        "classification_source": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/blob/a10cc1512eabd3dde888204e902eca88bddb4951/README.md",
+        "maker": "Hugging Face",
+        "params_active": 0.36,
+        "params_total": 0.36,
+        "precision": "BF16",
+        "quantization": null
+      },
+      "finding": "Qualification failed: instead of calling the tool it copied the placeholder names from the function-calling prompt ('func_name1', 'func_name2', \u2026) into an invented call list until the 2,048-token cap; the list never closed, so no call was made.",
+      "qualification_evidence_sha256": "552eb402c38c45b3b3cbdba670bf926bfa8fd3d51d3b9b02aebe17282c42af7f",
+      "requested_name": "SmolLM2-360M-Instruct",
+      "thinking_mode": "off"
+    },
+    {
+      "classification": {
+        "class_key": "tiny",
+        "class_label": "Open \u00b7 0.36B",
+        "classification_basis": "total_parameters",
+        "classification_source": "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/blob/a10cc1512eabd3dde888204e902eca88bddb4951/README.md",
+        "maker": "Hugging Face",
+        "params_active": 0.36,
+        "params_total": 0.36,
+        "precision": "BF16",
+        "quantization": null
+      },
+      "finding": "Qualification failed: instead of calling the tool it copied the placeholder names from the function-calling prompt ('func_name1', 'func_name2', \u2026) into an invented call list until the 2,048-token cap; the list never closed, so no call was made.",
+      "qualification_evidence_sha256": "a513fb0327dd48fee7d37bf9b57b6ebc9407aeebfbc7afea26ce9559767a4a39",
+      "requested_name": "SmolLM2-360M-Instruct (card sampling)",
+      "thinking_mode": "off"
     }
   ],
-  "rankable_setups": 36,
+  "rankable_setups": 37,
   "report_ids": [
     "5e65142ae9cfa7bb6cf0ca3c53bd63a502a255d13ee66aea80faeb782411f5e6",
     "27023f16baa4af5f5d659c2e14bc79406f064a356825f8e5ca094385cd6cd726",
@@ -158,12 +193,13 @@
     "eacd8d77bbb4733fd948846e5010944a15254fe6bc78c1c697e5a011cb377705",
     "856f8d9d5f1bb8443bc3aa030f023a433629fd109814cbbd7aac838b8de40304",
     "8d44a799b6ef0729aff74a3cd77b2ccc0d4600412ec40f7966f23b67e59975d1",
-    "978d24d5e1541735609dba461aaadf505eab745fc066b11449a62de1714035f8"
+    "978d24d5e1541735609dba461aaadf505eab745fc066b11449a62de1714035f8",
+    "b71737d009efe20f13380d1408bd072b214b6aa03e5813eea8d092005d67ffd8"
   ],
-  "scored": 9072,
-  "setups": 36,
+  "scored": 9324,
+  "setups": 37,
   "stage": "results",
   "tiered": true,
   "unscored": 0,
-  "updated": "2026-11-20T01:58:10+01:00"
+  "updated": "2026-11-20T17:03:12Z"
 }
