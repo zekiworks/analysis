@@ -940,6 +940,8 @@ MODELS: dict[str, dict[str, Any]] = {
            # option rather than with the answer line, so its rows show that share (Ümit #13306).
            ("smollm2-1.7b", "SmolLM2-1.7B-Instruct", "vLLM v0.30.0", "HuggingFaceTB/SmolLM2-1.7B-Instruct@31b70e2"),
            ("smollm2-360m", "SmolLM2-360M-Instruct", "vLLM v0.30.0", "HuggingFaceTB/SmolLM2-360M-Instruct@a10cc15"),
+           # SmolLM3-3B (Ümit #13443, #13489) on logic's load: thinking on and off by the card's enable_thinking switch
+           ("smollm3-3b", "SmolLM3-3B", "vLLM v0.30.0", "HuggingFaceTB/SmolLM3-3B@a07cc9a"),
            ("granite-4.2-8b", "Granite-4.2-8B", "vLLM v0.30.0", "ibm-granite/granite-4.2-8b@a704214"),
            # SenseTime's SenseNova-Loop-9B (Ümit #12072, #12075): no vLLM or SGLang release serves its looped
            # architecture, so LightLLM as its card shows (logic #12210; thinking in message.reasoning).
@@ -1534,6 +1536,8 @@ SIZES: dict[str, dict[str, Any]] = {
             "HuggingFaceTB/SmolLM2-1.7B-Instruct", "31b70e2"),
            ("smollm2-360m", 361_821_120, "language model (tied embeddings), text only",
             "HuggingFaceTB/SmolLM2-360M-Instruct", "a10cc15"),
+           ("smollm3-3b", 3_075_098_624, "language model (tied embeddings), text only",
+            "HuggingFaceTB/SmolLM3-3B", "a07cc9a"),
            ("granite-4.2-3b", 3_659_737_600, "language model with its LM head, text only", "ibm-granite/granite-4.2-3b",
             "4e9c275"),
            ("sensenova-loop-9b", 9_412_963_952, "the whole checkpoint, vision encoder included", "sensenova/SenseNova-Loop-9B",

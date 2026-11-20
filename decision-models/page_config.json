@@ -93,6 +93,12 @@
         "source": "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct/blob/31b70e2e869a7173562077fd711b654946d38674/README.md",
         "read": "2026-11-20"
       },
+      "smollm3-3b": {
+        "total": 3000000000,
+        "words": "3B (the model card: a 3B parameter language model)",
+        "source": "https://huggingface.co/HuggingFaceTB/SmolLM3-3B/blob/a07cc9a04f16550a088caea529712d1d335b0ac1/README.md",
+        "read": "2026-11-20"
+      },
       "smollm2-360m": {
         "total": 360000000,
         "words": "360M (the size in the model's official name)",
@@ -2329,6 +2335,10 @@
           {
             "provider": "vllm-plain",
             "model": "smollm2-360m"
+          },
+          {
+            "provider": "vllm-plain",
+            "model": "smollm3-3b"
           }
         ]
       }
@@ -2445,6 +2455,22 @@
             1302,
             1303
           ]
+        },
+        "smollm2-1.7b": {
+          "runs": [
+            1540,
+            1542,
+            1543
+          ],
+          "note": "Replies without an ANSWER: X line, counted wrong: 514, 515 and 516 of 547 (94%) in seeds 0, 1, 2, mostly a bare letter."
+        },
+        "smollm2-360m": {
+          "runs": [
+            1525,
+            1527,
+            1528
+          ],
+          "note": "Replies without an ANSWER: X line, counted wrong: 95, 99 and 98 of 547 (17–18%) in seeds 0, 1, 2."
         },
         "minicpm5-2b-nothink": {
           "runs": [

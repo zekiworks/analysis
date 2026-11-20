@@ -2,6 +2,14 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 38e1a3e8 (20 November 2026)
+
+- Hugging Face's SmolLM2-1.7B-Instruct and SmolLM2-360M-Instruct (Ümit #13248) on English reading only (their cards name English alone; Ümit asked to skip Turkish, #13291), each on one RTX PRO 6000 on logic's load: vLLM v0.30.0, BF16, the checkpoint's own chat template, one question per request, 32 in flight, temperature 0, output cap 6,144 tokens so the longest prompt and reply fit the 8,192-token context (no reply was cut off). Both failed the 20-question smoke test's answer format and were run anyway at Ümit's choice (#13306): a reply without an 'ANSWER: X' line counts as wrong, and each row shows the share of such replies.
+- SmolLM2-1.7B-Instruct: seeds 0, 1, 2 (runs 1540, 1542, 1543) 10, 10 and 9 of 547 right (1.8%, 1.8%, 1.6%); 94% of its replies are a bare letter ('E') without the line. With "I don't know" offered (run 1541): 0 right, 98.5% of replies without the line.
+- SmolLM2-360M-Instruct: seeds 0, 1, 2 (runs 1525, 1527, 1528) 18.3%, 18.6%, 18.1%, with 17–18% of replies without the line. With "I don't know" offered (run 1526) it chose the option for 502 of 547 and got 3 right (0.5%).
+- Seed 0 at the card's quickstart example sampling (temperature 0.2, top_p 0.9; runs 1544 and 1529) gives 2.6% for the 1.7B (its three seeds at temperature 0: 1.6–1.8%) and 16.5% for the 360M (18.1–18.6%). These two runs are this comparison only, not rows.
+- Highlights: the card on holding back in English now compares only setups that score above chance (20%) with "I don't know" offered, says so in its heading, and names the setups it leaves out with their counts (SmolLM2-360M-Instruct chose the option 502 times and got 3 right).
+
 ## Results 6b8a6a3d (20 November 2026)
 
 - OpenAI's GPT-6.2 Sol at reasoning effort high (Ümit #12132), on the ChatGPT subscription through Codex as GPT-6.2 Astra, 16 questions per request, every reply readable. English 527 of 547 (96.3%; run 1515), English "I don't know" run 1521 (526 right), Turkish Text 2,142 of 2,198 (97.5%; run 1516), Turkish "Bilmiyorum" run 1522 (2,139 right). Billed $0; at OpenAI's API list price ($2 input, $10 output, $0.10 cached input per 1M tokens) its Turkish Text run would cost about $3.35 and its English run $0.77, shown as estimates.
