@@ -2,7 +2,7 @@
  "bench": "math",
  "title": "Math",
  "url": "https://zekiworks.github.io/analysis/logic/math/",
- "updated": "2026-11-20T11:46:44Z",
+ "updated": "2026-11-20T15:35:37Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -3526,6 +3526,38 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.0077777777777777776,
    "gpu_cost_usd": 0.0016552497584361066
+  },
+  {
+   "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "commit": "a10cc1512eabd3dde888204e902eca88bddb4951",
+   "model_key": "smollm2-360m-instruct",
+   "name": "SmolLM2-360M-Instruct",
+   "display_name": "SmolLM2-360M-Instruct",
+   "tag": "chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951",
+   "class_label": "Open · 0.4B",
+   "base_model": null,
+   "setup_label": "SmolLM2-360M-Instruct (chat, on our GPU)",
+   "maker": "Hugging Face",
+   "kind": "chat",
+   "params_total": 0.36,
+   "params_active": 0.36,
+   "quantization": "BF16",
+   "score_0_100": -6.256742179072276,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.1499460625674218,
+    "questions": 2163,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "math:smollm2-360m_en",
+    "math:smollm2-360m_en_dontknow"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-360M-Instruct (chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951); accuracy is the mean of 3 seed runs (min 0.1489, max 0.1512): seed 0 smollm2-360m_en 327/2163, seed 1 smollm2-360m-seed1_en 322/2163, seed 2 smollm2-360m-seed2_en 324/2163",
+   "gpu_hours": 0.05333333333333334,
+   "gpu_cost_usd": 0.1328
   }
  ]
 }

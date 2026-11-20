@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-20T11:46:44Z",
+ "updated": "2026-11-20T15:35:37Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -3677,6 +3677,40 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.012777777777777777,
    "gpu_cost_usd": 0.0027193388888593177
+  },
+  {
+   "repo": "HuggingFaceTB/SmolLM2-360M-Instruct",
+   "commit": "a10cc1512eabd3dde888204e902eca88bddb4951",
+   "model_key": "smollm2-360m-instruct",
+   "name": "SmolLM2-360M-Instruct",
+   "display_name": "SmolLM2-360M-Instruct",
+   "tag": "chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951",
+   "class_label": "Open · 0.4B",
+   "base_model": null,
+   "setup_label": "SmolLM2-360M-Instruct (chat, on our GPU)",
+   "maker": "Hugging Face",
+   "kind": "chat",
+   "params_total": 0.36,
+   "params_active": 0.36,
+   "quantization": "BF16",
+   "score_0_100": -8.741382806163829,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.13006893755068938,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:smollm2-360m_en",
+    "math:smollm2-360m_en",
+    "logic:smollm2-360m_en_dontknow",
+    "math:smollm2-360m_en_dontknow"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: SmolLM2-360M-Instruct (chat · HuggingFaceTB/SmolLM2-360M-Instruct@a10cc1512eabd3dde888204e902eca88bddb4951); accuracy is the mean of 3 seed runs (min 0.1290, max 0.1308): seed 0 smollm2-360m_en+smollm2-360m_en 429/3288, seed 1 smollm2-360m-seed1_en+smollm2-360m-seed1_en 424/3288, seed 2 smollm2-360m-seed2_en+smollm2-360m-seed2_en 430/3288",
+   "gpu_hours": 0.05777777777777778,
+   "gpu_cost_usd": 0.14386666666666667
   }
  ]
 }
