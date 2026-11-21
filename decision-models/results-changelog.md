@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results d501e75b (21 November 2026)
+
+- Thinking Machines' Inkling 2 Mini (Ümit #13772), `thinkingmachines/Inkling-2-Mini` at `ed40e7d`, on English reading only (its card names English and general multilingual support, not Turkish): logic's load on one RTX PRO 6000, the maker's vLLM image (vllm/vllm-openai:inkling-2-mini, sha256:c2dc759f) with its own NVFP4/MXFP8 weights and reasoning parser, one mode (no thinking-off switch; the template's default reasoning effort 0.9), temperature 0, output cap 32,768 tokens, one question per request, 32 in flight on a card shared with the other benches. Published on Ümit's instruction without waiting for Zeki's check (#13903, #13909).
+- Seed 0 (run 1601): 471 of 547 right (86.1%); 45 replies ran into the 32,768-token cap still thinking and count as wrong. With "I don't know" offered (run 1602): 464 right (84.8%), 38 cut off. Seeds 1 and 2 and the card's sampling (temperature 1.0) are still running and join the row in a later version.
+
 ## Results 38e1a3e8 (20 November 2026)
 
 - Hugging Face's SmolLM2-1.7B-Instruct and SmolLM2-360M-Instruct (Ümit #13248) on English reading only (their cards name English alone; Ümit asked to skip Turkish, #13291), each on one RTX PRO 6000 on logic's load: vLLM v0.30.0, BF16, the checkpoint's own chat template, one question per request, 32 in flight, temperature 0, output cap 6,144 tokens so the longest prompt and reply fit the 8,192-token context (no reply was cut off). Both failed the 20-question smoke test's answer format and were run anyway at Ümit's choice (#13306): a reply without an 'ANSWER: X' line counts as wrong, and each row shows the share of such replies.

@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "38e1a3e8",
-  "updated": "2026-11-20T17:27:56Z",
+  "results_version": "d501e75b",
+  "updated": "2026-11-21T11:15:45Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -440521,6 +440521,81 @@
         }
       },
       {
+        "name": "Inkling 2 Mini",
+        "model": "inkling-2-mini",
+        "provider": "vllm-plain",
+        "reasoning": "default",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1601,
+        "runs": [
+          1601
+        ],
+        "dates": [
+          "2026-11-21"
+        ],
+        "parameters": 26388646440,
+        "active_parameters": [
+          3400000000
+        ],
+        "effective_parameters": null,
+        "parameters_scope": "looped mixture of experts, the whole released checkpoint (vision encoder included); active per token as the card states it; card: 26.4B total, 3.4B active, 5.4B effective active with three passes",
+        "parameters_source": [
+          "https://huggingface.co/thinkingmachines/Inkling-2-Mini/blob/ed40e7da625f594fc9c4990f5f66be24873c22d7/README.md"
+        ],
+        "parameters_read": "2026-11-21",
+        "group": "chat",
+        "access": "our GPU (logic's server, vLLM (the maker's image vllm/vllm-openai:inkling-2-mini, sha256:c2dc759f) BF16, revision thinkingmachines/Inkling-2-Mini@ed40e7d), one question per request, plain answer line ANSWER: X (no answer schema); sampling seed 0, temperature 0.0; output cap 32,768",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "english_where": "RTX PRO 6000",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 3.839993681402517,
+            "per_1000": 7.02009813784738,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 159719,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 2047800
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 5551.7980935939995
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 165.32307367199974,
+            "p90_request_seconds": 551.0460505141964,
+            "concurrency": 32,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 471,
+          "wrong": 31,
+          "invalid": 45,
+          "accuracy": 0.8610603290676416
+        }
+      },
+      {
         "name": "Celeris-1.1 Decision",
         "model": "celeris-1.1-decision",
         "provider": "celeris",
@@ -449347,6 +449422,42 @@
             "accuracy": 0.7367458866544789,
             "attempt_rate": 0.9707495429616088,
             "non_hallucination": 0.09859154929577464,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "Inkling 2 Mini",
+          "model": "inkling-2-mini",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 1601,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1602,
+            "runs": [
+              1602
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 38,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {
+                "cut off": 38
+              }
+            },
+            "right": 464,
+            "wrong": 42,
+            "dont_know": 3,
+            "invalid": 38,
+            "accuracy": 0.8482632541133455,
+            "attempt_rate": 0.9250457038391224,
+            "non_hallucination": 0.06666666666666667,
             "mean_dont_know_probability": null
           }
         },
