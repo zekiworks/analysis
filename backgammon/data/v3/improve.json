@@ -813,11 +813,11 @@
     "updated_at": "2026-11-13T09:10:16+00:00"
    },
    {
-    "reason": "waiting for its turn",
+    "reason": null,
     "series_done": 0,
     "setup": "MiniCPM5-2B (on)",
-    "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
+    "status": "running",
+    "updated_at": "2026-11-21T14:03:00+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -918,7 +918,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-21T12:16:04+00:00"
+  "updated_at": "2026-11-21T14:03:00+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -7230,11 +7230,21 @@
      "risks_found": null
     },
     "answers_after": null,
-    "answers_before": null,
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 76.11045725643635,
+     "right_safety": 79.0,
+     "risks_found": 25.0
     },
     "change": {
      "error_rate": null,
@@ -7247,24 +7257,42 @@
      "estimate_usd": null,
      "reported_usd": null
     },
-    "empty": [],
-    "empty_done": 0,
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 76.11045725643635,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 79.0,
+      "risk_pays": 100,
+      "risks_found": 25.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 3667.2
+     }
+    ],
+    "empty_done": 1,
     "improved": null,
     "key": "minicpm5-2b-on",
     "progress": {
-     "reason": "waiting for its turn",
+     "reason": null,
      "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
+     "status": "running",
+     "updated_at": "2026-11-21T14:03:00+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": null,
     "series": [],
     "series_finished": 0,
     "setup": "MiniCPM5-2B (on)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
-    "steps_done": [],
+    "state": "running",
+    "status": "running on our GPU, 0 of 5 series",
+    "steps_done": [
+     "E1"
+    ],
     "threshold": null,
     "verdict": false
    },
@@ -9096,16 +9124,16 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-21T12:16:04+00:00"
+  "updated_at": "2026-11-21T14:03:00+00:00"
  },
- "source_sha256": "f0fd5174e4def427c52b8727b5e37436e27f4f5a7e597c6bdd2398b68bb8673c",
+ "source_sha256": "e33af0416acc8b9f2b3700cfcc3a392cb426505ceb63f68c8735cfce89b7a2ee",
  "status": {
-  "last_update": "2026-11-21T12:16:04+00:00",
-  "line": "14 of 29 models with a verdict · 1 running · 14 paused · 0 incomplete or stopped",
+  "last_update": "2026-11-21T14:03:00+00:00",
+  "line": "14 of 29 models with a verdict · 2 running · 13 paused · 0 incomplete or stopped",
   "models": 29,
-  "paused": 14,
+  "paused": 13,
   "phase": "running",
-  "running": 1,
+  "running": 2,
   "stopped": 0,
   "verdicts": 14
  },
