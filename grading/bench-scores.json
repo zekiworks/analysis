@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-20T16:59:10Z",
+ "updated": "2026-11-21T00:58:51Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -620,7 +620,7 @@
    "runs": [
     "grading:chat-gemini-4-hydrogen-v1"
    ],
-   "notes": "Google Antigravity agent harness through Can's agbench bridge (Google AI Ultra subscription), thinking high, tool descriptions present and tools denied, a fresh conversation per request; $0 billed (the subscription's quota); one question per request, 1 request at a time (latency not comparable across different concurrency); the pass stopped once when the bridge's safety switch tripped on a false positive (fixed by its owner) and resumed in the same order by a recorded decision; the one request in flight at the stop was sent again, so its recorded outcome is not guaranteed to be the model's first output; thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 0 of 2069 replies (0%) had no answer marker and count wrong; every reply kept",
+   "notes": "Google Antigravity agent harness through Can's agbench bridge (Google AI Ultra subscription), thinking high, tool descriptions present and tools denied, a fresh conversation per request; $0 billed (the subscription's quota); one question per request, 1 request at a time (latency not comparable across different concurrency); the pass stopped once when the bridge's safety switch tripped on a false positive (fixed by its owner) and resumed in the same order by a recorded decision; the one request in flight at the stop was sent again, so its recorded outcome is not guaranteed to be the model's first output; thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 0 of 2069 replies (0%) had no answer marker and count wrong; every reply kept; the run stopped part-way once and was resumed in the same pass under a recorded decision, after 87 kept pairs (the subscription bridge's safety check stopped it on a false positive in a benchmark text; the bridge owner fixed the check): no kept answer was replaced; at each stop at most one request was in flight, which may have been answered without being kept (unknown); its pair was asked again, so that pair's scored reply is the later one, not necessarily the model's first output",
    "gpu_hours": null,
    "gpu_cost_usd": null
   },
@@ -1158,6 +1158,34 @@
    ],
    "notes": "quincyqiang/chinese-decision-pointer-4b@889f23e2, its card's Decision Index engine (yanqiangmiffy/chinese-decision@c16450b, ChineseDecisionEngine with debias 'reverse' as its card's run; transformers 5.17.0, kit decision-index@9eb2dbe2, as the card names no kit commit; causal-conv1d not installed, so its PyTorch reference convolution) behind di_serve.py, our System One wrapper of the engine, BF16, on one RTX PRO 6000 (ours), self-hosted; one question per request, 1 request at a time (latency not comparable across different concurrency)",
    "gpu_hours": 0.04414093524818924,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Gemini 4 Carbon",
+   "display_name": "Gemini 4 Carbon",
+   "tag": "thinking on (no off mode) · chat",
+   "model_key": "gemini-4-carbon",
+   "maker": "Google",
+   "kind": "chat",
+   "repo": null,
+   "commit": null,
+   "params_total": null,
+   "params_active": null,
+   "quantization": null,
+   "score_0_100": 77.7428709521508,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8516191396810053,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-gemini-4-carbon-v1"
+   ],
+   "notes": "Google Antigravity agent harness through Can's agbench bridge (Google AI Ultra subscription), thinking high, tool descriptions present and tools denied, a fresh conversation per request; $0 billed (the subscription's quota); one question per request, 1 request at a time (latency not comparable across different concurrency); thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 13 of 2069 replies (0.63%) had no answer marker and count wrong (0 of them cut off at the 32,768-token limit); every reply kept; the run stopped part-way 2 times and was resumed in the same pass under a recorded decision, after 24 kept pairs (stopped by us before an announced host reboot); after 1,652 kept pairs (stopped by us before an announced host shutdown): no kept answer was replaced; at each stop at most one request was in flight, which may have been answered without being kept (unknown); its pair was asked again, so that pair's scored reply is the later one, not necessarily the model's first output",
+   "gpu_hours": null,
    "gpu_cost_usd": null
   },
   {

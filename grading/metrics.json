@@ -1,9 +1,9 @@
 {
  "bench": "grading",
- "updated": "2026-11-20T16:59:18Z",
+ "updated": "2026-11-21T00:59:02Z",
  "feed": {
   "file": "bench-scores.json",
-  "sha256": "8e8d67fd1fd6837e81a225ed09b5856cdf05e3d394813075b193e11cc53768a5"
+  "sha256": "f2ea387ab3e8b9b702964311b95f42cbd3c18a106872bcfe92a1edeebda624d9"
  },
  "cohort_pairs": 2069,
  "label_pairs": {
@@ -1731,6 +1731,30 @@
    "wrong_answer_recall": 0.0881,
    "false_alarm_rate": 0.008,
    "invalid": 0,
+   "probabilities": false,
+   "decision_score": null,
+   "chosen_answer_brier": null
+  },
+  {
+   "run": "grading:chat-gemini-4-carbon-v1",
+   "model_key": "gemini-4-carbon",
+   "latency_s_median": 41.815,
+   "latency_s_p90": 394.26,
+   "requests_in_flight": 1,
+   "requests_measured": 2069,
+   "api_cost_per_1000_usd_list_price": 133.8597,
+   "cost_basis": "estimated: subscription at API list price",
+   "price_note": "rate in force on the run's days (from 2026-11-10 to 2026-11-30): $2 input, $10 output, $0.1 cached input per 1M tokens; prices the usage the subscription bridge REPORTS, not a reconstructed API invoice: input is the largest planner step's uncached input, not the sum over the turn's steps, so a multi-step turn is under-counted on input; cache reads on top at the cached rate; output summed over the steps, thinking included",
+   "price_usd_per_million_input": 2.0,
+   "price_source": "https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-carbon-now-available/",
+   "price_date": "2026-11-21",
+   "gpu_seconds_per_1000": null,
+   "recall_reference": 0.8227,
+   "recall_other": 0.5927,
+   "recall_none": 0.9925,
+   "wrong_answer_recall": 0.5927,
+   "false_alarm_rate": 0.0149,
+   "invalid": 13,
    "probabilities": false,
    "decision_score": null,
    "chosen_answer_brier": null
