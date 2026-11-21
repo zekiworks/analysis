@@ -9,7 +9,7 @@
     "bench": "logic",
     "title": "Logic",
     "url": "https://zekiworks.github.io/analysis/logic/logic/",
-    "updated": "2026-11-21T10:55:35Z",
+    "updated": "2026-11-21T12:35:40Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -1006,6 +1006,38 @@
       "notes": "on our NVIDIA DGX Spark (GB10); other setups of this model under its row, not in this entry: LFM3-1.7B (on · chat), LFM3-1.7B (off · chat · NVIDIA RTX PRO 6000 Blackwell), LFM3-1.7B (on · chat), LFM3-1.7B (off · chat)",
       "gpu_hours": 2.5730555555555554,
       "gpu_cost_usd": 0.5475920897283448
+     },
+     {
+      "repo": "thinkingmachines/Inkling-2-Mini",
+      "commit": "ed40e7da625f594fc9c4990f5f66be24873c22d7",
+      "model_key": "inkling-2-mini",
+      "name": "Inkling 2 Mini",
+      "display_name": "Inkling 2 Mini",
+      "tag": "high · chat · thinkingmachines/Inkling-2-Mini@ed40e7da625f594fc9c4990f5f66be24873c22d7",
+      "class_label": "Open · 26B MoE · 3.4B active",
+      "base_model": null,
+      "setup_label": "Inkling 2 Mini (chat, reasoning effort 0.9, on our GPU)",
+      "maker": "Thinking Machines",
+      "kind": "chat",
+      "params_total": 26.4,
+      "params_active": 3.4,
+      "quantization": "NVFP4",
+      "score_0_100": 79.8888888888889,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8391111111111111,
+       "questions": 1125,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:inkling-2-mini_en",
+       "logic:inkling-2-mini_en_dontknow"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+      "gpu_hours": 5.503888888888889,
+      "gpu_cost_usd": 13.704683333333335
      },
      {
       "repo": "google/gemma-4-E4B-it",
@@ -3665,7 +3697,7 @@
      }
     ]
    },
-   "sha256": "1c7f9ce1563fabb9b5523f854f327101d5f1b4ab5c01e31286964a40fcae7c18"
+   "sha256": "45657fff390a79b7b57bc6e00cc4e952c9e4376e55068451cd7d329c043c6693"
   },
   "math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores-math.json",
@@ -3675,7 +3707,7 @@
     "bench": "math",
     "title": "Math",
     "url": "https://zekiworks.github.io/analysis/logic/math/",
-    "updated": "2026-11-21T10:55:35Z",
+    "updated": "2026-11-21T12:35:40Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 2,163 Math questions right (accuracy 100%)"
@@ -4671,6 +4703,37 @@
       "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); other setups of this model under its row, not in this entry: Gemma 4 E4B (on · chat), Gemma 4 E4B (on · chat · 32k cap), Gemma 4 E4B (on · chat · 32k cap · sampled); 4.5B effective parameters",
       "gpu_hours": 0.23555555555555555,
       "gpu_cost_usd": 0.5865333333333334
+     },
+     {
+      "repo": "thinkingmachines/Inkling-2-Mini",
+      "commit": "ed40e7da625f594fc9c4990f5f66be24873c22d7",
+      "model_key": "inkling-2-mini",
+      "name": "Inkling 2 Mini",
+      "display_name": "Inkling 2 Mini",
+      "tag": "high · chat · thinkingmachines/Inkling-2-Mini@ed40e7da625f594fc9c4990f5f66be24873c22d7",
+      "class_label": "Open · 26B MoE · 3.4B active",
+      "base_model": null,
+      "setup_label": "Inkling 2 Mini (chat, reasoning effort 0.9, on our GPU)",
+      "maker": "Thinking Machines",
+      "kind": "chat",
+      "params_total": 26.4,
+      "params_active": 3.4,
+      "quantization": "NVFP4",
+      "score_0_100": 97.3994452149792,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.9791955617198336,
+       "questions": 2163,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "math:inkling-2-mini_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 0.5894444444444444,
+      "gpu_cost_usd": 1.4677166666666668
      },
      {
       "repo": "google/gemma-4-E2B-it",
@@ -7298,7 +7361,7 @@
      }
     ]
    },
-   "sha256": "2f104d646c5e4c7b6cc8b506be905793f406b1075f380c06570e687047ee71bc"
+   "sha256": "295a0fa816b917cd559fa7d1b3b95a271af876ff4cebd7350d929952f9d71036"
   },
   "logic-math": {
    "url": "https://zekiworks.github.io/analysis/logic/bench-scores.json",
@@ -7308,7 +7371,7 @@
     "bench": "logic-math",
     "title": "Logic & Math",
     "url": "https://zekiworks.github.io/analysis/logic/",
-    "updated": "2026-11-21T10:55:35Z",
+    "updated": "2026-11-21T12:35:40Z",
     "score": {
      "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
      "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -8265,6 +8328,38 @@
       "notes": "on our NVIDIA DGX Spark (GB10); other setups of this model under its row, not in this entry: LFM3-1.7B (on · chat), LFM3-1.7B (off · chat · NVIDIA RTX PRO 6000 Blackwell), LFM3-1.7B (on · chat), LFM3-1.7B (off · chat)",
       "gpu_hours": 3.1822222222222223,
       "gpu_cost_usd": 0.6772336154515728
+     },
+     {
+      "repo": "thinkingmachines/Inkling-2-Mini",
+      "commit": "ed40e7da625f594fc9c4990f5f66be24873c22d7",
+      "model_key": "inkling-2-mini",
+      "name": "Inkling 2 Mini",
+      "display_name": "Inkling 2 Mini",
+      "tag": "high · chat · thinkingmachines/Inkling-2-Mini@ed40e7da625f594fc9c4990f5f66be24873c22d7",
+      "class_label": "Open · 26B MoE · 3.4B active",
+      "base_model": null,
+      "setup_label": "Inkling 2 Mini (chat, reasoning effort 0.9, on our GPU)",
+      "maker": "Thinking Machines",
+      "kind": "chat",
+      "params_total": 26.4,
+      "params_active": 3.4,
+      "quantization": "NVFP4",
+      "score_0_100": 91.4081508515815,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.931265206812652,
+       "questions": 3288,
+       "options": 5
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "logic:inkling-2-mini_en",
+       "math:inkling-2-mini_en"
+      ],
+      "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+      "gpu_hours": 6.093333333333333,
+      "gpu_cost_usd": 15.172400000000001
      },
      {
       "repo": "google/gemma-4-E4B-it",
@@ -11088,12 +11183,12 @@
      }
     ]
    },
-   "sha256": "191320cc3b35af56440e3caca5b59774524ed743d0504dc6fbc0a04949f98f8a"
+   "sha256": "6d7138cab81eef2ac745a0507eeef6c07d503b3a0e99111b19dd16423829ec7e"
   },
   "backgammon": {
    "url": "https://zekiworks.github.io/analysis/backgammon/bench-scores.json",
    "published": true,
-   "seen": "2026-11-20",
+   "seen": "2026-11-21",
    "file": {
     "bench": "backgammon",
     "models": [
@@ -12603,10 +12698,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-20T16:03Z",
+    "updated": "2026-11-21T12:27Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "707c6a73bbae73ebfd5300b7d444d35892756cf676b58ac8b90c47fc44e82090"
+   "sha256": "e5ebd8e71a1044ad085fc9735b08a9d819d8df21275cc42bc107726c40fc5e92"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
@@ -12616,7 +12711,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-21T00:58:51Z",
+    "updated": "2026-11-21T12:41:46Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -13460,6 +13555,34 @@
       ],
       "notes": "startlux-models/StartLux-Decision-v1.1-4B-Instant@416088f7, its package's own server (startlux-decide serve --launch-vllm, StartLux-Decision@a99977d, vLLM 0.31.0) as for its published Reading and Logic & Math runs, BF16, on one DGX Spark (ours), self-hosted; licence CC-BY-NC-4.0 (research use); one question per request, 1 request at a time (latency not comparable across different concurrency)",
       "gpu_hours": 0.08060698456742366,
+      "gpu_cost_usd": null
+     },
+     {
+      "name": "Inkling 2 Mini",
+      "display_name": "Inkling 2 Mini",
+      "tag": "thinking on (no off mode) · chat",
+      "model_key": "inkling-2-mini",
+      "maker": "Thinking Machines",
+      "kind": "chat",
+      "repo": "thinkingmachines/Inkling-2-Mini",
+      "commit": "ed40e7da625f594fc9c4990f5f66be24873c22d7",
+      "params_total": 26.4,
+      "params_active": 3.4,
+      "quantization": "NVFP4/MXFP8 experts (the maker's checkpoint), the rest BF16",
+      "score_0_100": 81.58530691155147,
+      "raw": {
+       "metric": "accuracy",
+       "value": 0.8772353794103431,
+       "questions": 2069,
+       "options": 3
+      },
+      "calibration_error": null,
+      "improvement_points": null,
+      "runs": [
+       "grading:chat-inkling-2-mini-v1"
+      ],
+      "notes": "thinkingmachines/Inkling-2-Mini@ed40e7da, NVFP4/MXFP8 experts (the maker's checkpoint), the rest BF16, inkling-2-mini vLLM on one RTX PRO 6000 (ours), self-hosted (the recipe's image, sha256:c2dc759f, without the speculator); one question per request, 16 requests at a time (latency not comparable across different concurrency); the server also answered other benchmarks' requests (Logic & Math, Reading, backgammon learning, Toolbench's qualification checks) during the run, so its latency and GPU time are shared-load figures; its first 20 pairs (the format smoke test, kept in the run) were sent 20 at a time, the other 2,392 16 at a time; thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 96 of 2069 replies (5%) had no answer marker and count wrong (96 of them cut off at the 32,768-token limit); every reply kept",
+      "gpu_hours": 4.98625494584658,
       "gpu_cost_usd": null
      },
      {
@@ -15524,7 +15647,7 @@
      }
     ]
    },
-   "sha256": "f2ea387ab3e8b9b702964311b95f42cbd3c18a106872bcfe92a1edeebda624d9"
+   "sha256": "e7a71d595303b887c1152a74892677a2ec1d3572abc311112e0fe9c59525778d"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -15532,10 +15655,10 @@
    "seen": "2026-11-21",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-21T00:59:02Z",
+    "updated": "2026-11-21T12:41:55Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "f2ea387ab3e8b9b702964311b95f42cbd3c18a106872bcfe92a1edeebda624d9"
+     "sha256": "e7a71d595303b887c1152a74892677a2ec1d3572abc311112e0fe9c59525778d"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -17679,6 +17802,29 @@
       "chosen_answer_brier": null
      },
      {
+      "run": "grading:chat-inkling-2-mini-v1",
+      "model_key": "inkling-2-mini",
+      "latency_s_median": 78.491,
+      "latency_s_p90": 227.039,
+      "requests_in_flight": 16,
+      "requests_measured": 2069,
+      "api_cost_per_1000_usd_list_price": null,
+      "cost_basis": null,
+      "price_usd_per_million_input": null,
+      "price_source": null,
+      "price_date": null,
+      "gpu_seconds_per_1000": 8675.9,
+      "recall_reference": 0.9427,
+      "recall_other": 0.8298,
+      "recall_none": 0.8195,
+      "wrong_answer_recall": 0.8298,
+      "false_alarm_rate": 0.0391,
+      "invalid": 96,
+      "probabilities": false,
+      "decision_score": null,
+      "chosen_answer_brier": null
+     },
+     {
       "run": "grading:chat-gemma-4-e2b-sampled-seed0-v1",
       "model_key": "gemma-4-e2b-sampled",
       "runs": [
@@ -17769,7 +17915,7 @@
      }
     ]
    },
-   "sha256": "c7717343e09f4d92c6c8dacd458e247ccf738dfd0ea1136943efc73ae2daa17a"
+   "sha256": "50a0d983401de7fc035a6c9112c6a0e59e61c2c1abe7ac467268d6fd99378ec3"
   },
   "grading-consistency": {
    "url": "https://zekiworks.github.io/analysis/grading/consistency.json",
@@ -17778,7 +17924,7 @@
    "file": {
     "bench": "Answer Check",
     "cohort": "no-code",
-    "feed_sha256": "f2ea387ab3e8b9b702964311b95f42cbd3c18a106872bcfe92a1edeebda624d9",
+    "feed_sha256": "e7a71d595303b887c1152a74892677a2ec1d3572abc311112e0fe9c59525778d",
     "report_sha256": [
      "6304ad676e6f10d0ca06e6cc01450f23518330af615eb9a1a9d94fa2ee18b5da",
      "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
@@ -18517,7 +18663,7 @@
      }
     ]
    },
-   "sha256": "4b702f449920726153c304cc9c3ff3c2e82162da0bb7aba15987004ca8d01750"
+   "sha256": "feda41204123408e84a2cccf82f40bd9a18ea6622582e7e332f7a8fe25160389"
   }
  }
 }

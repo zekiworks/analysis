@@ -2,6 +2,10 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results b3b683cf (21 November 2026)
+
+- Inkling 2 Mini's English row is now the mean of three seeds at temperature 0 (runs 1601, 1603, 1604): 471, 477 and 463 of 547 right (86.1%, 87.2%, 84.6%; mean 86.0%), with 45, 37 and 49 replies cut off at the 32,768-token cap while still thinking. The card's sampling (temperature 1.0, seed 0, run 1605) gave 488 of 547 (89.2%), above the three temperature-0 seeds; it is a comparison here, not a row. Published on Ümit's instruction without waiting for Zeki's check (#13903).
+
 ## Results d501e75b (21 November 2026)
 
 - Thinking Machines' Inkling 2 Mini (Ümit #13772), `thinkingmachines/Inkling-2-Mini` at `ed40e7d`, on English reading only (its card names English and general multilingual support, not Turkish): logic's load on one RTX PRO 6000, the maker's vLLM image (vllm/vllm-openai:inkling-2-mini, sha256:c2dc759f) with its own NVFP4/MXFP8 weights and reasoning parser, one mode (no thinking-off switch; the template's default reasoning effort 0.9), temperature 0, output cap 32,768 tokens, one question per request, 32 in flight on a card shared with the other benches. Published on Ümit's instruction without waiting for Zeki's check (#13903, #13909).
