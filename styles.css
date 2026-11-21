@@ -77,3 +77,6 @@ html[data-theme=dark]{--ink:#f1eff0;--dim:#c0bbbf;--line:#424046;--paper:#19191c
 /* The site's name above the bench tabs, centred, as on Ümit's draft (#13699-#13702) */
 .atlasTitle{font-family:var(--font);font-weight:700;font-size:32px;letter-spacing:-.3px;text-align:center;margin:22px 0 14px;color:var(--ink)}
 @media(max-width:760px){.atlasTitle{font-size:26px;margin:14px 0 8px}}
+
+/* Opened from the phone Home Screen (Ümit #14099): room under the status bar and the notch, as Agent Hub does */
+@media (display-mode: standalone){body{padding-top:env(safe-area-inset-top,0px)}}
