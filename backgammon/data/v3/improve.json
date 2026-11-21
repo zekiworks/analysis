@@ -818,11 +818,11 @@
     "updated_at": "2026-11-13T10:21:50+00:00"
    },
    {
-    "reason": "waiting for its turn",
+    "reason": null,
     "series_done": 4,
     "setup": "LFM2.5-24B-A2B (on)",
-    "status": "paused",
-    "updated_at": "2026-11-20T23:07:41+00:00"
+    "status": "running",
+    "updated_at": "2026-11-21T19:05:40+00:00"
    },
    {
     "reason": null,
@@ -832,11 +832,11 @@
     "updated_at": "2026-11-13T09:10:16+00:00"
    },
    {
-    "reason": null,
+    "reason": "waiting for its turn",
     "series_done": 0,
     "setup": "MiniCPM5-2B (on)",
-    "status": "running",
-    "updated_at": "2026-11-21T14:03:00+00:00"
+    "status": "paused",
+    "updated_at": "2026-11-21T15:23:39+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -906,21 +906,28 @@
     "series_done": 0,
     "setup": "SmolLM3-3B (off)",
     "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
+    "updated_at": "2026-11-21T15:36:17+00:00"
    },
    {
     "reason": "waiting for its turn",
     "series_done": 0,
     "setup": "SmolLM3-3B (on)",
     "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
+    "updated_at": "2026-11-21T15:36:17+00:00"
+   },
+   {
+    "reason": "waiting for its turn",
+    "series_done": 0,
+    "setup": "Inkling 2 Mini (on)",
+    "status": "paused",
+    "updated_at": "2026-11-21T07:06:23+00:00"
    },
    {
     "reason": null,
     "series_done": 0,
-    "setup": "Inkling 2 Mini (on)",
-    "status": "running",
-    "updated_at": "2026-11-21T07:06:23+00:00"
+    "setup": "Inkling 2 Mini (on, effort 0.5)",
+    "status": "stopped",
+    "updated_at": "2026-11-21T19:14:15+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -937,7 +944,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-21T14:03:00+00:00"
+  "updated_at": "2026-11-21T19:14:15+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -6475,13 +6482,13 @@
     "improved": null,
     "key": "lfm2.5-24b-a2b-on",
     "progress": {
-     "reason": "waiting for its turn",
+     "reason": null,
      "series_done": 4,
-     "status": "paused",
-     "updated_at": "2026-11-20T23:07:41+00:00"
+     "status": "running",
+     "updated_at": "2026-11-21T19:05:40+00:00"
     },
     "range": 11.0,
-    "reason": "operator hold: frozen mid-S5 so the small models go first (Ümit #13675); S5 restarts from game 1 later",
+    "reason": null,
     "series": [
      {
       "finished": true,
@@ -6762,8 +6769,8 @@
     ],
     "series_finished": 4,
     "setup": "LFM2.5-24B-A2B (on)",
-    "state": "paused",
-    "status": "paused: operator hold: frozen mid-S5 so the small models go first; S5 restarts from game 1 later",
+    "state": "running",
+    "status": "running on our GPU, 4 of 5 series",
     "steps_done": [
      "E1",
      "S1",
@@ -7297,18 +7304,18 @@
     "improved": null,
     "key": "minicpm5-2b-on",
     "progress": {
-     "reason": null,
+     "reason": "waiting for its turn",
      "series_done": 0,
-     "status": "running",
-     "updated_at": "2026-11-21T14:03:00+00:00"
+     "status": "paused",
+     "updated_at": "2026-11-21T15:23:39+00:00"
     },
     "range": null,
-    "reason": null,
+    "reason": "waiting for its turn in its lane",
     "series": [],
     "series_finished": 0,
     "setup": "MiniCPM5-2B (on)",
-    "state": "running",
-    "status": "running on our GPU, 0 of 5 series",
+    "state": "paused",
+    "status": "paused: waiting for its turn in its lane",
     "steps_done": [
      "E1"
     ],
@@ -8594,15 +8601,15 @@
      "reason": "waiting for its turn",
      "series_done": 0,
      "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
+     "updated_at": "2026-11-21T15:36:17+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": "operator hold: skipped in the learning experiment (Ümit #13784, again #14134)",
     "series": [],
     "series_finished": 0,
     "setup": "SmolLM3-3B (off)",
     "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "status": "paused: operator hold: skipped in the learning experiment",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -8639,15 +8646,15 @@
      "reason": "waiting for its turn",
      "series_done": 0,
      "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
+     "updated_at": "2026-11-21T15:36:17+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": "operator hold: skipped in the learning experiment (Ümit #13784, again #14134)",
     "series": [],
     "series_finished": 0,
     "setup": "SmolLM3-3B (on)",
     "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "status": "paused: operator hold: skipped in the learning experiment",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -8681,19 +8688,92 @@
     "improved": null,
     "key": "inkling-2-mini-on",
     "progress": {
-     "reason": null,
+     "reason": "waiting for its turn",
      "series_done": 0,
-     "status": "running",
+     "status": "paused",
      "updated_at": "2026-11-21T07:06:23+00:00"
     },
     "range": null,
-    "reason": null,
+    "reason": "operator hold: reasoning effort 0.9 ran out of room on most positions (E1 stopped at 148 of 200 answered, 110 invalid, each at the 32,768-token cap); a rerun at effort 0.5 is proposed, not yet chosen",
     "series": [],
     "series_finished": 0,
     "setup": "Inkling 2 Mini (on)",
-    "state": "running",
-    "status": "running on our GPU, 0 of 5 series",
+    "state": "paused",
+    "status": "paused: operator hold: reasoning effort 0.9 ran out of room on most positions (E1 stopped at 148 of 200 answered, 110 invalid, each at the 32,768-token cap); a rerun at effort 0.5 is proposed, not yet chosen",
     "steps_done": [],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": {
+     "answer_rate": 80.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 40,
+     "risk_pays": 78,
+     "safety_pays": 82,
+     "tests": 1,
+     "valid": 160
+    },
+    "before": {
+     "error_rate": 49.609546177089214,
+     "right_safety": 92.6829268292683,
+     "risks_found": 29.487179487179485
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [
+     {
+      "answer_rate": 80.0,
+      "answered": 200,
+      "error_rate": 49.609546177089214,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 40,
+      "right_safety": 92.6829268292683,
+      "risk_pays": 78,
+      "risks_found": 29.487179487179485,
+      "safety_pays": 82,
+      "valid": 160,
+      "wall_seconds": 9924.0
+     }
+    ],
+    "empty_done": 1,
+    "improved": null,
+    "key": "inkling-2-mini-e05",
+    "progress": {
+     "reason": null,
+     "series_done": 0,
+     "status": "stopped",
+     "updated_at": "2026-11-21T19:14:15+00:00"
+    },
+    "range": null,
+    "reason": "E1: validity check: 40 of 200 answers invalid (20.0%), more than 10%: no series",
+    "series": [],
+    "series_finished": 0,
+    "setup": "Inkling 2 Mini (on, effort 0.5)",
+    "state": "stopped",
+    "status": "stopped: E1: validity check: 40 of 200 answers invalid (20.0%), more than 10%: no series",
+    "steps_done": [
+     "E1"
+    ],
     "threshold": null,
     "verdict": false
    },
@@ -9143,17 +9223,17 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-21T14:03:00+00:00"
+  "updated_at": "2026-11-21T19:14:15+00:00"
  },
- "source_sha256": "e1dd10ae47b20bb37981cd579f82a90703cbb33083a532eb644c084b30d342e7",
+ "source_sha256": "c69528ab8c51795096c7e0274dde0470eb1eaf63eb18d1cb2b25f2ef680230ad",
  "status": {
-  "last_update": "2026-11-21T14:03:00+00:00",
-  "line": "14 of 30 models with a verdict · 2 running · 13 paused · 0 incomplete or stopped",
+  "last_update": "2026-11-21T19:14:15+00:00",
+  "line": "14 of 30 models with a verdict · 1 running · 14 paused · 1 incomplete or stopped",
   "models": 30,
-  "paused": 13,
+  "paused": 14,
   "phase": "running",
-  "running": 2,
-  "stopped": 0,
+  "running": 1,
+  "stopped": 1,
   "verdicts": 14
  },
  "validation": {
