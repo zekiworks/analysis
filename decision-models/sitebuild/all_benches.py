@@ -2034,7 +2034,11 @@ def grading_consistency(data: Data) -> str:
     head = "".join(f'<th scope="col" class="zw-num">{esc(label)}</th>' for _, label in CONSISTENCY_FORMS)
     rows = "".join(
         f'<tr><th scope="row">{esc(row["label"])}</th>'
-        + "".join(f'<td class="zw-num">{percent(row["forms"][form]["flip_rate"])}'
+        # A form that did not reach the model as defined (its 'applicability', compactor #13766) shows that text, not a
+        # number comparable with other models' cells; the figures stay in the file as observations
+        + "".join(f'<td class="zw-num"><small>{esc(row["applicability"][form])}</small></td>'
+                  if form in (row.get("applicability") or {}) else
+                  f'<td class="zw-num">{percent(row["forms"][form]["flip_rate"])}'
                   f'<br><small>Δ conf {row["forms"][form]["mean_confidence_change"]:.3f}</small></td>'
                   for form, _ in CONSISTENCY_FORMS) + "</tr>"
         for row in file["models"])

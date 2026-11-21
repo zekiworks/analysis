@@ -17779,9 +17779,15 @@
     "bench": "Answer Check",
     "cohort": "no-code",
     "feed_sha256": "f2ea387ab3e8b9b702964311b95f42cbd3c18a106872bcfe92a1edeebda624d9",
-    "report_sha256": "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
+    "report_sha256": [
+     "6304ad676e6f10d0ca06e6cc01450f23518330af615eb9a1a9d94fa2ee18b5da",
+     "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
+     "b47cf8711d0eaac88c1ad4f018f9e9ab9e401a907e5c6ed8829995198a4b5126",
+     "eba38f0287446781b1c652fc8d86ce031c49718686f2e85973e85858d57580ad"
+    ],
     "definitions": {
-     "forms": "each no-code pair asked again: 'control' the scored request unchanged; 'order1', 'order2' the three options in two different changed orders (the same orders for every model); 'names' the options' keys replaced by plain letters in reverse; 'dontknow' the not-stated option reworded. Question, reference answer and text never change.",
+     "forms": "each no-code pair asked again: 'control' the scored request unchanged; 'order1', 'order2' the three options in two different changed orders (the same orders for every model); 'names' the options' keys replaced by plain letters in reverse; 'dontknow' the not-stated option reworded. Question, reference answer and text never change. Exception: where a model's server reorders options itself (its 'applicability' says so), a form reaches the model as that order, not as sent",
+     "applicability": "per model and form, set only where the form did not reach the model as defined; such a cell is not comparable with other models' cells, and its figures are observations only",
      "flip_rate": "share of pairs whose chosen option, by meaning, differs from the model's own scored Answer Check run",
      "mean_confidence_change": "mean absolute change in the probability the model gives its scored run's pick",
      "control": "the scored request repeated unchanged on the consistency load, read against the model's scored run: a difference can come from the setup as well as from repetition (see a model's note); the other forms are read against it",
@@ -17792,10 +17798,291 @@
      "claim_negation": "the form with the reference answer rewritten to its opposite (plan #12220) is not run: its rewrites need review first",
      "hosted_models": "hosted decision APIs are not run (their budget is not approved)",
      "models": {
-      "glide-27b": "in Ümit's priority six (#12404) but not run: its Answer Check row was scored on a DGX Spark, and the consistency load ran on an RTX PRO 6000, so it would not be its scored setup"
+      "glide-27b": "in Ümit's priority six (#12404) but not run: its Answer Check row was scored on a DGX Spark, and the consistency load ran on an RTX PRO 6000, so it would not be its scored setup",
+      "glide-9b": "not run: its Answer Check row was scored in a vLLM image, not the glide.server load",
+      "knowline-31b-gen1.5": "not run: its Answer Check row was scored on a DGX Spark (SGLang), not this card",
+      "d3, d3-ultra, onejev, open-jev, drex-max-v1": "not run: no Answer Check row to compare against"
      }
     },
     "models": [
+     {
+      "model_key": "clef",
+      "display_name": "Clef",
+      "tag": "",
+      "label": "Clef",
+      "run": "grading:site-clef-v1",
+      "note": "its server sorts a question's options by their key before the model sees them (the checkpoint's own question_options), so 'order1' and 'order2' reached the model in the same effective option order as the scored request (observed 0%; the shuffle was not exercised), and 'names' changed both the keys and, through that sort, the order; 'dontknow' is unaffected",
+      "coverage": "second batch (Ümit #13241), on logic's consistency loads, 20-21 Nov",
+      "model_echo_checked": true,
+      "applicability": {
+       "order1": "shuffle not exercised (server sorts options by key)",
+       "order2": "shuffle not exercised (server sorts options by key)",
+       "names": "combined key and order change (server sorts options by key)"
+      },
+      "report_sha256": "6304ad676e6f10d0ca06e6cc01450f23518330af615eb9a1a9d94fa2ee18b5da",
+      "forms": {
+       "control": {
+        "pairs": 2069,
+        "flip_rate": 0.0,
+        "mean_confidence_change": 0.0,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order1": {
+        "pairs": 2069,
+        "flip_rate": 0.0,
+        "mean_confidence_change": 0.0,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order2": {
+        "pairs": 2069,
+        "flip_rate": 0.0,
+        "mean_confidence_change": 0.0,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "names": {
+        "pairs": 2069,
+        "flip_rate": 0.043,
+        "mean_confidence_change": 0.054,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "dontknow": {
+        "pairs": 2069,
+        "flip_rate": 0.0135,
+        "mean_confidence_change": 0.0117,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       }
+      }
+     },
+     {
+      "model_key": "clef-flash",
+      "display_name": "Clef-Flash",
+      "tag": "",
+      "label": "Clef-Flash",
+      "run": "grading:site-clef-flash-v1",
+      "note": "its server sorts a question's options by their key before the model sees them (the checkpoint's own question_options), so 'order1' and 'order2' reached the model in the same effective option order as the scored request (observed 0%; the shuffle was not exercised), and 'names' changed both the keys and, through that sort, the order; 'dontknow' is unaffected",
+      "coverage": "second batch (Ümit #13241), on logic's consistency loads, 20-21 Nov",
+      "model_echo_checked": false,
+      "applicability": {
+       "order1": "shuffle not exercised (server sorts options by key)",
+       "order2": "shuffle not exercised (server sorts options by key)",
+       "names": "combined key and order change (server sorts options by key)"
+      },
+      "report_sha256": "6304ad676e6f10d0ca06e6cc01450f23518330af615eb9a1a9d94fa2ee18b5da",
+      "forms": {
+       "control": {
+        "pairs": 2069,
+        "flip_rate": 0.0,
+        "mean_confidence_change": 0.0,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order1": {
+        "pairs": 2069,
+        "flip_rate": 0.0,
+        "mean_confidence_change": 0.0,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order2": {
+        "pairs": 2069,
+        "flip_rate": 0.0,
+        "mean_confidence_change": 0.0,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "names": {
+        "pairs": 2069,
+        "flip_rate": 0.1087,
+        "mean_confidence_change": 0.1192,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "dontknow": {
+        "pairs": 2069,
+        "flip_rate": 0.0304,
+        "mean_confidence_change": 0.0313,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       }
+      }
+     },
+     {
+      "model_key": "cygnet",
+      "display_name": "Cygnet",
+      "tag": "",
+      "label": "Cygnet",
+      "run": "grading:site-cygnet-v1",
+      "note": null,
+      "coverage": "second batch (Ümit #13241), on logic's consistency loads, 20-21 Nov",
+      "model_echo_checked": false,
+      "applicability": {},
+      "report_sha256": "b47cf8711d0eaac88c1ad4f018f9e9ab9e401a907e5c6ed8829995198a4b5126",
+      "forms": {
+       "control": {
+        "pairs": 2069,
+        "flip_rate": 0.0072,
+        "mean_confidence_change": 0.0063,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order1": {
+        "pairs": 2069,
+        "flip_rate": 0.0556,
+        "mean_confidence_change": 0.0543,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order2": {
+        "pairs": 2069,
+        "flip_rate": 0.0517,
+        "mean_confidence_change": 0.0523,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "names": {
+        "pairs": 2069,
+        "flip_rate": 0.0072,
+        "mean_confidence_change": 0.0063,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "dontknow": {
+        "pairs": 2069,
+        "flip_rate": 0.0188,
+        "mean_confidence_change": 0.0181,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       }
+      }
+     },
+     {
+      "model_key": "drex-2.0-local",
+      "display_name": "Drex 2.0",
+      "tag": "",
+      "label": "Drex 2.0",
+      "run": "grading:site-drex-2.0-v1",
+      "note": null,
+      "coverage": "second batch (Ümit #13241), on logic's consistency loads, 20-21 Nov",
+      "model_echo_checked": true,
+      "applicability": {},
+      "report_sha256": "eba38f0287446781b1c652fc8d86ce031c49718686f2e85973e85858d57580ad",
+      "forms": {
+       "control": {
+        "pairs": 2069,
+        "flip_rate": 0.0,
+        "mean_confidence_change": 0.0,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order1": {
+        "pairs": 2069,
+        "flip_rate": 0.0599,
+        "mean_confidence_change": 0.0471,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order2": {
+        "pairs": 2069,
+        "flip_rate": 0.058,
+        "mean_confidence_change": 0.0468,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "names": {
+        "pairs": 2069,
+        "flip_rate": 0.0445,
+        "mean_confidence_change": 0.0361,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "dontknow": {
+        "pairs": 2069,
+        "flip_rate": 0.0271,
+        "mean_confidence_change": 0.0261,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       }
+      }
+     },
+     {
+      "model_key": "elephant-1",
+      "display_name": "Elephant-1",
+      "tag": "",
+      "label": "Elephant-1",
+      "run": "grading:site-elephant-1-v1",
+      "note": null,
+      "coverage": "second batch (Ümit #13241), on logic's consistency loads, 20-21 Nov",
+      "model_echo_checked": false,
+      "applicability": {},
+      "report_sha256": "b47cf8711d0eaac88c1ad4f018f9e9ab9e401a907e5c6ed8829995198a4b5126",
+      "forms": {
+       "control": {
+        "pairs": 2069,
+        "flip_rate": 0.0048,
+        "mean_confidence_change": 0.0027,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order1": {
+        "pairs": 2069,
+        "flip_rate": 0.0237,
+        "mean_confidence_change": 0.0192,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order2": {
+        "pairs": 2069,
+        "flip_rate": 0.0227,
+        "mean_confidence_change": 0.0192,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "names": {
+        "pairs": 2069,
+        "flip_rate": 0.0174,
+        "mean_confidence_change": 0.018,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "dontknow": {
+        "pairs": 2069,
+        "flip_rate": 0.013,
+        "mean_confidence_change": 0.0116,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       }
+      }
+     },
      {
       "model_key": "fastino-glide-v1.2",
       "display_name": "GLiDE",
@@ -17805,6 +18092,8 @@
       "note": "the consistency load ran its server allowing up to 16 requests in a batch (its scored run: 1); requests were sent one at a time",
       "coverage": null,
       "model_echo_checked": false,
+      "applicability": {},
+      "report_sha256": "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
       "forms": {
        "control": {
         "pairs": 2069,
@@ -17857,6 +18146,8 @@
       "note": null,
       "coverage": null,
       "model_echo_checked": false,
+      "applicability": {},
+      "report_sha256": "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
       "forms": {
        "control": {
         "pairs": 2069,
@@ -17909,6 +18200,8 @@
       "note": null,
       "coverage": null,
       "model_echo_checked": true,
+      "applicability": {},
+      "report_sha256": "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
       "forms": {
        "control": {
         "pairs": 2069,
@@ -17961,6 +18254,8 @@
       "note": null,
       "coverage": null,
       "model_echo_checked": true,
+      "applicability": {},
+      "report_sha256": "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
       "forms": {
        "control": {
         "pairs": 2069,
@@ -18013,6 +18308,8 @@
       "note": null,
       "coverage": "not in the priority six: run first, as the first load of the queue before #12404",
       "model_echo_checked": false,
+      "applicability": {},
+      "report_sha256": "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
       "forms": {
        "control": {
         "pairs": 2069,
@@ -18065,6 +18362,8 @@
       "note": null,
       "coverage": null,
       "model_echo_checked": false,
+      "applicability": {},
+      "report_sha256": "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
       "forms": {
        "control": {
         "pairs": 2069,
@@ -18107,10 +18406,118 @@
         "resent": 0
        }
       }
+     },
+     {
+      "model_key": "perplexity-decider-flash-v1.3",
+      "display_name": "Perplexity Decider Flash v1.3",
+      "tag": "",
+      "label": "Perplexity Decider Flash v1.3",
+      "run": "grading:site-perplexity-decider-flash-v1.3-v1",
+      "note": null,
+      "coverage": "second batch (Ümit #13241), on logic's consistency loads, 20-21 Nov",
+      "model_echo_checked": false,
+      "applicability": {},
+      "report_sha256": "6304ad676e6f10d0ca06e6cc01450f23518330af615eb9a1a9d94fa2ee18b5da",
+      "forms": {
+       "control": {
+        "pairs": 2069,
+        "flip_rate": 0.0,
+        "mean_confidence_change": 0.0,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order1": {
+        "pairs": 2069,
+        "flip_rate": 0.0304,
+        "mean_confidence_change": 0.0222,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order2": {
+        "pairs": 2069,
+        "flip_rate": 0.0338,
+        "mean_confidence_change": 0.0223,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "names": {
+        "pairs": 2069,
+        "flip_rate": 0.028,
+        "mean_confidence_change": 0.0229,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "dontknow": {
+        "pairs": 2069,
+        "flip_rate": 0.0106,
+        "mean_confidence_change": 0.0109,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       }
+      }
+     },
+     {
+      "model_key": "winnow-12b",
+      "display_name": "Winnow-12B",
+      "tag": "",
+      "label": "Winnow-12B",
+      "run": "grading:site-winnow-12b-v1",
+      "note": null,
+      "coverage": "second batch (Ümit #13241), on logic's consistency loads, 20-21 Nov",
+      "model_echo_checked": false,
+      "applicability": {},
+      "report_sha256": "6304ad676e6f10d0ca06e6cc01450f23518330af615eb9a1a9d94fa2ee18b5da",
+      "forms": {
+       "control": {
+        "pairs": 2069,
+        "flip_rate": 0.0,
+        "mean_confidence_change": 0.0,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order1": {
+        "pairs": 2069,
+        "flip_rate": 0.0551,
+        "mean_confidence_change": 0.0583,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "order2": {
+        "pairs": 2069,
+        "flip_rate": 0.0594,
+        "mean_confidence_change": 0.0586,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "names": {
+        "pairs": 2069,
+        "flip_rate": 0.0449,
+        "mean_confidence_change": 0.0509,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       },
+       "dontknow": {
+        "pairs": 2069,
+        "flip_rate": 0.0174,
+        "mean_confidence_change": 0.0195,
+        "uncertain_total": 0,
+        "unusable_total": 0,
+        "resent": 0
+       }
+      }
      }
     ]
    },
-   "sha256": "9ae4630e1543f053ad50951841544b57ff84567575def156ea0e3be91bdd2ab0"
+   "sha256": "4b702f449920726153c304cc9c3ff3c2e82162da0bb7aba15987004ca8d01750"
   }
  }
 }
