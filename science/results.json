@@ -1,6 +1,10 @@
 {
- "about": "The science bench (Can #12936, #13126; Ümit #13728, #13822): hard Turkish maths and physics questions, multiple choice, one letter per answer. Textbook problems: 50 problems from Ahmet Karadeniz's Yüksek Matematik and 1968–1972 physics books and exams, every given number changed and the answer recomputed by code, five options of which four are typical mistakes. TÜBİTAK 2026 maths: the 32 questions of the 2026 national science olympiad's first stage (maths, booklet A), with TÜBİTAK's answer key. Broken questions: the 50 textbook problems mixed with 42 copies in which one given number was changed so that none of the five options is right (checked by code), with a sixth option F 'the question is flawed'; right means F on a broken copy and the right option on an intact one. The questions are not published. A reply without a readable letter counts wrong. The setups were not asked alike: the subscription models (Claude, GPT, Gemini, MAI) got 16 questions per request through their own tools or bridges; the decision and small models got one question per request. The TÜBİTAK 2026 questions and their answer key have been public since May 2026, so a model trained on later data may have seen them; we cannot tell whether any model did.",
+ "about": "The science bench (Can #12936, #13126; Ümit #13728, #13822): hard Turkish maths and physics questions, multiple choice, one letter per answer. Textbook problems: 50 problems from Ahmet Karadeniz's Yüksek Matematik and 1968–1972 physics books and exams, every given number changed and the answer recomputed by code, five options of which four are typical mistakes. TÜBİTAK 2026 maths: the 32 questions of the 2026 national science olympiad's first stage (maths, booklet A), with TÜBİTAK's answer key. Broken questions: the 50 textbook problems mixed with 42 copies in which one given number was changed so that none of the five options is right (checked by code), with a sixth option F 'the question is flawed'; right means F on a broken copy and the right option on an intact one. Exact answers: the same 50 textbook problems with no options; the model writes the number, right when within 0.1% of the code's value; a reply that is not a number counts wrong (subscription models 10 problems per request, our-GPU models 1). The questions are not published. A reply without a readable letter counts wrong. The setups were not asked alike: the subscription models (Claude, GPT, Gemini, MAI) got 16 questions per request through their own tools or bridges; the decision and small models got one question per request. The TÜBİTAK 2026 questions and their answer key have been public since May 2026, so a model trained on later data may have seen them; we cannot tell whether any model did.",
  "sets": {
+  "exact": {
+   "title": "Exact answers",
+   "options": null
+  },
   "textbook": {
    "title": "Textbook problems",
    "options": 5
@@ -47,6 +51,14 @@
      "broken": 42,
      "broken_caught": 42,
      "flawed_on_intact": 0
+    },
+    "exact": {
+     "run": "exact/opus.json",
+     "date": "2026-11-20",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "per_request": 10
     }
    }
   },
@@ -82,6 +94,14 @@
      "broken": 42,
      "broken_caught": 42,
      "flawed_on_intact": 0
+    },
+    "exact": {
+     "run": "exact/astra.json",
+     "date": "2026-11-20",
+     "questions": 50,
+     "right": 49,
+     "no_letter": 1,
+     "per_request": 10
     }
    }
   },
@@ -140,6 +160,14 @@
      "broken": 42,
      "broken_caught": 42,
      "flawed_on_intact": 1
+    },
+    "exact": {
+     "run": "exact/mai.json",
+     "date": "2026-11-20",
+     "questions": 50,
+     "right": 46,
+     "no_letter": 0,
+     "per_request": 10
     }
    }
   },
@@ -221,6 +249,14 @@
      "questions": 32,
      "right": 28,
      "no_letter": 4
+    },
+    "exact": {
+     "run": "exact/inkling-2-mini-1pq.json",
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 49,
+     "no_letter": 1,
+     "per_request": 1
     }
    },
    "maker_like": "Inkling 2 Small"
@@ -257,6 +293,14 @@
      "questions": 32,
      "right": 20,
      "no_letter": 4
+    },
+    "exact": {
+     "run": "exact/lfm3-1.7b-think.json",
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 27,
+     "no_letter": 17,
+     "per_request": 1
     }
    }
   },
@@ -292,6 +336,14 @@
      "broken": 42,
      "broken_caught": 30,
      "flawed_on_intact": 5
+    },
+    "exact": {
+     "run": "exact/lfm3-1.7b-nothink.json",
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 0,
+     "no_letter": 45,
+     "per_request": 1
     }
    }
   }
