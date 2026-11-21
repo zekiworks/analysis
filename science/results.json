@@ -335,6 +335,88 @@
    "maker_like": "Inkling 2 Small"
   },
   {
+   "model": "inkling-2-mini",
+   "name": "Inkling 2 Mini",
+   "tag": "thinking on (no off mode) · chat · card alone, 16 in flight",
+   "kind": "chat",
+   "route": "vLLM, the maker's image, alone on one RTX PRO 6000 (logic's solo load); reasoning effort 0.9, temperature 0, seed 0; one question per request, 16 at a time, answer line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 77,
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 20.09,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 127,
+      "cost_per_1000_usd": 1.7568,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); the card to itself"
+     }
+    },
+    "exact": {
+     "run": "exact/inkling-2-mini-solo-c16.json",
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 45,
+     "no_letter": 5,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 36.6,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 516,
+      "cost_per_1000_usd": 7.138,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); the card to itself"
+     }
+    }
+   },
+   "maker_like": "Inkling 2 Small"
+  },
+  {
+   "model": "inkling-2-mini",
+   "name": "Inkling 2 Mini",
+   "tag": "thinking on (no off mode) · chat · card alone, 1 in flight",
+   "kind": "chat",
+   "route": "vLLM, the maker's image, alone on one RTX PRO 6000 (logic's solo load); reasoning effort 0.9, temperature 0, seed 0; one question per request, one at a time, answer line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 78,
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 8.87,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 533,
+      "cost_per_1000_usd": 7.3732,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); the card to itself"
+     }
+    },
+    "exact": {
+     "run": "exact/inkling-2-mini-solo-c1.json",
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 45,
+     "no_letter": 5,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 16.4,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 1961,
+      "cost_per_1000_usd": 27.1244,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); the card to itself"
+     }
+    }
+   },
+   "maker_like": "Inkling 2 Small"
+  },
+  {
    "model": "lfm3-1.7b",
    "name": "LFM3-1.7B",
    "tag": "thinking on · chat",
