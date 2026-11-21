@@ -2,7 +2,7 @@
  "bench": "logic-math",
  "title": "Logic & Math",
  "url": "https://zekiworks.github.io/analysis/logic/",
- "updated": "2026-11-21T10:55:35Z",
+ "updated": "2026-11-21T12:35:40Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 3,288 Logic and Math questions right (accuracy 100%)"
@@ -959,6 +959,38 @@
    "notes": "on our NVIDIA DGX Spark (GB10); other setups of this model under its row, not in this entry: LFM3-1.7B (on · chat), LFM3-1.7B (off · chat · NVIDIA RTX PRO 6000 Blackwell), LFM3-1.7B (on · chat), LFM3-1.7B (off · chat)",
    "gpu_hours": 3.1822222222222223,
    "gpu_cost_usd": 0.6772336154515728
+  },
+  {
+   "repo": "thinkingmachines/Inkling-2-Mini",
+   "commit": "ed40e7da625f594fc9c4990f5f66be24873c22d7",
+   "model_key": "inkling-2-mini",
+   "name": "Inkling 2 Mini",
+   "display_name": "Inkling 2 Mini",
+   "tag": "high · chat · thinkingmachines/Inkling-2-Mini@ed40e7da625f594fc9c4990f5f66be24873c22d7",
+   "class_label": "Open · 26B MoE · 3.4B active",
+   "base_model": null,
+   "setup_label": "Inkling 2 Mini (chat, reasoning effort 0.9, on our GPU)",
+   "maker": "Thinking Machines",
+   "kind": "chat",
+   "params_total": 26.4,
+   "params_active": 3.4,
+   "quantization": "NVFP4",
+   "score_0_100": 91.4081508515815,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.931265206812652,
+    "questions": 3288,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:inkling-2-mini_en",
+    "math:inkling-2-mini_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run",
+   "gpu_hours": 6.093333333333333,
+   "gpu_cost_usd": 15.172400000000001
   },
   {
    "repo": "google/gemma-4-E4B-it",
