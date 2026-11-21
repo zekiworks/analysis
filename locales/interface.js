@@ -1,6 +1,18 @@
 'use strict';
 const HildeI18n=(()=>{
  const words=window.hildeTurkish;
+ // English display names that differ from the section keys in the data (Ümit #13926: one naming pattern, so
+ // 'Toolbench' shows as 'Tool Calling'; links and data keep 'Toolbench')
+ const english={'Toolbench':'Tool Calling'};
+ function rename(text){
+  if(!text||!text.trim())return text;
+  const base=text.trim();
+  if(Object.hasOwn(english,base))return text.replace(base,()=>english[base]);
+  for(const separator of [' | ',' · ',' / ',', ']){
+   if(base.includes(separator))return text.split(separator).map(rename).join(separator);
+  }
+  return text;
+ }
  const originals=new WeakMap();
  const attributes=new WeakMap();
  const skip='script,style,textarea,svg,datalist,[data-verbatim],.modelText,.initials,[data-ui]';
@@ -29,7 +41,7 @@ const HildeI18n=(()=>{
    if(!n.textContent.trim()||n.parentElement?.closest(skip))continue;
    const prev=originals.get(n);
    const input=prev&&n.data===prev.output?prev.input:n.data;
-   const output=tr?translate(input):input;
+   const output=tr?translate(input):rename(input);
    if(n.data!==output)n.data=output;
    originals.set(n,{input,output});
   }
@@ -39,7 +51,7 @@ const HildeI18n=(()=>{
    for(const key of ['aria-label','placeholder','title']){
     const current=el.getAttribute(key);if(!current)continue;
     const input=prev[key]&&prev[key].output===current?prev[key].input:current;
-    const output=tr?translate(input):input;
+    const output=tr?translate(input):rename(input);
     if(current!==output)el.setAttribute(key,output);
     prev[key]={input,output};
    }
