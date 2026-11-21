@@ -68,14 +68,84 @@
      },
      {
       "maker": "Liquid AI",
-      "route": "local llama.cpp",
+      "route": "local vLLM",
       "setting": "on",
       "setup": "LFM3-1.7B (on)"
+     },
+     {
+      "maker": "Google",
+      "route": "local vLLM",
+      "setting": "on",
+      "setup": "Gemma 4 E2B (on)"
      }
     ],
-    "note": "Added 12 Nov, after the plan was published: the Tiny and Small chat models tested on Logic & Math, each at its highest reasoning setting, under the same rule, lesson prompt, test and schedule. Listed here once the setup's settings are in the league database; Gemma 4 E2B, Gemma 4 12B, Erk-14B and Qwen3-14B follow when theirs are.",
+    "note": "Added 12 Nov, after the plan was published: the Tiny and Small chat models tested on Logic & Math, each at its highest reasoning setting, under the same rule, lesson prompt, test and schedule. Listed here once the setup's settings are in the league database; Gemma 4 12B, Erk-14B and Qwen3-14B follow when theirs are.",
     "record": "Ümit native 1570509348072063026 (cohort) and 1570507658425933987 (priority and cash), relayed by Zeki #5674/#5689 (not shown: the page names no internal message)",
     "source": "Ümit's decision of 12 Nov 2026"
+   },
+   {
+    "at": "2026-11-20",
+    "models": [
+     {
+      "maker": "Liquid AI",
+      "route": "local vLLM",
+      "setting": "off",
+      "setup": "LFM3-1.7B (off)"
+     },
+     {
+      "maker": "Alibaba (Qwen)",
+      "route": "local vLLM",
+      "setting": "on",
+      "setup": "Qwen3.5-2B (on)"
+     },
+     {
+      "maker": "KRAFTON",
+      "route": "local vLLM",
+      "setting": "on",
+      "setup": "Raon-1 nano (on)"
+     },
+     {
+      "maker": "Hugging Face",
+      "route": "local vLLM",
+      "setting": "no reasoning setting",
+      "setup": "SmolLM2-1.7B-Instruct"
+     },
+     {
+      "maker": "Hugging Face",
+      "route": "local vLLM",
+      "setting": "no reasoning setting",
+      "setup": "SmolLM2-360M-Instruct"
+     },
+     {
+      "maker": "Hugging Face",
+      "route": "local vLLM",
+      "setting": "on",
+      "setup": "SmolLM3-3B (on)"
+     },
+     {
+      "maker": "Hugging Face",
+      "route": "local vLLM",
+      "setting": "off (format check only: first empty test, no series)",
+      "setup": "SmolLM3-3B (off)"
+     }
+    ],
+    "note": "Added 20 Nov: the small models of 2B or less on our own GPU (LFM3-1.7B also with thinking off, Qwen3.5-2B, Raon-1 nano, SmolLM2-1.7B, SmolLM2-360M), under the same rule, lesson prompt, test and schedule, each with the settings of its league setup. For these and LFM3-1.7B, MiniCPM5-2B and Gemma 4 E2B, the first empty test is a validity check: a model with more than 10% invalid answers there (more than 20 of 200) stops and plays no series. Then SmolLM3-3B with thinking on, with the card's sampling (temperature 0.6, top_p 0.95), its first empty test a validity check as above; with thinking off it runs the first empty test only, as a format check, and plays no series. On our own GPU, a model whose next lesson call or next game's lessons would not fit its context stops there with that reason; lessons are never shortened to fit.",
+    "record": "Ümit #13295 (small models of 2B or less) and #13462/#13489 (SmolLM3-3B), relayed in the harness's amendments (improve 5092ff4, e82a5c7)",
+    "source": "Ümit's decisions of 20 Nov 2026"
+   },
+   {
+    "at": "2026-11-21",
+    "models": [
+     {
+      "maker": "Thinking Machines",
+      "route": "local vLLM (Logic & Math's shared server)",
+      "setting": "on (effort 0.9)",
+      "setup": "Inkling 2 Mini (on)"
+     }
+    ],
+    "note": "Added 21 Nov: Inkling 2 Mini with thinking on (effort 0.9), under the same rule, lesson prompt, test and schedule, on the server it shares with Logic & Math and other benchmarks (its owner's pinned load; this run neither starts nor stops it), sampled greedily as on Logic & Math (temperature 0), its first empty test a validity check as above. Its letter is read from its own answer after its reasoning: its server cannot continue a prefilled answer after a reasoning block. While that server is away, the model pauses.",
+    "record": "Ümit #13780/#13810/#13811 (improve 5d4b602)",
+    "source": "Ümit's decision of 21 Nov 2026"
    }
   ],
   "commitment": "Results will be published whichever way they go.",
@@ -338,11 +408,128 @@
     "late_entry": false,
     "maker": "Liquid AI",
     "n": 20,
-    "route": "local llama.cpp",
+    "route": "local vLLM",
     "route_detail": "",
     "setting": "on",
     "setup": "LFM3-1.7B (on)",
     "status": "added 2026-11-12 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "gemma-4-e2b-on",
+    "label": "",
+    "late_entry": false,
+    "maker": "Google",
+    "n": 21,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "on",
+    "setup": "Gemma 4 E2B (on)",
+    "status": "added 2026-11-12 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "lfm3-1.7b-off",
+    "label": "",
+    "late_entry": false,
+    "maker": "Liquid AI",
+    "n": 22,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "off",
+    "setup": "LFM3-1.7B (off)",
+    "status": "added 2026-11-20 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "qwen3.5-2b-on",
+    "label": "",
+    "late_entry": false,
+    "maker": "Alibaba (Qwen)",
+    "n": 23,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "on",
+    "setup": "Qwen3.5-2B (on)",
+    "status": "added 2026-11-20 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "raon-1-nano-on",
+    "label": "",
+    "late_entry": false,
+    "maker": "KRAFTON",
+    "n": 24,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "on",
+    "setup": "Raon-1 nano (on)",
+    "status": "added 2026-11-20 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "smollm2-1.7b-instruct",
+    "label": "",
+    "late_entry": false,
+    "maker": "Hugging Face",
+    "n": 25,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "no reasoning setting",
+    "setup": "SmolLM2-1.7B-Instruct",
+    "status": "added 2026-11-20 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "smollm2-360m-instruct",
+    "label": "",
+    "late_entry": false,
+    "maker": "Hugging Face",
+    "n": 26,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "no reasoning setting",
+    "setup": "SmolLM2-360M-Instruct",
+    "status": "added 2026-11-20 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "smollm3-3b-on",
+    "label": "",
+    "late_entry": false,
+    "maker": "Hugging Face",
+    "n": 27,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "on",
+    "setup": "SmolLM3-3B (on)",
+    "status": "added 2026-11-20 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "smollm3-3b-off",
+    "label": "",
+    "late_entry": false,
+    "maker": "Hugging Face",
+    "n": 28,
+    "route": "local vLLM",
+    "route_detail": "",
+    "setting": "off (format check only: first empty test, no series)",
+    "setup": "SmolLM3-3B (off)",
+    "status": "added 2026-11-20 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "inkling-2-mini-on",
+    "label": "",
+    "late_entry": false,
+    "maker": "Thinking Machines",
+    "n": 29,
+    "route": "local vLLM (Logic & Math's shared server)",
+    "route_detail": "",
+    "setting": "on (effort 0.9)",
+    "setup": "Inkling 2 Mini (on)",
+    "status": "added 2026-11-21 (amendment)"
    }
   ],
   "notes": [
@@ -612,11 +799,11 @@
     "updated_at": "2026-11-13T10:21:50+00:00"
    },
    {
-    "reason": null,
+    "reason": "waiting for its turn",
     "series_done": 4,
     "setup": "LFM2.5-24B-A2B (on)",
-    "status": "running",
-    "updated_at": "2026-11-15T11:45:00+00:00"
+    "status": "paused",
+    "updated_at": "2026-11-20T23:07:41+00:00"
    },
    {
     "reason": null,
@@ -647,6 +834,76 @@
     "updated_at": "2026-11-08T16:10:46+00:00"
    },
    {
+    "reason": null,
+    "series_done": 5,
+    "setup": "LFM3-1.7B (on)",
+    "status": "done",
+    "updated_at": "2026-11-21T12:07:28+00:00"
+   },
+   {
+    "reason": "waiting for its turn",
+    "series_done": 0,
+    "setup": "Gemma 4 E2B (on)",
+    "status": "paused",
+    "updated_at": "2026-11-08T16:10:46+00:00"
+   },
+   {
+    "reason": null,
+    "series_done": 5,
+    "setup": "LFM3-1.7B (off)",
+    "status": "done",
+    "updated_at": "2026-11-21T12:16:04+00:00"
+   },
+   {
+    "reason": "waiting for its turn",
+    "series_done": 0,
+    "setup": "Qwen3.5-2B (on)",
+    "status": "paused",
+    "updated_at": "2026-11-08T16:10:46+00:00"
+   },
+   {
+    "reason": "waiting for its turn",
+    "series_done": 0,
+    "setup": "Raon-1 nano (on)",
+    "status": "paused",
+    "updated_at": "2026-11-08T16:10:46+00:00"
+   },
+   {
+    "reason": "waiting for its turn",
+    "series_done": 0,
+    "setup": "SmolLM2-1.7B-Instruct",
+    "status": "paused",
+    "updated_at": "2026-11-21T04:28:16+00:00"
+   },
+   {
+    "reason": "waiting for its turn",
+    "series_done": 0,
+    "setup": "SmolLM2-360M-Instruct",
+    "status": "paused",
+    "updated_at": "2026-11-21T04:28:16+00:00"
+   },
+   {
+    "reason": "waiting for its turn",
+    "series_done": 0,
+    "setup": "SmolLM3-3B (off)",
+    "status": "paused",
+    "updated_at": "2026-11-08T16:10:46+00:00"
+   },
+   {
+    "reason": "waiting for its turn",
+    "series_done": 0,
+    "setup": "SmolLM3-3B (on)",
+    "status": "paused",
+    "updated_at": "2026-11-08T16:10:46+00:00"
+   },
+   {
+    "reason": null,
+    "series_done": 0,
+    "setup": "Inkling 2 Mini (on)",
+    "status": "running",
+    "updated_at": "2026-11-21T07:06:23+00:00"
+   },
+   {
     "reason": "waiting for its turn",
     "series_done": 4,
     "setup": "GPT-6.1 Sol (high)",
@@ -661,7 +918,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-15T11:45:01+00:00"
+  "updated_at": "2026-11-21T12:16:04+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -6199,13 +6456,13 @@
     "improved": null,
     "key": "lfm2.5-24b-a2b-on",
     "progress": {
-     "reason": null,
+     "reason": "waiting for its turn",
      "series_done": 4,
-     "status": "running",
-     "updated_at": "2026-11-15T11:45:00+00:00"
+     "status": "paused",
+     "updated_at": "2026-11-20T23:07:41+00:00"
     },
     "range": 11.0,
-    "reason": null,
+    "reason": "operator hold: frozen mid-S5 so the small models go first (Ümit #13675); S5 restarts from game 1 later",
     "series": [
      {
       "finished": true,
@@ -6486,8 +6743,8 @@
     ],
     "series_finished": 4,
     "setup": "LFM2.5-24B-A2B (on)",
-    "state": "running",
-    "status": "running on our GPU, 4 of 5 series",
+    "state": "paused",
+    "status": "paused: operator hold: frozen mid-S5 so the small models go first; S5 restarts from game 1 later",
     "steps_done": [
      "E1",
      "S1",
@@ -7103,6 +7360,1298 @@
    },
    {
     "after": {
+     "error_rate": 70.23973014950752,
+     "right_safety": 92.2,
+     "risks_found": 15.2
+    },
+    "answers_after": {
+     "answer_rate": 100.0,
+     "answered": 1000,
+     "expected": 1000,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 500,
+     "safety_pays": 500,
+     "tests": 5,
+     "valid": 1000
+    },
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 600,
+     "expected": 600,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
+    },
+    "before": {
+     "error_rate": 70.22895750900109,
+     "right_safety": 94.33333333333333,
+     "risks_found": 15.0
+    },
+    "change": {
+     "error_rate": 0.01077264050643123,
+     "right_safety": -2.1333333333333258,
+     "risks_found": 0.1999999999999993
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 67.04131722450256,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 94.0,
+      "risk_pays": 100,
+      "risks_found": 14.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 2109.3
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 71.508913859725,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 95.0,
+      "risk_pays": 100,
+      "risks_found": 15.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 1676.4
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 72.13664144277573,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 94.0,
+      "risk_pays": 100,
+      "risks_found": 16.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 1661.0
+     }
+    ],
+    "empty_done": 3,
+    "improved": false,
+    "key": "lfm3-1.7b-on",
+    "progress": {
+     "reason": null,
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-21T12:07:28+00:00"
+    },
+    "range": 2.0,
+    "reason": null,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 189,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Pick the capture that forces an exchange; acting hastily while holding active pieces lets your opponent seize control.\n- Even a minor missed risk erodes margin considerably; confirm backups before calling a play safe.\n- Hold your position until the foe already threatens; pushing into crowded tables often gives up material you Cannot recover.\n- Contest critical back spaces aggressively; skipping a key block results in crushing blows, especially on deep‑field battles.\n- Use optional pushes only when you can reclaim, refusing to trade pawn advantage defensively either side."
+       },
+       {
+        "game": 2,
+        "text": "- Trust the engine’s best line, but verify whether any move causes a ≥0.05 equity loss; tiny margin gains aren’t worth forced risks.\n- Reject cuts that look “safe” but sacrifice material—if taking a risk reduces your future chances, a blocked or slower development is safer.\n- Heed the “risk” or “safety” flags: prefer the engine’s suggestion when you remain ahead before the opponent scores, avoiding unnecessary exposure.\n- Respect blocked boards and barriers toward the finish; ignoring them often opens the opponent’s fireplace and costs decisive equity.\n- Check later‑game totals regularly; even ≤0.07 equity loss compounds into bigger deficits when time runs out."
+       },
+       {
+        "game": 3,
+        "text": "- Push often and try aggressive trades that trap checks; on turns 14‑18‑38 you lose 0.6+ points by waiting when the board opens.\n- Do not leave a checker alone on the bar or on a key lane without planning a double; dropping one on turn 38 cost ≈0.65 equity.\n- Take bigger, safer jumps when offered; ignore a slight cut (e.g., 24/20 or 20/18*) to save points—as seen at Turn 4, 8, 10.\n- Keep at least two checkers on your home board and have a clear barrier escape; abandoning checks (Turn 6, 30) reduced safety dramatically.\n- Check the engine’s continuation suggestions before opening new files; recalibrate from the first die each time to spot hidden threats."
+       },
+       {
+        "game": 4,
+        "text": "- Do NOT make speculative advances to the bar or deep wings unless forced; a weak block gives the opponent a free scoring run.\n- Trade risks only when it improves your material or blocks a longer escape trail; needless pushes can easily drop equity by 2–4%.\n- Always look for a capture or pawn move you’re overlooking—the biggest equity dips occur after you ignore one piece or square.\n- Keep a solid core on the long axis and defensively cover the middle; leaving holes behind lets your opponent hit your backfiles.\n- Treat deviations of five cents or more as re‑evaluation triggers; a 0.3 equity loss often means an unmade capture or misplaced checkers."
+       },
+       {
+        "game": 5,
+        "text": "- Don’t move into danger once a free bar or capture opportunity opens—holding your rook or key checker can preserve the advantage longer.\n- Scan the board for increased complexity before surrendering time; saving a push for a decisive point adds several rolls and often gives the opponent material to develop.\n- Resist easy “right‑risk” moves; only take force if it creates a real attack or blocks a trap, never just to chase momentum.\n- If equity loss looks modest (about 0.04 to 0.13), revisit your next moves, placing only essential pieces first and reserving others for critical moments.\n- Protect the critical points at the bottom of the opponent’s board (such as 24, 23, 22 checks); splitting them prematurely invites an exploitation run and erodes your lead."
+       },
+       {
+        "game": 6,
+        "text": "- Weigh the extra risk of a bold move against the guarantee gained; losses above about 0.05 often show the safety had been miscalculated.\n- Accept a slight compromise when it yields roughly +0.10 equity; demanding perfect defense usually costs you the whole chance.\n- Anticipate the opponent's strongest outpost and make the move that forces them to answer first, then finish off.\n- Never allow both major outposts to sit on the barrier while conceding territory elsewhere; clear a decisive initiative before settling defensively.\n- Choose the branch that changes the board shape best after two plies, and let the engine guide only when the price you pay is acceptable."
+       },
+       {
+        "game": 7,
+        "text": "- First, reject impulsive, untaken risks in middle‑game; a miscalculated push can lose over 0.2 equity (e.g., turns 4, 14, 20, 34, 38).\n- Second, secure the critical interior and back‑corner squares early rather than waiting for a later maneuver; engine favored immediate activity there.\n- Third, keep your opponent’s potential captures option open; passive holdings force counterattacks and avoid forced exchanges that erode position.\n- Fourth, watch your bar moves closely—trading or entering the bar can undermine the remaining layout if you leave weakened checkers exposed; mis‑judging trades costs ~0.05–0.25 equity.\n- Fifth, replay after a bar move quickly: evaluate whether your claim offers real hunting opportunities; otherwise double back on safety instead of chasing superficial gains."
+       },
+       {
+        "game": 8,
+        "text": "- Take advantage of the engine's suggested risked moves; staying cautious usually costs several hundredths of a centipawn.\n- Reassess early must‑move decisions and do not waste blocks hoping they protect you; they often leave boards disorganized.\n- Spot cuts and blockers sooner; the engine's rapid counters at T5 show how quickly you could have blocked.\n- Choose trades ahead of time and ensure core pieces aren't exposed before making a bold exchange, especially in the late game.\n- Scan all squares for stray checkers or pins on departure; tiny misplacements later harm big, producing a near .35 equity drop."
+       },
+       {
+        "game": 9,
+        "text": "- Only follow GNU’s preferred two‑ply reply; a deviation that only marginally preserves equity often hands the win away, so double‑check the move before throwing checkers onto empty lanes.\n- Avoid prematurely accelerating checker clusters when opponents have deep blocks—your loss at turn 4 shows how cheap a mistake that foreclos​es opportunity can become.\n- Play safer “risk calls” in close material; holding a slight edge while preserving control reduces future extractions and prevents over‑exposure.\n- Guard your bar and passed checks with care: pushing them off too early lets the opponent double down for free pieces; keep them secured when equity is neutral.\n- Trust momentum gaps: if opponents’ positions lag, give up unnecessary openings to consolidate base holdings rather than trading chips on reckless pushes."
+       },
+       {
+        "game": 10,
+        "text": "- Aim for aggressive control when you expect equity loss under 5% and still keep an opponent’s checker behind your side.\n- Double‑check your longest pin; discarding a bar or forcing a long escape is a common cause of sharp drops.\n- Trade rooks only if the upside compensates — neglecting the calculation here costs several points in tournament games.\n- Favor the safest move that preserves your entry races over chasing a “big” push unless equity remains near zero.\n- Scrutinize tense boards before each risky hurl; errors on Turns 13, 43, 47 show how lost information kills equity."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 1,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 71.35335065424442,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 92.0,
+       "risk_pays": 100,
+       "risks_found": 14.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1530.7
+      },
+      "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 206,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Trust the engine’s block suggestion in a near-bar chase; missing it often costs 30+ points.\n- Avoid forcing an open push just for a fast payoff; such overreach led to a ~0.34 loss at turn 14.\n- Spotting opponent traps first saves 30–plus points; skipping a trap gives you little edge yet hurts a lot more when found.\n- Target a small chip lead (a couple dozen points) rather than exact mate; tiny calculator errors can strip that cushion.\n- Pick a nearer line when two offers differ by <0.05 equity; simplicity wins long term even if it disagrees with the engine."
+       },
+       {
+        "game": 2,
+        "text": "- Avoid big pushes caused by a wide die (e.g., 6‑1); they create gaps your opponent hunts and can cost an inch of equity.\n- Accept small equity drops (under 0.05) when pieces sit safely; chasing shallow attacks often steals material points.\n- Keep main checkers inside your half before launching attacks; leaving them unattached usually triggers missed risks and big swings.\n- Only advance both sides jointly if central or rook‑side holes exist—a premature advance invites traps.\n- Near game end, obey the engines’ second move when equity falls by an inch; pick certainty over marginal gain."
+       },
+       {
+        "game": 3,
+        "text": "- Never leave checksers on the bar unless you are trapping an attacker or will make a free throw; staying out usually costs more.\n- Don’t gamble dice rolls that seem aggressive; calculate a full two‑ply forecast and accept a modest tactical reduction over sharp equity blows.\n- When equity loss exceeds roughly 0.20–0.30 during the mid‑game, rethink piece placement even if the immediate capture is tempting.\n- Maintain strong control of the outer 6–8 points early; advancing to the center often gives the opponent multiple escape routes while you rush them.\n- Always run a quick two‑ply check after any risky move; GNUbg’s “risk call” warnings reveal missed traps or safety trades, saving precious pins."
+       },
+       {
+        "game": 4,
+        "text": "- Never skip a clean rescue move that protects an essential guarder; jumping to look ahead hurts unless directly threatening.\n- Observe whether your opponent’s castling threat creates pressure on your bar—keep a checker away to force them to give tempo.\n- Before opening against multiple dice rolls, evaluate which outcome would give you the greatest lead; underestimating the win probability costs big.\n- In cut‑off moments, avoid forcing a long runaway unless you can simultaneously cover both sides’ exit ports.\n- Accept modest equity trades only when they eliminate a clear check or allow you to hold better positional play; otherwise stick to the safety principle."
+       },
+       {
+        "game": 5,
+        "text": "- Always take the engine’s star (advanced) move that improves your position or forces opponent’s blunders; skipping it usually costs you big equity.\n- On crowded boards back off a little and choose checks that open space (like 8/7*) instead of playing slowly and safely (e.g., 13/9) to disrupt tempo.\n- Spot places where a tiny chip gain harms your side; make the stronger, bigger bet to equalise rather than taking a small advantage.\n- Watch for the opponent’s biggest clusters and put pressure on his first move; leave casual plays unless risk analysis shows a clear edge beyond the engine’s suggestion.\n- Protect and control your own checkers throughout the crucial phases; neglecting defence can erode long-term score even when the board looks marginally sound."
+       },
+       {
+        "game": 6,
+        "text": "- Do a quick equity check: if GNUbg’s best line yields near‑zero loss, reconsider any move that throws a forced check into danger; a ‘risk call’ can be net negative unless the save position secures future rolls‑outs.\n- Never sacrifice positional firepower for raw take‑points alone; missed chances on deep transitions (turns 6‑8) cost you blocks and equity.\n- Always verify that blocking your opponent does not create a legal barrier or strand a checker prematurely; a failed safety call typically loses over 0.08 equity.\n- Be willing to exchange material for safety when offered, especially against strong defenses; turn 22 and 24 illustrate the damage of ignoring risks when the engine cites a missed risk.\n- At critical boards, force the engine’s double‑ply view by letting its full forecast choose your distribution instead of guessing single‑ply variations."
+       },
+       {
+        "game": 7,
+        "text": "- Get your checkers locked behind your bar and only push when the bar becomes safe.\n- Choose bar entries earlier and keep low‑numbered dice off open squares; a premature bar leaves holes.\n- Question any “push” that looks like a guaranteed score; evaluate loss of initiative and possible takebacks.\n- Before sacrificing points for a square, re‑check opponent’s reply and hidden threats.\n- Double‑check the hit count on critical throws – a tiny miscount of a couple of markers can flip equilibrium."
+       },
+       {
+        "game": 8,
+        "text": "- Scrutinize games where I lost >0.25 equity; such gaps pinpoint a serious positional or tactical slip and should be corrected in every session.\n- Push checkers onto the opponent’s barrier only when forced; unnecessary hits block progression and hand the enemy initiative cheap points.\n- When a large equity drop appears, reconsider the engine’s “risk call’’ – if it trades safety for vague chance improvements, favor your own solid move instead.\n- Keep primary pieces grouped and minimize isolation until the decisive opening move; scattered checkers reduce control for both sides.\n- Adopt the engine’s ordinary base move but reject sudden wild leaps that offer little material, as those can be wasted opportunities."
+       },
+       {
+        "game": 9,
+        "text": "- Always compare every move with your engine’s best ply before playing; following the engine’s primary sequence keeps you ahead instead of chasing a local surplus.\n- Recognize “risk calls” – let the engine tell you whether a capture pays off: use its signal or admit missed risks to prevent equity collapse.\n- On double‑point breakthroughs or bar continuations, ignore tempting side‑options that lead to extra shuffling; take the offered main move it advances you the most points safely.\n- Early aggression on your own leaders may create holes; verify the alternative and stay cautious until the engine approves the new layout.\n- Near the bar, reserve retreat‑or‑advance rights for true threats identified by the engine rather than default conservatism."
+       },
+       {
+        "game": 10,
+        "text": "- Stick close to the engine’s best‑line moves whenever the projected equity loss exceeds about 7%; even tiny drift erodes position much faster.\n- Attack opposition’s safety first; place blocks or hold guards before rushing advanced checkers, regardless of a modest potential gain.\n- Commit extra dice rolls only to solid spots; extra pushes demand sufficient material payoff or threat of trap elsewhere.\n- Ignore equity changes under one percent as noise; missing a checker or giving chase invites ruin, so treat jumps critically.\n- After a risk‑call, reassess ahead instead of following a side trap; an earlier pivot usually averts disaster."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 69.5101959258318,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 92.0,
+       "risk_pays": 100,
+       "risks_found": 16.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1403.1
+      },
+      "wins": 0
+     },
+     {
+      "finished": true,
+      "game_decisions": 209,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When the engine’s move looks clearly superior, run both sides lightly; being too tentative can erode a sizable equity edge.\n- Losses near 0.35–0.46 equity usually mean you missed a profitable gamble—don’t stick to the safest option unless you’re certain.\n- Tiny improvements (about 0.02–0.09) often result from overlooking a forced threat; ask for the full evaluation again before giving up a risk.\n- Keep counters away from the bar/off until play lands, then secure them immediately to prevent unexpected reversals.\n- In open scoring positions reserve only pure defense; false security leading to extra risks usually costs more than it earns."
+       },
+       {
+        "game": 2,
+        "text": "- Stick to the second‑ply best idea first, but study all plausible developments on the board before confirming the main line; skipping the alternatives invites nasty surprises.\n- Test what you think saves your kingship by actually moving the counters – a false sense of safety often hides deep traps when you later trade.\n- Reserve a couple of pieces in the bar on critical turns instead of forcing a brute rush; preserving flexibility prevents catastrophic equity drops.\n- Check whether your chosen defense also opens a winning angle; chasing only territorial control without generating offensive space usually wastes chances.\n- Re‑evaluate your entire position after each critical shot, not just the immediate score; engine‑predicted moves can become outdated as opposing plans shift."
+       },
+       {
+        "game": 3,
+        "text": "- When equity loss is tiny or zero, choose a safer layout; a cautionary cast‑off can still win.\n- Skip waste moves such as “needless risk”; keep men on the board until they truly help offense.\n- Only go deep to cast off your pieces on obvious promotion opportunities; otherwise hold standard development.\n- Guard your middle position and avoid dumping all checkers, to prevent them being intercepted on run‑outs.\n- If the engine warns you to change a call, abandon the move and go with the alternative that retains your setup."
+       },
+       {
+        "game": 4,
+        "text": "- Play the barrier and launch an additional spread at the same time; dropping only a stand ('bar/22') leaves the opponent attacking points (Turn 8).\n- Gains below 0.04 are usually noise; prioritize moves that cause equity to drop 0.06 or above or carry an \"missed risk\" warning (Turn 16).\n- Don't finish an opening move on the edge; keep the deeper run (e.g., 24/18 or 18/13) until opponents' pieces are defended, otherwise you return their pins.\n- When the engine recommends a longer exit like 2/1 over 4/3 after a bar, quit early only if it actually curtails scoring—let defenders earn the checkers.\n- Read GNUbg's \"risk call\": accept a \"right risk call,\" and discard \"missed risk\" proposals in favor of the engine’s safer main line."
+       },
+       {
+        "game": 5,
+        "text": "- Begin with caution in the early to mid‑game onboarding; haste toward opponent’s critical spots created weak points – e.g., turn 4’s opening gamble cost ~0.09 equity.\n- Shield your trailing checkers in the bar and off‑squares; shuffling them into deeper territory left gaps opponent could hit, losing about .06 equity at turn 8.\n- Before committing a large gambit, test its true price; oversized runs gave negligible compensation (≈.07 equity loss) and were unnecessary risks.\n- Trust GNU’s recommended defense when equity swings beyond .05; settle for a less daring continuation that avoids a costly mismatch.\n- Toward the endgame, prioritize symmetry (stall or keep blocks) over forced double develops; steadiness upheld draws and kept net positions level."
+       },
+       {
+        "game": 6,
+        "text": "- Check engine’s recommended ‘best’ move after each board; they flag small risks and advise saving extra material.\n- Avoid sweeping claims of marginal equity gains; only accept a push when you understand the opponent’s response and lose < 0.04.\n- Heed ‘miss risk’, ‘risk call’ warnings – a bold capture that loses you often was a real mistake.\n- In late-game crunch, hold core lines first; racing into open files before protecting traps often gives the engine negative equity.\n- Mirror the attacker’s blockade early to stay ahead and force him to waste moves."
+       },
+       {
+        "game": 7,
+        "text": "- Prioritize safety over aggression during early development; premature double advances often open opponent's scoring lanes.\n- Evaluate double‑point moves critically: re‑calculate expected equity; an error there can easily outweigh tactical gains.\n- Guard critical gaps behind your home board; leaving them unguarded invites unexpected captures and reduces control.\n- Prefer defensive stability and simple exchanges over flamboyant paths that expose distant men to interception.\n- Activate patience when opponent targets your outer pin, set your own outposts firmly before committing points."
+       },
+       {
+        "game": 8,
+        "text": "- Save your doubled points in the third and fourth movements; over‑extending usually gives up material.\n- Before committing a block or defensive move, confirm whether it traps your opponent’s winning escape; let him go first often reduces losses.\n- Handle risk/call nuances carefully: select the choice that eliminates impending threats before grabbing easy captures, even if both seem safe.\n- Inspect blockade depth and pin positions before any move; closing down an escape route often flips nearly equal board into disadvantage.\n- Always run at least two plies ahead; engine’s current‑move view can be misleading in complex positions, so anticipate deeper outcomes."
+       },
+       {
+        "game": 9,
+        "text": "- When a dice throw offers several attacking possibilities, force a quick check to see which opponent gains more than your recapture; abandon less aggressive plans that let them exploit.\n- Prioritize decisive moves that swap opponents’ priced position or break out of the middle, even if they require sacrificing a simpler capture.\n- Don’t rely on default safe moves after a free maneuver; assess whether any short‑term gain creates a net loss of ≥ 0.55 equity—it usually signals a miscalculated tradeoff.\n- Accept marginal advantages (losses ≤ 0.05) during chaotic or uncertain positions and err on a modest risk rather than a pure defensive retreat.\n- Re‑evaluate moves you made before chips are fully captured; frequently you gave away material while chasing loose threats, wasting opportunities."
+       },
+       {
+        "game": 10,
+        "text": "- Do not sacrifice favorable equity by launching a forced exchange that leaves your checkers spread out; prefer the engine's faster capture such as a direct pin or barrier maintain.\n- Avoid double-moving whole groups of back checkers unless an alternative yields equal or higher equity—the '*' suggestion avoids unnecessary risk.\n- After a sudden slip, pause, decide one side and follow the engine’s preferred choices instead of chasing multi‑move chains.\n- Large equity drops (about 0.2–0.25) signal wasted pieces or premature oppositions; seal your barrier first before attacking aggressively.\n- When the computer and you agree on the outcome, emulate its final board layouts even if you diverge mid‑game; consistency beats raw activity."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 70.80034360289574,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 93.0,
+       "risk_pays": 100,
+       "risks_found": 15.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1474.7
+      },
+      "wins": 2
+     },
+     {
+      "finished": true,
+      "game_decisions": 168,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Trust the engine’s top opening move; a different idea may yield quick losses, so aim for its primary plan even without full understanding.\n- Never accept an “risk call = missed risk”; omit tempting moves that cost material unless the expected gain outweighs the downside.\n- Spot the move that cut nearly 30% equity—often a checker left safely letting the opponent seize territory—and rethink those spots for deeper analysis.\n- Roll higher early and use the engine’s recommended shot to clear boards before giving up momentum prematurely.\n- Follow the engine’s exact sequence during trading turns; out‑of‑order captures let the opponent mount counter‑attacks and waste points faster."
+       },
+       {
+        "game": 2,
+        "text": "- Avoid missed‑risk gambles; sacrifice tiny early points to hit squares or doubles that the engine rates strongly, improving long‑term equity.\n- A loss of 0.30 or more signals you’re handing ground; retract or adopt a more conservative push so your opponent loses score opportunities.\n- Refrain from needless aggression—moving counters or deepening front files ahead creates holes and forced returns; trade only with clear local backing.\n- Prioritize safety calls: keeping your setup orderly cuts future steals and maintains tension without sacrificing win chances.\n- Omit risky piece trades shown by “no risk trade‑off”; hold fragments until the position looks favorable enough to justify the exchange."
+       },
+       {
+        "game": 3,
+        "text": "- A sizable equity loss usually signals an unnecessary or overly aggressive move that discards material or misses a subtle tactic.\n- Only take a strategic risk after verifying whether both possible results improve your position; the occasional ±0.02 error can be ignored.\n- Preserve and develop gammons on board before they collapse—selling them premature wastes points without capturing leverage.\n- Your responses on the opening line should anticipate opponent’s best options; avoid retreating to bar/… unless the alternative loses valuable checkers from the bar.\n- Study how engine blocks force your pieces into unfavorable squares; creating such trades often unlocks hidden gains beyond the immediate score."
+       },
+       {
+        "game": 4,
+        "text": "- Always check the engine’s lead‑first‑ply recommendation; even equal-looking moves often hide a superior advance that changes equity.\n- Spot bonus points on your home board, win lines, or capture opportunities first; a simple catch can boost overall score significantly.\n- Ask whether taking the risk front‑row improves the surplus; discard moves that feel safe yet leave space for contests later.\n- Favor bold bar trades giving counts unless you really lack the willingness to absorb risk on the board.\n- Heed an engineer’s verdict ‘no risk trade‑off’: when both sides level, hold your position; forcing another gamble usually loses equity."
+       },
+       {
+        "game": 5,
+        "text": "- When equity loss stays ≈0.06–0.09, walk back and re‑check the idea; a ‘safe’ capture can hide a weaker point on the board.\n- Losses ≥0.15 (or called ‘very bad/doubtful’) signal a gross error—choose a solid trade or hold back rather than chase a marginal advantage.\n- Keep your back‑to‑home barrier alive and seize opponent key spaces early; rushing forward often gives you less control.\n- Follow the engine’s “safeguard” move when presented, preferring position preservation over a modest local swing.\n- Late in the game, defer obvious rolls unless they threaten your crucial exchange or break your barriers."
+       },
+       {
+        "game": 6,
+        "text": "- Always verify a near‑fair result but replay your latest move; seemingly minor calls can hide underlying vulnerability.\n- After mid‑game break attempts, consider sacrificing a slow piece now to create a fast win—missed breaks lose 0.1 equity.\n- Keep essential men in your inner tableau until a threatening threat appears; premature exits waste board life and equity.\n- Follow the engine’s trade/recommendation not out of fear, but to neutralize counterpressure you may overlook.\n- Prefer solid positional squeezes over reckless splits unless a sudden double break makes immediate gain possible."
+       },
+       {
+        "game": 7,
+        "text": "- Always take bold moves early; over‑cautious “risk calls” let opponents score valuable points.\n- Watch the opponent's key checkers and react to their blitzes instead of matching neutral moves.\n- Calculate equity gains carefully; tiny or negative swings mean holding the draw or keeping points safer.\n- Prevent mis‑placements by seeing how dice may split your checkers before moving them prematurely.\n- Act quickly on advanced counters—use isolated pieces now or they will drift into opposition on later rolls."
+       },
+       {
+        "game": 8,
+        "text": "- When the equity cost is ≤2 % and the engine labels a move as a “right safety call,” abandon any speculative capture and play the simpler, less risky defence.\n- Never press an attack that leaves a vulnerable hole; chasing may give the opponent a free score by scoring onto a defended piece.\n- Protect your core set of checkers inside the median after the leading player enters; prematurely moving them creates gaps the computer exploits.\n- Honor exact engine continuations marked “no risk trade‑off” even when a minuscule edge exists; preserving your position with equal uncertainty yields a higher margin.\n- Mirror bar conversions step‑by‑step (e.g., keep bar/23 vs bar/24 split‑play) rather than forcing an abrupt transfer; the engine‑suggested path secures longer‑term safety."
+       },
+       {
+        "game": 9,
+        "text": "- Always verify your calculated equity against the engine’s two‑ply plan; a positive loss even a few percent shows hidden gain or bad timing.\n- Avoid unchecked “fire” moves that leave critical holes open—make room for the next roll instead of pushing deep into chaos.\n- When called on a risk, weigh the cost versus the capture; prefer forcing opponents out of winning positions over costly safety trades.\n- Keep checkers that form an anchor in key corners intact until you see a clear scoring path; letting them fly forward often costs more than staying anchored.\n- In tight middling endgames, favor positional trades (like free blocking turns) rather than reckless attacking dashes that give the board too many possibilities."
+       },
+       {
+        "game": 10,
+        "text": "- Keep a close eye on “missed risks”; trading lightly leaves opponents chances to set traps and lose equity suddenly.\n- After opening moves, advance checkers from the far end sooner to cut opponent’s break attempts—if you linger you can easily drop 0.3+ equity.\n- When two or more of your checkers cluster on a square, evaluate whether a bold capture or forward push gains value versus staying safe.\n- Avoid playing the wrong fork or defensive bar when only a tiny edge is possible; double safety can win a point by preventing opponent’s aggressive play.\n- Review past results: small errors after a key position often stem from not forcing a useful capture or moving to checker holes early enough."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 4,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 66.78124524652958,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 94.0,
+       "risk_pays": 100,
+       "risks_found": 16.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1476.5
+      },
+      "wins": 0
+     },
+     {
+      "finished": true,
+      "game_decisions": 204,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Evaluate risk and reward carefully; avoid accepting small equity drops, especially during early aggression.\n- Give priority to protecting checkers near the bar before continuing; an early safety call frequently creates lucrative moves.\n- Seek moves that both advance your checkers and fill opponent's crossing points; overcommitting ahead of solid compensation costs chips and position.\n- Avoid placing forced double-blocks prematurely; maintain options and only launch an exchange when there is a real threat or sufficient gain.\n- Secure last pieces at the end of your turn; leaving half-moves often leads to devastating errors that erode already earned advantages."
+       },
+       {
+        "game": 2,
+        "text": "- Only trade for equity gains bigger than about 0.02; marginal errors are harmless while more than 0.05 usually signal you lost a decent offensive piece or chance.\n- Avoid default to plain bar defenses when a free capture can remove a scoring point and stop the opponent's buildup.\n- In corner puzzles choose the engine's plan; if it looks worse, switch only when it eliminates a key asset and creates a more than 0.03 equity edge.\n- Verify any deep sacrifice first; run the simulation to see the equity effect before locking a value stone unnecessarily.\n- Guard your strong checkers instead of trying to win an isolated board fight; securing the lead pieces pays off more in the longer game."
+       },
+       {
+        "game": 3,
+        "text": "- Evaluate captured pieces: if the opponent threatens a take with a single chip or checker, test whether surrendering risks the larger opportunity to win material that returns equity.\n- Prefer defensive recaptures over aggressive gambles unless the board shows imminent mate or scoring win; otherwise your “risk calls” misprice opponent threats and cause equity drops.\n- Re‑examine opponent’s capture options before blocking; a missed jump can hand away gains—plan the exact number of checkers to push before initiating a sacrifice.\n- In endgame stages tiny misplacements (0.02–0.05 equity) shift outcome; confirm your final board arrangement and target the largest blockage first.\n- Allow the engine’s suggested counteradjustment even when not obvious; a one‑ply tweak can force the opponent’s better line and close the gap."
+       },
+       {
+        "game": 4,
+        "text": "- Stop chasing equity drops above 0.35 in any move; accept the lesser gain by staying solid or retreating safely.\n- Heed “right” defense alerts – a prudent safety push often outperforms a risky maneuver even if short‑term equity feels neutral.\n- Reject extra moves that shrink equity by only 0.10 or less unless essential; they’re usually unfair traps.\n- In crowded final zones, guard the lanes holding key men instead of throwing out three checks at once; calm placement wins more.\n- Use two clean two‑ply successes to endorse slower end‑game pressure; don’t rush into complex mates."
+       },
+       {
+        "game": 5,
+        "text": "- A huge equity loss (≥0.31) usually signals a premature advance or a missed forced check; revisit the move after verifying opponent’s response.\n- Over‑speculation on early caches without securing a winning pin wastes chances; prioritize safety over quick advancement when uncertainty is present.\n- Keep your pieces grouped around defensive barriers; scattered counters are easier for the opponent to double from and sacrifice pieces.\n- Respect the engine’s “right safety” advice – a small loss (≤0.05) after a sound safety call still represents a solid, profitable departure.\n- Accept modest losses (≈0.01–0.04) when the risk trade‑off balances well, but drop to zero equity only with clear positional superiority, such as captured pins or board holes."
+       },
+       {
+        "game": 6,
+        "text": "- Before moving checkers, compare the loss of life‑point equity to the engine’s “best play.” A loss closer to 0.10 causes real material theft, so play conservatively rather than chase extra rolls.\n- Don’t abandon your earlier “safe” layout to force an aggressive capture on the next crack; holding the position risks losing scoring chances and giving the opponent a free backboard.\n- Only take a large risk when the alternative payoff is impossible or severely devalued; hesitating often costs more equity than a modestly sound advance (e.g., keep 13/10 in turn 3 instead of 6/3*).\n- Follow the engine’s “risk call” flag—if the recommended trigger feels like a gamble, double‑check that you’re not surrendering material for a low‑probability roll runout.\n- At the end of the hand, re‑evaluate corner blocks and bar placements before accepting a “forced” line; small errors here produced a 0.03–0.14 equity drop and can be trimmed by staying anchored."
+       },
+       {
+        "game": 7,
+        "text": "- First, secure your passed material early rather than hurting risky captures; a single loose checker gives the opponent easy returns.\n- Second, weight each exchange by threat analysis; if advancing exposes your blockers, hold back and ask for a clearer pin later.\n- Third, keep your bars and core passes intact until you generate a strong break; protecting them first usually forces costly opponent corrections.\n- Fourth, avoid repeated “missed risk” moves by checking why a transposition loses and rehearsing the proper blocking reply before you commit.\n- Fifth, after any change mentally run the worst follow‑up; if it drops equity below about 50%, steer toward a safer transposing position for the next move."
+       },
+       {
+        "game": 8,
+        "text": "- Never chase the engine’s best raw equity alone; confirm it strengthens your layout and keeps your checks from getting trapped.\n- Before a big move, verify your pieces are safe—if a trap emerges you’ll lose far more than the small margin the computer reports.\n- Play decisive, timid advances instead of forcing aggressive captures; the safer development usually preserves a few points.\n- Notice whether the roll lands high and looks advantageous—delaying a decision lets you set up blocking offers that squeeze your opponent slowly.\n- Once ahead on a particular spot, stop pushing further unless you’re confident to score a real check or double; otherwise accept your point."
+       },
+       {
+        "game": 9,
+        "text": "- Always make a safe defensive push; leaving pieces loose or running into opponent’s doubling zones creates avoidable losses.\n- Reassess before taking multiple checks; an extra move can turn a winning angle into a dubious one and cost equity sharply.\n- When facing several doubles ahead, hold back until you force direct capture or immediate contact; give your king breathing room first.\n- Avoid “needless risks” such as moving four or five men after conceding positions; they invite mistakes the engine sees with a low probability.\n- If the engine shows near‑certain equity loss (≥0.05) for a simple sequence, stay with the best‑of‑the‑last‑two‑move alternative instead."
+       },
+       {
+        "game": 10,
+        "text": "- Don’t accept a steady defense when the opponent launches fast attacks: keep eyes open for free jumps; be ready to trade even a small value.\n- Missed risk calls show over‑conservatism; sacrifice pieces strategically to grab a blocked threat or lay a lethal check on the board’s edge.\n- In close or stale endgames, chase capturing checks immediately instead of freezing; secure material before your options dwindle.\n- When the engine forecasts major equity losses (over 0.5 or 1.0), re‑evaluate your long‑term plan – did you misplace pawns or fail to pressure the opponent’s home board?\n- Pick the move that gives a normal or slight positive equity gain first; locking down your position prevents bigger swings later."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 72.75351531803608,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 90.0,
+       "risk_pays": 100,
+       "risks_found": 15.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 1313.1
+      },
+      "wins": 2
+     }
+    ],
+    "series_finished": 5,
+    "setup": "LFM3-1.7B (on)",
+    "state": "complete",
+    "status": "No",
+    "steps_done": [
+     "E1",
+     "S1",
+     "S2",
+     "E2",
+     "S3",
+     "S4",
+     "E3",
+     "S5"
+    ],
+    "threshold": 5,
+    "verdict": true
+   },
+   {
+    "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": null,
+    "before": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [],
+    "empty_done": 0,
+    "improved": null,
+    "key": "gemma-4-e2b-on",
+    "progress": {
+     "reason": "waiting for its turn",
+     "series_done": 0,
+     "status": "paused",
+     "updated_at": "2026-11-08T16:10:46+00:00"
+    },
+    "range": null,
+    "reason": "waiting for its turn in its lane",
+    "series": [],
+    "series_finished": 0,
+    "setup": "Gemma 4 E2B (on)",
+    "state": "paused",
+    "status": "paused: waiting for its turn in its lane",
+    "steps_done": [],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
+     "error_rate": 70.94939789175987,
+     "right_safety": 85.8,
+     "risks_found": 23.6
+    },
+    "answers_after": {
+     "answer_rate": 100.0,
+     "answered": 1000,
+     "expected": 1000,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 500,
+     "safety_pays": 500,
+     "tests": 5,
+     "valid": 1000
+    },
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 600,
+     "expected": 600,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
+    },
+    "before": {
+     "error_rate": 74.07375507056713,
+     "right_safety": 81.66666666666667,
+     "risks_found": 24.0
+    },
+    "change": {
+     "error_rate": -3.1243571788072586,
+     "right_safety": 4.133333333333326,
+     "risks_found": -0.3999999999999986
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 74.8040833324194,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 81.0,
+      "risk_pays": 100,
+      "risks_found": 24.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 5.2
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 73.708590939641,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 82.0,
+      "risk_pays": 100,
+      "risks_found": 24.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 2.3
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 73.708590939641,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 82.0,
+      "risk_pays": 100,
+      "risks_found": 24.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 2.3
+     }
+    ],
+    "empty_done": 3,
+    "improved": false,
+    "key": "lfm3-1.7b-off",
+    "progress": {
+     "reason": null,
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-21T12:16:04+00:00"
+    },
+    "range": 0.0,
+    "reason": null,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 220,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- On turn 1, I made 13/9 when GNUbg took 24/23; this shows cutting an off or repositioning differently yielded higher equity—keep eye on positional angles after moving checkers.\n- After losing equity by not taking risks properly, I followed up with correct moves later (e.g., turned risk calls into wins) where GNUbg’s slightly different move was right—avoid rash mistakes early.\n- I frequently omitted risk signals (especially around central threats like 6:3 vs 22:3/24:2): play the correct safety/cut even without extra movement unless the loss cost >0.046 equity.\n- When there were multiple equal-looking options, choose the “safety-first” play (or close enough to prevent takeback) over speculative boldness; risk calls were often right except near 0.44 loss (turn 13).\n- Near positions where my position dropped, GNUbg defended solid while I went bar/23* or 13/7 unnecessarily—hold your ground before initiating trades; don’t give up board influence lightly."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize right-risk calls over missing risks when equity loss is marginal; in turn 12 (equity lost 0.013) a small extra risk was right on time.\n- Avoid unnecessary risks in positions where your engine shows very high equity losses (e.g., turn 6: equity lost 0.618 by taking risky moves) — play safe instead.\n- When faced with equal-variant choices, favor moves that preserve your backgammon points and protect your own owers; turn 2 was correct: defending the double was right even if equity stayed flat.\n- Double-check your transfer squares after taking throws; erratum errors like turn 18 (“3/1 vs 13/10” missed opportunity) cost equity more than needed.\n- Play “no‑risk trade‑offs” confidently when both options yield identical equity (turn 38) — take the move that doesn’t waste chips or weaken your shape."
+       },
+       {
+        "game": 3,
+        "text": "- Prioritize risk calls that don’t create unnecessary vulnerability or danger where the opponent’s position isn’t sufficiently secure—your engine notes frequent “wrong/risk” or “needless risk.”\n- Accept small equity losses when they’re defensive safety plays; e.g., turn 2 equity loss 0.000 by playing risk call 8/4 6/4 confirms right safety.\n- Look past minor margin errors (e.g., ±0.05–0.10) and focus on positions where your moves shift balance or win material before committing full lines.\n- When a move forces your board into an open/unnatural state or threatens your own checker traps, switch to the engine’s recommended line even if equity looks slightly higher.\n- In two-pli edges where both sides have similar chances, choose the symmetry/simplicity option to avoid over-complicating or misjudging positional value."
+       },
+       {
+        "game": 4,
+        "text": "- Prioritize choosing defensive moves when equity loss from a risk play drops below about 0.004–0.006 despite potentially being a strong attack; sometimes missing a good risk costs more.\n- On positions where both options are marginal, trusting the engine’s “right” safety or tradeoff calls saves big blocks and prevents losing points by taking unnecessary risks.\n- When faced with a small equity advantage versus a strong opponent threat, favor the engine’s recommendation to err on the side of caution even if tempting — the cost of a blunder outweighs a minuscule gain in board control.\n- Be wary of turning down obvious opportunities with near-zero equity loss if they lock away chips safely; conversely, ignore minor errors that only marginally worsen your position.\n- Always verify cutback and block sequences ahead; ignoring them can lead to misplaced shots or denied points when turns go later."
+       },
+       {
+        "game": 5,
+        "text": "- Prioritize equity preservation by accepting small risks when they have no payoff or require significant commitment; avoid \"right risk calls\" in positions where the threat doesn't compensate.\n- Focus on needingless risk taking—when you voluntarily leave your checks, engines advise caution unless there's a genuine safety advantage; these errors often lead to costly losses.\n- In complex positions, reserve major defensive moves (like bar/22, saving pieces on high scores) for moments where capturing an opponent’s passed cube is worth more than the effort.\n- When facing uncertainty or weak boards, it can be safer to conserve scoring chances and wait for a clearer, more favorable layout before committing big trades.\n- Double-check your saved positional plans; denying losing chances while moving opponents' checks isn't saving material—it's trading against the equity cost ignored by the engine."
+       },
+       {
+        "game": 6,
+        "text": "- On turn 6 you erred by not trading a checker worth 13+ points ahead when the equity loss was high; always verify whether a small gain trades enough equity but saves a more lethal positional advantage.\n- When faced with a bar situation, play safety; GNUbg correctly favored bar/21 over advancing in those turns because moving checksers into the opponent's board risks losing them more cheaply under pressure.\n- On many turns (e.g., 10, 14, 18, 22, 28) you committed unnecessary cuts or moves without clear payoff—the equity lost was large while the gained material was marginal, indicating lack of long-term positional dominance.\n- Avoid unilateral \"risk call\" moves when the scoreboard shows no sharp contest; a wrong move can hand back control even if immediate risk looks acceptable.\n- Prioritize keeping your major points on key diagonals and avoiding overcommitting on high-value but low-value checker exchanges—it costs you a few shikiri points and"
+       },
+       {
+        "game": 7,
+        "text": "- Evaluate the “risk call” flagged in most turns; when GNU ignores a safety or needed-risk option, double down unless the loss is catastrophic.\n- Prioritize correct play during dangerous dice plays (Turn 4, 10, 10&12) where even small equity losses hurt you; avoid taking trades that introduce unfavorable positions.\n- When equity loss is low (<0.02) and no real danger exists, keep basic moves but watch for missed narrower options like turn 44, 46, 48–52 where tiny mistakes are far worse than unnecessary exposure.\n- Preserve critical pieces and blocks, especially on turn 6‑8 where holding your bar yields zero loss and keeps threats intact.\n- Review board composition before committing a big move so nothing is left exposed after your checkers split—Turn 2 showed equal value despite similar checks."
+       },
+       {
+        "game": 8,
+        "text": "- Prioritize saving checks behind the bar when equity loss exceeds ~0.05–0.08 by playing more aggressive moves than GNUbg suggests; these were \"risk calls\" or doubtful choices that left money on the table.\n- Trust GNUbg’s recommendation to block/pin opposition in risky spots; he called them \"right safety/tradeoff\" risk choices versus my premature risks that cost ~0.115 equity at turn 5 and later.\n- Revisit moves labeled \"wrong risk\" (e.g., turn 11) — over-investing without sufficient board play reduced your chances.\n- On early part-of-game aggression against an older opponent, he said “no risk trade‑off” when flat; stay defensive until your chances improve.\n- Focus on forced sequences where the equity loss vs. gain is symmetric—let a favorable trade be too large and let uncertainty dominate (checks like turns 35, 71 show tiny errors)."
+       },
+       {
+        "game": 9,
+        "text": "- When facing momentary misjudgments on a turn, preferring the best play yields zero equity losses over weaker moves when the board state remains favorable.\n- On risky trades where opponents' chances improve enough, don't force them by missing the opportunity—the engine's equity loss indicates missed gain potential from playing conservatively.\n- Gambit decisions should prioritize capturing more or limiting risks even if they reduce immediate scoring; holding out often gives the opponent free counter-risks.\n- In positions where GNU shows a clear better move with small equity difference, go for it—those tiny losses indicate extra aggression pays off long-term.\n- Avoid chasing small equity differences unless forced; consistent safe plays that never give up score usually beat occasional high-variance gambits."
+       },
+       {
+        "game": 10,
+        "text": "- Avoid trading checks or moving pieces when equity loss exceeds ~0.05 by betting more conservatively or staying safe; force saves cost too much.\n- On positions where GNUbg’s suggested trade costs little but my choice does not, err on the side of the larger move or holding tempo to reduce exposure.\n- In “risk calls” where equity gain on gamble is tiny while you lose potential equity on error, cut down bets or reject unnecessary gambles (e.g., turn 36, 55).\n- Prioritize positional control/position preservation over small upside—leave checker clusters grouped as long as they’re playable; often the cost of shuffling gives GNUbg an edge.\n- When both sides look roughly equal and you have a marginal lead, avoid chasing—stay under pressure by backing off early moves even if you might win."
+       }
+      ],
+      "lessons_cut": 1,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 1,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 72.99670077860355,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 83.0,
+       "risk_pays": 100,
+       "risks_found": 24.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 5.4
+      },
+      "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 230,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- After turn 8, my move missed the engine’s strong exchange of checkers; look for a “risk call” when a safe response seems available—it often wins more points or prevents opposition buildup.\n- In turn 16, I kept on defending but gave up material by playing bar/20 instead of 24/21; abandoning the backgate only works when there is real threat—otherwise trading a corner can be lost.\n- Many turn 10+ positions show “equity loss ~0.05–0.1” where I stayed passive despite obvious passed‑line plays; force the opposition onto the board and then evaluate before committing all checks.\n- When the equity difference dips below 0.03 (turn 40) or 0.02 (turn 48) and it says “risk call: no risk trade‑off,” stop fighting defensively; you’re usually giving free moves away from your core points.\n- Always verify whether an exchange like *13/11 → 24/18* truly improves your lead, not just blocks them; if the gain is marginal, keep"
+       },
+       {
+        "game": 2,
+        "text": "- In risky moves where small equity loss (e.g., 0.022) often matters in terminal positions, prefer the safe equilibrium even when a slightly larger gain is possible—risk call when marginal.\n- Treat small non-critical errors (≤0.05–0.08 equity loss) as “missed risk” opportunities to take lightly or revert unless board shape forces resolution quickly.\n- On bar jumps, keeping more active points (especially sevens and left side pieces) before forcing a bar can improve outcomes versus engine’s safer “bar/right safety” calls.\n- When options differ widely but equity impact is minuscule (<0.01), default to the highest-risk move over safety just to avoid conceding chance; save premium risk trades for decisive spots.\n- Avoid needless risk on positions already deep into your own barrier; many turn losses above show you passed against correct high-cost risks while playing conservatively—assess whether each missed risk was worth it."
+       },
+       {
+        "game": 3,
+        "text": "- Focus on defensive safety before calling risk moves; many loss swings came from taking unnecessary risks even when positions looked safe.\n- In complex positional trades, prefer holding or improving your core control over the board rather than chasing high equity gains.\n- Avoid bar plays unless they lock down opponent’s critical space—missed bar calls often eroded equity.\n- When two lines give similar equity, choose the one that preserves more checker activity and reduces opponent’s future threats.\n- Review your board structure early; turning low-value points into blocked or captured pieces can prevent large equity losses."
+       },
+       {
+        "game": 4,
+        "text": "- Prioritize correct risk calls when losing minor equity; small errors matter more than large ones—especially in positions close to the bar or off the board.\n- When GNUbug shows a nearly equal or better move but still loses you a point, favor the safety call over chasing equity; saved rookies lose points.\n- In crowded board situations after two dice rolls, avoid forced risks unless the opponent's threats are overwhelming; missing those traps costs far more than marginal profit.\n- Monitor turnover potential: moves that open lines for future plays can be worth even if they lose current equity—plan ahead three plies beyond.\n- Reserve \"risk trades\" for desperate moments where no alternative saves your position; doing them routinely erodes integrity and gives opponents free information."
+       },
+       {
+        "game": 5,
+        "text": "- Prefer his \"right\" risks when they improve your odds by small margins; overthinking or missing the safer option costed you points.\n- When my board was already ahead or close, he ignored optional doubles—use them sparingly unless it secures a winning cube or blocks him effectively.\n- In endgame scenarios where I lacked movement, he may have traded checks unnecessarily; save those trades for genuine threats.\n- Your last two turns showed huge swings; be cautious about early risky moves that erased material value without leading to wins.\n- Always consider whether the engine’s tiny equity gains justify the chance loss—it often indicates unnecessary exposure."
+       },
+       {
+        "game": 6,
+        "text": "- Trust your safety calls when they align with reduced equity loss; in many turns the risk was correct but cost 0+ equity, so avoid unnecessary gambles.\n- In unclear or doubtful positions (e.g., turn 2 equity loss 0 but “risk call”) prefer the more expensive line that preserves maximum safety even if it loses slightly more equity.\n- Avoid accepting worse lines outright when the engine’s equity difference is >0.05–0.1 such as turn 6 (0.091) or turn 8 (0.105); seek a safer alternative first.\n- When the engine marks a move “correct” with near‑zero equity loss (turn 2, 16, 38), follow the exact sequence if it also guarantees occupancy safety; ignore stray tweaks like turn 12 (0.007).\n- Use *conservative half‑opens*: e.g., turn 4’s 6/5 vs 13/7 shows choosing an off‐board placement can save equity beyond marginal gain."
+       },
+       {
+        "game": 7,
+        "text": "- Avoid unnecessary risks when equity loss is high—play conservatively even if it means misses optimal raw moves.\n- When equity loss is negligible or zero, trust the risk-call logic but choose placements that secure safety where possible.\n- Ignore small deviation errors (e.g., minor material changes) and focus on preventing checkers from hanging or blocking opportunities.\n- In positions where both sides have similar threats, favor the move that denies the opponent key counter-game threats.\n- Prioritize saving your bars and protected home boards over chasing dead play, especially after facing engine-equivalent pressure."
+       },
+       {
+        "game": 8,
+        "text": "- Leverage saved maneuvering when a low-equity \"risk call\" can be eliminated by staying safe; avoid taking unnecessary risks where the engine prefers an alternative move.\n- Favor moves that lock down blocked or near-blocked positions; missing risk trades (e.g., Turn 6) lost valuable equilibrium worth ~0.25 equity.\n- Use engine’s exact positioning cues: the 8/4* vs 13/10 suggestion showed the engine favored more active expansion on the outer board.\n- When equity loss is minimal (<0.01), stay firm—no need to trigger large risk exchanges unless they significantly improve potential wins.\n- Don’t overplay small check movements early; they often waste “extra” points if the engine’s main plan is deeper castling or blocking."
+       },
+       {
+        "game": 9,
+        "text": "- Avoid taking risky moves when GNU’s equity loss is near zero but offers no real advantage; prioritize playing out positions where your equity matches or slightly exceeds theirs unless a forced takeoff wins more.\n- In dead-stall or contested scenarios, sometimes “risk calls”—like accepting an inferior move—are right when denying a threat saves you from losing material on the board; double-check if there is a forced win you’re forcing without enough compensation.\n- When equity loss under 0.1 suggests a small blunder, trust your intuition or go back: save yourself marginal gains by selecting moves where exploitation vs. opponent is unclear.\n- Do not ignore “missed risk trade-offs”; even a tiny equity gap (≈0.01–0.05) can tip the balance decisively—re-evaluate each gamble independently before committing.\n- Play safely around barrier exits: extra “safety calls” often cost less equities; avoid pushing into unowned corridors when alternative moves tie your chances up."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize calls where engine equity loss is near zero (especially turn 4, 6, 6 on turn 16, and later turns 36–38) — conserving risk reduces chances of small mistakes costing me points.\n- When the engine shows 0.134 or above on a risk-heavy move (turn 8, 10, 12, 38, 50), err on the side of safer plays like bar/22 over advancing checks or moving whole blocs to preserve control.\n- Be wary when equity drops sharply (e.g., turn 2, 8, 10, 48, 50) and reject those risky lines even if they seem tactically appealing.\n- Trust the engine’s two-ply depth on early turn decisions (turn 2, 4, 6): correcting them there matters more than minor errors deep in play.\n- Avoid extra moves without clear threats—many losses trace to unnecessary transitions; simplest board shapes almost always beat crowded, split positions."
+       }
+      ],
+      "lessons_cut": 2,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 67.13618762791157,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 87.0,
+       "risk_pays": 100,
+       "risks_found": 25.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 5.5
+      },
+      "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 219,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Prioritize correct turn ordering based on equity loss analysis over blindly following high-risk calls when the loss is doubtful or negligible.\n- Avoid multiple unnecessary risks; err on the side of conservative moves unless they yield significant advantage.\n- When equity loss is very small (≤0.01) but still counts as \"loss\", prefer risk trades; don't hide mistakes by accepting slightly lower equity.\n- Pay attention to barrier plays, especially when both sides have blocked pieces; decide safety vs. opportunity within the risk tolerance envelope.\n- Re-evaluate positions after each turn: many errors were found early (e.g., 5th turn, 11th turn) where switching strategy mid-game improved outcomes."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize taking risks when they offer genuine threats; in several turns the engine said \"missed risk\" was worse—don’t fret without analysis even if looking better now.\n- In doubtous situations, err on the side of playing out moves carefully; an extra small advantage can become a real edge or a fatal loss.\n- When board structure looks safe but equity drops sharply, consider why not calling risk—safety matters as much as winning opportunities.\n- Trust the engine’s “right safety call” indicators; preserving your checkers and core pieces often outweighs temporary gain.\n- Review long-turn patterns (like your late-game move-ups) and aim for consistent equilibrium rather than squeezing late-stage wins."
+       },
+       {
+        "game": 3,
+        "text": "- On key runs like Turn 3 where you traded equally (24/22* vs 13/11 11/9 9/7*), beware of overplaying castling rights or giving away safe points when options exist.\n- Turn 5 shows you unnecessarily risked to go from 6/3 to 6/5; always look for an automatic move trade (e.g., more checks/cores) before committing moves.\n- At Turns 7–8 you had superior equity choices by settling into positional advantage (8/2 5/3 vs 8/2 6/4); preserve winning chances rather than chase leads even with a small margin.\n- Missed opportunity at Turn 9 by picking 10/5 instead of 11/8: sometimes holding your core pieces can lock opponents out—assess who threatens first if you pass.\n- The \"risk call\" errors (Turns 1, 3, 11) indicate dangerously high rolls (die sums ≥6 on sixes); tighten variance control earlier rather than later."
+       },
+       {
+        "game": 4,
+        "text": "- Prioritize plays with minimal equity loss; when the difference is tiny (≤0.003–0.016), favor the risk call over the safe move if both yield similar results—e.g., turn 6 where missing a free bar cost unnecessary equity.\n- Avoid taking the missed opportunity on turn 18’s strong position (equity lost 0.092) by holding or blocking; the GNUbg suggestion was a different active move.\n- Trust small errors but be wary of big ones: the “very bad” turns (equity lost >0.389 at turn 20 and 0.722 at turn 52) indicate fundamental positioning mistakes, not mere hesitation.\n- Favor saving critical checkers in bar situations over opening them prematurely unless the trade gives clear advantage; GNUbg called needsless risks there.\n- Reassess dagger plays after dice rolls—it once looked optimal then fails later (turn 20, turn 46); confirm before committing."
+       },
+       {
+        "game": 5,
+        "text": "- Prioritize risk calls when they cost you little but lose equity significantly; on turns where missing was \"risk\" but equity lost >0.05, reject or reconsider your move more conservatively.\n- In dangerous positions, stick closer to GNU’s recommended lines; small deviations led to equity losses around 0.06–0.25 per turn—better to follow his safer moves and force him into weaker spots.\n- When the board shows an obvious need to get checkers away from the bar or join the opponent’s core, do not waste a die roll chasing risk unless extra return exceeds penalty; many turns had \"right safety call\" suggestions—protect your position first.\n- On bar plays, GNU emphasized “safety” over risky risks; when bar decisions didn't matter much (equity loss ~0) trust his order as your conservative fallback.\n- Treat defensive maneuvers heavily when you’re behind and turning checkers quickly; losing several points here (e.g., turn 64 moving 24/18 three times in one"
+       },
+       {
+        "game": 6,
+        "text": "- Focus on not taking risk calls when equity loss is merely small or zero; miss risked moves often yields equal victory without threat.\n- Learn turn 5 where GNUbg rejected your suggestion (13/9 vs 13/10) due to doubt — avoid playing over-conservative moves that concede scoring chances while keeping safety too tight.\n- Prioritize blocking high-value positions by securing key points before initiating counters; the greatest mistakes were extra risk plays without adequate defense (e.g., turns 7, 9, 13, 17).\n- In later middlegame trades, ignore minor equity differences (≤0.05) if they waste time or pieces unnecessarily; right-safety calls sometimes cost more material exposure than slight advantage.\n- When defending 0-point boards and saving bars, err on making the move that keeps the position alive and forces opponent’s wasted opportunities rather than forcing an illegal or poor square transfer."
+       },
+       {
+        "game": 7,
+        "text": "- Avoid risk when equity loss is high by 0.2+; the engine shows you're unnecessarily taking gambles.\n- When equity loss is small (<0.057 or <0.05), do a second-order review—needless risks often miss slightly.\n- On bar moves, prioritize safety calls like bar/23*; they can change the course dramatically.\n- Aggressive early moves (e.g., 13/11 vs 13/11 24/23) can be worse than the correct counter-attack to secure position.\n- Prefer positions where equity loss is near zero and risk trades have clear value; otherwise stay conservative."
+       },
+       {
+        "game": 8,
+        "text": "- Prioritize avoiding risk calls when equity loss is very low or zero; GNUbg missed trades that gave advantage with little cost.\n- Do not make unnecessarily risky moves even after losing equity (e.g., Turn 18) unless trading saves a chance (the small 0.149 equity was a needless risk).\n- In positions where opponent holds dominant checks, bar early without premature forward moves; GNUbg’s “bar/24” was correct here.\n- When forced to take a piece, consider capturing with a counter‑move before advancing your own checkers (Turn 6, losing 0.391 by missing a risk—learn to evaluate captured pieces more carefully).\n- Always re-evaluate cutters after every dice throw; GNUbg often chose a different transfer of points that secured board equilibrium before moving."
+       },
+       {
+        "game": 9,
+        "text": "- Be conservative when unsure about risks; a small equity loss by missing a risk can cost more than accepting an inferior move.\n- Prioritize safety moves—keeping checkers on the bar or backgammon field reduces future loss potential, as reflected in safest-call verdicts.\n- In tricky positions where your equity is nearly identical to the engine’s, favor the option that avoids unnecessary exposure instead of chasing higher immediate gains.\n- Look beyond one side: a correct play often hinges on denying the opponent setup opportunities, even if raw score looks equal.\n- Re-evaluate after critical dice rolls; misjudging the board state led to repeated errors (e.g., turning away from defensive options when needed)."
+       },
+       {
+        "game": 10,
+        "text": "- Trust the engine’s “risk” verdict over your own call and follow the best-ply board when equity loss spikes.\n- Avoid needless risks; many turns show zero or negative equity loss even with aggressive moves—that often wastes position.\n- When both lines look equally safe (equity around 0.00–0.04), choose one consistent option and not a swinging gamble.\n- On positions where the engine says “right safety call,” default to maintaining barriers or staying within key anchor points rather than throwing checks ahead untested.\n- Re-evaluate after each move before committing a large roll or hinge; turn-by-turn updates can reveal hidden traps that force a later reset."
+       }
+      ],
+      "lessons_cut": 2,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 75.70006601512432,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 85.0,
+       "risk_pays": 100,
+       "risks_found": 23.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 5.5
+      },
+      "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 200,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- On turn 10, misreading the equity loss turned a poor risk return into an enormous mistake; always accept a larger material gain even when equity looks good but ignore small equity trades.\n- When facing 0.81–0.85 equity loss, don’t double down or risk a bad play—avoid forcing trade-offs that give up so much equity for marginal gains.\n- Follow GNU’s recommendation on risk calls: be wary of “needless risks” or risky trumps unless they save material; treat small errors as safety signals, not cues.\n- Prefer moving from your half-ironings before dumping checksers; the board shows you can do safe halvepoints like 13/8 vs. unnecessary bar moves at turns 10/12.\n- Keep your bar moves correct and trim only when equity delta justifies; avoid unearned bar pushes that cost more than the opportunity to keep play going (as in Turn 28)."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize calls that protect your core positions when equity loss is low (e.g., Turn 9) over taking risked lines that cost you a bit or more.\n- When faced with double-digit equity loss, favor “risk call” mistakes; trusting the engine’s best move often beats your own guesses.\n- In turn endings where you were safe but didn’t secure points unnecessarily (e.g., Turn 11, 13, 15), take the extra safety when the gain is small—a quiet win.\n- Avoid forcing moves where opposing safeties give equal or worse equity (Turn 23 with 0.366 loss); look for the lowest expected equity among available bets.\n- Don’t overlook small gains by making unnecessary moves; sometimes a conservative outcome beats a marginal offense."
+       },
+       {
+        "game": 3,
+        "text": "- Prioritize \"risk calls\" where losing equity is small or nonexistent — wrong risk calls cause big losses, but right ones protect points.\n- Accept more board changes when equity loss is trivial (≤0.05) if they improve safety/movement, even if not optimal.\n- In dead positions, consider forcing trades instead of abandoning; denying moves can be more valuable than taking them.\n- Don’t overcommit checkers to two target boards; spreading movement (split positions) reduces chaos when engine finds misplays.\n- Stick to the board’s “safety” as a rule of thumb; especially when equity is high, saving points prevents ruinous losses."
+       },
+       {
+        "game": 4,
+        "text": "- Prioritize the engine’s “risk case” moves when equity loss is near zero but your positional value differs; trust his assessment of cube pressure more than small local differences.\n- Double-check barrier sacrifices—your turn 7 error (9/6 vs 8/5…) lost 0.36 equity by missing a correct capture move; safe barrier calls save material on the bar.\n- In later positions where equity loss is tiny (<0.01) but both lines agree, avoid unnecessary pawn advances when they cost you half the board without improving reach—the extra risk wasn’t justified.\n- Watch for “needless risk” labels: when losing is ~0.08–0.30 on turns like 7, 19, 47 but offers little, cut the commitment to reduce exposure.\n- Keep an eye on turning points; even a single missed reversal (e.g., turn 8/7 instead of 8/2) can cascade into large errors—commit before evaluating every die, let the engine guide the whole plan first."
+       },
+       {
+        "game": 5,
+        "text": "- In early middle positions (turn 2) I favored my own placement over GNUbg’s suggested move, losing only 0.065 equity—treat doubtful risks as more valuable than securing the biggest gain when uncertain.\n- When equity loss jumped to 0.150 or higher on turn 4, I mistakenly called risk; avoid aggressive moves that open counter‑attack opportunities.\n- One key win came turn 6 where I correctly stayed put after GNUbg thought there was an error; trust right‐side safety calls when they save points without hurting equity.\n- Missed risks turned into costly errors (e.g., turn 10, turn 14): replay the board briefly before committing to a move, especially when you can afford small losses.\n- Late in the game (turn 44) GNUbg’s “needless risk” gave up 0.241 equity; discard risky throws unless forced out‑posting a real threat. Prioritize conservative play when chances remain low."
+       },
+       {
+        "game": 6,
+        "text": "- Trade risks carefully; when equity loss is >0.15 by a margin, reconsider risk trades instead of taking them, as the engine's \"risk call\" misses opportunity cost.\n- In decisive positions, prioritize the safety of the bar vs. aggressive placement, especially when equity differences are tiny (<0.05) but risk calls vary.\n- When opponent has many checkers clustered or blocked pieces, don't blindly chase points; focus on minimizing opponent's counterplay by leaving holes behind.\n- Accept small errors (~0.01–0.02) over chasing minor gains; they often signal missing subtle tactics that lead to long-term advantage erosion.\n- Trust your last move if two plies align similarly to engine’s best play, unless it feels forced—adjustments after checking opponents’ specific positions can win small margins."
+       },
+       {
+        "game": 7,
+        "text": "- Prioritize taking risk where greedy moves give up little equity; turn 5 and turn 15 missed obvious risks, losing ~0.08–0.37 equity.\n- When the engine’s “right safety” recommendation matches yours but loses zero equity, keep making the safe move even if an alternative looks tempting—turn 7 and turn 9 were correct calls despite tiny chances.\n- Be wary of misjudging dead positions by overloading on checksers without enough movement; e.g., turn 11 lost 0.29 equity while forcing opponent’s position into waste.\n- On board layout where one player holds many high-numbered checkers, consider blocking or trading before playing aggressive advances—a pattern appears at turns 11, 15, 19.\n- Avoid unnecessary trades or ignores when small differences exist; turn 35 and turn 41 gave marginal equity loss and cost time/economy. Stick to plays that change shape or save critical pieces."
+       },
+       {
+        "game": 8,
+        "text": "- Prioritize taking the safer option when equity loss is very low, but recognize high-risk calls (e.g., turning down a winning draw or move) when equity drops significantly.\n- When GNUbg's 2-ply equity loss is near zero and you matched best play exactly (inverting decisions like turn 4 and 6), do not waste moves seeking marginally different trades; match their exact choices for optimal results.\n- In doubly good positions where a small margin exists (turn 42, 42+, 34*, etc.), prefer safety (\"risk call: right safety\") even if equity differences appear slight, as conservative play protects further gains.\n- Avoid risky long plays that lose big equity (turns 46, 22, 44) unless there is an instant forcing capture advantage; treat those moments opportunistically.\n- When in board-side trouble (many turns showed me chasing into bars or losing points without forcing returns), switch from aggressive capture to safe positioning and waiting for favorable dice roll or"
+       },
+       {
+        "game": 9,
+        "text": "- Focus on your positional decisions when equity loss is high, like Turns 6, 16, and 24 where missing risks cost significantly more points.\n- Trust small errors in minor positions; ignore 0.01–0.03 equity losses unless clearly decisive in critical turn decisions.\n- In very closed or bar-filled board configurations (Turns 40, 42, 60), follow GNU’s \"right safety calls\" even when they undercut slightly on risk trade-offs.\n- Recognize that denying points by forcing checks early can be less costly than taking calculated risks in open positions—e.g., Turns 12 vs. 14.\n- When both extra moves lose equity equally, prioritize preserving the largest minority block; engine often overrides smaller cutoffs (see Turns 58 & 61)."
+       },
+       {
+        "game": 10,
+        "text": "- Always consider the cheapest way to convert your own checkers into ownership positions; missing a risk can leave you a clear lead and create opportunity points.\n- When equity loss is large, prioritize preserving your checks when you might be forced to give up a more advantageous shot on the opponent’s board.\n- Do not force moves that gain little and cost heavy safety—receive your opponent’s own trap calls as an opportunity instead.\n- On bar moves, check whether you can avoid a risky turn by keeping your position on their board for a fairer outcome; small errors here give advantage to the engine over many sessions.\n- Even if two lines look similar, examine the long‑term positioning of your remaining checkers and your pawn placements before deciding risk or counter‑play."
+       }
+      ],
+      "lessons_cut": 1,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 4,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 65.98610438406467,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 88.0,
+       "risk_pays": 100,
+       "risks_found": 25.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 5.5
+      },
+      "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 224,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Prioritise safety plays when equity loss is tiny but still risky; favour positions that avoid exposing checkers even at modest equity sacrifice.\n- In big equity drops (>0.2), explicitly evaluate missed risks vs untried gambles—don’t shrug off large errors.\n- Force your opponent out of the bar or from tight clusters instead of settling for marginal gains.\n- Treat any equity loss above ~0.05 as a signal to re-check for systematic underestimation of the risk.\n- After each move, look for board shapes offering further captures or defense, even if they briefly cost more equity."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize correct positional trades over marginal small errors; the engine frequently misjudges minor center/bar trades when risk calls go the wrong way, especially after accumulating active checkers.\n- Never force premature or desperate gambles (“risk call”) just because an engine flags them as “wrong”; trust engine’s full depth but question the turn choice if there’s clear side-situated pressure instead of evaluating why they’d choose that move.\n- Preserve your barrier blockers: avoid unnecessary breaks on the bar until you truly face dead stock—leaving gaps invites opponent seizing crucial points.\n- Scout incoming die outcomes before committing checker placements; positions losing momentum early often have more accurate engine assessments by later ply when information is incomplete.\n- Use equity loss thresholds as guides for timing cuts: a loss ≤0.05–0.08 per move usually indicates good planning; ≥0.25 signals you’re missing subtlety opportunities."
+       },
+       {
+        "game": 3,
+        "text": "- Take the 8/5 6/5 response instead of 8/5 6/5 when equity loss is near zero; slight differences matter less when risk calls justify extra safety.\n- Avoid chasing points or risky trades when GNGs equity loss exceeds ~0.05; you are losing significant expected value by missing opportunities.\n- On large double moves (e.g., 13/8 vs 24/20), switching to more aggressive seizing plays like 13/8 24/23 can recoup big advantages if you miss a key trap.\n- When facing a blocked or bar situation, prioritize returning blanks and holding gammons unless the probability of recovery justifies the risk alone.\n- Focus on board control before moving players aggressively; many of your errors involved premature movement without securing positional threats first."
+       },
+       {
+        "game": 4,
+        "text": "- On turn 2 and 10, when equity loss was zero and it was a barrier position, correctly taking the bar saved material—that is, don’t risk calling an unnecessary exchange or dropping onto the bar unless forced by danger.\n- When you have multiple options (Turn 4, Turn 6) and GNU gives you a huge equity loss, default to the option where he’s also missing his risk; missing the trade‑off costs more than the risk itself.\n- Avoid moving into passive positions (e.g., Bar/23 on Turn 10 despite being “right safety”) because even a tiny equity erosion shows up over the session—choose moves where the trade‑off is small if there is any at all.\n- On defensive turns with scattered checkers (Turn 12, 16, 18), avoid long chains and stick to key break points; a few well‑timed breaks beat many shuffles.\n- With heavily blocked boards (Turn 22–24–26), prioritize preserving the longest chains (to get"
+       },
+       {
+        "game": 5,
+        "text": "- Avoid “wild” risk calls that hurt equity by several hundredths (turns 8, 22, 36) – prefer safe, symmetric corrections instead.\n- Choose moves that keep control or neutralize it without trading key pieces into your opponent’s boxes, even when a cheap transfer exists.\n- Near bars or off-zeros guard piece density; losing one checker can hand over momentum from a die roll.\n- When two choices are marginally winning, pick the one that leaves your counters aligned and ready for follow‑up plays.\n- Treat dice swings greater than ±0.3 equity as high priority—resolve them first to prevent bigger mistakes."
+       },
+       {
+        "game": 6,
+        "text": "- Prioritize accepting positions where you lose minimal expectation; small errors can compound into large losses over many turns or points.\n- Avoid risks when the engine shows a double-digit equity loss—especially near the endgame or when you already have a defensive board.\n- Watch for \"risk calls\" where a safe move would improve odds; take the larger gain risk when forced but discard them when an alternative trade-off gives you confidence.\n- Guard your critical checkers well during the middle game; missing opportunities here often creates severe deficits later.\n- When dead on board, force a takeaway by pushing your remaining pieces onto the bars even if it costs equity; it’s safer long-term than waiting to block."
+       },
+       {
+        "game": 7,
+        "text": "- On early turns, follow the engine’s recommended move when equity loss is small but still positive—risk calls often look unnatural or over‑aggressive (Turns 1 & 3).\n- Trust the engine on “missed” risk trades; sometimes being too safe hides errors that give up value in later stages (Turn 5, 7).\n- Keep a clean board shape; don’t bar/pass alone unless the engine says it’s correct safety for turn 9–7.\n- Avoid unnecessary checks or jumps when the equity impact is negligible versus large risk losses (Turn 9).\n- Re‑evaluate positions where you already made two similar moves; choose the engine’s higher equity option even if it costs a few points (Turn 41)."
+       },
+       {
+        "game": 8,
+        "text": "- Do not sacrifice winning chances for a quick capture unless the equity loss stays below about 0.1; often overshooting creates a trap.\n- Inspect your key back‑end blocks before throwing; leaving them open lets opponents escape.\n- When an engine says advance despite you being 0‑off, pause and make sure the target ball doesn’t leave a dangerous hole.\n- Limit double‑ply lookahead: a modest equity drop around 0.09–0.25 can spoil a bright spot now.\n- Hold your central pins on the sideboard until all priority points are defended – right safety often beats short term gains."
+       },
+       {
+        "game": 9,
+        "text": "- Prioritize calling a *right* risk only when forced; missing opportunities gives advantage but sacrifices chances.\n- In turn 12 and later, overplaying checks without accounting for board chaos caused large equity loss—sometimes the correct move is to hold and wait.\n- Safety calls matter more than speed; abandoning the right defensive setup can jeopardize long-term control.\n- Avoid frivolous aggressive moves like 24/22 or 22/21* under pressure where engines show minimal gain for high risk—they lack value trade-offs.\n- Consistency of risk assessment matters: small errors lose 0.01–0.45 equity often; always re-evaluate before committing to a move."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize the \"risk call\" when equity loss exceeds ~0.05, especially before gammons collapse into board positions.\n- When GNU vs. you loses 0.42+, avoid unnecessary risks and preserve core back markers even if an alternative seems safer.\n- In early-stage turning moves, choosing between equal-equity options may miss subtle safety advantages; err on conservative but sound choices.\n- Avoid forced bar plays or forced trades that cost equity without clear recovery opportunities.\n- Use dart decisions more often on high-tally positions; prioritize retaining the option to open on critical cubes over marginal gains."
+       }
+      ],
+      "lessons_cut": 2,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 72.92793065309525,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 86.0,
+       "risk_pays": 100,
+       "risks_found": 21.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 5.4
+      },
+      "wins": 2
+     }
+    ],
+    "series_finished": 5,
+    "setup": "LFM3-1.7B (off)",
+    "state": "complete",
+    "status": "No",
+    "steps_done": [
+     "E1",
+     "S1",
+     "S2",
+     "E2",
+     "S3",
+     "S4",
+     "E3",
+     "S5"
+    ],
+    "threshold": 5,
+    "verdict": true
+   },
+   {
+    "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": null,
+    "before": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [],
+    "empty_done": 0,
+    "improved": null,
+    "key": "qwen3.5-2b-on",
+    "progress": {
+     "reason": "waiting for its turn",
+     "series_done": 0,
+     "status": "paused",
+     "updated_at": "2026-11-08T16:10:46+00:00"
+    },
+    "range": null,
+    "reason": "waiting for its turn in its lane",
+    "series": [],
+    "series_finished": 0,
+    "setup": "Qwen3.5-2B (on)",
+    "state": "paused",
+    "status": "paused: waiting for its turn in its lane",
+    "steps_done": [],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": null,
+    "before": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [],
+    "empty_done": 0,
+    "improved": null,
+    "key": "raon-1-nano-on",
+    "progress": {
+     "reason": "waiting for its turn",
+     "series_done": 0,
+     "status": "paused",
+     "updated_at": "2026-11-08T16:10:46+00:00"
+    },
+    "range": null,
+    "reason": "waiting for its turn in its lane",
+    "series": [],
+    "series_finished": 0,
+    "setup": "Raon-1 nano (on)",
+    "state": "paused",
+    "status": "paused: waiting for its turn in its lane",
+    "steps_done": [],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": null,
+    "before": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [],
+    "empty_done": 0,
+    "improved": null,
+    "key": "smollm2-1.7b",
+    "progress": {
+     "reason": "waiting for its turn",
+     "series_done": 0,
+     "status": "paused",
+     "updated_at": "2026-11-21T04:28:16+00:00"
+    },
+    "range": null,
+    "reason": "operator hold: skipped in the learning experiment (Ümit #13784)",
+    "series": [],
+    "series_finished": 0,
+    "setup": "SmolLM2-1.7B-Instruct",
+    "state": "paused",
+    "status": "paused: operator hold: skipped in the learning experiment",
+    "steps_done": [],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": null,
+    "before": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [],
+    "empty_done": 0,
+    "improved": null,
+    "key": "smollm2-360m",
+    "progress": {
+     "reason": "waiting for its turn",
+     "series_done": 0,
+     "status": "paused",
+     "updated_at": "2026-11-21T04:28:16+00:00"
+    },
+    "range": null,
+    "reason": "operator hold: skipped in the learning experiment (Ümit #13784)",
+    "series": [],
+    "series_finished": 0,
+    "setup": "SmolLM2-360M-Instruct",
+    "state": "paused",
+    "status": "paused: operator hold: skipped in the learning experiment",
+    "steps_done": [],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": null,
+    "before": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [],
+    "empty_done": 0,
+    "improved": null,
+    "key": "smollm3-3b-off",
+    "progress": {
+     "reason": "waiting for its turn",
+     "series_done": 0,
+     "status": "paused",
+     "updated_at": "2026-11-08T16:10:46+00:00"
+    },
+    "range": null,
+    "reason": "waiting for its turn in its lane",
+    "series": [],
+    "series_finished": 0,
+    "setup": "SmolLM3-3B (off)",
+    "state": "paused",
+    "status": "paused: waiting for its turn in its lane",
+    "steps_done": [],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": null,
+    "before": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [],
+    "empty_done": 0,
+    "improved": null,
+    "key": "smollm3-3b-on",
+    "progress": {
+     "reason": "waiting for its turn",
+     "series_done": 0,
+     "status": "paused",
+     "updated_at": "2026-11-08T16:10:46+00:00"
+    },
+    "range": null,
+    "reason": "waiting for its turn in its lane",
+    "series": [],
+    "series_finished": 0,
+    "setup": "SmolLM3-3B (on)",
+    "state": "paused",
+    "status": "paused: waiting for its turn in its lane",
+    "steps_done": [],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": null,
+    "before": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [],
+    "empty_done": 0,
+    "improved": null,
+    "key": "inkling-2-mini-on",
+    "progress": {
+     "reason": null,
+     "series_done": 0,
+     "status": "running",
+     "updated_at": "2026-11-21T07:06:23+00:00"
+    },
+    "range": null,
+    "reason": null,
+    "series": [],
+    "series_finished": 0,
+    "setup": "Inkling 2 Mini (on)",
+    "state": "running",
+    "status": "running on our GPU, 0 of 5 series",
+    "steps_done": [],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
      "error_rate": 20.379898622632027,
      "right_safety": 96.0,
      "risks_found": 64.5
@@ -7202,7 +8751,7 @@
      "updated_at": "2026-11-14T22:53:39+00:00"
     },
     "range": 8.0,
-    "reason": "waiting for its turn in its lane",
+    "reason": "operator hold: big-model pause (Ümit #8603, Zeki #8637); stop at step boundary, results kept",
     "series": [
      {
       "finished": true,
@@ -7484,7 +9033,7 @@
     "series_finished": 4,
     "setup": "GPT-6.1 Sol (high)",
     "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "status": "paused: operator hold: big-model pause; stop at step boundary, results kept",
     "steps_done": [
      "E1",
      "S1",
@@ -7532,12 +9081,12 @@
      "updated_at": "2026-11-14T14:04:46+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": "operator hold: big-model pause (Ümit #8603, Zeki #8637); stop at step boundary, results kept",
     "series": [],
     "series_finished": 0,
     "setup": "GPT-6 Astra (high)",
     "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "status": "paused: operator hold: big-model pause; stop at step boundary, results kept",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -7547,18 +9096,18 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-15T11:45:01+00:00"
+  "updated_at": "2026-11-21T12:16:04+00:00"
  },
- "source_sha256": "fe02c9ceb6223a7426197b66742aac8b3d3e02eb984ebaf286eb7cf91f5737da",
+ "source_sha256": "f0fd5174e4def427c52b8727b5e37436e27f4f5a7e597c6bdd2398b68bb8673c",
  "status": {
-  "last_update": "2026-11-15T11:45:01+00:00",
-  "line": "12 of 20 models with a verdict · 1 running · 6 paused · 0 incomplete or stopped",
-  "models": 20,
-  "paused": 6,
+  "last_update": "2026-11-21T12:16:04+00:00",
+  "line": "14 of 29 models with a verdict · 1 running · 14 paused · 0 incomplete or stopped",
+  "models": 29,
+  "paused": 14,
   "phase": "running",
   "running": 1,
   "stopped": 0,
-  "verdicts": 12
+  "verdicts": 14
  },
  "validation": {
   "accepted": true,
