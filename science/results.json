@@ -1159,6 +1159,124 @@
      }
     }
    }
+  },
+  {
+   "model": "granite-4.2-3b",
+   "name": "Granite 4.2 3B",
+   "tag": "thinking on · chat",
+   "kind": "chat",
+   "route": "vLLM on our GPU (logic's load, RTX PRO 6000), logic's Logic & Math settings for the row; one question per request, answer line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 62,
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 39,
+     "no_letter": 1,
+     "timing": {
+      "median_s_per_problem": 124.02,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 1228,
+      "cost_per_1000_usd": 16.9873,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "tubitak": {
+     "run": 63,
+     "date": "2026-11-21",
+     "questions": 32,
+     "right": 27,
+     "no_letter": 2
+    },
+    "broken": {
+     "run": 64,
+     "date": "2026-11-21",
+     "questions": 92,
+     "right": 57,
+     "no_letter": 2,
+     "intact": 50,
+     "intact_right": 36,
+     "broken": 42,
+     "broken_caught": 21,
+     "flawed_on_intact": 3
+    },
+    "exact": {
+     "run": "exact/granite-4.2-3b-granite-4-2-3b.json",
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 25,
+     "no_letter": 12,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 560.1,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 2679,
+      "cost_per_1000_usd": 37.0595,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "granite-4.2-3b",
+   "name": "Granite 4.2 3B",
+   "tag": "thinking off · chat",
+   "kind": "chat",
+   "route": "vLLM on our GPU (logic's load, RTX PRO 6000), logic's Logic & Math settings for the row; one question per request, answer line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 65,
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 24,
+     "no_letter": 15,
+     "timing": {
+      "median_s_per_problem": 596.33,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 2482,
+      "cost_per_1000_usd": 34.3343,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "tubitak": {
+     "run": 72,
+     "date": "2026-11-21",
+     "questions": 32,
+     "right": 13,
+     "no_letter": 7
+    },
+    "broken": {
+     "run": 73,
+     "date": "2026-11-21",
+     "questions": 92,
+     "right": 30,
+     "no_letter": 32,
+     "intact": 50,
+     "intact_right": 20,
+     "broken": 42,
+     "broken_caught": 10,
+     "flawed_on_intact": 3
+    },
+    "exact": {
+     "run": "exact/granite-4.2-3b-granite-4-2-3b-nothink.json",
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 0,
+     "no_letter": 0,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 0.2,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 1,
+      "cost_per_1000_usd": 0.0111,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
   }
  ]
 }
