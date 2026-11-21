@@ -141,10 +141,16 @@
       "route": "local vLLM (Logic & Math's shared server)",
       "setting": "on (effort 0.9)",
       "setup": "Inkling 2 Mini (on)"
+     },
+     {
+      "maker": "Thinking Machines",
+      "route": "local vLLM (Logic & Math's shared server)",
+      "setting": "on (effort 0.5)",
+      "setup": "Inkling 2 Mini (on, effort 0.5)"
      }
     ],
-    "note": "Added 21 Nov: Inkling 2 Mini with thinking on (effort 0.9), under the same rule, lesson prompt, test and schedule, on the server it shares with Logic & Math and other benchmarks (its owner's pinned load; this run neither starts nor stops it), sampled greedily as on Logic & Math (temperature 0), its first empty test a validity check as above. Its letter is read from its own answer after its reasoning: its server cannot continue a prefilled answer after a reasoning block. While that server is away, the model pauses.",
-    "record": "Ümit #13780/#13810/#13811 (improve 5d4b602)",
+    "note": "Added 21 Nov: Inkling 2 Mini with thinking on (effort 0.9), under the same rule, lesson prompt, test and schedule, on the server it shares with Logic & Math and other benchmarks (its owner's pinned load; this run neither starts nor stops it), sampled greedily as on Logic & Math (temperature 0), its first empty test a validity check as above. Its letter is read from its own answer after its reasoning: its server cannot continue a prefilled answer after a reasoning block. While that server is away, the model pauses. Changed the same day: it runs with thinking at effort 0.5 instead, otherwise as above. At effort 0.9 most of its answers in the first empty test ran out of room: its reasoning used all 32,768 output tokens before it named an option. That run is stopped and kept; it plays no series.",
+    "record": "Ümit #13780/#13810/#13811 (improve 5d4b602); effort 0.5: Ümit #14049/#14136 (improve 28f10d6, branch improve-ink-e05)",
     "source": "Ümit's decision of 21 Nov 2026"
    }
   ],
@@ -529,6 +535,19 @@
     "route_detail": "",
     "setting": "on (effort 0.9)",
     "setup": "Inkling 2 Mini (on)",
+    "status": "added 2026-11-21 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "inkling-2-mini-on-effort-0.5",
+    "label": "",
+    "late_entry": false,
+    "maker": "Thinking Machines",
+    "n": 30,
+    "route": "local vLLM (Logic & Math's shared server)",
+    "route_detail": "",
+    "setting": "on (effort 0.5)",
+    "setup": "Inkling 2 Mini (on, effort 0.5)",
     "status": "added 2026-11-21 (amendment)"
    }
   ],
@@ -9126,11 +9145,11 @@
   },
   "updated_at": "2026-11-21T14:03:00+00:00"
  },
- "source_sha256": "e33af0416acc8b9f2b3700cfcc3a392cb426505ceb63f68c8735cfce89b7a2ee",
+ "source_sha256": "e1dd10ae47b20bb37981cd579f82a90703cbb33083a532eb644c084b30d342e7",
  "status": {
   "last_update": "2026-11-21T14:03:00+00:00",
-  "line": "14 of 29 models with a verdict · 2 running · 13 paused · 0 incomplete or stopped",
-  "models": 29,
+  "line": "14 of 30 models with a verdict · 2 running · 13 paused · 0 incomplete or stopped",
+  "models": 30,
   "paused": 13,
   "phase": "running",
   "running": 2,
