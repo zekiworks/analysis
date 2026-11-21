@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-21T12:41:46Z",
+ "updated": "2026-11-21T14:09:24Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -426,6 +426,34 @@
    ],
    "notes": "Fastino decisions API (api.fastino.ai, model fastino/GLiDE); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
    "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "Inkling 2 Mini",
+   "display_name": "Inkling 2 Mini",
+   "tag": "thinking on (no off mode) · card sampling (temperature 1.0) · chat",
+   "model_key": "inkling-2-mini-card",
+   "maker": "Thinking Machines",
+   "kind": "chat",
+   "repo": "thinkingmachines/Inkling-2-Mini",
+   "commit": "ed40e7da625f594fc9c4990f5f66be24873c22d7",
+   "params_total": 26.4,
+   "params_active": 3.4,
+   "quantization": "NVFP4/MXFP8 experts (the maker's checkpoint), the rest BF16",
+   "score_0_100": 85.06524891251811,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.9004349927501208,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-inkling-2-mini-card-v1"
+   ],
+   "notes": "thinkingmachines/Inkling-2-Mini@ed40e7da, NVFP4/MXFP8 experts (the maker's checkpoint), the rest BF16, inkling-2-mini vLLM on one RTX PRO 6000 (ours), self-hosted (the recipe's image, sha256:c2dc759f, without the speculator); one question per request, 16 requests at a time (latency not comparable across different concurrency); the server also answered other benchmarks' requests (Logic & Math, Reading, backgammon learning, Toolbench's qualification checks) during the run, so its latency and GPU time are shared-load figures; thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 0 of 2069 replies (0%) had no answer marker and count wrong; every reply kept",
+   "gpu_hours": 0.8686354309314409,
    "gpu_cost_usd": null
   },
   {
