@@ -1,9 +1,9 @@
 'use strict';
 const dates=[]; // data/index.json's snapshots, its default first (init)
 // All benches last, after the five benches (Ümit #11580).
-const sections=['Reading & Grammar','Logic & Math','Backgammon','Answer Check','Toolbench','All benches'];
-const pages=['decision-models/','logic/','backgammon/','grading/','tool-calling/','all-benches/'];
-const initialTracks=['Turkish Reading & Grammar','Logic','Risk judgement ranking','Grading','Candidate setups','Combined'];
+const sections=['Reading & Grammar','Logic & Math','Backgammon','Answer Check','Toolbench','Science','All benches'];
+const pages=['decision-models/','logic/','backgammon/','grading/','tool-calling/','science/results.json','all-benches/'];
+const initialTracks=['Turkish Reading & Grammar','Logic','Risk judgement ranking','Grading','Candidate setups','Textbook problems','Combined'];
 const sourceViews=new Map(), guides=new Map();
 const data=new Map(), records=new Map(), commits=new Map();
 const originSite='https://zekiworks.github.io/analysis/';
@@ -268,7 +268,7 @@ function resultSurface(f){
  const rows=f.rows.slice((s.page-1)*pageSize,s.page*pageSize);
  const one=rows.find(r=>metric(r)[1]!==null)||rows[0];
  const measure=one?metric(one)[0]:'Outcome';
- const popular={'Reading & Grammar':['Turkish Reading & Grammar','Turkish Reading','Turkish Grammar','English Reading'], 'Logic & Math':['Logic','Math','Logic and Math'],Backgammon:['Risk judgement ranking','League 1','League 2','League 3'], 'All benches':['Combined','Decision Index','Turkish Reading','Turkish Grammar','English Reading','Logic','Math','Backgammon','Answer Check'], Toolbench:['Results','Tool choice (decision models)']};
+ const popular={'Reading & Grammar':['Turkish Reading & Grammar','Turkish Reading','Turkish Grammar','English Reading'], 'Logic & Math':['Logic','Math','Logic and Math'],Backgammon:['Risk judgement ranking','League 1','League 2','League 3'], 'All benches':['Combined','Decision Index','Turkish Reading','Turkish Grammar','English Reading','Logic','Math','Backgammon','Answer Check'], Toolbench:['Results','Tool choice (decision models)'], Science:['Textbook problems','TÜBİTAK 2026 maths','Broken questions']};
  const visibleTracks=(['Learning','Learning pilot','Vision'].includes(s.panel)?f.tracks:popular[s.section]||[]).filter(t=>f.tracks.includes(t));
  // Backgammon as its own page has it (Ümit #11706, #11710): Risk judgement and Learning first, the leagues after;
  // Learning is its own panel, so its tab switches panels and the others come back to Results.
