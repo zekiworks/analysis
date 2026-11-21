@@ -93,6 +93,15 @@
         "source": "https://huggingface.co/HuggingFaceTB/SmolLM2-1.7B-Instruct/blob/31b70e2e869a7173562077fd711b654946d38674/README.md",
         "read": "2026-11-20"
       },
+      "inkling-2-mini": {
+        "total": 26400000000,
+        "active": [
+          3400000000
+        ],
+        "words": "26.4B, 3.4B active (5.4B effective active with three passes)",
+        "source": "https://huggingface.co/thinkingmachines/Inkling-2-Mini/blob/ed40e7da625f594fc9c4990f5f66be24873c22d7/README.md",
+        "read": "2026-11-21"
+      },
       "smollm3-3b": {
         "total": 3000000000,
         "words": "3B (the model card: a 3B parameter language model)",
@@ -1758,6 +1767,10 @@
           {
             "provider": "openrouter-chat",
             "model": "thinkingmachines/inkling-2-small"
+          },
+          {
+            "provider": "vllm-plain",
+            "model": "inkling-2-mini"
           }
         ]
       },

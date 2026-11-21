@@ -942,6 +942,10 @@ MODELS: dict[str, dict[str, Any]] = {
            ("smollm2-360m", "SmolLM2-360M-Instruct", "vLLM v0.30.0", "HuggingFaceTB/SmolLM2-360M-Instruct@a10cc15"),
            # SmolLM3-3B (Ümit #13443, #13489) on logic's load: thinking on and off by the card's enable_thinking switch
            ("smollm3-3b", "SmolLM3-3B", "vLLM v0.30.0", "HuggingFaceTB/SmolLM3-3B@a07cc9a"),
+           # Thinking Machines' Inkling 2 Mini (Ümit #13772): the maker's vLLM image, reasoning parser inkling, one
+           # mode (no off switch; template default reasoning effort 0.9, logic #13783); English only
+           ("inkling-2-mini", "Inkling 2 Mini", "vLLM (the maker's image vllm/vllm-openai:inkling-2-mini, sha256:c2dc759f)",
+            "thinkingmachines/Inkling-2-Mini@ed40e7d"),
            ("granite-4.2-8b", "Granite-4.2-8B", "vLLM v0.30.0", "ibm-granite/granite-4.2-8b@a704214"),
            # SenseTime's SenseNova-Loop-9B (Ümit #12072, #12075): no vLLM or SGLang release serves its looped
            # architecture, so LightLLM as its card shows (logic #12210; thinking in message.reasoning).
@@ -1547,6 +1551,15 @@ SIZES: dict[str, dict[str, Any]] = {
            ("granite-4.2-30b", 29_276_770_304, "language model with its LM head, text only", "ibm-granite/granite-4.2-30b",
             "9e668ce"),
        )},
+    # Hugging Face's safetensors total for the pinned checkpoint (the card: "26.4B, 3.4B active"); a looped model whose
+    # middle layers run three times, so the card also gives 5.4B effective active parameters per token.
+    "inkling-2-mini": {"total": 26_388_646_440, "active": [3_400_000_000],
+                       "repo": "thinkingmachines/Inkling-2-Mini", "commit": "ed40e7d",
+                       "scope": "looped mixture of experts, the whole released checkpoint (vision encoder included); "
+                                "active per token as the card states it; card: 26.4B total, 3.4B active, 5.4B "
+                                "effective active with three passes",
+                       "sources": ["https://huggingface.co/thinkingmachines/Inkling-2-Mini/blob/"
+                                   "ed40e7da625f594fc9c4990f5f66be24873c22d7/README.md"], "read": "2026-11-21"},
     "lfm2.5-24b-a2b": {"total": 23_971_587_712, "active": [2_454_808_192],
                        "repo": "LiquidAI/LFM2.5-24B-A2B", "commit": "1769516",
                        "scope": "mixture of experts, 4 of 64 experts per token: language model (tied embeddings, text "
