@@ -1,9 +1,9 @@
 {
  "bench": "grading",
- "updated": "2026-11-21T14:09:31Z",
+ "updated": "2026-11-21T18:04:08Z",
  "feed": {
   "file": "bench-scores.json",
-  "sha256": "acaec7db9770b34d92f552338ae20b65831ea596d3063e3f4a7b953845a4c616"
+  "sha256": "b95fc6f1d6b9c2e3872ec9f992c1422c3ac6dbf0ad4e1c2b438d033f31278bc6"
  },
  "cohort_pairs": 2069,
  "label_pairs": {
@@ -2149,22 +2149,32 @@
   {
    "run": "grading:chat-inkling-2-mini-v1",
    "model_key": "inkling-2-mini",
-   "latency_s_median": 78.491,
-   "latency_s_p90": 227.039,
+   "runs": [
+    "grading:chat-inkling-2-mini-v1",
+    "grading:chat-inkling-2-mini-seed1-v1",
+    "grading:chat-inkling-2-mini-seed2-v1"
+   ],
+   "aggregation": "mean of 3 seeds; latency over all requests of the three runs",
+   "latency_s_median": 14.86,
+   "latency_s_p90": 149.03,
    "requests_in_flight": 16,
-   "requests_measured": 2069,
+   "requests_measured": 6207,
    "api_cost_per_1000_usd_list_price": null,
-   "cost_basis": null,
    "price_usd_per_million_input": null,
    "price_source": null,
    "price_date": null,
-   "gpu_seconds_per_1000": 8675.9,
-   "recall_reference": 0.9427,
-   "recall_other": 0.8298,
-   "recall_none": 0.8195,
-   "wrong_answer_recall": 0.8298,
-   "false_alarm_rate": 0.0391,
-   "invalid": 96,
+   "gpu_seconds_per_1000": 5049.1,
+   "recall_reference": 0.9398,
+   "recall_other": 0.844,
+   "recall_none": 0.817,
+   "wrong_answer_recall": 0.844,
+   "false_alarm_rate": 0.0414,
+   "invalid": null,
+   "invalid_per_seed": [
+    96,
+    98,
+    80
+   ],
    "probabilities": false,
    "decision_score": null,
    "chosen_answer_brier": null

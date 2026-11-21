@@ -12698,10 +12698,10 @@
      "zero": "0 = a random legal play's error rate in the same league (League 1: 121.1, League 2: 117.9, League 3: 117.6; late entries: the league whose field they played); below 0 = worse than a random legal play. score = 100 × (1 − error rate / Random's error rate in that league); error rate (PR) = 500 × mean GNUbg equity loss per decision"
     },
     "title": "Backgammon",
-    "updated": "2026-11-21T14:05Z",
+    "updated": "2026-11-21T16:35Z",
     "url": "https://zekiworks.github.io/analysis/backgammon/"
    },
-   "sha256": "fad6e0dfd98716ac5fdd2104093916035e91ea814c4c3e8faf13e33b087fd843"
+   "sha256": "df7347f171332560adbdbff689cbd81742969106d1ffb465d069a9989e198994"
   },
   "grading": {
    "url": "https://zekiworks.github.io/analysis/grading/bench-scores.json",
@@ -12711,7 +12711,7 @@
     "bench": "grading",
     "title": "Answer Check · does the text give this answer?",
     "url": "https://zekiworks.github.io/analysis/grading/",
-    "updated": "2026-11-21T14:09:24Z",
+    "updated": "2026-11-21T18:04:00Z",
     "score": {
      "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
      "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -13607,11 +13607,43 @@
       "calibration_error": null,
       "improvement_points": null,
       "runs": [
-       "grading:chat-inkling-2-mini-v1"
+       "grading:chat-inkling-2-mini-v1",
+       "grading:chat-inkling-2-mini-seed1-v1",
+       "grading:chat-inkling-2-mini-seed2-v1"
       ],
-      "notes": "thinkingmachines/Inkling-2-Mini@ed40e7da, NVFP4/MXFP8 experts (the maker's checkpoint), the rest BF16, inkling-2-mini vLLM on one RTX PRO 6000 (ours), self-hosted (the recipe's image, sha256:c2dc759f, without the speculator); one question per request, 16 requests at a time (latency not comparable across different concurrency); the server also answered other benchmarks' requests (Logic & Math, Reading, backgammon learning, Toolbench's qualification checks) during the run, so its latency and GPU time are shared-load figures; its first 20 pairs (the format smoke test, kept in the run) were sent 20 at a time, the other 2,392 16 at a time; thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 96 of 2069 replies (5%) had no answer marker and count wrong (96 of them cut off at the 32,768-token limit); every reply kept",
-      "gpu_hours": 4.98625494584658,
-      "gpu_cost_usd": null
+      "notes": "thinkingmachines/Inkling-2-Mini@ed40e7da, NVFP4/MXFP8 experts (the maker's checkpoint), the rest BF16, inkling-2-mini vLLM on one RTX PRO 6000 (ours), self-hosted (the recipe's image, sha256:c2dc759f, without the speculator); one question per request, 16 requests at a time from the client (latency not comparable across different concurrency); the server also answered other benchmarks' requests (Logic & Math, Reading, backgammon learning, Toolbench's qualification checks) during the run, so its latency and GPU time are shared-load figures; seed 0's first 20 pairs (the format smoke test, kept in the run) were sent 20 at a time; mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; replies without an answer marker count wrong: mean rate 4% (per seed in seed_runs; cut off at the token limit per seed: 96, 98, 80); three new runs, seeds 0, 1, 2, every reply kept, with the same model, sampling settings, requests at a time and server, only the seed changed; no earlier run of this setup was published; gpu_hours is the mean of the three runs (GPU seconds per seed: 20926, 8181, 7428, at the same recorded settings; seed 0 ran mostly while the Logic & Math runs shared the card at up to 32 in flight (until 11:56 on 21 Nov); seeds 1 and 2 ran after those had moved to their own card)",
+      "gpu_hours": 2.9018083652715396,
+      "gpu_cost_usd": null,
+      "accuracy_basis": "mean of 3 seeds",
+      "seed_min": 0.875302078298695,
+      "seed_max": 0.8791686805219913,
+      "seed_runs": [
+       {
+        "run": "grading:chat-inkling-2-mini-v1",
+        "seed": 0,
+        "accuracy": 0.8772353794103431,
+        "invalid": 96,
+        "cutoff": 96,
+        "wrong_answers_caught": 273
+       },
+       {
+        "run": "grading:chat-inkling-2-mini-seed1-v1",
+        "seed": 1,
+        "accuracy": 0.875302078298695,
+        "invalid": 98,
+        "cutoff": 98,
+        "wrong_answers_caught": 283
+       },
+       {
+        "run": "grading:chat-inkling-2-mini-seed2-v1",
+        "seed": 2,
+        "accuracy": 0.8791686805219913,
+        "invalid": 80,
+        "cutoff": 80,
+        "wrong_answers_caught": 277
+       }
+      ],
+      "invalid_rate_mean": 0.044143708715965846
      },
      {
       "name": "d1.2",
@@ -15675,7 +15707,7 @@
      }
     ]
    },
-   "sha256": "acaec7db9770b34d92f552338ae20b65831ea596d3063e3f4a7b953845a4c616"
+   "sha256": "b95fc6f1d6b9c2e3872ec9f992c1422c3ac6dbf0ad4e1c2b438d033f31278bc6"
   },
   "grading-metrics": {
    "url": "https://zekiworks.github.io/analysis/grading/metrics.json",
@@ -15683,10 +15715,10 @@
    "seen": "2026-11-21",
    "file": {
     "bench": "grading",
-    "updated": "2026-11-21T14:09:31Z",
+    "updated": "2026-11-21T18:04:08Z",
     "feed": {
      "file": "bench-scores.json",
-     "sha256": "acaec7db9770b34d92f552338ae20b65831ea596d3063e3f4a7b953845a4c616"
+     "sha256": "b95fc6f1d6b9c2e3872ec9f992c1422c3ac6dbf0ad4e1c2b438d033f31278bc6"
     },
     "cohort_pairs": 2069,
     "label_pairs": {
@@ -17832,22 +17864,32 @@
      {
       "run": "grading:chat-inkling-2-mini-v1",
       "model_key": "inkling-2-mini",
-      "latency_s_median": 78.491,
-      "latency_s_p90": 227.039,
+      "runs": [
+       "grading:chat-inkling-2-mini-v1",
+       "grading:chat-inkling-2-mini-seed1-v1",
+       "grading:chat-inkling-2-mini-seed2-v1"
+      ],
+      "aggregation": "mean of 3 seeds; latency over all requests of the three runs",
+      "latency_s_median": 14.86,
+      "latency_s_p90": 149.03,
       "requests_in_flight": 16,
-      "requests_measured": 2069,
+      "requests_measured": 6207,
       "api_cost_per_1000_usd_list_price": null,
-      "cost_basis": null,
       "price_usd_per_million_input": null,
       "price_source": null,
       "price_date": null,
-      "gpu_seconds_per_1000": 8675.9,
-      "recall_reference": 0.9427,
-      "recall_other": 0.8298,
-      "recall_none": 0.8195,
-      "wrong_answer_recall": 0.8298,
-      "false_alarm_rate": 0.0391,
-      "invalid": 96,
+      "gpu_seconds_per_1000": 5049.1,
+      "recall_reference": 0.9398,
+      "recall_other": 0.844,
+      "recall_none": 0.817,
+      "wrong_answer_recall": 0.844,
+      "false_alarm_rate": 0.0414,
+      "invalid": null,
+      "invalid_per_seed": [
+       96,
+       98,
+       80
+      ],
       "probabilities": false,
       "decision_score": null,
       "chosen_answer_brier": null
@@ -17966,7 +18008,7 @@
      }
     ]
    },
-   "sha256": "31df38bdc3aec75d372b3504775366d1f1a359b5bcee453a102492bba3297cd4"
+   "sha256": "945d1de9ce6153e0318780a6251e954f80ff94bc7988ad2a1ac2c1bc919f146e"
   },
   "grading-consistency": {
    "url": "https://zekiworks.github.io/analysis/grading/consistency.json",
@@ -17975,7 +18017,7 @@
    "file": {
     "bench": "Answer Check",
     "cohort": "no-code",
-    "feed_sha256": "acaec7db9770b34d92f552338ae20b65831ea596d3063e3f4a7b953845a4c616",
+    "feed_sha256": "b95fc6f1d6b9c2e3872ec9f992c1422c3ac6dbf0ad4e1c2b438d033f31278bc6",
     "report_sha256": [
      "6304ad676e6f10d0ca06e6cc01450f23518330af615eb9a1a9d94fa2ee18b5da",
      "a78dea5689a16aa97999d2015a3e5d8bfd2d50928107f2024bce5a6d5938bad9",
@@ -18714,7 +18756,7 @@
      }
     ]
    },
-   "sha256": "59ff958966bf9cb3572ef869795ad9d881b73609b75ce6c0a5a07b99a95bda86"
+   "sha256": "bbcd1b2982362a8b95a73df8a4a7e088b18147f04cbb1fc4ad67888d8c61f201"
   }
  }
 }
