@@ -1,5 +1,5 @@
 {
- "about": "The science bench (Can #12936, #13126; Ümit #13728, #13822): hard Turkish maths and physics questions, multiple choice, one letter per answer. Textbook problems: 50 problems from Ahmet Karadeniz's Yüksek Matematik and 1968–1972 physics books and exams, every given number changed and the answer recomputed by code, five options of which four are typical mistakes. TÜBİTAK 2026 maths: the 32 questions of the 2026 national science olympiad's first stage (maths, booklet A), with TÜBİTAK's answer key. Broken questions: the 50 textbook problems mixed with 42 copies in which one given number was changed so that none of the five options is right (checked by code), with a sixth option F 'the question is flawed'; right means F on a broken copy and the right option on an intact one. Exact answers: the same 50 textbook problems with no options; the model writes the number, right when within 0.1% of the code's value; a reply that is not a number counts wrong (subscription models 10 problems per request, our-GPU models 1). The questions are not published. A reply without a readable letter counts wrong. The setups were not asked alike: the subscription models (Claude, GPT, Gemini, MAI) got 16 questions per request through their own tools or bridges; the decision and small models got one question per request. The TÜBİTAK 2026 questions and their answer key have been public since May 2026, so a model trained on later data may have seen them; we cannot tell whether any model did.",
+ "about": "The science bench (Can #12936, #13126; Ümit #13728, #13822): hard Turkish maths and physics questions, multiple choice, one letter per answer. Textbook problems: 50 problems from Ahmet Karadeniz's Yüksek Matematik and 1968–1972 physics books and exams, every given number changed and the answer recomputed by code, five options of which four are typical mistakes. TÜBİTAK 2026 maths: the 32 questions of the 2026 national science olympiad's first stage (maths, booklet A), with TÜBİTAK's answer key. Broken questions: the 50 textbook problems mixed with 42 copies in which one given number was changed so that none of the five options is right (checked by code), with a sixth option F 'the question is flawed'; right means F on a broken copy and the right option on an intact one. Exact answers: the same 50 textbook problems with no options; the model writes the number, right when within 0.1% of the code's value; a reply that is not a number counts wrong; one problem per request for every setup (the subscription models' first runs asked 10 per request: Opus 50, Astra 49, MAI 46 right). Latency and cost (Ümit #14151): our GPU, median seconds per problem with the requests in flight, and GPU time from start to last answer × $2.49 per GPU-hour per 1,000 problems; subscription routes, the tokens they reported at the maker's API list price, nothing billed; the Textbook table's subscription runs asked 16 per request and are marked batched, not comparable. The questions are not published. A reply without a readable letter counts wrong. The setups were not asked alike: the subscription models (Claude, GPT, Gemini, MAI) got 16 questions per request through their own tools or bridges; the decision and small models got one question per request. The TÜBİTAK 2026 questions and their answer key have been public since May 2026, so a model trained on later data may have seen them; we cannot tell whether any model did.",
  "sets": {
   "exact": {
    "title": "Exact answers",
@@ -31,7 +31,17 @@
      "date": "2026-11-19",
      "questions": 50,
      "right": 50,
-     "no_letter": 0
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 1.28,
+      "problems_per_request": 16,
+      "in_flight": 1,
+      "input_tokens_per_problem": 456,
+      "output_tokens_per_problem": 155,
+      "cost_per_1000_usd": 6.0335,
+      "cost_basis": "https://platform.claude.com/docs/en/about-claude/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)",
+      "note": "batched, not comparable with one-per-request runs"
+     }
     },
     "tubitak": {
      "run": 5,
@@ -53,12 +63,21 @@
      "flawed_on_intact": 0
     },
     "exact": {
-     "run": "exact/opus.json",
-     "date": "2026-11-20",
+     "run": "exact/opus-1pq.json",
+     "date": "2026-11-21",
      "questions": 50,
      "right": 50,
      "no_letter": 0,
-     "per_request": 10
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 10.2,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "input_tokens_per_problem": 1487,
+      "output_tokens_per_problem": 800,
+      "cost_per_1000_usd": 23.656,
+      "cost_basis": "https://platform.claude.com/docs/en/about-claude/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
     }
    }
   },
@@ -74,7 +93,17 @@
      "date": "2026-11-19",
      "questions": 50,
      "right": 50,
-     "no_letter": 0
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 1.4,
+      "problems_per_request": 16,
+      "in_flight": 1,
+      "input_tokens_per_problem": 639,
+      "output_tokens_per_problem": 57,
+      "cost_per_1000_usd": 7.3912,
+      "cost_basis": "https://developers.openai.com/api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)",
+      "note": "batched, not comparable with one-per-request runs"
+     }
     },
     "tubitak": {
      "run": 7,
@@ -96,12 +125,21 @@
      "flawed_on_intact": 0
     },
     "exact": {
-     "run": "exact/astra.json",
-     "date": "2026-11-20",
+     "run": "exact/astra-1pq.json",
+     "date": "2026-11-21",
      "questions": 50,
      "right": 49,
      "no_letter": 1,
-     "per_request": 10
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 8.15,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "input_tokens_per_problem": 7412,
+      "output_tokens_per_problem": 89,
+      "cost_per_1000_usd": 38.7446,
+      "cost_basis": "https://developers.openai.com/api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
     }
    }
   },
@@ -140,7 +178,17 @@
      "date": "2026-11-19",
      "questions": 50,
      "right": 47,
-     "no_letter": 0
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 3.07,
+      "problems_per_request": 16,
+      "in_flight": 1,
+      "input_tokens_per_problem": 210,
+      "output_tokens_per_problem": 281,
+      "cost_per_1000_usd": 0.0809,
+      "cost_basis": "https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)",
+      "note": "batched, not comparable with one-per-request runs"
+     }
     },
     "tubitak": {
      "run": 6,
@@ -162,12 +210,21 @@
      "flawed_on_intact": 1
     },
     "exact": {
-     "run": "exact/mai.json",
-     "date": "2026-11-20",
+     "run": "exact/mai-1pq.json",
+     "date": "2026-11-21",
      "questions": 50,
-     "right": 46,
+     "right": 44,
      "no_letter": 0,
-     "per_request": 10
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 7.7,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "input_tokens_per_problem": 329,
+      "output_tokens_per_problem": 691,
+      "cost_per_1000_usd": 0.1892,
+      "cost_basis": "https://docs.github.com/en/copilot/reference/copilot-billing/models-and-pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
     }
    }
   },
@@ -229,7 +286,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 49,
-     "no_letter": 1
+     "no_letter": 1,
+     "timing": {
+      "median_s_per_problem": 401.47,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 1943,
+      "cost_per_1000_usd": 26.8782,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); card shared with other benches' runs"
+     }
     },
     "broken": {
      "run": 20,
@@ -256,7 +321,15 @@
      "questions": 50,
      "right": 49,
      "no_letter": 1,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 223.5,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 1599,
+      "cost_per_1000_usd": 22.1147,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); card shared with other benches' runs"
+     }
     }
    },
    "maker_like": "Inkling 2 Small"
@@ -273,7 +346,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 40,
-     "no_letter": 0
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 15.63,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 165,
+      "cost_per_1000_usd": 2.2825,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); card shared with other benches' runs"
+     }
     },
     "broken": {
      "run": 19,
@@ -300,7 +381,15 @@
      "questions": 50,
      "right": 27,
      "no_letter": 17,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 111.75,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 538,
+      "cost_per_1000_usd": 7.4423,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); card shared with other benches' runs"
+     }
     }
    }
   },
@@ -316,7 +405,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 38,
-     "no_letter": 0
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 15.63,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 92,
+      "cost_per_1000_usd": 1.2727,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); card shared with other benches' runs"
+     }
     },
     "tubitak": {
      "run": 23,
@@ -343,7 +440,15 @@
      "questions": 50,
      "right": 0,
      "no_letter": 45,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 237.1,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 626,
+      "cost_per_1000_usd": 8.6554,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); card shared with other benches' runs"
+     }
     }
    }
   },
@@ -359,7 +464,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 37,
-     "no_letter": 0
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 103.71,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 236,
+      "cost_per_1000_usd": 3.2647,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 27,
@@ -386,7 +499,15 @@
      "questions": 50,
      "right": 19,
      "no_letter": 11,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 59.25,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 336,
+      "cost_per_1000_usd": 4.648,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
@@ -402,7 +523,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 13,
-     "no_letter": 7
+     "no_letter": 7,
+     "timing": {
+      "median_s_per_problem": 58.18,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 171,
+      "cost_per_1000_usd": 2.3655,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 30,
@@ -429,7 +558,15 @@
      "questions": 50,
      "right": 0,
      "no_letter": 1,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 0.2,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 126,
+      "cost_per_1000_usd": 1.743,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
@@ -445,7 +582,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 19,
-     "no_letter": 26
+     "no_letter": 26,
+     "timing": {
+      "median_s_per_problem": 50.52,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 262,
+      "cost_per_1000_usd": 3.6243,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 33,
@@ -472,7 +617,15 @@
      "questions": 50,
      "right": 34,
      "no_letter": 0,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 52.65,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 323,
+      "cost_per_1000_usd": 4.4682,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
@@ -488,7 +641,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 5,
-     "no_letter": 40
+     "no_letter": 40,
+     "timing": {
+      "median_s_per_problem": 356.91,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 606,
+      "cost_per_1000_usd": 8.383,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 36,
@@ -515,7 +676,15 @@
      "questions": 50,
      "right": 0,
      "no_letter": 6,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 0.1,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 1,
+      "cost_per_1000_usd": 0.0138,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
@@ -531,7 +700,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 24,
-     "no_letter": 3
+     "no_letter": 3,
+     "timing": {
+      "median_s_per_problem": 18.25,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 53,
+      "cost_per_1000_usd": 0.7332,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 39,
@@ -558,7 +735,15 @@
      "questions": 50,
      "right": 0,
      "no_letter": 1,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 0.1,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 1,
+      "cost_per_1000_usd": 0.0138,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
@@ -574,7 +759,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 40,
-     "no_letter": 0
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 21.17,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 57,
+      "cost_per_1000_usd": 0.7885,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 48,
@@ -601,7 +794,15 @@
      "questions": 50,
      "right": 0,
      "no_letter": 2,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 0.2,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 67,
+      "cost_per_1000_usd": 0.9268,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
@@ -617,7 +818,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 37,
-     "no_letter": 2
+     "no_letter": 2,
+     "timing": {
+      "median_s_per_problem": 30.31,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 69,
+      "cost_per_1000_usd": 0.9545,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 42,
@@ -644,7 +853,15 @@
      "questions": 50,
      "right": 23,
      "no_letter": 0,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 8.95,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 45,
+      "cost_per_1000_usd": 0.6225,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
@@ -660,7 +877,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 35,
-     "no_letter": 2
+     "no_letter": 2,
+     "timing": {
+      "median_s_per_problem": 32.04,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 239,
+      "cost_per_1000_usd": 3.3062,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 45,
@@ -687,7 +912,15 @@
      "questions": 50,
      "right": 21,
      "no_letter": 0,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 8.95,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 48,
+      "cost_per_1000_usd": 0.664,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
@@ -703,7 +936,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 46,
-     "no_letter": 1
+     "no_letter": 1,
+     "timing": {
+      "median_s_per_problem": 47.15,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 104,
+      "cost_per_1000_usd": 1.4387,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 51,
@@ -730,7 +971,15 @@
      "questions": 50,
      "right": 36,
      "no_letter": 0,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 14.05,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 65,
+      "cost_per_1000_usd": 0.8992,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
@@ -746,7 +995,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 46,
-     "no_letter": 0
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 28.93,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 127,
+      "cost_per_1000_usd": 1.7568,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 54,
@@ -773,7 +1030,15 @@
      "questions": 50,
      "right": 39,
      "no_letter": 0,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 13.25,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 65,
+      "cost_per_1000_usd": 0.8992,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
@@ -789,7 +1054,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 50,
-     "no_letter": 0
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 88.52,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 286,
+      "cost_per_1000_usd": 3.9563,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 57,
@@ -816,7 +1089,15 @@
      "questions": 50,
      "right": 45,
      "no_letter": 2,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 67.25,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 401,
+      "cost_per_1000_usd": 5.5472,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
@@ -832,7 +1113,15 @@
      "date": "2026-11-21",
      "questions": 50,
      "right": 46,
-     "no_letter": 0
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 26.29,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 86,
+      "cost_per_1000_usd": 1.1897,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     },
     "tubitak": {
      "run": 60,
@@ -859,7 +1148,15 @@
      "questions": 50,
      "right": 0,
      "no_letter": 1,
-     "per_request": 1
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 0.3,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 1,
+      "cost_per_1000_usd": 0.0138,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   }
