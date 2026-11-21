@@ -1147,6 +1147,97 @@
    }
   },
   {
+   "model": "gemma-4-31B-it",
+   "name": "Gemma 4 31B",
+   "tag": "chat",
+   "kind": "chat",
+   "route": "vLLM v0.30.0 FP8 on our GPU (logic's load, alone on one RTX PRO 6000), the settings of logic's published Logic & Math row (temperature 0, max_tokens 8192, no thinking); one question per request, answer line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 81,
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 19.15,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 49,
+      "cost_per_1000_usd": 0.6778,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "tubitak": {
+     "run": 82,
+     "date": "2026-11-21",
+     "questions": 32,
+     "right": 23,
+     "no_letter": 3
+    },
+    "broken": {
+     "run": 83,
+     "date": "2026-11-21",
+     "questions": 92,
+     "right": 87,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 49,
+     "broken": 42,
+     "broken_caught": 38,
+     "flawed_on_intact": 0
+    }
+   }
+  },
+  {
+   "model": "gemma-4-31B-it",
+   "name": "Gemma 4 31B",
+   "tag": "chat · card alone, 16 in flight",
+   "kind": "chat",
+   "route": "vLLM v0.30.0 FP8 on our GPU (logic's load, alone on one RTX PRO 6000), the settings of logic's published Logic & Math row (temperature 0, max_tokens 8192, no thinking); one question per request, answer line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 79,
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 18.79,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 71,
+      "cost_per_1000_usd": 0.9822,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "gemma-4-31B-it",
+   "name": "Gemma 4 31B",
+   "tag": "chat · card alone, 1 in flight",
+   "kind": "chat",
+   "route": "vLLM v0.30.0 FP8 on our GPU (logic's load, alone on one RTX PRO 6000), the settings of logic's published Logic & Math row (temperature 0, max_tokens 8192, no thinking); one question per request, answer line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 80,
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 15.45,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 783,
+      "cost_per_1000_usd": 10.8315,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
    "model": "granite-4.2-3b",
    "name": "Granite 4.2 3B",
    "tag": "thinking on · chat",
