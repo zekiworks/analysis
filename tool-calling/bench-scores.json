@@ -1221,6 +1221,39 @@
       "score_0_100": 39.285714285714285,
       "setup_label": "off",
       "tag": "chat"
+    },
+    {
+      "base_model": null,
+      "calibration_error": null,
+      "class_label": "Open \u00b7 26.4B MoE \u00b7 3.4B active",
+      "commit": "ed40e7da625f594fc9c4990f5f66be24873c22d7",
+      "display_name": "Inkling 2 Mini",
+      "gpu_cost_usd": 0.2864191666666667,
+      "gpu_hours": 0.11502777777777778,
+      "improvement_points": null,
+      "kind": "chat",
+      "maker": "Thinking Machines",
+      "model_key": "toolbench-e970c867af83dfa7",
+      "name": "Inkling 2 Mini",
+      "notes": "original/renamed paired, no chance correction; provider local vLLM (inkling-2-mini image, recipe) served by @logic on bariton, one RTX PRO 6000; Thinking on at the template's default reasoning_effort 0.9; the model has no off mode. Temperature 0, seeds 0/1/2. Served with the maker's vLLM recipe (inkling-2-mini image, inkling tool and reasoning parsers), the only engine that runs the published NVFP4/MXFP8 weights; a Transformers load exists only through an unmerged pull request that converts them to BF16, and agreed on the first token for 30 of 30 prompts and on all 128 tokens for 5 of 30. Own load on one GPU. 3.4B active of 26.4B total; three passes through its looped layers make 5.4B effective active per token (card). Card's generation_config sampling (temperature 1.0), seed 0 only: 83.3% standard vs 84.5% at temperature 0 seed 0. 2 replies were still reasoning at the 32,768-token output cap and count as failures.",
+      "params_active": 3.4,
+      "params_total": 26.4,
+      "quantization": null,
+      "raw": {
+        "attempts": 252,
+        "metric": "task_pass_rate",
+        "repetitions": 3,
+        "tasks_per_track": 42,
+        "tracks": 2,
+        "value": 0.8650793650793651
+      },
+      "repo": "thinkingmachines/Inkling-2-Mini",
+      "runs": [
+        "report:e970c867af83dfa78e459946ea7edc893f01470e422e59f71c0aa8c722124d52"
+      ],
+      "score_0_100": 86.5079365079365,
+      "setup_label": "on",
+      "tag": "chat"
     }
   ],
   "score": {
@@ -1228,6 +1261,6 @@
     "zero": "No tasks passed"
   },
   "title": "Can a small model use tools?",
-  "updated": "2026-11-21T02:55:50Z",
+  "updated": "2026-11-21T10:52:00Z",
   "url": "https://zekiworks.github.io/analysis/tool-calling/"
 }
