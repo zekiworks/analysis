@@ -239,13 +239,46 @@ def serving(site: Site) -> str:
     </section>"""
 
 
+def consistency(site: Site) -> str:
+    """The Reading consistency section (Ümit #12211, #13241): per local decision model, the share of the 547 English
+    questions whose pick changes in each of five forms (asked again, options reordered twice, letters reversed,
+    'I don't know' reworded), with the mean change in the original pick's probability under it, from
+    consistency-reading.json at the repository root (aggregates only). Steadiest first. Empty without the file."""
+    path = ROOT / "consistency-reading.json"
+    if not path.exists():
+        return ""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    forms = list(data["forms"])
+    heads = "".join(f'<th scope="col" class="num">{esc(data["forms"][form])}</th>' for form in forms)
+    rows = "".join(
+        f'<tr><th scope="row" class="model" style="min-width:11em">{esc(model["name"])}</th>'
+        # a form that did not reach the model as defined shows what reached it instead (Zeki #13805)
+        + "".join(f'<td class="num"><span class="small">{esc(model["applicability"][form])} '
+                  f'({pct(model["forms"][form]["flip_rate"])} observed)</span></td>'
+                  if form in (model.get("applicability") or {}) else
+                  f'<td class="num">{pct(model["forms"][form]["flip_rate"])}<span class="small">\u0394 conf '
+                  f'{model["forms"][form]["mean_confidence_change"]:.3f}</span></td>' for form in forms)
+        + "</tr>" for model in data["models"])
+    return f"""
+    <section class="card" id="consistency">
+      <h2>Consistency: does the pick hold when the question is asked another way?</h2>
+      <div class="table-wrap"><table class="lb-table rc-table" aria-label="Reading consistency"><thead><tr>
+        <th scope="col">Model</th>{heads}</tr></thead><tbody>{rows}</tbody></table></div>
+      <ul class="note">{"".join(f'<li><strong>{esc(m["name"])}</strong>: {esc(m["note"])}</li>' for m in data["models"] if m.get("note"))}
+        {"".join(f'<li>Not included. {esc(text)}</li>' for text in data.get("not_included", []))}</ul>
+      <p class="note">{esc(data["about"])} Each cell: the share of the {data["questions"]:,} questions whose pick changed;
+        under it, the mean change in the original pick's probability. Data:
+        <a href="{rel(PATH, "consistency-reading.json")}">consistency-reading.json</a>.</p>
+    </section>"""
+
+
 def build(site: Site) -> dict[str, str]:
     items = "".join(
         f'<li class="panel exp-card"><h2><a href="{rel(PATH, path)}">{esc(title)}</a></h2><p>{esc(what)}</p>'
         f'<p class="exp-status">{esc(status)}</p></li>' for path, title, what, status in cards(site))
     checks = repeat_checks(site)
     title = "" if checks else "\n      <h1>Experiments</h1>"
-    body = f"""{checks}{serving(site)}
+    body = f"""{checks}{serving(site)}{consistency(site)}
     <section class="card" id="tests">{title}
       <h2>Tests beside the ranking</h2>
       <ul class="exp-cards">{items}</ul>

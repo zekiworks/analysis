@@ -1,0 +1,974 @@
+{
+ "about": "Consistency on English reading (Ümit #12211): each local decision model answers the 547 kept English questions again in five forms, one request at a time on the same server as its Tool choice row. Flip rate: the share of questions whose chosen option (by its text) differs from the model's own first English run; the 'I don't know' form against its first English 'I don't know' run. Mean confidence change: the mean absolute change in the probability of the original pick. Not part of any score.",
+ "forms": {
+  "control": "Same question again",
+  "order1": "Options reordered (1)",
+  "order2": "Options reordered (2)",
+  "reversed": "Letters reversed",
+  "dontknow": "'I don't know' reworded"
+ },
+ "questions": 547,
+ "not_included": [
+  "Drex 2.0: its Reading rows are the hosted API; the local setup the other passes used has no Reading baseline."
+ ],
+ "applicability": "set only where a form did not reach the model as defined; such a cell shows what reached it, and its figures are observations, not comparable with other models' cells",
+ "models": [
+  {
+   "model": "PelaAI/KnowLine-31B-Gen1.5-rtx",
+   "name": "KnowLine 31B Gen1.5",
+   "original_run": 1398,
+   "original_dont_know_run": 1402,
+   "forms": {
+    "control": {
+     "run": 1590,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0001572905378869675
+    },
+    "order1": {
+     "run": 1591,
+     "questions": 547,
+     "flips": 14,
+     "flip_rate": 0.025594149908592323,
+     "mean_confidence_change": 0.031123812716320306
+    },
+    "order2": {
+     "run": 1592,
+     "questions": 547,
+     "flips": 9,
+     "flip_rate": 0.016453382084095063,
+     "mean_confidence_change": 0.03152421814209861
+    },
+    "reversed": {
+     "run": 1593,
+     "questions": 547,
+     "flips": 11,
+     "flip_rate": 0.02010968921389397,
+     "mean_confidence_change": 0.033364103155826455
+    },
+    "dontknow": {
+     "run": 1594,
+     "questions": 547,
+     "flips": 7,
+     "flip_rate": 0.012797074954296161,
+     "mean_confidence_change": 0.011206036802913825
+    }
+   }
+  },
+  {
+   "model": "PelaAI/KnowLine-31B-Gen2",
+   "name": "KnowLine-31B-Gen2",
+   "original_run": 1327,
+   "original_dont_know_run": 1329,
+   "forms": {
+    "control": {
+     "run": 1497,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.00025763830259850894
+    },
+    "order1": {
+     "run": 1498,
+     "questions": 547,
+     "flips": 15,
+     "flip_rate": 0.027422303473491772,
+     "mean_confidence_change": 0.031839161237621774
+    },
+    "order2": {
+     "run": 1499,
+     "questions": 547,
+     "flips": 13,
+     "flip_rate": 0.02376599634369287,
+     "mean_confidence_change": 0.03365083716011873
+    },
+    "reversed": {
+     "run": 1500,
+     "questions": 547,
+     "flips": 12,
+     "flip_rate": 0.021937842778793418,
+     "mean_confidence_change": 0.05681332292506561
+    },
+    "dontknow": {
+     "run": 1501,
+     "questions": 547,
+     "flips": 3,
+     "flip_rate": 0.005484460694698354,
+     "mean_confidence_change": 0.012826590082266037
+    }
+   }
+  },
+  {
+   "model": "glide-27b-rtx",
+   "name": "GLiDE 27B (open)",
+   "original_run": 1391,
+   "original_dont_know_run": 1394,
+   "forms": {
+    "control": {
+     "run": 1479,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1480,
+     "questions": 547,
+     "flips": 12,
+     "flip_rate": 0.021937842778793418,
+     "mean_confidence_change": 0.02279941095452699
+    },
+    "order2": {
+     "run": 1481,
+     "questions": 547,
+     "flips": 15,
+     "flip_rate": 0.027422303473491772,
+     "mean_confidence_change": 0.023416510562465076
+    },
+    "reversed": {
+     "run": 1482,
+     "questions": 547,
+     "flips": 9,
+     "flip_rate": 0.016453382084095063,
+     "mean_confidence_change": 0.01691791999611683
+    },
+    "dontknow": {
+     "run": 1483,
+     "questions": 547,
+     "flips": 9,
+     "flip_rate": 0.016453382084095063,
+     "mean_confidence_change": 0.015614513717625128
+    }
+   }
+  },
+  {
+   "model": "glide-9b",
+   "name": "GLiDE 9B (open)",
+   "original_run": 909,
+   "original_dont_know_run": 911,
+   "forms": {
+    "control": {
+     "run": 1545,
+     "questions": 547,
+     "flips": 1,
+     "flip_rate": 0.0018281535648994515,
+     "mean_confidence_change": 0.0022323031872569345
+    },
+    "order1": {
+     "run": 1546,
+     "questions": 547,
+     "flips": 16,
+     "flip_rate": 0.029250457038391225,
+     "mean_confidence_change": 0.02456556738757237
+    },
+    "order2": {
+     "run": 1547,
+     "questions": 547,
+     "flips": 15,
+     "flip_rate": 0.027422303473491772,
+     "mean_confidence_change": 0.024836614340902084
+    },
+    "reversed": {
+     "run": 1548,
+     "questions": 547,
+     "flips": 11,
+     "flip_rate": 0.02010968921389397,
+     "mean_confidence_change": 0.016873501313651815
+    },
+    "dontknow": {
+     "run": 1549,
+     "questions": 547,
+     "flips": 4,
+     "flip_rate": 0.007312614259597806,
+     "mean_confidence_change": 0.013106924806331563
+    }
+   },
+   "note": "Its Reading baseline runs were on a DGX Spark; these forms ran on an RTX PRO 6000 (its Tool choice setup), so its flips may include that setup difference."
+  },
+  {
+   "model": "karpo-decision",
+   "name": "karpo-decision-31B",
+   "original_run": 1159,
+   "original_dont_know_run": 1161,
+   "forms": {
+    "control": {
+     "run": 1469,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 1.3207541814233482e-06
+    },
+    "order1": {
+     "run": 1470,
+     "questions": 547,
+     "flips": 13,
+     "flip_rate": 0.02376599634369287,
+     "mean_confidence_change": 0.02798884717455323
+    },
+    "order2": {
+     "run": 1471,
+     "questions": 547,
+     "flips": 14,
+     "flip_rate": 0.025594149908592323,
+     "mean_confidence_change": 0.02877738110922755
+    },
+    "reversed": {
+     "run": 1472,
+     "questions": 547,
+     "flips": 10,
+     "flip_rate": 0.018281535648994516,
+     "mean_confidence_change": 0.019762509420604264
+    },
+    "dontknow": {
+     "run": 1473,
+     "questions": 547,
+     "flips": 10,
+     "flip_rate": 0.018281535648994516,
+     "mean_confidence_change": 0.016903496378992494
+    }
+   }
+  },
+  {
+   "model": "pplx-decider-v1.3",
+   "name": "Perplexity Decider 27B v1.3",
+   "original_run": 1137,
+   "original_dont_know_run": 1139,
+   "forms": {
+    "control": {
+     "run": 1484,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1485,
+     "questions": 547,
+     "flips": 16,
+     "flip_rate": 0.029250457038391225,
+     "mean_confidence_change": 0.02655694283592272
+    },
+    "order2": {
+     "run": 1486,
+     "questions": 547,
+     "flips": 15,
+     "flip_rate": 0.027422303473491772,
+     "mean_confidence_change": 0.0291892587099178
+    },
+    "reversed": {
+     "run": 1487,
+     "questions": 547,
+     "flips": 13,
+     "flip_rate": 0.02376599634369287,
+     "mean_confidence_change": 0.028352375820748177
+    },
+    "dontknow": {
+     "run": 1488,
+     "questions": 547,
+     "flips": 10,
+     "flip_rate": 0.018281535648994516,
+     "mean_confidence_change": 0.01728114205129039
+    }
+   }
+  },
+  {
+   "model": "glide-v1.2",
+   "name": "Fastino GLiDE v1.2",
+   "original_run": 521,
+   "original_dont_know_run": 523,
+   "forms": {
+    "control": {
+     "run": 1474,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1475,
+     "questions": 547,
+     "flips": 16,
+     "flip_rate": 0.029250457038391225,
+     "mean_confidence_change": 0.025952011396209628
+    },
+    "order2": {
+     "run": 1476,
+     "questions": 547,
+     "flips": 17,
+     "flip_rate": 0.031078610603290677,
+     "mean_confidence_change": 0.027289663341426754
+    },
+    "reversed": {
+     "run": 1477,
+     "questions": 547,
+     "flips": 12,
+     "flip_rate": 0.021937842778793418,
+     "mean_confidence_change": 0.0165051019070733
+    },
+    "dontknow": {
+     "run": 1478,
+     "questions": 547,
+     "flips": 12,
+     "flip_rate": 0.021937842778793418,
+     "mean_confidence_change": 0.024162204176379907
+    }
+   }
+  },
+  {
+   "model": "baselabs/mammoth-1",
+   "name": "Mammoth-1",
+   "original_run": 503,
+   "original_dont_know_run": 505,
+   "forms": {
+    "control": {
+     "run": 1489,
+     "questions": 547,
+     "flips": 1,
+     "flip_rate": 0.0018281535648994515,
+     "mean_confidence_change": 0.0019465904936014622
+    },
+    "order1": {
+     "run": 1490,
+     "questions": 547,
+     "flips": 19,
+     "flip_rate": 0.03473491773308958,
+     "mean_confidence_change": 0.03071547349177331
+    },
+    "order2": {
+     "run": 1491,
+     "questions": 547,
+     "flips": 15,
+     "flip_rate": 0.027422303473491772,
+     "mean_confidence_change": 0.03082016819012797
+    },
+    "reversed": {
+     "run": 1492,
+     "questions": 547,
+     "flips": 9,
+     "flip_rate": 0.016453382084095063,
+     "mean_confidence_change": 0.018716833638025593
+    },
+    "dontknow": {
+     "run": 1493,
+     "questions": 547,
+     "flips": 17,
+     "flip_rate": 0.031078610603290677,
+     "mean_confidence_change": 0.022014124314442413
+    }
+   }
+  },
+  {
+   "model": "vllm-sr/d3-ultra",
+   "name": "vLLM-SR d3-ultra",
+   "original_run": 550,
+   "original_dont_know_run": 795,
+   "forms": {
+    "control": {
+     "run": 1560,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1561,
+     "questions": 547,
+     "flips": 19,
+     "flip_rate": 0.03473491773308958,
+     "mean_confidence_change": 0.02949799834526515
+    },
+    "order2": {
+     "run": 1562,
+     "questions": 547,
+     "flips": 19,
+     "flip_rate": 0.03473491773308958,
+     "mean_confidence_change": 0.028365762727382598
+    },
+    "reversed": {
+     "run": 1563,
+     "questions": 547,
+     "flips": 17,
+     "flip_rate": 0.031078610603290677,
+     "mean_confidence_change": 0.048771439081530796
+    },
+    "dontknow": {
+     "run": 1564,
+     "questions": 547,
+     "flips": 14,
+     "flip_rate": 0.025594149908592323,
+     "mean_confidence_change": 0.022851040552131656
+    }
+   }
+  },
+  {
+   "model": "baselabs/elephant-1",
+   "name": "Elephant-1",
+   "original_run": 499,
+   "original_dont_know_run": 501,
+   "forms": {
+    "control": {
+     "run": 1535,
+     "questions": 547,
+     "flips": 1,
+     "flip_rate": 0.0018281535648994515,
+     "mean_confidence_change": 0.0025011279707495416
+    },
+    "order1": {
+     "run": 1536,
+     "questions": 547,
+     "flips": 15,
+     "flip_rate": 0.027422303473491772,
+     "mean_confidence_change": 0.030684396709323585
+    },
+    "order2": {
+     "run": 1537,
+     "questions": 547,
+     "flips": 20,
+     "flip_rate": 0.03656307129798903,
+     "mean_confidence_change": 0.034398122486288846
+    },
+    "reversed": {
+     "run": 1538,
+     "questions": 547,
+     "flips": 25,
+     "flip_rate": 0.04570383912248629,
+     "mean_confidence_change": 0.08166784095063985
+    },
+    "dontknow": {
+     "run": 1539,
+     "questions": 547,
+     "flips": 15,
+     "flip_rate": 0.027422303473491772,
+     "mean_confidence_change": 0.019524608775137113
+    }
+   }
+  },
+  {
+   "model": "drex-max-v1",
+   "name": "Drex Max v1",
+   "original_run": 552,
+   "original_dont_know_run": 798,
+   "forms": {
+    "control": {
+     "run": 1585,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1586,
+     "questions": 547,
+     "flips": 26,
+     "flip_rate": 0.04753199268738574,
+     "mean_confidence_change": 0.036929471214667615
+    },
+    "order2": {
+     "run": 1587,
+     "questions": 547,
+     "flips": 27,
+     "flip_rate": 0.04936014625228519,
+     "mean_confidence_change": 0.03897623639420078
+    },
+    "reversed": {
+     "run": 1588,
+     "questions": 547,
+     "flips": 19,
+     "flip_rate": 0.03473491773308958,
+     "mean_confidence_change": 0.03215635239164196
+    },
+    "dontknow": {
+     "run": 1589,
+     "questions": 547,
+     "flips": 9,
+     "flip_rate": 0.016453382084095063,
+     "mean_confidence_change": 0.013984499333985524
+    }
+   }
+  },
+  {
+   "model": "vllm-sr/d3",
+   "name": "vLLM-SR d3",
+   "original_run": 554,
+   "original_dont_know_run": 793,
+   "forms": {
+    "control": {
+     "run": 1550,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1551,
+     "questions": 547,
+     "flips": 16,
+     "flip_rate": 0.029250457038391225,
+     "mean_confidence_change": 0.026794144029415153
+    },
+    "order2": {
+     "run": 1552,
+     "questions": 547,
+     "flips": 14,
+     "flip_rate": 0.025594149908592323,
+     "mean_confidence_change": 0.025047163880976164
+    },
+    "reversed": {
+     "run": 1553,
+     "questions": 547,
+     "flips": 43,
+     "flip_rate": 0.07861060329067641,
+     "mean_confidence_change": 0.16268723273156313
+    },
+    "dontknow": {
+     "run": 1554,
+     "questions": 547,
+     "flips": 8,
+     "flip_rate": 0.014625228519195612,
+     "mean_confidence_change": 0.010304473854680266
+    }
+   }
+  },
+  {
+   "model": "pplx-decider-flash-v1.3",
+   "name": "Perplexity Decider Flash v1.3",
+   "original_run": 1126,
+   "original_dont_know_run": 1128,
+   "forms": {
+    "control": {
+     "run": 1565,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1566,
+     "questions": 547,
+     "flips": 26,
+     "flip_rate": 0.04753199268738574,
+     "mean_confidence_change": 0.03598226957942916
+    },
+    "order2": {
+     "run": 1567,
+     "questions": 547,
+     "flips": 24,
+     "flip_rate": 0.043875685557586835,
+     "mean_confidence_change": 0.03818789569736822
+    },
+    "reversed": {
+     "run": 1568,
+     "questions": 547,
+     "flips": 25,
+     "flip_rate": 0.04570383912248629,
+     "mean_confidence_change": 0.05698352386957482
+    },
+    "dontknow": {
+     "run": 1569,
+     "questions": 547,
+     "flips": 22,
+     "flip_rate": 0.04021937842778794,
+     "mean_confidence_change": 0.020687720811435478
+    }
+   }
+  },
+  {
+   "model": "clef-flash",
+   "name": "Clef-flash",
+   "original_run": 614,
+   "original_dont_know_run": 660,
+   "forms": {
+    "control": {
+     "run": 1570,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1571,
+     "questions": 547,
+     "flips": 36,
+     "flip_rate": 0.06581352833638025,
+     "mean_confidence_change": 0.05905959780621572
+    },
+    "order2": {
+     "run": 1572,
+     "questions": 547,
+     "flips": 37,
+     "flip_rate": 0.06764168190127971,
+     "mean_confidence_change": 0.05689433272394881
+    },
+    "reversed": {
+     "run": 1573,
+     "questions": 547,
+     "flips": 23,
+     "flip_rate": 0.04204753199268738,
+     "mean_confidence_change": 0.05009762340036563
+    },
+    "dontknow": {
+     "run": 1574,
+     "questions": 547,
+     "flips": 7,
+     "flip_rate": 0.012797074954296161,
+     "mean_confidence_change": 0.022991407678244973
+    }
+   },
+   "applicability": {
+    "reversed": "order reversed instead: the server sorts options by key, so this form reached the model as the options in reversed order under letters A–E, not as reversed letters"
+   },
+   "note": "Its server sorts options by key; the shuffled forms reach it as sent (relabelled A–E in their new order)."
+  },
+  {
+   "model": "OmniJev/OneJev-27B",
+   "name": "OneJev 27B",
+   "original_run": 778,
+   "original_dont_know_run": 780,
+   "forms": {
+    "control": {
+     "run": 1580,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1581,
+     "questions": 547,
+     "flips": 28,
+     "flip_rate": 0.051188299817184646,
+     "mean_confidence_change": 0.04088457769652651
+    },
+    "order2": {
+     "run": 1582,
+     "questions": 547,
+     "flips": 26,
+     "flip_rate": 0.04753199268738574,
+     "mean_confidence_change": 0.041624756855575866
+    },
+    "reversed": {
+     "run": 1583,
+     "questions": 547,
+     "flips": 45,
+     "flip_rate": 0.08226691042047532,
+     "mean_confidence_change": 0.1082060676416819
+    },
+    "dontknow": {
+     "run": 1584,
+     "questions": 547,
+     "flips": 8,
+     "flip_rate": 0.014625228519195612,
+     "mean_confidence_change": 0.010828107861060329
+    }
+   }
+  },
+  {
+   "model": "open-jev-27b-v1.1",
+   "name": "Open-Jev 27B v1.1",
+   "original_run": 760,
+   "original_dont_know_run": 763,
+   "forms": {
+    "control": {
+     "run": 1595,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1596,
+     "questions": 547,
+     "flips": 30,
+     "flip_rate": 0.054844606946983544,
+     "mean_confidence_change": 0.016148035142976913
+    },
+    "order2": {
+     "run": 1597,
+     "questions": 547,
+     "flips": 30,
+     "flip_rate": 0.054844606946983544,
+     "mean_confidence_change": 0.01705533794050951
+    },
+    "reversed": {
+     "run": 1598,
+     "questions": 547,
+     "flips": 26,
+     "flip_rate": 0.04753199268738574,
+     "mean_confidence_change": 0.011486249542507994
+    },
+    "dontknow": {
+     "run": 1599,
+     "questions": 547,
+     "flips": 25,
+     "flip_rate": 0.04570383912248629,
+     "mean_confidence_change": 0.01051043416222131
+    }
+   }
+  },
+  {
+   "model": "clef",
+   "name": "Clef",
+   "original_run": 613,
+   "original_dont_know_run": 785,
+   "forms": {
+    "control": {
+     "run": 1555,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1556,
+     "questions": 547,
+     "flips": 37,
+     "flip_rate": 0.06764168190127971,
+     "mean_confidence_change": 0.06371499085923217
+    },
+    "order2": {
+     "run": 1557,
+     "questions": 547,
+     "flips": 37,
+     "flip_rate": 0.06764168190127971,
+     "mean_confidence_change": 0.06604095063985375
+    },
+    "reversed": {
+     "run": 1558,
+     "questions": 547,
+     "flips": 35,
+     "flip_rate": 0.06398537477148081,
+     "mean_confidence_change": 0.05888702010968922
+    },
+    "dontknow": {
+     "run": 1559,
+     "questions": 547,
+     "flips": 5,
+     "flip_rate": 0.009140767824497258,
+     "mean_confidence_change": 0.015123400365630715
+    }
+   },
+   "applicability": {
+    "reversed": "order reversed instead: the server sorts options by key, so this form reached the model as the options in reversed order under letters A–E, not as reversed letters"
+   },
+   "note": "Its server sorts options by key; the shuffled forms reach it as sent (relabelled A–E in their new order)."
+  },
+  {
+   "model": "glide-2b",
+   "name": "GLiDE 2B (open)",
+   "original_run": 917,
+   "original_dont_know_run": 919,
+   "forms": {
+    "control": {
+     "run": 1452,
+     "questions": 547,
+     "flips": 1,
+     "flip_rate": 0.0018281535648994515,
+     "mean_confidence_change": 0.004018600579833714
+    },
+    "order1": {
+     "run": 1446,
+     "questions": 547,
+     "flips": 47,
+     "flip_rate": 0.08592321755027423,
+     "mean_confidence_change": 0.05195647232114184
+    },
+    "order2": {
+     "run": 1447,
+     "questions": 547,
+     "flips": 39,
+     "flip_rate": 0.0712979890310786,
+     "mean_confidence_change": 0.05372933397569865
+    },
+    "reversed": {
+     "run": 1449,
+     "questions": 547,
+     "flips": 23,
+     "flip_rate": 0.04204753199268738,
+     "mean_confidence_change": 0.029766299102237152
+    },
+    "dontknow": {
+     "run": 1450,
+     "questions": 547,
+     "flips": 20,
+     "flip_rate": 0.03656307129798903,
+     "mean_confidence_change": 0.020191905159201665
+    }
+   },
+   "note": "Its Reading baseline runs were on a DGX Spark; these forms ran on an RTX PRO 6000 (its Tool choice setup), so its flips may include that setup difference."
+  },
+  {
+   "model": "winnow-12b",
+   "name": "Winnow-12B",
+   "original_run": 746,
+   "original_dont_know_run": 748,
+   "forms": {
+    "control": {
+     "run": 1575,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1576,
+     "questions": 547,
+     "flips": 45,
+     "flip_rate": 0.08226691042047532,
+     "mean_confidence_change": 0.07249744940094296
+    },
+    "order2": {
+     "run": 1577,
+     "questions": 547,
+     "flips": 47,
+     "flip_rate": 0.08592321755027423,
+     "mean_confidence_change": 0.07424902803513049
+    },
+    "reversed": {
+     "run": 1578,
+     "questions": 547,
+     "flips": 40,
+     "flip_rate": 0.07312614259597806,
+     "mean_confidence_change": 0.06933344299156825
+    },
+    "dontknow": {
+     "run": 1579,
+     "questions": 547,
+     "flips": 23,
+     "flip_rate": 0.04204753199268738,
+     "mean_confidence_change": 0.033768141536096974
+    }
+   }
+  },
+  {
+   "model": "cygnet",
+   "name": "Cygnet",
+   "original_run": 753,
+   "original_dont_know_run": 755,
+   "forms": {
+    "control": {
+     "run": 1530,
+     "questions": 547,
+     "flips": 3,
+     "flip_rate": 0.005484460694698354,
+     "mean_confidence_change": 0.004842776753167523
+    },
+    "order1": {
+     "run": 1531,
+     "questions": 547,
+     "flips": 53,
+     "flip_rate": 0.09689213893967093,
+     "mean_confidence_change": 0.0785606248330473
+    },
+    "order2": {
+     "run": 1532,
+     "questions": 547,
+     "flips": 41,
+     "flip_rate": 0.07495429616087751,
+     "mean_confidence_change": 0.06880110070098266
+    },
+    "reversed": {
+     "run": 1533,
+     "questions": 547,
+     "flips": 61,
+     "flip_rate": 0.11151736745886655,
+     "mean_confidence_change": 0.17310322380698687
+    },
+    "dontknow": {
+     "run": 1534,
+     "questions": 547,
+     "flips": 16,
+     "flip_rate": 0.029250457038391225,
+     "mean_confidence_change": 0.02569183263887158
+    }
+   }
+  },
+  {
+   "model": "metask-jev-4b-policy-mix",
+   "name": "Metask-Jev 4B",
+   "original_run": 739,
+   "original_dont_know_run": 741,
+   "forms": {
+    "control": {
+     "run": 1459,
+     "questions": 547,
+     "flips": 0,
+     "flip_rate": 0.0,
+     "mean_confidence_change": 0.0
+    },
+    "order1": {
+     "run": 1460,
+     "questions": 547,
+     "flips": 75,
+     "flip_rate": 0.13711151736745886,
+     "mean_confidence_change": 0.08931227571840042
+    },
+    "order2": {
+     "run": 1461,
+     "questions": 547,
+     "flips": 70,
+     "flip_rate": 0.12797074954296161,
+     "mean_confidence_change": 0.08843316084669539
+    },
+    "reversed": {
+     "run": 1462,
+     "questions": 547,
+     "flips": 120,
+     "flip_rate": 0.21937842778793418,
+     "mean_confidence_change": 0.1941443741784671
+    },
+    "dontknow": {
+     "run": 1463,
+     "questions": 547,
+     "flips": 22,
+     "flip_rate": 0.04021937842778794,
+     "mean_confidence_change": 0.02032171996136688
+    }
+   }
+  },
+  {
+   "model": "strands-decider-2b",
+   "name": "Strands Decider 2B",
+   "original_run": 702,
+   "original_dont_know_run": 704,
+   "forms": {
+    "control": {
+     "run": 1453,
+     "questions": 547,
+     "flips": 7,
+     "flip_rate": 0.012797074954296161,
+     "mean_confidence_change": 0.0026745886654478985
+    },
+    "order1": {
+     "run": 1454,
+     "questions": 547,
+     "flips": 122,
+     "flip_rate": 0.2230347349177331,
+     "mean_confidence_change": 0.06550932358318098
+    },
+    "order2": {
+     "run": 1455,
+     "questions": 547,
+     "flips": 113,
+     "flip_rate": 0.20658135283363802,
+     "mean_confidence_change": 0.06224515539305301
+    },
+    "reversed": {
+     "run": 1456,
+     "questions": 547,
+     "flips": 76,
+     "flip_rate": 0.13893967093235832,
+     "mean_confidence_change": 0.041903290676416814
+    },
+    "dontknow": {
+     "run": 1457,
+     "questions": 547,
+     "flips": 41,
+     "flip_rate": 0.07495429616087751,
+     "mean_confidence_change": 0.02541261425959781
+    }
+   },
+   "note": "Its control (the same questions asked again) changed 7 of 547 picks; observed, cause not isolated."
+  }
+ ]
+}
