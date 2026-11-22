@@ -11,7 +11,7 @@
   // reached from and open Methodology; any other hash selects Our Toolbench. Each history entry remembers its view
   // (history.state.tbView), so Back and Forward restore it; a fresh page opened at a Methodology hash shows Our Toolbench.
   // The shown view's header tab carries aria-current. Without JavaScript every view stays on the page.
-  const views={ours:[...document.querySelectorAll('#ours-what, .tb-notice, #tb-results, #blocked, #confidence')],
+  const views={ours:[...document.querySelectorAll('#ours-what, .tb-notice, #tb-results, #blocked, #repeatability, #confidence')],
                choice:[document.getElementById('tool-choice')].filter(Boolean),
                tasks:[document.getElementById('tasks')].filter(Boolean)};
   const tabs=[...document.querySelectorAll('header a')];
