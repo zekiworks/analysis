@@ -1238,6 +1238,145 @@
    }
   },
   {
+   "model": "qwen38-27b-bf16",
+   "name": "Qwen3.8-27B",
+   "tag": "low · chat",
+   "kind": "chat",
+   "route": "vLLM v0.30.0 BF16 on our GPU (logic's load, alone on one RTX PRO 6000), the settings of logic's published Logic & Math row (thinking on, reasoning effort low, temperature 1.0, top_p 0.95, top_k 20, seed 0); its row's response_format not sent, so it answers with the line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 86,
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 49.32,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 114,
+      "cost_per_1000_usd": 1.577,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "tubitak": {
+     "run": 87,
+     "date": "2026-11-21",
+     "questions": 32,
+     "right": 32,
+     "no_letter": 0
+    },
+    "broken": {
+     "run": 88,
+     "date": "2026-11-21",
+     "questions": 92,
+     "right": 88,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 50,
+     "broken": 42,
+     "broken_caught": 38,
+     "flawed_on_intact": 0
+    },
+    "exact": {
+     "run": "exact/qwen3.8-27b-bf16-qwen3-8-27b-bf16-en-low.json",
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 52.9,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 394,
+      "cost_per_1000_usd": 5.4517,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "qwen38-27b-bf16",
+   "name": "Qwen3.8-27B",
+   "tag": "low · chat · card alone, 16 in flight",
+   "kind": "chat",
+   "route": "vLLM v0.30.0 BF16 on our GPU (logic's load, alone on one RTX PRO 6000), the settings of logic's published Logic & Math row (thinking on, reasoning effort low, temperature 1.0, top_p 0.95, top_k 20, seed 0); its row's response_format not sent, so it answers with the line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 84,
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 49,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 23.83,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 184,
+      "cost_per_1000_usd": 2.5453,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "exact": {
+     "run": "exact/qwen3.8-27b-bf16-qwen3-8-27b-bf16-en-low-c16.json",
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 57.35,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 448,
+      "cost_per_1000_usd": 6.2015,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "qwen38-27b-bf16",
+   "name": "Qwen3.8-27B",
+   "tag": "low · chat · card alone, 1 in flight",
+   "kind": "chat",
+   "route": "vLLM v0.30.0 BF16 on our GPU (logic's load, alone on one RTX PRO 6000), the settings of logic's published Logic & Math row (thinking on, reasoning effort low, temperature 1.0, top_p 0.95, top_k 20, seed 0); its row's response_format not sent, so it answers with the line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 85,
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 49,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 19.62,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 1155,
+      "cost_per_1000_usd": 15.9775,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "exact": {
+     "run": "exact/qwen3.8-27b-bf16-qwen3-8-27b-bf16-en-low-c1.json",
+     "date": "2026-11-21",
+     "questions": 50,
+     "right": 49,
+     "no_letter": 0,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 42.85,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 3046,
+      "cost_per_1000_usd": 42.1363,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
    "model": "granite-4.2-3b",
    "name": "Granite 4.2 3B",
    "tag": "thinking on · chat",
