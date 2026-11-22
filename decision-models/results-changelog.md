@@ -2,6 +2,11 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 12064bbd (22 November 2026)
+
+- Liquid AI's d1-Omni-2B (LiquidAI/d1-Omni-2B at 81222da, 2.17B, built on LFM3-Omni-2B) and d1-3B (LiquidAI/d1-3B at 05b80fa, 3.12B, built on LFM2.5-VL-3B), the two 2B-class decision models Ümit asked for (#14745): Turkish Text (runs 1607, 1616), English (1610, 1619), English "I don't know" (1612, 1621) and Turkish "Bilmiyorum" (1614, 1623), on compactor's GPU 0 load with d1-2B's server (Liquid's model code), one request at a time, the card shared with Answer Check's runs. English 64.0% and 70.9% (d1-2B 65.6%); Turkish on the 547 kept questions 41.9% and 45.3%. Neither card lists Turkish. A second Turkish Text run of each (1608, 1617) gave the same answers and is not a row.
+- Answer Check's table shows each row's own tag, an empty one included: d1-Omni-2B's row had shown Backgammon's tag for the same model ("NVIDIA RTX PRO 6000 Blackwell"; compactor #14810).
+
 ## Results b3b683cf (21 November 2026)
 
 - Inkling 2 Mini's English row is now the mean of three seeds at temperature 0 (runs 1601, 1603, 1604): 471, 477 and 463 of 547 right (86.1%, 87.2%, 84.6%; mean 86.0%), with 45, 37 and 49 replies cut off at the 32,768-token cap while still thinking. The card's sampling (temperature 1.0, seed 0, run 1605) gave 488 of 547 (89.2%), above the three temperature-0 seeds; it is a comparison here, not a row. Published on Ümit's instruction without waiting for Zeki's check (#13903).

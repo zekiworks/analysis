@@ -4,7 +4,7 @@
    "bench": "reading-text",
    "title": "Reading · Turkish",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-21T12:51:01Z",
+   "updated": "2026-11-22T17:02:17Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 2,198 Turkish reading and grammar questions right (accuracy 100%)"
@@ -2757,6 +2757,31 @@
      "notes": "our GPU (logic's server, vLLM nightly 0.34.0rc1.dev302 (commit be47189f; no released vLLM serves LFM3) BF16, revision LiquidAI/LFM3-1.7B@0dc4268), one question per request, plain answer line CEVAP: X (no answer schema); sampling min_p 0.0, repetition_penalty 1.1, seed 0, temperature 0.1, top_k 50, top_p 1.0, thinking on; output cap 32,768"
     },
     {
+     "repo": "LiquidAI/d1-3B",
+     "commit": "05b80fa",
+     "name": "d1-3B",
+     "tag": "",
+     "model_key": "d1-3b",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": 3.12,
+     "params_active": 3.12,
+     "quantization": "BF16",
+     "score_0_100": 13.557779799818015,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.30846223839854414,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.08382134691172213,
+     "improvement_points": null,
+     "runs": [
+      "text:1616"
+     ],
+     "notes": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16"
+    },
+    {
      "repo": "LiquidAI/d1-2B",
      "commit": "10e7671",
      "name": "d1-2B",
@@ -2830,6 +2855,31 @@
       "text:1029"
      ],
      "notes": "Flide server (flide 0.1.11, the card's server for OneJev 1.6), self-hosted, BF16"
+    },
+    {
+     "repo": "LiquidAI/d1-Omni-2B",
+     "commit": "81222da",
+     "name": "d1-Omni-2B",
+     "tag": "",
+     "model_key": "d1-omni-2b",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": 2.17,
+     "params_active": 2.17,
+     "quantization": "BF16",
+     "score_0_100": 10.884895359417653,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.28707916287534124,
+      "questions": 2198,
+      "options": 5
+     },
+     "calibration_error": 0.06166513474091155,
+     "improvement_points": null,
+     "runs": [
+      "text:1607"
+     ],
+     "notes": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16"
     },
     {
      "repo": "startlux-models/StartLux-Decision-v1.1-0.8B-Instant",
@@ -3187,7 +3237,7 @@
    "bench": "turkish-reading",
    "title": "Turkish Reading",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-21T12:51:01Z",
+   "updated": "2026-11-22T17:02:17Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 656 Turkish reading questions (units 1 to 6) right (accuracy 100%)"
@@ -5940,6 +5990,31 @@
      "notes": "our GPU (logic's server, vLLM nightly 0.34.0rc1.dev302 (commit be47189f; no released vLLM serves LFM3) BF16, revision LiquidAI/LFM3-1.7B@0dc4268), one question per request, plain answer line CEVAP: X (no answer schema); sampling min_p 0.0, repetition_penalty 1.1, seed 0, temperature 0.1, top_k 50, top_p 1.0, thinking on; output cap 32,768"
     },
     {
+     "repo": "LiquidAI/d1-3B",
+     "commit": "05b80fa",
+     "name": "d1-3B",
+     "tag": "",
+     "model_key": "d1-3b",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": 3.12,
+     "params_active": 3.12,
+     "quantization": "BF16",
+     "score_0_100": 28.353658536585364,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.4268292682926829,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.06588287104914022,
+     "improvement_points": null,
+     "runs": [
+      "text:1616"
+     ],
+     "notes": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16"
+    },
+    {
      "repo": "fastino/GLiDE-0.8B",
      "commit": "9eacdee",
      "name": "GLiDE 0.8B",
@@ -6013,6 +6088,31 @@
       "text:1029"
      ],
      "notes": "Flide server (flide 0.1.11, the card's server for OneJev 1.6), self-hosted, BF16"
+    },
+    {
+     "repo": "LiquidAI/d1-Omni-2B",
+     "commit": "81222da",
+     "name": "d1-Omni-2B",
+     "tag": "",
+     "model_key": "d1-omni-2b",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": 2.17,
+     "params_active": 2.17,
+     "quantization": "BF16",
+     "score_0_100": 24.161585365853657,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.3932926829268293,
+      "questions": 656,
+      "options": 5
+     },
+     "calibration_error": 0.0662211194550771,
+     "improvement_points": null,
+     "runs": [
+      "text:1607"
+     ],
+     "notes": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16"
     },
     {
      "repo": "PelaAI/KnowLine-0.8B-Gen1",
@@ -6370,7 +6470,7 @@
    "bench": "turkish-grammar",
    "title": "Turkish Grammar",
    "url": "https://zekiworks.github.io/analysis/decision-models/",
-   "updated": "2026-11-21T12:51:01Z",
+   "updated": "2026-11-22T17:02:17Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 1,542 Turkish grammar questions (units 7 to 20) right (accuracy 100%)"
@@ -9123,6 +9223,31 @@
      "notes": "StartLux-Decision server (startlux-decide on vLLM 0.31.0, the maker's release code), self-hosted, BF16"
     },
     {
+     "repo": "LiquidAI/d1-3B",
+     "commit": "05b80fa",
+     "name": "d1-3B",
+     "tag": "",
+     "model_key": "d1-3b",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": 3.12,
+     "params_active": 3.12,
+     "quantization": "BF16",
+     "score_0_100": 7.2632944228274985,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.25810635538262,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.09145276076765857,
+     "improvement_points": null,
+     "runs": [
+      "text:1616"
+     ],
+     "notes": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16"
+    },
+    {
      "repo": "startlux-models/StartLux-Decision-v1.1-0.8B-Instant",
      "commit": "6496ae641cc71b149ce9dad69bd97f2a44e7bf11",
      "name": "StartLux-Decision-v1.1-0.8B-Instant",
@@ -9219,6 +9344,31 @@
      "improvement_points": null,
      "runs": [
       "text:340"
+     ],
+     "notes": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16"
+    },
+    {
+     "repo": "LiquidAI/d1-Omni-2B",
+     "commit": "81222da",
+     "name": "d1-Omni-2B",
+     "tag": "",
+     "model_key": "d1-omni-2b",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": 2.17,
+     "params_active": 2.17,
+     "quantization": "BF16",
+     "score_0_100": 5.236705577172502,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.24189364461738003,
+      "questions": 1542,
+      "options": 5
+     },
+     "calibration_error": 0.05972692075096842,
+     "improvement_points": null,
+     "runs": [
+      "text:1607"
      ],
      "notes": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16"
     },
@@ -9553,7 +9703,7 @@
    "bench": "reading-english",
    "title": "Reading · English",
    "url": "https://zekiworks.github.io/analysis/decision-models/english/",
-   "updated": "2026-11-21T12:51:01Z",
+   "updated": "2026-11-22T17:02:17Z",
    "score": {
     "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
     "hundred": "every one of the 547 kept reading questions, translated into English, right (accuracy 100%)"
@@ -12583,6 +12733,31 @@
      "notes": "our GPU (logic's server, vLLM nightly 0.34.0rc1.dev302 (commit be47189f; no released vLLM serves LFM3) BF16, revision LiquidAI/LFM3-1.7B@0dc4268), one question per request, plain answer line CEVAP: X (no answer schema); sampling min_p 0.0, repetition_penalty 1.1, seed 0, temperature 0.1, top_k 50, top_p 1.0, thinking on; output cap 32,768; the kept reading questions in English; the mean of 3 seed runs"
     },
     {
+     "repo": "LiquidAI/d1-3B",
+     "commit": "05b80fa",
+     "name": "d1-3B",
+     "tag": "",
+     "model_key": "d1-3b",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": 3.12,
+     "params_active": 3.12,
+     "quantization": "BF16",
+     "score_0_100": 63.66544789762341,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.7093235831809872,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.054362471822958176,
+     "improvement_points": null,
+     "runs": [
+      "english:1619"
+     ],
+     "notes": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16; the kept reading questions in English"
+    },
+    {
      "repo": "LiquidAI/LFM2.5-8B-A1B",
      "commit": "dd83f5c",
      "name": "LFM2.5-8B-A1B",
@@ -12784,6 +12959,31 @@
       "english:1520"
      ],
      "notes": "llama.cpp's llama-server (b12020, LiquidAI/d1-2B-GGUF at 4a18109, BF16), self-hosted, text only; the kept reading questions in English"
+    },
+    {
+     "repo": "LiquidAI/d1-Omni-2B",
+     "commit": "81222da",
+     "name": "d1-Omni-2B",
+     "tag": "",
+     "model_key": "d1-omni-2b",
+     "maker": "Liquid AI",
+     "kind": "decision",
+     "params_total": 2.17,
+     "params_active": 2.17,
+     "quantization": "BF16",
+     "score_0_100": 54.981718464351005,
+     "raw": {
+      "metric": "accuracy",
+      "value": 0.6398537477148081,
+      "questions": 547,
+      "options": 5
+     },
+     "calibration_error": 0.05065370054633044,
+     "improvement_points": null,
+     "runs": [
+      "english:1610"
+     ],
+     "notes": "d1 server (Liquid's model code in Transformers, the model card's call), self-hosted, BF16; the kept reading questions in English"
     },
     {
      "repo": "fastino/GLiDE-0.8B",
@@ -13245,7 +13445,7 @@
    "bench": "reading-vision",
    "title": "Reading · Vision",
    "url": "https://zekiworks.github.io/analysis/decision-models/vision/",
-   "updated": "2026-11-21T12:31:48Z",
+   "updated": "2026-11-22T16:45:25Z",
    "score": {
     "zero": "chance: 1 of each question's options right on every question (accuracy 20% with 5 options)",
     "hundred": "every one of the 763 questions that depend on the printed page right, read from the page image alone (accuracy 100%)"

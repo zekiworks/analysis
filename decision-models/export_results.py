@@ -582,6 +582,23 @@ MODELS: dict[str, dict[str, Any]] = {
         "for it; Turkish is not among them.",
         "hardware": f"1 × {GPU}; BF16",
     },
+    # Both on compactor's GPU 0 load with d1-2B's d1_server.py (logic's servers.sh cases), 22 November (Ümit #14745).
+    "LiquidAI/d1-Omni-2B": {
+        "name": "d1-Omni-2B",
+        "note": "Liquid AI's released d1-Omni-2B weights (LiquidAI/d1-Omni-2B at 81222da), a decision model for text, "
+        "pictures and audio built on LFM3-Omni-2B. It ran on our hardware through its model card's own call (Liquid's model "
+        "code in Transformers) behind our HTTP server (servers/d1_server.py, as d1-2B), one request at a time; the card "
+        "also served Answer Check's runs. Liquid lists 16 languages for it; Turkish is not among them.",
+        "hardware": f"1 × {GPU}; BF16",
+    },
+    "LiquidAI/d1-3B": {
+        "name": "d1-3B",
+        "note": "Liquid AI's released d1-3B weights (LiquidAI/d1-3B at 05b80fa), a decision model built on LFM2.5-VL-3B "
+        "that also reads images. It ran on our hardware through its model card's own call behind our HTTP server "
+        "(servers/d1_server.py, as d1-2B), one request at a time; the card also served Answer Check's runs. Its card lists "
+        "16 languages; Turkish is not among them.",
+        "hardware": f"1 × {GPU}; BF16",
+    },
     # Each ran on one RTX PRO 6000 Blackwell (96 GB).
     "baselabs/elephant-1": {
         "name": "Elephant-1",
@@ -1227,6 +1244,14 @@ SIZES: dict[str, dict[str, Any]] = {
                     "sources": ["counted from the checkpoint's safetensors, nace-ai/drex-max-v1@cac65e1",
                                 "https://huggingface.co/nace-ai/drex-max-v1"], "read": READ},
     # The card: 1.92B.
+    "LiquidAI/d1-Omni-2B": {"total": 2_166_928_384, "scope": "the whole released checkpoint (language model, vision and audio encoders)",
+                            "repo": "LiquidAI/d1-Omni-2B", "commit": "81222da",
+                            "sources": ["Hugging Face's safetensors total for LiquidAI/d1-Omni-2B@81222da",
+                                        "https://huggingface.co/LiquidAI/d1-Omni-2B"], "read": "2026-11-22"},
+    "LiquidAI/d1-3B": {"total": 3_123_483_888, "scope": "the whole released checkpoint (language model, vision encoder, projector)",
+                       "repo": "LiquidAI/d1-3B", "commit": "05b80fa",
+                       "sources": ["Hugging Face's safetensors total for LiquidAI/d1-3B@05b80fa",
+                                   "https://huggingface.co/LiquidAI/d1-3B"], "read": "2026-11-22"},
     "LiquidAI/d1-2B": {"total": 1_918_181_888, "scope": "language model (tied embeddings) + 0.16B vision encoder + projector",
                        "repo": "LiquidAI/d1-2B", "commit": "10e7671",
                        "sources": ["counted from the checkpoint's safetensors, LiquidAI/d1-2B@10e7671",
@@ -2822,6 +2847,9 @@ OPTION_WORD_NOT_RUN: dict[tuple[str, str, str | None], str] = {
         ("knowline", "PelaAI/KnowLine-4B-Gen5.5"), ("startlux", "startlux-models/StartLux-Decision-v1.1-2B-Instant"),
         ("knowline", "PelaAI/KnowLine-0.8B-Gen1"), ("startlux", "startlux-models/StartLux-Decision-v1.1-0.8B-Instant"),
         ("onejev", "OmniJev/OneJev1.6-0.8B"))},
+    **{(provider, model, None): "added to the Hallucination tab on 22 November 2026 (run on our GPU; Ümit #14745), after "
+       "the option-word check; not asked with “I don't know” yet." for provider, model in (
+        ("d1-server", "LiquidAI/d1-Omni-2B"), ("d1-server", "LiquidAI/d1-3B"))},
     ("openrouter", "google/gemini-decision-1", None): "added to the Hallucination tab on 11 November 2026 (Google's "
     "Decisions API through OpenRouter), after the option-word check; not asked with “I don't know” yet.",
     ("gliclass", "knowledgator/gliclass-v4-edge", None): "added to the Hallucination tab on 12 November 2026 (run on our "

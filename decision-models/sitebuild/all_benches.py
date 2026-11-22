@@ -1042,7 +1042,7 @@ def bars(data: Data, view: str) -> str:
             f'<a href="{model_href(model)}" title="{esc(title)}">'
             f'<span class="ab-bar-logo">{icon(model)}</span>'
             f'<span class="ab-bar-name">{esc(model["name"])}{"<span class=\"ab-ref-word\"> (reference)</span>" if ref else ""}'
-            f'{names.tag_html((model["scores"][view].get("tag") or model["tag"]) if view == GRADING else model["tag"])}'
+            f'{names.tag_html(model["scores"][view].get("tag", model["tag"]) if view == GRADING else model["tag"])}'
             f'{training_tag(model)}</span>'
             f'<span class="ab-bar-track"><span class="ab-bar-fill"></span><span class="ab-bar-value">{number(value)}'
             f'<span class="ab-tied"{"" if tied else " hidden"}>tied</span></span></span></a></li>')
@@ -1461,7 +1461,9 @@ class GradingBench(ui.Bench):
             out.append(ui.Row(
                 model=ui.Model(name=model["name"], colour=model["colour"], dot_title=model["maker"] or "",
                                class_label=self.class_text(model), href=self.up + model_href(model),
-                               tag=row.get("tag") or model["tag"], icon=icon(model), flag=flag, glance=glance),
+                               # Answer Check's own tag, an empty one included: another bench's tag for the same model
+                               # (Backgammon's 'NVIDIA RTX PRO 6000 Blackwell' on d1-Omni-2B) is not this row's (compactor #14810).
+                               tag=row["tag"] if "tag" in row else model["tag"], icon=icon(model), flag=flag, glance=glance),
                 # The bar's second line (Latency's p90 and requests at a time) reads under its value, as in the helpers'
                 # columns, so the bar's column stays as narrow as the others (zw-stack).
                 measure=(f'<span class="zw-stack">{ui.bar(self.share(model, key), colour=model["colour"], text=written[0], interval=" · ".join(written[1]))}</span>'
