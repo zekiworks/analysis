@@ -3,7 +3,8 @@ const HildeI18n=(()=>{
  const words=window.hildeTurkish;
  // English display names that differ from the section keys in the data (Ümit #13926: one naming pattern, so
  // 'Toolbench' shows as 'Tool Calling'; links and data keep 'Toolbench')
- const english={'Toolbench':'Tool Calling'};
+ // Ümit #14939: the four Turkish Science tables say so beside their English versions; their track keys stay as they are
+ const english={'Toolbench':'Tool Calling','Exact answers':'Exact answers (Turkish)','Textbook problems':'Textbook problems (Turkish)','TÜBİTAK 2026 maths':'TÜBİTAK 2026 maths (Turkish)','Broken questions':'Broken questions (Turkish)'};
  function rename(text){
   if(!text||!text.trim())return text;
   const base=text.trim();

@@ -1,5 +1,5 @@
 {
- "about": "The science bench (Can #12936, #13126; Ümit #13728, #13822): hard Turkish maths and physics questions, multiple choice, one letter per answer. Textbook problems: 50 problems from Ahmet Karadeniz's Yüksek Matematik and 1968–1972 physics books and exams, every given number changed and the answer recomputed by code, five options of which four are typical mistakes. TÜBİTAK 2026 maths: the 32 questions of the 2026 national science olympiad's first stage (maths, booklet A), with TÜBİTAK's answer key. Broken questions: the 50 textbook problems mixed with 42 copies in which one given number was changed so that none of the five options is right (checked by code), with a sixth option F 'the question is flawed'; right means F on a broken copy and the right option on an intact one. Exact answers: the same 50 textbook problems with no options; the model writes the number, right when within 0.1% of the code's value; a reply that is not a number counts wrong; one problem per request for every setup (the subscription models' first runs asked 10 per request: Opus 50, Astra 49, MAI 46 right). Latency and cost (Ümit #14151): our GPU, median seconds per problem with the requests in flight, and GPU time from start to last answer × $2.49 per GPU-hour per 1,000 problems; subscription routes, the tokens they reported at the maker's API list price, nothing billed; the Textbook table's subscription runs asked 16 per request and are marked batched, not comparable. Rows marked 'in English' asked the same questions, options and keys translated into English (Ümit #14604). The questions are not published. A reply without a readable letter counts wrong. The setups were not asked alike: the subscription models (Claude, GPT, Gemini, MAI) got 16 questions per request through their own tools or bridges; the decision and small models got one question per request. The TÜBİTAK 2026 questions and their answer key have been public since May 2026, so a model trained on later data may have seen them; we cannot tell whether any model did.",
+ "about": "The science bench (Can #12936, #13126; Ümit #13728, #13822): hard Turkish maths and physics questions, multiple choice, one letter per answer. Textbook problems: 50 problems from Ahmet Karadeniz's Yüksek Matematik and 1968–1972 physics books and exams, every given number changed and the answer recomputed by code, five options of which four are typical mistakes. TÜBİTAK 2026 maths: the 32 questions of the 2026 national science olympiad's first stage (maths, booklet A), with TÜBİTAK's answer key. Broken questions: the 50 textbook problems mixed with 42 copies in which one given number was changed so that none of the five options is right (checked by code), with a sixth option F 'the question is flawed'; right means F on a broken copy and the right option on an intact one. Exact answers: the same 50 textbook problems with no options; the model writes the number, right when within 0.1% of the code's value; a reply that is not a number counts wrong; one problem per request for every setup (the subscription models' first runs asked 10 per request: Opus 50, Astra 49, MAI 46 right). Latency and cost (Ümit #14151): our GPU, median seconds per problem with the requests in flight, and GPU time from start to last answer × $2.49 per GPU-hour per 1,000 problems; subscription routes, the tokens they reported at the maker's API list price, nothing billed; the Textbook table's subscription runs asked 16 per request and are marked batched, not comparable. The tables marked (English) ask the same questions, options and keys translated into English by Gemini 4 Neon, every number checked (Ümit #14604, #14939). The questions are not published. A reply without a readable letter counts wrong. The setups were not asked alike: the subscription models (Claude, GPT, Gemini, MAI) got 16 questions per request through their own tools or bridges; the decision and small models got one question per request. The TÜBİTAK 2026 questions and their answer key have been public since May 2026, so a model trained on later data may have seen them; we cannot tell whether any model did.",
  "sets": {
   "exact": {
    "title": "Exact answers",
@@ -15,6 +15,22 @@
   },
   "broken": {
    "title": "Broken questions",
+   "options": 6
+  },
+  "exact_en": {
+   "title": "Exact answers (English)",
+   "options": null
+  },
+  "textbook_en": {
+   "title": "Textbook problems (English)",
+   "options": 5
+  },
+  "tubitak_en": {
+   "title": "TÜBİTAK 2026 maths (English)",
+   "options": 5
+  },
+  "broken_en": {
+   "title": "Broken questions (English)",
    "options": 6
   }
  },
@@ -575,6 +591,40 @@
      "broken_caught": 22,
      "flawed_on_intact": 5
     },
+    "textbook_en": {
+     "run": 134,
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 26,
+     "no_letter": 22
+    },
+    "tubitak_en": {
+     "run": 135,
+     "date": "2026-11-22",
+     "questions": 32,
+     "right": 5,
+     "no_letter": 27
+    },
+    "broken_en": {
+     "run": 136,
+     "date": "2026-11-22",
+     "questions": 92,
+     "right": 37,
+     "no_letter": 37,
+     "intact": 50,
+     "intact_right": 25,
+     "broken": 42,
+     "broken_caught": 12,
+     "flawed_on_intact": 2
+    },
+    "exact_en": {
+     "run": "exact/qwen3.5-2b-osym-qwen3-5-2b-en.json",
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 24,
+     "no_letter": 24,
+     "per_request": 1
+    },
     "exact": {
      "run": "exact/qwen3.5-2b-qwen3-5-2b.json",
      "date": "2026-11-21",
@@ -588,65 +638,6 @@
       "in_flight": 16,
       "gpu_seconds": 336,
       "cost_per_1000_usd": 4.648,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    }
-   }
-  },
-  {
-   "model": "qwen3.5-2b",
-   "name": "Qwen3.5-2B",
-   "tag": "thinking on · chat · in English",
-   "kind": "chat",
-   "route": "vLLM on our GPU (logic's load, RTX PRO 6000), the same questions, options and keys in English (Gemini 4 Neon's translation, every number checked; Ümit #14604), logic's Logic & Math settings for the row; one question per request, answer line 'ANSWER: X'",
-   "sets": {
-    "textbook": {
-     "run": 134,
-     "date": "2026-11-22",
-     "questions": 50,
-     "right": 26,
-     "no_letter": 22,
-     "timing": {
-      "median_s_per_problem": 227.56,
-      "problems_per_request": 1,
-      "in_flight": 32,
-      "gpu_seconds": 497,
-      "cost_per_1000_usd": 6.8752,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "tubitak": {
-     "run": 135,
-     "date": "2026-11-22",
-     "questions": 32,
-     "right": 5,
-     "no_letter": 27
-    },
-    "broken": {
-     "run": 136,
-     "date": "2026-11-22",
-     "questions": 92,
-     "right": 37,
-     "no_letter": 37,
-     "intact": 50,
-     "intact_right": 25,
-     "broken": 42,
-     "broken_caught": 12,
-     "flawed_on_intact": 2
-    },
-    "exact": {
-     "run": "exact/qwen3.5-2b-osym-qwen3-5-2b-en.json",
-     "date": "2026-11-22",
-     "questions": 50,
-     "right": 24,
-     "no_letter": 24,
-     "per_request": 1,
-     "timing": {
-      "median_s_per_problem": 168.25,
-      "problems_per_request": 1,
-      "in_flight": 16,
-      "gpu_seconds": 539,
-      "cost_per_1000_usd": 7.4617,
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
      }
     }
