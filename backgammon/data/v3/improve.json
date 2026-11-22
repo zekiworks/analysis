@@ -833,10 +833,10 @@
    },
    {
     "reason": null,
-    "series_done": 3,
+    "series_done": 4,
     "setup": "MiniCPM5-2B (on)",
     "status": "running",
-    "updated_at": "2026-11-22T17:53:05+00:00"
+    "updated_at": "2026-11-22T22:11:27+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -944,7 +944,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-22T18:10:08+00:00"
+  "updated_at": "2026-11-22T22:11:28+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -7321,20 +7321,20 @@
    },
    {
     "after": {
-     "error_rate": 72.5961444278558,
-     "right_safety": 83.0,
-     "risks_found": 26.666666666666668
+     "error_rate": 72.46057009324431,
+     "right_safety": 82.0,
+     "risks_found": 26.25
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 600,
-     "expected": 600,
+     "answered": 800,
+     "expected": 800,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 300,
-     "safety_pays": 300,
-     "tests": 3,
-     "valid": 600
+     "risk_pays": 400,
+     "safety_pays": 400,
+     "tests": 4,
+     "valid": 800
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -7353,9 +7353,9 @@
      "risks_found": 28.5
     },
     "change": {
-     "error_rate": 2.2861371313532146,
-     "right_safety": 3.0,
-     "risks_found": -1.8333333333333321
+     "error_rate": 2.150562796741724,
+     "right_safety": 2.0,
+     "risks_found": -2.25
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -7400,9 +7400,9 @@
     "key": "minicpm5-2b-on",
     "progress": {
      "reason": null,
-     "series_done": 3,
+     "series_done": 4,
      "status": "running",
-     "updated_at": "2026-11-22T17:53:05+00:00"
+     "updated_at": "2026-11-22T22:11:27+00:00"
     },
     "range": null,
     "reason": null,
@@ -7613,18 +7613,88 @@
        "wall_seconds": 5109.5
       },
       "wins": 2
+     },
+     {
+      "finished": true,
+      "game_decisions": 200,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Avoid unnecessary risk calls to preserve equity.\n- Only take risks when the opportunity is clearly advantageous.\n- Re-entering positions requires careful analysis of board order.\n- Trust the engine's evaluation when it suggests a better move.\n- Keep risk calls informed and avoid premature moves."
+       },
+       {
+        "game": 2,
+        "text": "- Avoid risky plays unless absolutely necessary.\n- When uncertain, prefer safe moves over calculated risks.\n- Trust the engine's analysis for difficult positions.\n- Maintain consistency in your strategy to reduce errors."
+       },
+       {
+        "game": 3,
+        "text": "- Trust the engine's suggested moves when in your favor.\n- Avoid reckless plays when safety calls are available.\n- Double-check risk calls before taking them.\n- When the board looks balanced, be conservative.\n- Review past losses to learn from missed opportunities."
+       },
+       {
+        "game": 4,
+        "text": "- Only take risks when your position is clearly safer than the opponent's.\n- Avoid unnecessary risks even if an opportunity seems attractive.\n- Prioritize safe moves to preserve capital when the board is favorable.\n- Pay attention to the board position and adapt your strategy accordingly.\n- Review your decisions against the engine's evaluation to learn from mistakes."
+       },
+       {
+        "game": 5,
+        "text": "- Always evaluate risky moves even if they seem safe; the engine often finds better wins.\n- Don't miss point races, especially when the engine suggests hitting a checker (e.g., 21).\n- When the engine recommends a different move, consider if it's a trade or a win; trust its path.\n- Review risk calls before each turn; missing risks can cost several points.\n- If the engine's best play differs, analyze why before deviating; small errors can lead to big losses."
+       },
+       {
+        "game": 6,
+        "text": "- Always consider the engine's best play when in a critical position.\n- Avoid unnecessary risk calls unless you see a clear advantage.\n- When taking a risk, make sure it's well-justified by the board position.\n- Focus on safe moves to preserve your points.\n- In high-pressure situations, trust the engine's evaluation over your instinct."
+       },
+       {
+        "game": 7,
+        "text": "- Always take risk calls when the engine suggests one and the position is favorable.\n- Never take a risk when the engine suggests a safe move.\n- When missing a risk opportunity, re-evaluate your game plan after each turn.\n- Prioritize safety moves when your opponent's checkingers are close.\n- Use the engine's evaluation to guide your move choices, especially in difficult positions."
+       },
+       {
+        "game": 8,
+        "text": "- Avoid risk calls unless the engine's play is clearly optimal.\n- When in risk, only take if the move seems safe or best.\n- Don't repeat moves unnecessarily; follow the engine's suggestion.\n- Be careful when opponent's checkers are on the bar.\n- Always consider all possible plays before risking your chance."
+       },
+       {
+        "game": 9,
+        "text": "- Always take risks when the engine suggests it, to avoid losing significant equity.\n- When making eye plays, choose the one that maximizes equity, not just any eye.\n- Don't play when the engine says you can play better – it often leads to larger losses.\n- Be more careful with roll decisions, especially on lower dice sums.\n- In endgame, avoid needless risks to preserve your checkers."
+       },
+       {
+        "game": 10,
+        "text": "- Avoid unnecessary risk calls; sometimes the safest play yields more points later.\n- Be careful taking hits on checkers that aren't actively threatening.\n- Consider your opponent's possible responses before committing to a strategy.\n- Reassess your approach after each point; adjust based on new board positions.\n- Trust the engine's evaluation but don't neglect simple moves that aren't high-value."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 4,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 72.05384708940983,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 79.0,
+       "risk_pays": 100,
+       "risks_found": 25.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 4191.5
+      },
+      "wins": 4
      }
     ],
-    "series_finished": 3,
+    "series_finished": 4,
     "setup": "MiniCPM5-2B (on)",
     "state": "running",
-    "status": "running on our GPU, 3 of 5 series",
+    "status": "running on our GPU, 4 of 5 series",
     "steps_done": [
      "E1",
      "S1",
      "S2",
      "E2",
-     "S3"
+     "S3",
+     "S4"
     ],
     "threshold": null,
     "verdict": false
@@ -9530,11 +9600,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-22T18:10:08+00:00"
+  "updated_at": "2026-11-22T22:11:28+00:00"
  },
- "source_sha256": "fca3916b191e99a0ccbb722b6bfbfda09df0339816ff46ad0d1430568171214a",
+ "source_sha256": "72118bf21e7045f5960ec80961d766873d4c3763d0dea01bb5ec6a9384b00947",
  "status": {
-  "last_update": "2026-11-22T18:10:08+00:00",
+  "last_update": "2026-11-22T22:11:28+00:00",
   "line": "15 of 30 models with a verdict · 1 running · 13 paused · 1 incomplete or stopped",
   "models": 30,
   "paused": 13,
