@@ -836,7 +836,7 @@
     "series_done": 2,
     "setup": "MiniCPM5-2B (on)",
     "status": "running",
-    "updated_at": "2026-11-22T11:04:36+00:00"
+    "updated_at": "2026-11-22T12:10:56+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -906,14 +906,14 @@
     "series_done": 0,
     "setup": "SmolLM3-3B (off)",
     "status": "paused",
-    "updated_at": "2026-11-21T15:36:17+00:00"
+    "updated_at": "2026-11-08T16:10:46+00:00"
    },
    {
     "reason": "waiting for its turn",
     "series_done": 0,
     "setup": "SmolLM3-3B (on)",
     "status": "paused",
-    "updated_at": "2026-11-21T15:36:17+00:00"
+    "updated_at": "2026-11-08T16:10:46+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -944,7 +944,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-22T11:04:37+00:00"
+  "updated_at": "2026-11-22T12:10:56+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -7338,24 +7338,24 @@
     },
     "answers_before": {
      "answer_rate": 100.0,
-     "answered": 200,
-     "expected": 200,
+     "answered": 400,
+     "expected": 400,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 100,
-     "safety_pays": 100,
-     "tests": 1,
-     "valid": 200
+     "risk_pays": 200,
+     "safety_pays": 200,
+     "tests": 2,
+     "valid": 400
     },
     "before": {
-     "error_rate": 76.11045725643635,
-     "right_safety": 79.0,
-     "risks_found": 25.0
+     "error_rate": 70.31000729650259,
+     "right_safety": 80.0,
+     "risks_found": 28.5
     },
     "change": {
-     "error_rate": -3.3934754505753517,
-     "right_safety": 3.5,
-     "risks_found": 3.0
+     "error_rate": 2.406974509358406,
+     "right_safety": 2.5,
+     "risks_found": -0.5
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -7378,16 +7378,31 @@
       "safety_pays": 100,
       "valid": 200,
       "wall_seconds": 3667.2
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 64.50955733656883,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 81.0,
+      "risk_pays": 100,
+      "risks_found": 32.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 3979.4
      }
     ],
-    "empty_done": 1,
+    "empty_done": 2,
     "improved": null,
     "key": "minicpm5-2b-on",
     "progress": {
      "reason": null,
      "series_done": 2,
      "status": "running",
-     "updated_at": "2026-11-22T11:04:36+00:00"
+     "updated_at": "2026-11-22T12:10:56+00:00"
     },
     "range": null,
     "reason": null,
@@ -7538,7 +7553,8 @@
     "steps_done": [
      "E1",
      "S1",
-     "S2"
+     "S2",
+     "E2"
     ],
     "threshold": null,
     "verdict": false
@@ -8822,15 +8838,15 @@
      "reason": "waiting for its turn",
      "series_done": 0,
      "status": "paused",
-     "updated_at": "2026-11-21T15:36:17+00:00"
+     "updated_at": "2026-11-08T16:10:46+00:00"
     },
     "range": null,
-    "reason": "operator hold: skipped in the learning experiment (Ümit #13784, again #14134)",
+    "reason": "waiting for its turn in its lane",
     "series": [],
     "series_finished": 0,
     "setup": "SmolLM3-3B (off)",
     "state": "paused",
-    "status": "paused: operator hold: skipped in the learning experiment",
+    "status": "paused: waiting for its turn in its lane",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -8867,15 +8883,15 @@
      "reason": "waiting for its turn",
      "series_done": 0,
      "status": "paused",
-     "updated_at": "2026-11-21T15:36:17+00:00"
+     "updated_at": "2026-11-08T16:10:46+00:00"
     },
     "range": null,
-    "reason": "operator hold: skipped in the learning experiment (Ümit #13784, again #14134)",
+    "reason": "waiting for its turn in its lane",
     "series": [],
     "series_finished": 0,
     "setup": "SmolLM3-3B (on)",
     "state": "paused",
-    "status": "paused: operator hold: skipped in the learning experiment",
+    "status": "paused: waiting for its turn in its lane",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -9444,11 +9460,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-22T11:04:37+00:00"
+  "updated_at": "2026-11-22T12:10:56+00:00"
  },
- "source_sha256": "4ae5f66626963714fba8ac2761810d9c270669c91d2810423cc3e6133fda5690",
+ "source_sha256": "10a1d4db52b3447682779792fd3575a34ecd8076f93ba6871ae0aecfaf401bf4",
  "status": {
-  "last_update": "2026-11-22T11:04:37+00:00",
+  "last_update": "2026-11-22T12:10:56+00:00",
   "line": "15 of 30 models with a verdict · 1 running · 13 paused · 1 incomplete or stopped",
   "models": 30,
   "paused": 13,
