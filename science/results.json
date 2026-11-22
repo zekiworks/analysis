@@ -748,18 +748,18 @@
      "per_request": 1
     },
     "exact": {
-     "run": "exact/qwen3.5-2b-qwen3-5-2b.json",
-     "date": "2026-11-21",
+     "run": "exact/qwen3.5-2b-osym-qwen3-5-2b-c16.json",
+     "date": "2026-11-22",
      "questions": 50,
-     "right": 19,
-     "no_letter": 11,
+     "right": 35,
+     "no_letter": 1,
      "per_request": 1,
      "timing": {
-      "median_s_per_problem": 59.25,
+      "median_s_per_problem": 67.4,
       "problems_per_request": 1,
       "in_flight": 16,
-      "gpu_seconds": 336,
-      "cost_per_1000_usd": 4.648,
+      "gpu_seconds": 302,
+      "cost_per_1000_usd": 4.1804,
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
      }
     }
@@ -805,6 +805,56 @@
      "broken": 42,
      "broken_caught": 22,
      "flawed_on_intact": 24
+    },
+    "textbook_en": {
+     "run": 157,
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 34,
+     "no_letter": 0
+    },
+    "tubitak_en": {
+     "run": 158,
+     "date": "2026-11-22",
+     "questions": 32,
+     "right": 10,
+     "no_letter": 0
+    },
+    "broken_en": {
+     "run": 159,
+     "date": "2026-11-22",
+     "questions": 92,
+     "right": 59,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 29,
+     "broken": 42,
+     "broken_caught": 30,
+     "flawed_on_intact": 10
+    },
+    "exact_en": {
+     "run": "exact/qwen3.5-2b-osym-qwen3-5-2b-nothink-en.json",
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 20,
+     "no_letter": 5,
+     "per_request": 1
+    },
+    "exact": {
+     "run": "exact/qwen3.5-2b-osym-qwen3-5-2b-nothink-c16.json",
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 6,
+     "no_letter": 13,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 26.7,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 188,
+      "cost_per_1000_usd": 2.5951,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
     }
    }
   },
