@@ -1377,6 +1377,145 @@
    }
   },
   {
+   "model": "lfm2.5-24b-a2b",
+   "name": "LFM2.5-24B-A2B",
+   "tag": "on · chat",
+   "kind": "chat",
+   "route": "vLLM on our GPU (logic's load, alone on one RTX PRO 6000), the settings of logic's published Logic & Math row (thinking on by default, temperature 0.1, top_k 50, repetition penalty 1.05, seed 0); one question per request, answer line 'ANSWER: X'; exact answers as free text with a 'CEVAP:' line",
+   "sets": {
+    "textbook": {
+     "run": 106,
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 48,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 104.37,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 279,
+      "cost_per_1000_usd": 3.8595,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "tubitak": {
+     "run": 107,
+     "date": "2026-11-22",
+     "questions": 32,
+     "right": 29,
+     "no_letter": 1
+    },
+    "broken": {
+     "run": 108,
+     "date": "2026-11-22",
+     "questions": 92,
+     "right": 79,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 46,
+     "broken": 42,
+     "broken_caught": 33,
+     "flawed_on_intact": 1
+    },
+    "exact": {
+     "run": "exact/lfm2.5-24b-a2b-lfm2-5-24b-a2b.json",
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 40,
+     "no_letter": 7,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 109.65,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 561,
+      "cost_per_1000_usd": 7.7605,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "lfm2.5-24b-a2b",
+   "name": "LFM2.5-24B-A2B",
+   "tag": "on · chat · card alone, 16 in flight",
+   "kind": "chat",
+   "route": "vLLM on our GPU (logic's load, alone on one RTX PRO 6000), the settings of logic's published Logic & Math row (thinking on by default, temperature 0.1, top_k 50, repetition penalty 1.05, seed 0); one question per request, answer line 'ANSWER: X'; exact answers as free text with a 'CEVAP:' line",
+   "sets": {
+    "textbook": {
+     "run": 104,
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 48,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 51.21,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 258,
+      "cost_per_1000_usd": 3.569,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "exact": {
+     "run": "exact/lfm2.5-24b-a2b-lfm2-5-24b-a2b-c16.json",
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 39,
+     "no_letter": 10,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 103.4,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 575,
+      "cost_per_1000_usd": 7.9597,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "lfm2.5-24b-a2b",
+   "name": "LFM2.5-24B-A2B",
+   "tag": "on · chat · card alone, 1 in flight",
+   "kind": "chat",
+   "route": "vLLM on our GPU (logic's load, alone on one RTX PRO 6000), the settings of logic's published Logic & Math row (thinking on by default, temperature 0.1, top_k 50, repetition penalty 1.05, seed 0); one question per request, answer line 'ANSWER: X'; exact answers as free text with a 'CEVAP:' line",
+   "sets": {
+    "textbook": {
+     "run": 105,
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 44,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 13.26,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 943,
+      "cost_per_1000_usd": 13.0448,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "exact": {
+     "run": "exact/lfm2.5-24b-a2b-lfm2-5-24b-a2b-c1.json",
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 36,
+     "no_letter": 10,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 24.65,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 1608,
+      "cost_per_1000_usd": 22.2385,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
    "model": "granite-4.2-3b",
    "name": "Granite 4.2 3B",
    "tag": "thinking on · chat",
