@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-21T23:25:51Z",
+ "generated_at": "2026-11-22T00:42:57Z",
  "tests": {
   "logic": {
    "name": "Logic",
@@ -3918,6 +3918,61 @@
      "mixed_concurrency": false
     },
     {
+     "name": "SmolLM3-3B",
+     "display_name": "SmolLM3-3B",
+     "tag": "on · chat · HuggingFaceTB/SmolLM3-3B@a07cc9a04f16550a088caea529712d1d335b0ac1",
+     "class_label": "Open · 3.1B",
+     "base_model": null,
+     "setup_label": "SmolLM3-3B (chat, thinking on, on our GPU)",
+     "group": "chat",
+     "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
+     "accuracy": 0.312,
+     "wilson_low": null,
+     "wilson_high": null,
+     "right": null,
+     "n": null,
+     "decision_score": null,
+     "chosen_answer_brier": null,
+     "n_scored": null,
+     "decision_score_lacking": null,
+     "auroc": null,
+     "non_hallucination": null,
+     "cost_per_1000": 8.376851851851852,
+     "cost_usd": 9.846566666666666,
+     "cost_unit": "USD",
+     "cost_basis": "estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h",
+     "gpu_hours": 3.9544444444444444,
+     "median_latency_ms": 188366.66666666666,
+     "mean_output_tokens": 16764,
+     "no_answer_line": 710,
+     "answered": 1125,
+     "mixed_concurrency": false,
+     "seed_runs": [
+      {
+       "seed": 0,
+       "run_id": "smollm3-3b_en",
+       "right": 347,
+       "n": 1125
+      },
+      {
+       "seed": 1,
+       "run_id": "smollm3-3b-seed1_en",
+       "right": 340,
+       "n": 1125
+      },
+      {
+       "seed": 2,
+       "run_id": "smollm3-3b-seed2_en",
+       "right": 366,
+       "n": 1125
+      }
+     ],
+     "seeds_complete": "3/3",
+     "accuracy_basis": "mean of 3 seeds",
+     "seed_min": 0.3022222222222222,
+     "seed_max": 0.3253333333333333
+    },
+    {
      "name": "StartLux-Decision-v1.1-2B-Instant",
      "display_name": "StartLux-Decision-v1.1-2B-Instant",
      "tag": "",
@@ -4430,15 +4485,6 @@
      "modelType": "chat",
      "maker": "Anthropic",
      "note": "paused for now at 47 of 1,125 (zeki #4129, 2026-11-10T14:13Z)"
-    },
-    {
-     "display_name": "SmolLM3-3B",
-     "tag": "on · chat · HuggingFaceTB/SmolLM3-3B@a07cc9a04f16550a088caea529712d1d335b0ac1",
-     "answered": 736,
-     "total": 1125,
-     "state": "Running",
-     "modelType": "chat",
-     "maker": "Hugging Face"
     }
    ]
   },

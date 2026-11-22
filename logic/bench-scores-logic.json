@@ -2,7 +2,7 @@
  "bench": "logic",
  "title": "Logic",
  "url": "https://zekiworks.github.io/analysis/logic/logic/",
- "updated": "2026-11-21T23:25:51Z",
+ "updated": "2026-11-22T00:42:57Z",
  "score": {
   "zero": "chance: 1 of 5 options right on every question (accuracy 20%)",
   "hundred": "every one of the 1,125 Logic questions right (accuracy 100%)"
@@ -3303,6 +3303,37 @@
    "notes": "on our NVIDIA DGX Spark (GB10)",
    "gpu_hours": 0.02,
    "gpu_cost_usd": 0.004256356521692845
+  },
+  {
+   "repo": "HuggingFaceTB/SmolLM3-3B",
+   "commit": "a07cc9a04f16550a088caea529712d1d335b0ac1",
+   "model_key": "smollm3-3b",
+   "name": "SmolLM3-3B",
+   "display_name": "SmolLM3-3B",
+   "tag": "on · chat · HuggingFaceTB/SmolLM3-3B@a07cc9a04f16550a088caea529712d1d335b0ac1",
+   "class_label": "Open · 3.1B",
+   "base_model": null,
+   "setup_label": "SmolLM3-3B (chat, thinking on, on our GPU)",
+   "maker": "Hugging Face",
+   "kind": "chat",
+   "params_total": 3.08,
+   "params_active": 3.08,
+   "quantization": "BF16",
+   "score_0_100": 13.999999999999998,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.312,
+    "questions": 1125,
+    "options": 5
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "logic:smollm3-3b_en"
+   ],
+   "notes": "on our NVIDIA RTX PRO 6000 Blackwell (96 GB); no complete 'I don't know' run; accuracy is the mean of 3 seed runs (min 0.3022, max 0.3253): seed 0 smollm3-3b_en 347/1125, seed 1 smollm3-3b-seed1_en 340/1125, seed 2 smollm3-3b-seed2_en 366/1125",
+   "gpu_hours": 3.9544444444444444,
+   "gpu_cost_usd": 9.846566666666666
   },
   {
    "repo": "startlux-models/StartLux-Decision-v1.1-2B-Instant",
