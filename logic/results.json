@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-22T15:59:21Z",
+ "generated_at": "2026-11-22T17:30:58Z",
  "tests": {
   "logic": {
    "name": "Logic",
@@ -6825,23 +6825,23 @@
      "setup_label": "SmolLM3-3B (chat, thinking off, on our GPU)",
      "group": "chat",
      "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
-     "accuracy": 0.7184466019417476,
-     "wilson_low": 0.6991179675836574,
-     "wilson_high": 0.7370006670225824,
-     "right": 1554,
-     "n": 2163,
+     "accuracy": 0.7156726768377254,
+     "wilson_low": null,
+     "wilson_high": null,
+     "right": null,
+     "n": null,
      "decision_score": null,
      "chosen_answer_brier": null,
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
      "non_hallucination": 0.10610465116279069,
-     "cost_per_1000": 1.661215133302512,
+     "cost_per_1000": 1.594276211023784,
      "cost_usd": 3.5932083333333336,
      "cost_unit": "USD",
      "cost_basis": "estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h",
      "gpu_hours": 1.4430555555555555,
-     "median_latency_ms": 5740.0,
+     "median_latency_ms": 6193.333333333333,
      "mean_output_tokens": 2656,
      "no_answer_line": 430,
      "answered": 2163,
@@ -6858,9 +6858,18 @@
        "run_id": "smollm3-3b-nothink-seed1_en",
        "right": 1541,
        "n": 2163
+      },
+      {
+       "seed": 2,
+       "run_id": "smollm3-3b-nothink-seed2_en",
+       "right": 1549,
+       "n": 2163
       }
      ],
-     "seeds_complete": "2/3"
+     "seeds_complete": "3/3",
+     "accuracy_basis": "mean of 3 seeds",
+     "seed_min": 0.7124364308830329,
+     "seed_max": 0.7184466019417476
     },
     {
      "name": "d3-ultra",
@@ -11875,23 +11884,23 @@
      "setup_label": "SmolLM3-3B (chat, thinking off, on our GPU)",
      "group": "chat",
      "gpu_or_api": "NVIDIA RTX PRO 6000 Blackwell (96 GB)",
-     "accuracy": 0.583029197080292,
-     "wilson_low": 0.5660884358725182,
-     "wilson_high": 0.5997761670901518,
-     "right": 1917,
-     "n": 3288,
+     "accuracy": 0.5814071370640713,
+     "wilson_low": null,
+     "wilson_high": null,
+     "right": null,
+     "n": null,
      "decision_score": null,
      "chosen_answer_brier": null,
      "n_scored": null,
      "decision_score_lacking": null,
      "auroc": null,
      "non_hallucination": 0.16129032258064516,
-     "cost_per_1000": 2.330798864557989,
+     "cost_per_1000": 2.2017775074344423,
      "cost_usd": 7.663666666666668,
      "cost_unit": "USD",
      "cost_basis": "estimate: NVIDIA RTX PRO 6000 Blackwell (96 GB) time while the run was running, first to last answer × $2.49/h",
      "gpu_hours": 3.0777777777777775,
-     "median_latency_ms": 6670.0,
+     "median_latency_ms": 6968.333333333333,
      "mean_output_tokens": 4373,
      "no_answer_line": 837,
      "answered": 3288,
@@ -11908,9 +11917,18 @@
        "run_id": "smollm3-3b-nothink-seed1_en+smollm3-3b-nothink-seed1_en",
        "right": 1902,
        "n": 3288
+      },
+      {
+       "seed": 2,
+       "run_id": "smollm3-3b-nothink-seed2_en+smollm3-3b-nothink-seed2_en",
+       "right": 1916,
+       "n": 3288
       }
      ],
-     "seeds_complete": "2/3"
+     "seeds_complete": "3/3",
+     "accuracy_basis": "mean of 3 seeds",
+     "seed_min": 0.5784671532846716,
+     "seed_max": 0.583029197080292
     },
     {
      "name": "Jev 1.13",
