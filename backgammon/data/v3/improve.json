@@ -832,11 +832,11 @@
     "updated_at": "2026-11-13T09:10:16+00:00"
    },
    {
-    "reason": "waiting for its turn",
-    "series_done": 0,
+    "reason": null,
+    "series_done": 1,
     "setup": "MiniCPM5-2B (on)",
-    "status": "paused",
-    "updated_at": "2026-11-21T15:23:39+00:00"
+    "status": "running",
+    "updated_at": "2026-11-22T06:25:01+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -944,7 +944,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-22T02:00:28+00:00"
+  "updated_at": "2026-11-22T06:25:02+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -7321,11 +7321,21 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 73.64690162241459,
+     "right_safety": 81.0,
+     "risks_found": 26.0
     },
-    "answers_after": null,
+    "answers_after": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "answers_before": {
      "answer_rate": 100.0,
      "answered": 200,
@@ -7343,9 +7353,9 @@
      "risks_found": 25.0
     },
     "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": -2.463555634021759,
+     "right_safety": 2.0,
+     "risks_found": 1.0
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -7374,20 +7384,91 @@
     "improved": null,
     "key": "minicpm5-2b-on",
     "progress": {
-     "reason": "waiting for its turn",
-     "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-21T15:23:39+00:00"
+     "reason": null,
+     "series_done": 1,
+     "status": "running",
+     "updated_at": "2026-11-22T06:25:01+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
-    "series": [],
-    "series_finished": 0,
+    "reason": null,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 205,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Avoid risk calls unless clearly advantageous; otherwise, opt for safer plays.\n- Always prioritize safety moves over premature risks.\n- Be more selective about trading moves; only do so when you can win material.\n- Reconsider bar moves carefully; they can be costly if misestimated.\n- Stay calm and avoid overcommitting to moves that the engine didn't recommend."
+       },
+       {
+        "game": 2,
+        "text": "- Always evaluate your options before risking: missed a risk that could have led to better equity.\n- Avoid needless risks, even on favorable dice: the Turn 6 move cost significant equity.\n- When on bar, consider opponent's positioning carefully; small errors can accumulate.\n- When choosing second moves, trust the engine's recommendation even if first move is sound.\n- Keep a keen eye on equity: small mistakes on multiple turns can determine the outcome."
+       },
+       {
+        "game": 3,
+        "text": "- Always consider risk calls when you can advance checkers safely.\n- When behind, prefer safe moves (bar moves) over risky ones.\n- Don't miss a risk opportunity that looks profitable.\n- After a loss, stay cautious and use safety moves.\n- When unsure, bar your move to preserve your equity."
+       },
+       {
+        "game": 4,
+        "text": "- Always evaluate risk calls carefully; missing them can lead to significant losses.\n- Only take risks when you can defend against the opponent's potential replies.\n- Avoid unnecessary risks that seem safe but might be illusory.\n- Be careful with trades; ensure you have enough points to cover the cost.\n- On the opening, consider your opponent's possible responses; don't rush into risky moves."
+       },
+       {
+        "game": 5,
+        "text": "- Always trust the risk call when it seems clear.\n- Avoid taking risks that don't improve your position.\n- Stay alert to your equity after opponent's moves.\n- Focus on safer plays when you're behind in points.\n- Keep your mind open to adjusting your strategy."
+       },
+       {
+        "game": 6,
+        "text": "- Be cautious with risk calls: only take risks when you're confident, and avoid unnecessary risk-taking.\n- Follow the engine's best moves when the point loss is small, but don't over-adapt to one opponent's patterns.\n- Play conservatively when you have an opportunity to score points, as early losses can amplify later deficits.\n- When unsure, prioritize safety moves over aggressive plays to maintain your position.\n- Remember that consistent discipline in calling risks often leads to better outcomes."
+       },
+       {
+        "game": 7,
+        "text": "- Watch for risk opportunities; missing them often leads to significant losses.\n- Avoid reckless risks that turn out to be poor decisions.\n- Trust the engine's 2-ply evaluation when it differs from your intuition.\n- Stay conservative on your own home board when you're behind.\n- Save risk calls for moments when you can make the safest possible move."
+       },
+       {
+        "game": 8,
+        "text": "- When the engine suggests a move, trust its evaluation over your intuition.\n- Avoid unnecessary risk calls if the engine indicates poor equity.\n- Be cautious with bar moves and outer shots; follow engine advice.\n- In later stages with fewer checkers, prioritize safety over risky plays.\n- Use the engine's equity estimates to guide your decisions in each game."
+       },
+       {
+        "game": 9,
+        "text": "- Consider risk calls more often when your odds are reasonable.\n- Trust the engine's 2-ply evaluation to spot mistakes you might miss.\n- Always check if a roll allows a winning trade before playing a safety move.\n- Be mindful of scoring opportunities – timing can make or break points.\n- Avoid overcommitting to long plays; prioritize safer moves early."
+       },
+       {
+        "game": 10,
+        "text": "- Always verify risk calls (bar throws) with engine advice; unnecessary risks cost equity.\n- When uncertain, follow the engine's recommended move rather than intuition.\n- Re-examine your decision after each dice roll to avoid mistakes like turns 5 and 11.\n- Stay alert to safety calls; even safe moves can lose points if not optimal.\n- Maintain consistency in your strategy to minimize repeated errors."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 1,
+      "series": 1,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 73.64690162241459,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 81.0,
+       "risk_pays": 100,
+       "risks_found": 26.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 3721.3
+      },
+      "wins": 1
+     }
+    ],
+    "series_finished": 1,
     "setup": "MiniCPM5-2B (on)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "state": "running",
+    "status": "running on our GPU, 1 of 5 series",
     "steps_done": [
-     "E1"
+     "E1",
+     "S1"
     ],
     "threshold": null,
     "verdict": false
@@ -9293,16 +9374,16 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-22T02:00:28+00:00"
+  "updated_at": "2026-11-22T06:25:02+00:00"
  },
- "source_sha256": "62d8f16917652048dc6700a4519bef944d7387d3de8d309992be85db19b301ca",
+ "source_sha256": "239a138ee1dfa08733c6c3784114ecda06cd11b3359174e97aef39961af2c93b",
  "status": {
-  "last_update": "2026-11-22T02:00:28+00:00",
-  "line": "15 of 30 models with a verdict · 0 running · 14 paused · 1 incomplete or stopped",
+  "last_update": "2026-11-22T06:25:02+00:00",
+  "line": "15 of 30 models with a verdict · 1 running · 13 paused · 1 incomplete or stopped",
   "models": 30,
-  "paused": 14,
+  "paused": 13,
   "phase": "running",
-  "running": 0,
+  "running": 1,
   "stopped": 1,
   "verdicts": 15
  },
