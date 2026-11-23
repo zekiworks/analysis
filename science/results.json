@@ -718,6 +718,67 @@
    }
   },
   {
+   "model": "startlux-models/StartLux-Decision-v1.1-2B-Instant",
+   "name": "StartLux-Decision-v1.1-2B-Instant",
+   "tag": "decision",
+   "kind": "decision",
+   "route": "on our GPU (logic's load, RTX PRO 6000), the maker's startlux-decide server on vLLM 0.31; one question per request",
+   "sets": {
+    "textbook": {
+     "run": 219,
+     "date": "2026-11-23",
+     "questions": 50,
+     "right": 11,
+     "no_letter": 0
+    },
+    "tubitak": {
+     "run": 220,
+     "date": "2026-11-23",
+     "questions": 32,
+     "right": 11,
+     "no_letter": 0
+    },
+    "broken": {
+     "run": 221,
+     "date": "2026-11-23",
+     "questions": 92,
+     "right": 16,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 12,
+     "broken": 42,
+     "broken_caught": 4,
+     "flawed_on_intact": 3
+    },
+    "textbook_en": {
+     "run": 222,
+     "date": "2026-11-23",
+     "questions": 50,
+     "right": 10,
+     "no_letter": 0
+    },
+    "tubitak_en": {
+     "run": 223,
+     "date": "2026-11-23",
+     "questions": 32,
+     "right": 6,
+     "no_letter": 0
+    },
+    "broken_en": {
+     "run": 224,
+     "date": "2026-11-23",
+     "questions": 92,
+     "right": 16,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 12,
+     "broken": 42,
+     "broken_caught": 4,
+     "flawed_on_intact": 3
+    }
+   }
+  },
+  {
    "model": "LiquidAI/d1-2B",
    "name": "d1-2B",
    "tag": "decision",
