@@ -1263,6 +1263,166 @@
       "unsupported": 0,
       "when2call_decision_score": 89.58,
       "when2call_plain": 88.1
+    },
+    {
+      "benchmarks": {
+        "1": 96.49,
+        "2": 64.33,
+        "3": 86.16,
+        "62": 84.12,
+        "9": 100.0
+      },
+      "coverage": 100.0,
+      "median_ms": 187.9,
+      "model": "vera-medium-omni",
+      "note": "Ran beside another model's load on the same card (compactor's GPU 0), so its latency is under shared load.",
+      "requests": 6627,
+      "route": "our GPU: its card's vera-serve (PyTorch engine) behind di_serve.py, scar-ai/vera-medium-omni@1f23a6cf, 1 \u00d7 RTX PRO 6000",
+      "status": "complete",
+      "tools_skill": 86.6,
+      "unsupported": 0,
+      "when2call_decision_score": 89.69,
+      "when2call_plain": 88.09
+    },
+    {
+      "benchmarks": {
+        "1": 93.55,
+        "2": 62.89,
+        "3": 84.35,
+        "62": 87.69,
+        "9": 96.59
+      },
+      "coverage": 100.0,
+      "median_ms": 226.5,
+      "model": "Chinese Decision Pointer 4B",
+      "note": "Ran beside another model's load on the same card (compactor's GPU 0), so its latency is under shared load. One ToolRet question was refused as unsupported by its server.",
+      "requests": 6627,
+      "route": "our GPU: di_serve.py around its ChineseDecisionEngine (debias=reverse), quincyqiang/chinese-decision-pointer-4b@889f23e2, 1 \u00d7 RTX PRO 6000",
+      "status": "complete",
+      "tools_skill": 85.31,
+      "unsupported": 1,
+      "when2call_decision_score": 91.88,
+      "when2call_plain": 90.77
+    },
+    {
+      "benchmarks": {
+        "1": 95.62,
+        "2": 63.07,
+        "3": 83.75,
+        "62": 87.59,
+        "9": 71.59
+      },
+      "coverage": 100.0,
+      "median_ms": 216.7,
+      "model": "Verdin-4B v1.1",
+      "note": "Ran beside another model's load on the same card (compactor's GPU 0), so its latency is under shared load.",
+      "requests": 6627,
+      "route": "our GPU: its card's verdin.server behind di_serve.py, victorbennett/Verdin-4B-v1.1@45830d21, 1 \u00d7 RTX PRO 6000",
+      "status": "complete",
+      "tools_skill": 81.02,
+      "unsupported": 0,
+      "when2call_decision_score": 91.67,
+      "when2call_plain": 90.69
+    },
+    {
+      "benchmarks": {
+        "1": 85.58,
+        "2": 59.9,
+        "3": 77.73,
+        "62": 82.11,
+        "9": 63.64
+      },
+      "coverage": 100.0,
+      "median_ms": 35.9,
+      "model": "d1-3B",
+      "note": "Ran beside another model's load on the same card (compactor's GPU 0), so its latency is under shared load.",
+      "requests": 6627,
+      "route": "our GPU: Liquid's d1 server (d1_server.py), LiquidAI/d1-3B@05b80faf, BF16, 1 \u00d7 RTX PRO 6000",
+      "status": "complete",
+      "tools_skill": 74.37,
+      "unsupported": 0,
+      "when2call_decision_score": 88.58,
+      "when2call_plain": 86.58
+    },
+    {
+      "benchmarks": {
+        "1": 94.42,
+        "2": 58.4,
+        "3": 81.34,
+        "62": 87.04,
+        "9": 79.55
+      },
+      "coverage": 100.0,
+      "median_ms": 18.7,
+      "model": "GLiDE 0.8B",
+      "note": null,
+      "requests": 6627,
+      "route": "our GPU: Fastino's glide.server, fastino/GLiDE-0.8B@9eacdeec, 1 \u00d7 RTX PRO 6000",
+      "status": "complete",
+      "tools_skill": 80.72,
+      "unsupported": 0,
+      "when2call_decision_score": 91.52,
+      "when2call_plain": 90.28
+    },
+    {
+      "benchmarks": {
+        "1": 92.75,
+        "2": 60.57,
+        "3": 79.53,
+        "62": 86.83,
+        "9": 71.59
+      },
+      "coverage": 100.0,
+      "median_ms": 30.0,
+      "model": "StartLux v1.1 2B",
+      "note": "Our job runner stopped the first attempt after 1,165 questions; it resumed from its checkpoint and no question was sent twice.",
+      "requests": 6627,
+      "route": "our GPU: StartLux's startlux-decide 1.1.0 with its vLLM 0.31 plugin, startlux-models/StartLux-Decision-v1.1-2B-Instant@f1e6cd14, 1 \u00d7 RTX PRO 6000",
+      "status": "complete",
+      "tools_skill": 78.84,
+      "unsupported": 0,
+      "when2call_decision_score": 91.42,
+      "when2call_plain": 90.12
+    },
+    {
+      "benchmarks": {
+        "1": 92.27,
+        "2": 60.25,
+        "3": 80.34,
+        "62": 77.61,
+        "9": 43.18
+      },
+      "coverage": 100.0,
+      "median_ms": 45.1,
+      "model": "KnowLine 2B Gen1",
+      "note": null,
+      "requests": 6627,
+      "route": "our GPU: its card's serve_knowline.sh (SGLang with knowline_server.py), PelaAI/KnowLine-2B-Gen1@cbe159b5, 1 \u00d7 RTX PRO 6000",
+      "status": "complete",
+      "tools_skill": 71.88,
+      "unsupported": 0,
+      "when2call_decision_score": 85.57,
+      "when2call_plain": 83.21
+    },
+    {
+      "benchmarks": {
+        "1": 96.89,
+        "2": 65.85,
+        "3": 86.16,
+        "62": 88.79,
+        "9": 100.0
+      },
+      "coverage": 100.0,
+      "median_ms": 294.0,
+      "model": "GLiDE 27B (recurrent depth off)",
+      "note": "\u00dcmit #14672 (GLiDE paper test): the same weights and server as GLiDE 27B with its recurrent depth switched off. On the same questions 62 are right only with 1 pass and 29 only with 2 (sign test p = 0.001). A 2-pass rerun the same night matched the GLiDE 27B row's answers on all 6,627 questions.",
+      "requests": 6627,
+      "route": "our GPU: Fastino's glide.server, fastino/GLiDE-27B@4d32743a with its decision_config set to 1 recurrent pass (the maker's default is 2), 1 \u00d7 RTX PRO 6000",
+      "status": "complete",
+      "tools_skill": 87.83,
+      "unsupported": 0,
+      "when2call_decision_score": 92.76,
+      "when2call_plain": 91.59
     }
   ]
 }
