@@ -902,10 +902,10 @@
    },
    {
     "reason": null,
-    "series_done": 0,
+    "series_done": 1,
     "setup": "Qwen3.5-2B (on)",
     "status": "running",
-    "updated_at": "2026-11-23T05:16:10+00:00"
+    "updated_at": "2026-11-23T09:29:32+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -978,7 +978,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-23T05:16:10+00:00"
+  "updated_at": "2026-11-23T09:29:32+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -8888,11 +8888,21 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 72.09395870566368,
+     "right_safety": 88.0,
+     "risks_found": 12.0
     },
-    "answers_after": null,
+    "answers_after": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "answers_before": {
      "answer_rate": 100.0,
      "answered": 200,
@@ -8910,9 +8920,9 @@
      "risks_found": 26.0
     },
     "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 3.951016813516617,
+     "right_safety": 1.0,
+     "risks_found": -14.0
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -8942,19 +8952,90 @@
     "key": "qwen3.5-2b-on",
     "progress": {
      "reason": null,
-     "series_done": 0,
+     "series_done": 1,
      "status": "running",
-     "updated_at": "2026-11-23T05:16:10+00:00"
+     "updated_at": "2026-11-23T09:29:32+00:00"
     },
     "range": null,
     "reason": null,
-    "series": [],
-    "series_finished": 0,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 203,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Avoid speculative risk when equity is low or diminished significantly, or misplaced on table.\n- Prioritize safety over risky trades when optimal play is crucial, but do not spread resources.\n- Never rush moves without balance, check every rotation and history first to save time.\n- Trust evaluated safety data rather than speculative calculation that is high for hand.\n- Patience wins when positions are uncertain and risky for long term strategic gains."
+       },
+       {
+        "game": 2,
+        "text": "- Do not play \"no risk trade-off\" when your opponent's equity might swing the check equity to your detriment.\n- Always verify your check equity first; avoid \"right safety call\" without the check equity check in the log.\n- Avoid forcing a risk move when the opponent plays your equity; stop silent play to improve play.\n- Check \"bar\" status before deciding to risk or take safety, not just blindly taking moves.\n- Trust your right risk call only when the opponent's bar is weak or your equity is higher than their check."
+       },
+       {
+        "game": 3,
+        "text": "- Avoid 'mid-game risk' taking in open checks if equity falls below 20%.\n- Play 'mid-game risk' only if you have a clear 40%+ equity gap.\n- Do not rely on 'mid-game risk' when your own position is weaker.\n- Check for opening checks in opponent's 21-1 or 40% equity board.\n- Focus on right safety calls unless you can secure a 21-1 checker line."
+       },
+       {
+        "game": 4,
+        "text": "- Audit opponent occupancy before entering high-risk trades.\n- Trust safety checks when equity is low.\n- Avoid blind calls during dice pairing sequences.\n- Review opponent move before rolling dice pairs aggressively."
+       },
+       {
+        "game": 5,
+        "text": "- Avoid needless risk calls on backgammon refinements to preserve your edge all day.\n- Prioritize missed risk calls to secure your backgammon lead before the move.\n- Focus on safety calls rather than massive gambits without clear value to the board.\n- Confirm equity loss before making the decisive move to your advantage.\n- Use the board position to estimate risk accurately before any action in the future."
+       },
+       {
+        "game": 6,
+        "text": "- Prioritize safety over move point when engine offers low equity reward.\n- Don't take risky risks if you misplace your vector in bar.\n- Check all dice and bar options before making the safety call.\n- Verify engine safety calls only when net equity is secure.\n- Faithfully follow risk calls only if your equity confirms security."
+       },
+       {
+        "game": 7,
+        "text": "- Prioritize safety over risk until opponent is blocked on key counters.\n- Avoid gamblerian risk unless safe.\n- Watch opponent's off-bar status change, especially 14-16 spots on bar 0.\n- Play 13/10 13/11 to secure safety, avoid 8/2 if opponent has high counters.\n- Check board stability before committing 24 points."
+       },
+       {
+        "game": 8,
+        "text": "- Prioritize security over aggressive risk management.\n- Guard your bar to avoid losing board ownership.\n- Skip high-risk trades unless you have overwhelming equity.\n- Avoid maneuvers that weaken your board access control.\n- Double-check equity calculations before executing tricky play."
+       },
+       {
+        "game": 9,
+        "text": "- Maintain strict safety procedures against the engine's 0 equity offer.\n- Review missed risk patterns in your games to iterate strategy.\n- Avoid moves that risk significant equity while minimizing dice variance.\n- Check your bar positions before playing to ensure checkers are not compromised.\n- Focus on long-term equity moves rather than short-term charmed gains."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize right safety calls over missed risks to ensure long-term stability in the series of games.\n- Avoid extra loss: Accept no 0.5% risk without verifying opponent board state before committing.\n- Board first: Verify opponent positions before committing to any risk in your games.\n- Equity check: Avoid 0.365+ equity loss when safety is engaged in a game.\n- Win mindset: Conservative play outweighs minor equity loss in the long run for consistency."
+       }
+      ],
+      "lessons_cut": 1,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 1,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 72.09395870566368,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 88.0,
+       "risk_pays": 100,
+       "risks_found": 12.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 3866.5
+      },
+      "wins": 3
+     }
+    ],
+    "series_finished": 1,
     "setup": "Qwen3.5-2B (on)",
     "state": "running",
-    "status": "running on our GPU, 0 of 5 series",
+    "status": "running on our GPU, 1 of 5 series",
     "steps_done": [
-     "E1"
+     "E1",
+     "S1"
     ],
     "threshold": null,
     "verdict": false
@@ -9793,11 +9874,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-23T05:16:10+00:00"
+  "updated_at": "2026-11-23T09:29:32+00:00"
  },
- "source_sha256": "f64ea9d64311440e94001dca8db7d74a73fad442d1fd30208ebacbcbbe90650e",
+ "source_sha256": "a4392d39fde7831422a05481586e63e024335ad83ec3535ae4cfe6f04246da83",
  "status": {
-  "last_update": "2026-11-23T05:16:10+00:00",
+  "last_update": "2026-11-23T09:29:32+00:00",
   "line": "16 of 31 models with a verdict · 1 running · 13 paused · 1 incomplete or stopped",
   "models": 31,
   "paused": 13,
