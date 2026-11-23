@@ -147,7 +147,7 @@
     "8d44a799b6ef0729aff74a3cd77b2ccc0d4600412ec40f7966f23b67e59975d1",
     "978d24d5e1541735609dba461aaadf505eab745fc066b11449a62de1714035f8",
     "b71737d009efe20f13380d1408bd072b214b6aa03e5813eea8d092005d67ffd8",
-    "e970c867af83dfa78e459946ea7edc893f01470e422e59f71c0aa8c722124d52"
+    "e172cf8989708b77d8c95cb9db49ca5c769ae1ee82b755bfe6fbfc9eff8e4952"
   ],
   "reports": [
     {
@@ -53354,22 +53354,22 @@
       "categories": {
         "args": {
           "attempted": 42,
-          "pass_rate": 0.7142857142857143,
-          "passed": 30,
+          "pass_rate": 0.6428571428571429,
+          "passed": 27,
           "scored": 42,
           "unscored": 0
         },
         "multi-step": {
           "attempted": 42,
-          "pass_rate": 1.0,
-          "passed": 42,
+          "pass_rate": 0.9761904761904762,
+          "passed": 41,
           "scored": 42,
           "unscored": 0
         },
         "recovery": {
           "attempted": 42,
-          "pass_rate": 0.7142857142857143,
-          "passed": 30,
+          "pass_rate": 0.6666666666666666,
+          "passed": 28,
           "scored": 42,
           "unscored": 0
         },
@@ -53382,15 +53382,15 @@
         },
         "selection": {
           "attempted": 42,
-          "pass_rate": 0.8571428571428571,
-          "passed": 36,
+          "pass_rate": 0.7619047619047619,
+          "passed": 32,
           "scored": 42,
           "unscored": 0
         },
         "single": {
           "attempted": 42,
-          "pass_rate": 1.0,
-          "passed": 42,
+          "pass_rate": 0.9523809523809523,
+          "passed": 40,
           "scored": 42,
           "unscored": 0
         }
@@ -53408,29 +53408,28 @@
       },
       "cost_usd": null,
       "failure_tags": {
-        "extra_call": 2,
-        "made_up_result": 2,
-        "no_call": 2,
-        "wrong_args": 4,
-        "wrong_tool": 24
+        "extra_call": 9,
+        "made_up_result": 3,
+        "wrong_args": 9,
+        "wrong_tool": 25
       },
       "gpu": {
         "card": "bariton GPU 1 (RTX PRO 6000, 96 GB)",
         "gpu_count": 1,
-        "gpu_seconds": 414.1,
+        "gpu_seconds": 272.4,
         "in_flight": 16,
         "rate_usd_per_gpu_hour": 2.49,
         "server_max_num_seqs": 32
       },
       "latency_seconds": {
-        "mean": 10.631116417955214,
-        "total": 2679.041337324714
+        "mean": 8.814380303948946,
+        "total": 2221.2238365951343
       },
-      "note": "Thinking on at the template's default reasoning_effort 0.9; the model has no off mode. Temperature 0, seeds 0/1/2. Served with the maker's vLLM recipe (inkling-2-mini image, inkling tool and reasoning parsers), the only engine that runs the published NVFP4/MXFP8 weights; a Transformers load exists only through an unmerged pull request that converts them to BF16, and agreed on the first token for 30 of 30 prompts and on all 128 tokens for 5 of 30. Own load on one GPU. 3.4B active of 26.4B total; three passes through its looped layers make 5.4B effective active per token (card). Card's generation_config sampling (temperature 1.0), seed 0 only: 83.3% standard vs 84.5% at temperature 0 seed 0. 2 replies were still reasoning at the 32,768-token output cap and count as failures.",
+      "note": "Thinking Machines' own sampling from the checkpoint's generation_config (temperature 1.0; the card recommends no other values), thinking on at reasoning_effort 0.9 (the model has no off mode), seeds 0/1/2. Shown at the maker's setting at \u00dcmit's request (#15551); the temperature-0 run it replaces scored 86.5% standard / 91.7% harder, a tie with this row on both sets in a paired test by task (p = 0.14 / 0.22). Served with the maker's vLLM recipe (inkling-2-mini image, inkling tool and reasoning parsers), the only engine that runs the published NVFP4/MXFP8 weights; own load on one GPU. 3.4B active of 26.4B total; three passes through its looped layers make 5.4B effective active per token (card). No reply hit the 32,768-token output cap.",
       "overall": {
         "attempted": 252,
-        "pass_rate": 0.8650793650793651,
-        "passed": 218,
+        "pass_rate": 0.8174603174603174,
+        "passed": 206,
         "scored": 252,
         "unscored": 0
       },
@@ -53440,35 +53439,14 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "single-01"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "selection-02"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "single-05"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "selection-01"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
           "task_id": "single-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01"
         },
         {
           "passed": true,
@@ -53482,13 +53460,6 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "single-07"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
           "task_id": "selection-03"
         },
         {
@@ -53496,7 +53467,35 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "args-07"
+          "task_id": "single-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-05"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07"
         },
         {
           "passed": true,
@@ -53510,13 +53509,6 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "args-05"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
           "task_id": "selection-07"
         },
         {
@@ -53524,14 +53516,14 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "restraint-03"
+          "task_id": "args-07"
         },
         {
           "passed": true,
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "single-03"
+          "task_id": "args-05"
         },
         {
           "passed": true,
@@ -53552,6 +53544,13 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
+          "task_id": "restraint-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
           "task_id": "args-03"
         },
         {
@@ -53559,7 +53558,21 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
+          "task_id": "multi-step-03"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
           "task_id": "multi-step-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05"
         },
         {
           "passed": true,
@@ -53580,7 +53593,7 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "multi-step-07"
+          "task_id": "single-02-renamed"
         },
         {
           "passed": true,
@@ -53594,42 +53607,7 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "multi-step-03"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
           "task_id": "single-01-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "single-02-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "multi-step-01"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "single-05-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "restraint-05"
         },
         {
           "passed": true,
@@ -53643,7 +53621,7 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "recovery-07"
+          "task_id": "single-05-renamed"
         },
         {
           "passed": true,
@@ -53657,7 +53635,21 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "multi-step-06"
+          "task_id": "multi-step-07"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-07"
         },
         {
           "passed": true,
@@ -53671,14 +53663,7 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "selection-03-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "single-07-renamed"
+          "task_id": "multi-step-06"
         },
         {
           "passed": true,
@@ -53686,41 +53671,6 @@
           "status": "scored",
           "tag": null,
           "task_id": "args-01-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "selection-04-renamed"
-        },
-        {
-          "passed": false,
-          "repetition": 0,
-          "status": "scored",
-          "tag": "wrong_tool",
-          "task_id": "recovery-06"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "args-05-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "args-07-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "selection-07-renamed"
         },
         {
           "passed": false,
@@ -53734,28 +53684,63 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "args-03-renamed"
+          "task_id": "multi-step-01"
         },
         {
           "passed": true,
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "restraint-02-renamed"
+          "task_id": "args-05-renamed"
         },
         {
           "passed": true,
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "restraint-03-renamed"
+          "task_id": "single-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04-renamed"
         },
         {
           "passed": false,
           "repetition": 0,
           "status": "scored",
           "tag": "extra_call",
-          "task_id": "restraint-04"
+          "task_id": "args-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-06"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-03-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "selection-03-renamed"
         },
         {
           "passed": false,
@@ -53769,6 +53754,20 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
+          "task_id": "restraint-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-02-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
           "task_id": "multi-step-02-renamed"
         },
         {
@@ -53776,14 +53775,14 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "multi-step-03-renamed"
+          "task_id": "recovery-04-renamed"
         },
         {
-          "passed": true,
+          "passed": false,
           "repetition": 0,
           "status": "scored",
-          "tag": null,
-          "task_id": "restraint-07-renamed"
+          "tag": "wrong_args",
+          "task_id": "multi-step-07-renamed"
         },
         {
           "passed": true,
@@ -53797,14 +53796,7 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "multi-step-01-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "recovery-04-renamed"
+          "task_id": "multi-step-03-renamed"
         },
         {
           "passed": true,
@@ -53818,7 +53810,7 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "multi-step-06-renamed"
+          "task_id": "restraint-07-renamed"
         },
         {
           "passed": true,
@@ -53826,6 +53818,34 @@
           "status": "scored",
           "tag": null,
           "task_id": "single-02"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-02"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-03"
         },
         {
           "passed": true,
@@ -53839,35 +53859,7 @@
           "repetition": 0,
           "status": "scored",
           "tag": null,
-          "task_id": "multi-step-07-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 0,
-          "status": "scored",
-          "tag": null,
-          "task_id": "recovery-07-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "single-03"
-        },
-        {
-          "passed": false,
-          "repetition": 0,
-          "status": "scored",
-          "tag": "made_up_result",
-          "task_id": "restraint-05-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "selection-02"
+          "task_id": "multi-step-06-renamed"
         },
         {
           "passed": true,
@@ -53902,49 +53894,14 @@
           "repetition": 0,
           "status": "scored",
           "tag": "wrong_tool",
-          "task_id": "recovery-03-renamed"
+          "task_id": "recovery-06-renamed"
         },
         {
           "passed": false,
           "repetition": 0,
           "status": "scored",
           "tag": "wrong_tool",
-          "task_id": "recovery-06-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "args-05"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "selection-04"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "selection-07"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "args-07"
-        },
-        {
-          "passed": false,
-          "repetition": 1,
-          "status": "scored",
-          "tag": "wrong_tool",
-          "task_id": "args-02"
+          "task_id": "recovery-03-renamed"
         },
         {
           "passed": false,
@@ -53958,7 +53915,42 @@
           "repetition": 1,
           "status": "scored",
           "tag": null,
-          "task_id": "restraint-03"
+          "task_id": "args-05"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04"
+        },
+        {
+          "passed": true,
+          "repetition": 0,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-01-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-07"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "args-02"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-06"
         },
         {
           "passed": true,
@@ -53976,10 +53968,17 @@
         },
         {
           "passed": false,
-          "repetition": 0,
+          "repetition": 1,
           "status": "scored",
-          "tag": "wrong_args",
-          "task_id": "selection-06"
+          "tag": "extra_call",
+          "task_id": "args-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03"
         },
         {
           "passed": true,
@@ -53993,49 +53992,7 @@
           "repetition": 1,
           "status": "scored",
           "tag": null,
-          "task_id": "restraint-07"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
           "task_id": "recovery-01"
-        },
-        {
-          "passed": false,
-          "repetition": 0,
-          "status": "scored",
-          "tag": "wrong_args",
-          "task_id": "selection-06-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "multi-step-03"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "multi-step-07"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "recovery-04"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "single-01-renamed"
         },
         {
           "passed": true,
@@ -54049,6 +54006,34 @@
           "repetition": 1,
           "status": "scored",
           "tag": null,
+          "task_id": "multi-step-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-07"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-03"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
           "task_id": "single-02-renamed"
         },
         {
@@ -54056,21 +54041,7 @@
           "repetition": 1,
           "status": "scored",
           "tag": null,
-          "task_id": "multi-step-01"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "single-03-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "recovery-07"
+          "task_id": "single-01-renamed"
         },
         {
           "passed": true,
@@ -54084,14 +54055,7 @@
           "repetition": 1,
           "status": "scored",
           "tag": null,
-          "task_id": "multi-step-06"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "restraint-04"
+          "task_id": "multi-step-01"
         },
         {
           "passed": true,
@@ -54105,7 +54069,14 @@
           "repetition": 1,
           "status": "scored",
           "tag": null,
-          "task_id": "selection-03-renamed"
+          "task_id": "recovery-07"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-06"
         },
         {
           "passed": true,
@@ -54119,42 +54090,7 @@
           "repetition": 1,
           "status": "scored",
           "tag": null,
-          "task_id": "single-07-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "selection-04-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "args-01-renamed"
-        },
-        {
-          "passed": false,
-          "repetition": 1,
-          "status": "scored",
-          "tag": "wrong_tool",
-          "task_id": "recovery-06"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "args-05-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "args-07-renamed"
+          "task_id": "selection-03-renamed"
         },
         {
           "passed": false,
@@ -54168,7 +54104,77 @@
           "repetition": 1,
           "status": "scored",
           "tag": null,
+          "task_id": "restraint-04"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-06"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "multi-step-06"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "single-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
           "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-07-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-02-renamed"
         },
         {
           "passed": true,
@@ -54192,11 +54198,11 @@
           "task_id": "args-03-renamed"
         },
         {
-          "passed": false,
+          "passed": true,
           "repetition": 1,
           "status": "scored",
-          "tag": "wrong_tool",
-          "task_id": "args-02-renamed"
+          "tag": null,
+          "task_id": "recovery-01-renamed"
         },
         {
           "passed": true,
@@ -54210,20 +54216,6 @@
           "repetition": 1,
           "status": "scored",
           "tag": null,
-          "task_id": "restraint-07-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "restraint-05-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
           "task_id": "multi-step-02-renamed"
         },
         {
@@ -54231,28 +54223,7 @@
           "repetition": 1,
           "status": "scored",
           "tag": null,
-          "task_id": "recovery-01-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
-          "task_id": "single-01"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "recovery-04-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "multi-step-01-renamed"
+          "task_id": "restraint-07-renamed"
         },
         {
           "passed": true,
@@ -54266,7 +54237,35 @@
           "repetition": 1,
           "status": "scored",
           "tag": null,
-          "task_id": "recovery-07-renamed"
+          "task_id": "multi-step-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "single-01"
+        },
+        {
+          "passed": false,
+          "repetition": 0,
+          "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 1,
+          "status": "scored",
+          "tag": null,
+          "task_id": "recovery-04-renamed"
         },
         {
           "passed": true,
@@ -54284,20 +54283,6 @@
         },
         {
           "passed": true,
-          "repetition": 1,
-          "status": "scored",
-          "tag": null,
-          "task_id": "multi-step-06-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
-          "task_id": "selection-01"
-        },
-        {
-          "passed": true,
           "repetition": 2,
           "status": "scored",
           "tag": null,
@@ -54311,53 +54296,25 @@
           "task_id": "selection-02"
         },
         {
-          "passed": false,
+          "passed": true,
           "repetition": 1,
           "status": "scored",
-          "tag": "wrong_args",
-          "task_id": "selection-06-renamed"
+          "tag": null,
+          "task_id": "recovery-07-renamed"
         },
         {
           "passed": true,
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "selection-03"
+          "task_id": "selection-01"
         },
         {
           "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
-          "task_id": "single-07"
-        },
-        {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
-          "task_id": "args-01"
-        },
-        {
-          "passed": false,
           "repetition": 1,
           "status": "scored",
-          "tag": "wrong_tool",
-          "task_id": "recovery-06-renamed"
-        },
-        {
-          "passed": false,
-          "repetition": 1,
-          "status": "scored",
-          "tag": "wrong_tool",
-          "task_id": "recovery-03-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
           "tag": null,
-          "task_id": "args-05"
+          "task_id": "multi-step-01-renamed"
         },
         {
           "passed": true,
@@ -54371,7 +54328,28 @@
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "args-07"
+          "task_id": "single-07"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "selection-03"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-01"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "args-05"
         },
         {
           "passed": true,
@@ -54381,25 +54359,18 @@
           "task_id": "restraint-04-renamed"
         },
         {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
-          "task_id": "selection-07"
-        },
-        {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
-          "task_id": "restraint-03"
-        },
-        {
           "passed": false,
           "repetition": 2,
           "status": "scored",
+          "tag": "wrong_args",
+          "task_id": "selection-07"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
           "tag": "wrong_tool",
-          "task_id": "args-02"
+          "task_id": "recovery-06-renamed"
         },
         {
           "passed": true,
@@ -54409,11 +54380,39 @@
           "task_id": "args-03"
         },
         {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "args-02"
+        },
+        {
+          "passed": false,
+          "repetition": 1,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03-renamed"
+        },
+        {
           "passed": true,
           "repetition": 2,
           "status": "scored",
           "tag": null,
           "task_id": "restraint-02"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "args-07"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03"
         },
         {
           "passed": true,
@@ -54427,7 +54426,7 @@
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "restraint-07"
+          "task_id": "multi-step-03"
         },
         {
           "passed": true,
@@ -54441,14 +54440,14 @@
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "multi-step-03"
+          "task_id": "restraint-07"
         },
         {
           "passed": true,
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "single-01-renamed"
+          "task_id": "multi-step-07"
         },
         {
           "passed": true,
@@ -54469,14 +54468,14 @@
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "restraint-05"
+          "task_id": "single-01-renamed"
         },
         {
           "passed": true,
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "multi-step-07"
+          "task_id": "single-03-renamed"
         },
         {
           "passed": true,
@@ -54497,21 +54496,7 @@
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "selection-02-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
           "task_id": "recovery-07"
-        },
-        {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
-          "task_id": "single-03-renamed"
         },
         {
           "passed": true,
@@ -54532,7 +54517,14 @@
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "selection-01-renamed"
+          "task_id": "selection-02-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "made_up_result",
+          "task_id": "restraint-05"
         },
         {
           "passed": true,
@@ -54540,6 +54532,13 @@
           "status": "scored",
           "tag": null,
           "task_id": "selection-03-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-01-renamed"
         },
         {
           "passed": true,
@@ -54556,6 +54555,13 @@
           "task_id": "single-07-renamed"
         },
         {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-06"
+        },
+        {
           "passed": true,
           "repetition": 2,
           "status": "scored",
@@ -54570,46 +54576,32 @@
           "task_id": "args-01-renamed"
         },
         {
-          "passed": false,
+          "passed": true,
           "repetition": 2,
           "status": "scored",
-          "tag": "wrong_tool",
-          "task_id": "recovery-03"
+          "tag": null,
+          "task_id": "args-03-renamed"
         },
         {
           "passed": false,
           "repetition": 2,
           "status": "scored",
           "tag": "wrong_args",
-          "task_id": "selection-06"
+          "task_id": "selection-07-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "extra_call",
+          "task_id": "args-07-renamed"
         },
         {
           "passed": false,
           "repetition": 2,
           "status": "scored",
           "tag": "wrong_tool",
-          "task_id": "recovery-06"
-        },
-        {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
-          "task_id": "selection-07-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
-          "task_id": "args-07-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
-          "task_id": "restraint-03-renamed"
+          "task_id": "recovery-03"
         },
         {
           "passed": true,
@@ -54619,18 +54611,18 @@
           "task_id": "restraint-02-renamed"
         },
         {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-03-renamed"
+        },
+        {
           "passed": false,
           "repetition": 2,
           "status": "scored",
           "tag": "wrong_tool",
           "task_id": "args-02-renamed"
-        },
-        {
-          "passed": true,
-          "repetition": 2,
-          "status": "scored",
-          "tag": null,
-          "task_id": "args-03-renamed"
         },
         {
           "passed": true,
@@ -54651,14 +54643,21 @@
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "restraint-07-renamed"
+          "task_id": "recovery-01-renamed"
         },
         {
           "passed": true,
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "recovery-01-renamed"
+          "task_id": "recovery-04-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "restraint-07-renamed"
         },
         {
           "passed": true,
@@ -54679,14 +54678,21 @@
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "restraint-05-renamed"
+          "task_id": "restraint-04-renamed"
         },
         {
           "passed": true,
           "repetition": 2,
           "status": "scored",
           "tag": null,
-          "task_id": "recovery-04-renamed"
+          "task_id": "restraint-05-renamed"
+        },
+        {
+          "passed": false,
+          "repetition": 2,
+          "status": "scored",
+          "tag": "wrong_tool",
+          "task_id": "recovery-03-renamed"
         },
         {
           "passed": true,
@@ -54706,35 +54712,28 @@
           "passed": false,
           "repetition": 2,
           "status": "scored",
-          "tag": "made_up_result",
-          "task_id": "restraint-04-renamed"
-        },
-        {
-          "passed": false,
-          "repetition": 2,
-          "status": "scored",
-          "tag": "wrong_tool",
-          "task_id": "recovery-03-renamed"
-        },
-        {
-          "passed": false,
-          "repetition": 2,
-          "status": "scored",
           "tag": "wrong_tool",
           "task_id": "recovery-06-renamed"
+        },
+        {
+          "passed": true,
+          "repetition": 2,
+          "status": "scored",
+          "tag": null,
+          "task_id": "selection-06"
         },
         {
           "passed": false,
           "repetition": 1,
           "status": "scored",
-          "tag": "no_call",
-          "task_id": "selection-06"
+          "tag": "wrong_args",
+          "task_id": "selection-06-renamed"
         },
         {
           "passed": false,
           "repetition": 2,
           "status": "scored",
-          "tag": "no_call",
+          "tag": "wrong_args",
           "task_id": "selection-06-renamed"
         }
       ],
@@ -54744,9 +54743,9 @@
         "engine_tool_parser": "inkling (vLLM recipe)",
         "exact_model_id": "thinkingmachines/Inkling-2-Mini",
         "native_documented_call_format": "checkpoint template: tools declared in a tool_declare system message; calls as <|content_invoke_tool_json|>, read by vLLM's inkling tool-call parser; tool results as tool messages",
-        "plan_sha256": "0a3334a50e73c56bd30be27875a96e022735798c0014c281e6857d37e5ae9d73",
+        "plan_sha256": "a70f84144dabfea5f9f1ac1661d5d035ddbf86ca106c72c6923c83e71b569be1",
         "provider": "local vLLM (inkling-2-mini image, recipe) served by @logic on bariton, one RTX PRO 6000",
-        "requested_name": "Inkling 2 Mini",
+        "requested_name": "Inkling 2 Mini (card sampling, 3 seeds)",
         "revision": "ed40e7da625f594fc9c4990f5f66be24873c22d7",
         "thinking_mode": "on"
       },
@@ -54755,19 +54754,19 @@
         "original": 1,
         "renamed": 1
       },
-      "total_tokens": 1326567,
+      "total_tokens": 1376293,
       "tracks": {
         "original": {
           "attempted": 126,
-          "pass_rate": 0.873015873015873,
-          "passed": 110,
+          "pass_rate": 0.8174603174603174,
+          "passed": 103,
           "scored": 126,
           "unscored": 0
         },
         "renamed": {
           "attempted": 126,
-          "pass_rate": 0.8571428571428571,
-          "passed": 108,
+          "pass_rate": 0.8174603174603174,
+          "passed": 103,
           "scored": 126,
           "unscored": 0
         }
@@ -54776,15 +54775,15 @@
       "visibility": {
         "private": {
           "attempted": 66,
-          "pass_rate": 0.9090909090909091,
-          "passed": 60,
+          "pass_rate": 0.8333333333333334,
+          "passed": 55,
           "scored": 66,
           "unscored": 0
         },
         "public": {
           "attempted": 186,
-          "pass_rate": 0.8494623655913979,
-          "passed": 158,
+          "pass_rate": 0.8118279569892473,
+          "passed": 151,
           "scored": 186,
           "unscored": 0
         }
