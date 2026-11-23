@@ -149,7 +149,7 @@
       "setup": "Inkling 2 Mini (on, effort 0.5)"
      }
     ],
-    "note": "Added 21 Nov: Inkling 2 Mini with thinking on (effort 0.9), under the same rule, lesson prompt, test and schedule, on the server it shares with Logic & Math and other benchmarks (its owner's pinned load; this run neither starts nor stops it), sampled greedily as on Logic & Math (temperature 0), its first empty test a validity check as above. Its letter is read from its own answer after its reasoning: its server cannot continue a prefilled answer after a reasoning block. While that server is away, the model pauses. Changed the same day: it runs with thinking at effort 0.5 instead, otherwise as above. At effort 0.9 most of its answers in the first empty test ran out of room: its reasoning used all 32,768 output tokens before it named an option. That run is stopped and kept; it plays no series.",
+    "note": "Added 21 Nov: Inkling 2 Mini with thinking on (effort 0.9), under the same rule, lesson prompt, test and schedule, on the server it shares with Logic & Math and other benchmarks (its owner's pinned load; this run neither starts nor stops it), sampled greedily as on Logic & Math (temperature 0), its first empty test a validity check as above. Its letter is read from its own answer after its reasoning: its server cannot continue a prefilled answer after a reasoning block. While that server is away, the model pauses. At effort 0.9, 110 of the first 148 answers used all 32,768 output tokens without naming an option; that run stopped and played no series. It was then rerun at effort 0.5, otherwise unchanged. That rerun also stopped at the validity check: 40 of 200 answers (20%) used all 32,768 output tokens without naming an option, above the 10% invalid-answer limit; it played no series.",
     "record": "Ümit #13780/#13810/#13811 (improve 5d4b602); effort 0.5: Ümit #14049/#14136 (improve 28f10d6, branch improve-ink-e05)",
     "source": "Ümit's decision of 21 Nov 2026"
    }
@@ -9618,7 +9618,7 @@
   },
   "updated_at": "2026-11-22T23:12:07+00:00"
  },
- "source_sha256": "09c794e30292b7b784c8fff8adf422350faf6aa79a515e870b113a44127c70df",
+ "source_sha256": "ec274fed48b74db19264cbd7487ae2141b6e84be30a82c50b01425281848f6f0",
  "status": {
   "last_update": "2026-11-22T23:12:07+00:00",
   "line": "15 of 30 models with a verdict · 1 running · 13 paused · 1 incomplete or stopped",
