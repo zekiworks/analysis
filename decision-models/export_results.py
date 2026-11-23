@@ -1719,6 +1719,8 @@ HELD_RUNS: dict[int, str] = {
     1529: "SmolLM2-360M-Instruct, English seed 0 at the card's sampling (temperature 0.2, top_p 0.9): in the changelog",
     1544: "SmolLM2-1.7B-Instruct, English seed 0 at the card's sampling (temperature 0.2, top_p 0.9): in the changelog",
     1605: "Inkling 2 Mini, English seed 0 at the card's sampling (temperature 1.0): in the changelog",
+    1631: "SmolLM3-3B thinking on, English seed 0 at the card's sampling (temperature 0.6, top_p 0.95): in the changelog",
+    1637: "SmolLM3-3B thinking off, English seed 0 at the card's sampling (temperature 0.6, top_p 0.95): in the changelog",
 }
 # Notes on single runs, after their model's note.
 RUN_NOTES: dict[int, str] = {

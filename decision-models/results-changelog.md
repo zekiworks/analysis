@@ -2,6 +2,12 @@
 
 What changed in each results version that went live (`results_version` in `results.json`), newest first. It starts with results 0eb1e828, the release that added Liquid d1-2B; earlier versions are in the repository's history.
 
+## Results 8cb5ac15 (23 November 2026)
+
+- Hugging Face's SmolLM3-3B (HuggingFaceTB/SmolLM3-3B at a07cc9a, 3.08B), English reading only, on logic's shared load (vLLM v0.30.0, temperature 0; Ümit #13443, published on her "publish always", #15456). Thinking on, seeds 0, 1, 2 (runs 1625, 1627, 1630): 325, 321 and 325 of 547 right (59.4%, 58.7%, 59.4%); "I don't know" (1626) 312 (57.0%). Thinking off, seeds 0, 1, 2 (1633, 1635, 1636): 165, 164 and 165 (30.2%, 30.0%, 30.2%); "I don't know" (1634) 111 (20.3%).
+- With thinking off it mostly writes the option out instead of the answer line: 230, 230 and 229 of 547 replies have no readable letter (339 in the "I don't know" run), counted wrong, as for SmolLM2. With thinking on, 111, 108 and 102.
+- At the card's sampling (temperature 0.6, top_p 0.95; seed 0) the scores move up: thinking on 360 (65.8%, run 1631, 35 without a letter), thinking off 177 (32.4%, run 1637, 206 without a letter). A comparison, not a row.
+
 ## Results 12064bbd (22 November 2026)
 
 - Liquid AI's d1-Omni-2B (LiquidAI/d1-Omni-2B at 81222da, 2.17B, built on LFM3-Omni-2B) and d1-3B (LiquidAI/d1-3B at 05b80fa, 3.12B, built on LFM2.5-VL-3B), the two 2B-class decision models Ümit asked for (#14745): Turkish Text (runs 1607, 1616), English (1610, 1619), English "I don't know" (1612, 1621) and Turkish "Bilmiyorum" (1614, 1623), on compactor's GPU 0 load with d1-2B's server (Liquid's model code), one request at a time, the card shared with Answer Check's runs. English 64.0% and 70.9% (d1-2B 65.6%); Turkish on the 547 kept questions 41.9% and 45.3%. Neither card lists Turkish. A second Turkish Text run of each (1608, 1617) gave the same answers and is not a row.

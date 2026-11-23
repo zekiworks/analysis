@@ -1,7 +1,7 @@
 {
   "schema_version": 5,
-  "results_version": "12064bbd",
-  "updated": "2026-11-22T17:02:17Z",
+  "results_version": "8cb5ac15",
+  "updated": "2026-11-23T15:09:55Z",
   "sure_threshold": 0.99,
   "dataset": {
     "name": "questions-v2.sqlite",
@@ -456294,6 +456294,82 @@
         }
       },
       {
+        "name": "SmolLM3-3B",
+        "model": "smollm3-3b",
+        "provider": "vllm-plain",
+        "reasoning": "on",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1625,
+        "runs": [
+          1625,
+          1627,
+          1630
+        ],
+        "dates": [
+          "2026-11-23"
+        ],
+        "parameters": 3075098624,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model (tied embeddings), text only",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, HuggingFaceTB/SmolLM3-3B@a07cc9a",
+          "https://huggingface.co/HuggingFaceTB/SmolLM3-3B"
+        ],
+        "parameters_read": "2026-11-12",
+        "group": "chat",
+        "access": "our GPU (logic's server, vLLM v0.30.0 BF16, revision HuggingFaceTB/SmolLM3-3B@a07cc9a), one question per request, plain answer line ANSWER: X (no answer schema); sampling seed 0, temperature 0.0, thinking on; output cap 32,768",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "english_where": "RTX PRO 6000",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 6.472016224573748,
+            "per_1000": 11.831839533041588,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 278432,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 3883244
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 9357.131890949997
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 240.31629080799758,
+            "p90_request_seconds": 1090.6459530246152,
+            "concurrency": 32,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 325,
+          "wrong": 111,
+          "invalid": 111,
+          "accuracy": 0.5941499085923218
+        }
+      },
+      {
         "name": "Nemotron-Labs-Sigma-8B-instruct",
         "model": "nemotron-labs-sigma-8b",
         "provider": "vllm-plain",
@@ -456588,6 +456664,82 @@
           "wrong": 269,
           "invalid": 5,
           "accuracy": 0.4990859232175503
+        }
+      },
+      {
+        "name": "SmolLM3-3B",
+        "model": "smollm3-3b",
+        "provider": "vllm-plain",
+        "reasoning": "off",
+        "variant": null,
+        "questions_per_request": 1,
+        "perplexity_mode": null,
+        "run": 1633,
+        "runs": [
+          1633,
+          1635,
+          1636
+        ],
+        "dates": [
+          "2026-11-23"
+        ],
+        "parameters": 3075098624,
+        "active_parameters": null,
+        "effective_parameters": null,
+        "parameters_scope": "language model (tied embeddings), text only",
+        "parameters_source": [
+          "counted from the checkpoint's safetensors, HuggingFaceTB/SmolLM3-3B@a07cc9a",
+          "https://huggingface.co/HuggingFaceTB/SmolLM3-3B"
+        ],
+        "parameters_read": "2026-11-12",
+        "group": "chat",
+        "access": "our GPU (logic's server, vLLM v0.30.0 BF16, revision HuggingFaceTB/SmolLM3-3B@a07cc9a), one question per request, plain answer line ANSWER: X (no answer schema); sampling seed 0, temperature 0.0, thinking off; output cap 32,768",
+        "billing": "local",
+        "hardware": "1 × RTX PRO 6000 Blackwell (96 GB); BF16",
+        "english_where": "RTX PRO 6000",
+        "note": null,
+        "cost": {
+          "english": {
+            "usd": 0.7148131262006006,
+            "per_1000": 1.3067881649005495,
+            "basis": "gpu",
+            "billing": "local",
+            "tokens": {
+              "input_tokens": 179972,
+              "cached_input_tokens": 0,
+              "cache_write_input_tokens": 0,
+              "cache_write_1h_input_tokens": 0,
+              "output_tokens": 46688
+            },
+            "requests": 547,
+            "price": {
+              "basis": "Runpod's on-demand price for an RTX PRO 6000 (96 GB) on Secure Cloud",
+              "source": "https://www.runpod.io/pricing",
+              "date": "2026-11-05",
+              "change": null,
+              "applies_to": "gpu",
+              "gpu": "RTX PRO 6000 Blackwell (96 GB)",
+              "gpus": 1,
+              "usd_per_gpu_hour": 2.49,
+              "text": "$2.49 per GPU-hour, 1 GPU, for the run's request time"
+            },
+            "upper_bound": false,
+            "request_seconds": 1033.4647607719526
+          }
+        },
+        "latency": {
+          "english": {
+            "median_request_seconds": 18.377359351958148,
+            "p90_request_seconds": 33.682439528405666,
+            "concurrency": 32,
+            "questions_per_request": 1
+          }
+        },
+        "english": {
+          "right": 165,
+          "wrong": 152,
+          "invalid": 230,
+          "accuracy": 0.3016453382084095
         }
       },
       {
@@ -464173,6 +464325,43 @@
           }
         },
         {
+          "name": "SmolLM3-3B",
+          "model": "smollm3-3b",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 1625,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1626,
+            "runs": [
+              1626
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 104,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {
+                "cut off": 94,
+                "unreadable": 10
+              }
+            },
+            "right": 312,
+            "wrong": 112,
+            "dont_know": 19,
+            "invalid": 104,
+            "accuracy": 0.5703839122486288,
+            "attempt_rate": 0.7751371115173674,
+            "non_hallucination": 0.1450381679389313,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
           "name": "LFM2.5-24B-A2B",
           "model": "lfm2.5-24b-a2b",
           "provider": "vllm-plain",
@@ -464518,6 +464707,43 @@
             "accuracy": 0.4844606946983547,
             "attempt_rate": 0.9597806215722121,
             "non_hallucination": 0.051094890510948905,
+            "mean_dont_know_probability": null
+          }
+        },
+        {
+          "name": "SmolLM3-3B",
+          "model": "smollm3-3b",
+          "provider": "vllm-plain",
+          "group": "chat",
+          "text_run": null,
+          "reading_run": 1633,
+          "reason": "no Turkish run: an English-only setup",
+          "running": false,
+          "english": {
+            "run": 1634,
+            "runs": [
+              1634
+            ],
+            "invalid_replies": {
+              "invalid_without_rule": 339,
+              "read_from_broken_replies": 0,
+              "read_without_confidence": 0,
+              "empty_replies_asked_again": 0,
+              "asked_again_with_answers": 0,
+              "answers_after_asking_again": 0,
+              "error_replies_asked_again": 0,
+              "invalid_by_kind": {
+                "cut off": 6,
+                "unreadable": 333
+              }
+            },
+            "right": 111,
+            "wrong": 93,
+            "dont_know": 4,
+            "invalid": 339,
+            "accuracy": 0.20292504570383912,
+            "attempt_rate": 0.37294332723948814,
+            "non_hallucination": 0.041237113402061855,
             "mean_dont_know_probability": null
           }
         },

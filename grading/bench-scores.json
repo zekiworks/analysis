@@ -2,7 +2,7 @@
  "bench": "grading",
  "title": "Answer Check · does the text give this answer?",
  "url": "https://zekiworks.github.io/analysis/grading/",
- "updated": "2026-11-22T15:35:39Z",
+ "updated": "2026-11-23T14:54:29Z",
  "score": {
   "zero": "uniform chance: one of the three labels at random on every pair (accuracy 1/3)",
   "hundred": "every one of the 2,069 pairs labelled right (accuracy 100%)"
@@ -457,6 +457,34 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "TML-d24-varloop-research",
+   "display_name": "TML-d24-varloop-research",
+   "tag": "thinking on (no off mode) · 3 loop passes, card sampling (temperature 1.0) · chat",
+   "model_key": "tml-d24-varloop-research-card",
+   "maker": "Thinking Machines",
+   "kind": "chat",
+   "repo": "thinkingmachines/TML-d24-varloop-research",
+   "commit": "c90921bd5f78df6c8168173b9f8a3a850320c594",
+   "params_total": 26.4,
+   "params_active": 3.4,
+   "quantization": "NVFP4/MXFP8 experts (the maker's checkpoint), the rest BF16",
+   "score_0_100": 84.99275012083132,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8999516674722088,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-tml-d24-varloop-research-card-v1"
+   ],
+   "notes": "thinkingmachines/TML-d24-varloop-research@c90921bd, NVFP4/MXFP8 experts (the maker's checkpoint), the rest BF16, inkling-2-mini vLLM on one RTX PRO 6000 (ours), self-hosted (the recipe's image, sha256:c2dc759f, without the speculator); one question per request, 16 requests at a time (latency not comparable across different concurrency); thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 1 of 2069 replies (0.05%) had no answer marker and count wrong (0 of them cut off at the 32,768-token limit); every reply kept",
+   "gpu_hours": 0.4917267307948293,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "SubQ Snap 1.1",
    "display_name": "SubQ Snap 1.1",
    "tag": "",
@@ -566,6 +594,34 @@
    ],
    "notes": "Liquid AI decisions API (api.liquid.ai); one question per request, 8 requests at a time (latency not comparable across different concurrency)",
    "gpu_hours": null,
+   "gpu_cost_usd": null
+  },
+  {
+   "name": "TML-d24-varloop-research",
+   "display_name": "TML-d24-varloop-research",
+   "tag": "thinking on (no off mode) · 3 loop passes · chat",
+   "model_key": "tml-d24-varloop-research",
+   "maker": "Thinking Machines",
+   "kind": "chat",
+   "repo": "thinkingmachines/TML-d24-varloop-research",
+   "commit": "c90921bd5f78df6c8168173b9f8a3a850320c594",
+   "params_total": 26.4,
+   "params_active": 3.4,
+   "quantization": "NVFP4/MXFP8 experts (the maker's checkpoint), the rest BF16",
+   "score_0_100": 84.70275495408409,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.8980183663605606,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-tml-d24-varloop-research-v1"
+   ],
+   "notes": "thinkingmachines/TML-d24-varloop-research@c90921bd, NVFP4/MXFP8 experts (the maker's checkpoint), the rest BF16, inkling-2-mini vLLM on one RTX PRO 6000 (ours), self-hosted (the recipe's image, sha256:c2dc759f, without the speculator); one question per request, 16 requests at a time (latency not comparable across different concurrency); thinking on; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 31 of 2069 replies (1%) had no answer marker and count wrong (31 of them cut off at the 32,768-token limit); every reply kept",
+   "gpu_hours": 0.96104492784793,
    "gpu_cost_usd": null
   },
   {
@@ -2877,6 +2933,34 @@
    "gpu_cost_usd": null
   },
   {
+   "name": "SmolLM3-3B",
+   "display_name": "SmolLM3-3B",
+   "tag": "thinking off · card sampling (temperature 0.6, top_p 0.95) · chat",
+   "model_key": "smollm3-3b-nothink-card",
+   "maker": "Hugging Face",
+   "kind": "chat",
+   "repo": "HuggingFaceTB/SmolLM3-3B",
+   "commit": "a07cc9a04f16550a088caea529712d1d335b0ac1",
+   "params_total": 3.08,
+   "params_active": 3.08,
+   "quantization": "BF16",
+   "score_0_100": -39.27017883035282,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.07153214113098115,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-smollm3-3b-nothink-card-v1"
+   ],
+   "notes": "HuggingFaceTB/SmolLM3-3B@a07cc9a0, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time (latency not comparable across different concurrency); the server also answered another benchmark's requests (Reading, Science, ÖSYM sets) during the run, so its latency and GPU time are shared-load figures; thinking off; answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; 1811 of 2069 replies (88%) had no answer marker and count wrong (1 of them cut off at the 32,768-token limit); every reply kept",
+   "gpu_hours": 0.22668262779262374,
+   "gpu_cost_usd": null
+  },
+  {
    "name": "SmolLM2-360M-Instruct",
    "display_name": "SmolLM2-360M-Instruct",
    "tag": "no separate thinking mode · card quickstart example sampling (temperature 0.2, top_p 0.9) · chat",
@@ -2963,6 +3047,66 @@
     }
    ],
    "invalid_rate_mean": 0.902368293861769
+  },
+  {
+   "name": "SmolLM3-3B",
+   "display_name": "SmolLM3-3B",
+   "tag": "thinking off · chat",
+   "model_key": "smollm3-3b-nothink",
+   "maker": "Hugging Face",
+   "kind": "chat",
+   "repo": "HuggingFaceTB/SmolLM3-3B",
+   "commit": "a07cc9a04f16550a088caea529712d1d335b0ac1",
+   "params_total": 3.08,
+   "params_active": 3.08,
+   "quantization": "BF16",
+   "score_0_100": -45.408409859835665,
+   "raw": {
+    "metric": "accuracy",
+    "value": 0.030610600934428873,
+    "questions": 2069,
+    "options": 3
+   },
+   "calibration_error": null,
+   "improvement_points": null,
+   "runs": [
+    "grading:chat-smollm3-3b-nothink-v1",
+    "grading:chat-smollm3-3b-nothink-seed1-v1",
+    "grading:chat-smollm3-3b-nothink-seed2-v1"
+   ],
+   "notes": "HuggingFaceTB/SmolLM3-3B@a07cc9a0, BF16, v0.30.0 vLLM on one RTX PRO 6000 (ours), self-hosted; one question per request, 30 requests at a time from the client (latency not comparable across different concurrency); the server also answered another benchmark's requests (Reading, Science, ÖSYM sets) during the run, so its latency and GPU time are shared-load figures; mean of 3 full runs, seeds 0, 1, 2 (min-max across seeds, not a confidence interval); answer rule v2: the label is the last marker 'ANSWER: X' anywhere in the visible reply, where the word ANSWER may be in any letter case and X must be an uppercase A, B or C; the reasoning text is never read; v2 replaced rule v1 (the word in uppercase only) on 15 Nov after v1 was found to miss replies written 'Answer: X', and applies to every chat row; replies without an answer marker count wrong: mean rate 94% (per seed in seed_runs; cut off at the token limit per seed: 6, 6, 7); three new runs, seeds 0, 1, 2, every reply kept, with the same model, sampling settings, requests at a time and server, only the seed changed; no earlier run of this setup was published; gpu_hours is the mean of the three runs (GPU seconds per seed: 17982, 15756, 4945, at the same recorded settings; the cause of the difference is not known)",
+   "gpu_hours": 3.0724319972087253,
+   "gpu_cost_usd": null,
+   "accuracy_basis": "mean of 3 seeds",
+   "seed_min": 0.028516191396810053,
+   "seed_max": 0.032382793620106334,
+   "seed_runs": [
+    {
+     "run": "grading:chat-smollm3-3b-nothink-v1",
+     "seed": 0,
+     "accuracy": 0.032382793620106334,
+     "invalid": 1942,
+     "cutoff": 6,
+     "wrong_answers_caught": 1
+    },
+    {
+     "run": "grading:chat-smollm3-3b-nothink-seed1-v1",
+     "seed": 1,
+     "accuracy": 0.028516191396810053,
+     "invalid": 1948,
+     "cutoff": 6,
+     "wrong_answers_caught": 1
+    },
+    {
+     "run": "grading:chat-smollm3-3b-nothink-seed2-v1",
+     "seed": 2,
+     "accuracy": 0.030932817786370227,
+     "invalid": 1944,
+     "cutoff": 7,
+     "wrong_answers_caught": 2
+    }
+   ],
+   "invalid_rate_mean": 0.939906557112937
   },
   {
    "name": "SmolLM2-1.7B-Instruct",
