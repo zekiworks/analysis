@@ -860,10 +860,10 @@
    },
    {
     "reason": null,
-    "series_done": 4,
+    "series_done": 5,
     "setup": "MiniCPM5-2B (on)",
-    "status": "running",
-    "updated_at": "2026-11-23T02:01:27+00:00"
+    "status": "done",
+    "updated_at": "2026-11-23T04:03:17+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -958,13 +958,6 @@
    },
    {
     "reason": "waiting for its turn",
-    "series_done": 0,
-    "setup": "Inkling 2 Mini (on, effort 0.2)",
-    "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
-   },
-   {
-    "reason": "waiting for its turn",
     "series_done": 4,
     "setup": "GPT-6.1 Sol (high)",
     "status": "paused",
@@ -978,7 +971,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-23T02:22:02+00:00"
+  "updated_at": "2026-11-23T04:03:17+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -7355,20 +7348,20 @@
    },
    {
     "after": {
-     "error_rate": 72.46057009324431,
-     "right_safety": 82.0,
-     "risks_found": 26.25
+     "error_rate": 73.69858975708485,
+     "right_safety": 81.2,
+     "risks_found": 25.6
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 800,
-     "expected": 800,
+     "answered": 1000,
+     "expected": 1000,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 400,
-     "safety_pays": 400,
-     "tests": 4,
-     "valid": 800
+     "risk_pays": 500,
+     "safety_pays": 500,
+     "tests": 5,
+     "valid": 1000
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -7387,9 +7380,9 @@
      "risks_found": 27.666666666666668
     },
     "change": {
-     "error_rate": 2.561192071686193,
-     "right_safety": 1.3333333333333286,
-     "risks_found": -1.4166666666666679
+     "error_rate": 3.7992117355267254,
+     "right_safety": 0.5333333333333314,
+     "risks_found": -2.0666666666666664
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -7445,13 +7438,13 @@
      }
     ],
     "empty_done": 3,
-    "improved": null,
+    "improved": false,
     "key": "minicpm5-2b-on",
     "progress": {
      "reason": null,
-     "series_done": 4,
-     "status": "running",
-     "updated_at": "2026-11-23T02:01:27+00:00"
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-23T04:03:17+00:00"
     },
     "range": 7.0,
     "reason": null,
@@ -7731,12 +7724,81 @@
        "wall_seconds": 4191.5
       },
       "wins": 4
+     },
+     {
+      "finished": true,
+      "game_decisions": 230,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Avoid unnecessary risks; many losses stem from taking risks the engine saw as unwarranted.\n- Always respect engine risk calls unless you have clear safety concerns.\n- Prioritize safety in early game phases to prevent point losses.\n- Carefully evaluate player entries; incorrect entries often lead to poor equity.\n- Monitor your equity after each decision; significant losses flag bad plays."
+       },
+       {
+        "game": 2,
+        "text": "- Always consider risk opportunities when the engine suggests them.\n- Be cautious with bar moves; don't risk your checks.\n- Only make moves the engine endorses to avoid large losses.\n- Avoid unnecessary risk trades to preserve your position.\n- Review your decisions to minimize equity gaps."
+       },
+       {
+        "game": 3,
+        "text": "- Always consider risk calls when your move could allow opponent to take a risk.\n- Keep options open by not prematurely giving up or missing better moves.\n- Trust the engine's evaluation to guide your choices, especially in critical turns.\n- Be mindful of your own checkers' safety; sometimes they can become more vulnerable.\n- Adjust your strategy based on the engine's feedback to improve consistency."
+       },
+       {
+        "game": 4,
+        "text": "- Always carefully consider risk calls; don't miss them.\n- Avoid unnecessary risk calls even if seemingly safe.\n- When uncertain, play defensively to protect your bar.\n- Trust the engine's analysis to guide your decisions.\n- Prioritize safety over attempting risky moves."
+       },
+       {
+        "game": 5,
+        "text": "- Always consider taking a risk when the equity is favorable; missing risks costs you points.\n- When the engine suggests a move, trust it over your intuition if you're unsure.\n- In low-dice situations, prioritize risks to gain advantage rather than playing safely.\n- A safe move can be a loss; sometimes a higher-risk move wins.\n- Watch your opponent's play and adjust your strategy accordingly."
+       },
+       {
+        "game": 6,
+        "text": "- Always evaluate risk calls carefully; missed risks caused significant losses.\n- Avoid repeating the same move when the engine suggests a different option.\n- Consider low-dice rolls more conservatively to prevent unnecessary risk.\n- Trust the engine's equity when your equity loss is very small.\n- Refrain from risk calls when the safety options are clear."
+       },
+       {
+        "game": 7,
+        "text": "- Avoid unnecessary risk calls; only take risks when probabilities favor you.\n- Prefer safer moves over risky ones when options are available.\n- On doubles, consider saving checkers for better opportunities rather than playing immediately.\n- When responding to opponent, focus on controlling the board rather than chasing scores.\n- Review risk decisions more carefully, especially on favorable dice rolls."
+       },
+       {
+        "game": 8,
+        "text": "- Avoid risking checks when the board is symmetrical or unfavorable.\n- Only risk if your position clearly advantages you; otherwise, the engine suggests caution.\n- When in doubt, let the engine decide rather than forcing a risky move.\n- Miss risks that seem obvious but lead to larger losses; sometimes waiting is better.\n- Trust the engine's evaluation to guide your decisions when uncertainty is high."
+       },
+       {
+        "game": 9,
+        "text": "- Consider risk calls when your chance is sufficient.\n- Avoid trades that lead to significant equity losses.\n- Follow the engine's best moves when they seem optimal.\n- Be cautious about making wrong risk calls even if seemingly safe.\n- Remember that sometimes the right move requires adjusting expectations."
+       },
+       {
+        "game": 10,
+        "text": "- Read the engine's best play even when it differs from your plan.\n- Don't miss risk calls when you feel confident about your position.\n- When unsure, prioritize safety over risk to avoid bad equity.\n- Keep your dice rolls in mind; stay flexible with moves.\n- Avoid risky moves when you're close to a win, as they can lead to loss."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 78.65066841244698,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 78.0,
+       "risk_pays": 100,
+       "risks_found": 23.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 3940.9
+      },
+      "wins": 2
      }
     ],
-    "series_finished": 4,
+    "series_finished": 5,
     "setup": "MiniCPM5-2B (on)",
-    "state": "running",
-    "status": "running on our GPU, 4 of 5 series",
+    "state": "complete",
+    "status": "No",
     "steps_done": [
      "E1",
      "S1",
@@ -7744,10 +7806,11 @@
      "E2",
      "S3",
      "S4",
-     "E3"
+     "E3",
+     "S5"
     ],
     "threshold": 7.0,
-    "verdict": false
+    "verdict": true
    },
    {
     "after": {
@@ -9206,51 +9269,6 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
-    },
-    "answers_after": null,
-    "answers_before": null,
-    "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
-    },
-    "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
-    },
-    "cost": {
-     "api_equivalent_usd": 0.0,
-     "billed_usd": 0.0,
-     "estimate_usd": null,
-     "reported_usd": null
-    },
-    "empty": [],
-    "empty_done": 0,
-    "improved": null,
-    "key": "inkling-2-mini-e02",
-    "progress": {
-     "reason": "waiting for its turn",
-     "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
-    },
-    "range": null,
-    "reason": "waiting for its turn in its lane",
-    "series": [],
-    "series_finished": 0,
-    "setup": "Inkling 2 Mini (on, effort 0.2)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
-    "steps_done": [],
-    "threshold": null,
-    "verdict": false
-   },
-   {
-    "after": {
      "error_rate": 20.379898622632027,
      "right_safety": 96.0,
      "risks_found": 64.5
@@ -9695,18 +9713,18 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-23T02:22:02+00:00"
+  "updated_at": "2026-11-23T04:03:17+00:00"
  },
- "source_sha256": "559ba8b6903a68cf9412a73d326f146c7f2da7ccbbc3f82fdac9a19b54cca646",
+ "source_sha256": "b2f80ef6ba4ec0405cacacfc757015a6ffc22957056894092015541e2889c88b",
  "status": {
-  "last_update": "2026-11-23T02:22:02+00:00",
-  "line": "15 of 31 models with a verdict · 1 running · 14 paused · 1 incomplete or stopped",
+  "last_update": "2026-11-23T04:03:17+00:00",
+  "line": "16 of 31 models with a verdict · 0 running · 13 paused · 1 incomplete or stopped",
   "models": 31,
-  "paused": 14,
+  "paused": 13,
   "phase": "running",
-  "running": 1,
+  "running": 0,
   "stopped": 1,
-  "verdicts": 15
+  "verdicts": 16
  },
  "validation": {
   "accepted": true,
