@@ -152,6 +152,13 @@
     "note": "Added 21 Nov: Inkling 2 Mini with thinking on (effort 0.9), under the same rule, lesson prompt, test and schedule, on the server it shares with Logic & Math and other benchmarks (its owner's pinned load; this run neither starts nor stops it), sampled greedily as on Logic & Math (temperature 0), its first empty test a validity check as above. Its letter is read from its own answer after its reasoning: its server cannot continue a prefilled answer after a reasoning block. While that server is away, the model pauses. At effort 0.9, 110 of the first 148 answers used all 32,768 output tokens without naming an option; that run stopped and played no series. It was then rerun at effort 0.5, otherwise unchanged. That rerun also stopped at the validity check: 40 of 200 answers (20%) used all 32,768 output tokens without naming an option, above the 10% invalid-answer limit; it played no series.",
     "record": "Ümit #13780/#13810/#13811 (improve 5d4b602); effort 0.5: Ümit #14049/#14136 (improve 28f10d6, branch improve-ink-e05)",
     "source": "Ümit's decision of 21 Nov 2026"
+   },
+   {
+    "at": "2026-11-23",
+    "models": [],
+    "note": "Inkling 2 Mini retry order, decided before either retry's first call. A capped answer counts as a trailing loop when a pattern of at most 64 whitespace tokens reproduces at least 80% of its final 512 whitespace tokens. Of the capped answers, effort 0.9 had 31 loops and 79 still reasoning normally; effort 0.5 had 25 loops and 15 still reasoning normally. Combined, 56 of 150 were loops and 94 were still reasoning normally, so the lower-effort retry comes first. First try: effort 0.2, temperature 0 and the same 32,768-token limit. Its first empty run is the 200-position validity check; at most 20 invalid answers passes, then this setup plays the full schedule. If it fails, second try: effort 0.5 with the model card's complete sampling configuration (do_sample true, temperature 1.0, eos token 200006 and pad token 199999; the token ids are properties of the loaded server, and the request changes temperature from 0 to 1.0). The card specifies no top_p, top_k or min_p. This is a different setup from the Logic & Math row, which uses effort 0.9 and temperature 0. Sampling at temperature 1.0 can widen this setup's own three-empty-run spread and therefore raise its improvement threshold. Its first empty run uses the same validity check; if it passes, it plays the full schedule. If both retries fail, Inkling stops and is recorded as unable to take the test; there is no third setting. Exploratory 10-position probe, not a result: effort 0.9 with the card's temperature 1.0 returned 9 valid answers and had 1 answer reach the 32,768-token limit; mean output was about 19,500 tokens, median about 16,000 and the slowest request took 814 seconds. The probe was effort 0.9, not the second retry's effort 0.5. The shared Logic & Math server is not restarted, reloaded or copied, and these retries do not hold up the small-model batch.",
+    "record": "Ümit #15121; loop split from the stored capped responses; exploratory probe stored under workspace/improve/runs/inkling-2-mini-on/probe-effort-0.9-temp1.0",
+    "source": "Ümit's decision of 23 Nov 2026"
    }
   ],
   "commitment": "Results will be published whichever way they go.",
@@ -9618,7 +9625,7 @@
   },
   "updated_at": "2026-11-22T23:12:07+00:00"
  },
- "source_sha256": "ec274fed48b74db19264cbd7487ae2141b6e84be30a82c50b01425281848f6f0",
+ "source_sha256": "3e4109640e6745f74aff53b74d2c89b48d6dc3bac8c6c17b967ea5aa5b0c9c93",
  "status": {
   "last_update": "2026-11-22T23:12:07+00:00",
   "line": "15 of 30 models with a verdict · 1 running · 13 paused · 1 incomplete or stopped",
