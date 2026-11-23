@@ -161,10 +161,16 @@
       "route": "local vLLM (Logic & Math's shared server)",
       "setting": "on (effort 0.2, temperature 0; first validity retry)",
       "setup": "Inkling 2 Mini (on, effort 0.2)"
+     },
+     {
+      "maker": "Liquid AI",
+      "route": "local vLLM on our GPU",
+      "setting": "thinking off (league setup; first empty run is a validity check)",
+      "setup": "LFM2.5-24B-A2B (off)"
      }
     ],
-    "note": "Inkling 2 Mini retry order, decided before either retry's first call. A capped answer counts as a trailing loop when a pattern of at most 64 whitespace tokens reproduces at least 80% of its final 512 whitespace tokens. Of the capped answers, effort 0.9 had 31 loops and 79 still reasoning normally; effort 0.5 had 25 loops and 15 still reasoning normally. Combined, 56 of 150 were loops and 94 were still reasoning normally, so the lower-effort retry comes first. First try: effort 0.2, temperature 0 and the same 32,768-token limit. Its first empty run is the 200-position validity check; at most 20 invalid answers passes, then this setup plays the full schedule. If it fails, second try: effort 0.5 with the model card's complete sampling configuration (do_sample true, temperature 1.0, eos token 200006 and pad token 199999; the token ids are properties of the loaded server, and the request changes temperature from 0 to 1.0). The card specifies no top_p, top_k or min_p. This is a different setup from the Logic & Math row, which uses effort 0.9 and temperature 0. Sampling at temperature 1.0 can widen this setup's own three-empty-run spread and therefore raise its improvement threshold. Its first empty run uses the same validity check; if it passes, it plays the full schedule. If both retries fail, Inkling stops and is recorded as unable to take the test; there is no third setting. Exploratory 10-position probe, not a result: effort 0.9 with the card's temperature 1.0 returned 9 valid answers and had 1 answer reach the 32,768-token limit; mean output was about 19,500 tokens, median about 16,000 and the slowest request took 814 seconds. The probe was effort 0.9, not the second retry's effort 0.5. The shared Logic & Math server is not restarted, reloaded or copied, and these retries do not hold up the small-model batch.",
-    "record": "Ümit #15121; loop split from the stored capped responses; exploratory probe stored under workspace/improve/runs/inkling-2-mini-on/probe-effort-0.9-temp1.0",
+    "note": "Inkling 2 Mini retry order, decided before either retry's first call. A capped answer counts as a trailing loop when a pattern of at most 64 whitespace tokens reproduces at least 80% of its final 512 whitespace tokens. Of the capped answers, effort 0.9 had 31 loops and 79 still reasoning normally; effort 0.5 had 25 loops and 15 still reasoning normally. Combined, 56 of 150 were loops and 94 were still reasoning normally, so the lower-effort retry comes first. First try: effort 0.2, temperature 0 and the same 32,768-token limit. Its first empty run is the 200-position validity check; at most 20 invalid answers passes, then this setup plays the full schedule. If it fails, second try: effort 0.5 with the model card's complete sampling configuration (do_sample true, temperature 1.0, eos token 200006 and pad token 199999; the token ids are properties of the loaded server, and the request changes temperature from 0 to 1.0). The card specifies no top_p, top_k or min_p. This is a different setup from the Logic & Math row, which uses effort 0.9 and temperature 0. Sampling at temperature 1.0 can widen this setup's own three-empty-run spread and therefore raise its improvement threshold. Its first empty run uses the same validity check; if it passes, it plays the full schedule. If both retries fail, Inkling stops and is recorded as unable to take the test; there is no third setting. Exploratory 10-position probe, not a result: effort 0.9 with the card's temperature 1.0 returned 9 valid answers and had 1 answer reach the 32,768-token limit; mean output was about 19,500 tokens, median about 16,000 and the slowest request took 814 seconds. The probe was effort 0.9, not the second retry's effort 0.5. The shared Logic & Math server is not restarted, reloaded or copied, and these retries do not hold up the small-model batch. Same-day Learning decision: Inkling keeps this evidence and first-retry priority. LFM2.5-24B-A2B thinking off runs on our GPU immediately after Qwen3.5-2B, with the 200-position validity check (at most 20 invalid passes) and the existing context-fit stop rule; lessons are never shortened. Four reasoning-high successors are planned but not started: GPT-6.2 Astra and Sol through the ChatGPT subscription with no explicit output-cap override; Gemini 4 Neon through Antigravity, thinking high with no explicit output-cap override; Claude Fable 5.2 through a separate Claude subscription, adaptive thinking at effort high with a 32,768-token output limit. Estimated full schedules: Astra / Sol about 2,700 requests and $180–$200 / $45–$50 API-list-price equivalent; Neon about 2,900 and $405–$410; Fable about 2,900 and $440–$445. These scale predecessor usage at current standard API input/output prices per million tokens: Astra $8/$40, Sol $2/$10, Neon $3/$15, Fable $8/$40; they are not quota guarantees. None starts before its quota resets and Ümit approves it.",
+    "record": "Ümit #15121; loop split from stored capped responses; exploratory probe stored under workspace/improve/runs/inkling-2-mini-on/probe-effort-0.9-temp1.0; same-day Learning decision, improve harness amendment and planned-row estimates",
     "source": "Ümit's decision of 23 Nov 2026"
    }
   ],
@@ -576,6 +582,19 @@
     "setting": "on (effort 0.2, temperature 0; first validity retry)",
     "setup": "Inkling 2 Mini (on, effort 0.2)",
     "status": "added 2026-11-23 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "lfm2.5-24b-a2b-off",
+    "label": "",
+    "late_entry": false,
+    "maker": "Liquid AI",
+    "n": 32,
+    "route": "local vLLM on our GPU",
+    "route_detail": "",
+    "setting": "thinking off (league setup; first empty run is a validity check)",
+    "setup": "LFM2.5-24B-A2B (off)",
+    "status": "added 2026-11-23 (amendment)"
    }
   ],
   "notes": [
@@ -667,6 +686,34 @@
    "setup": "Inkling Small",
    "status": "not started (waiting for budget)",
    "tag": "added 9 Nov, no league record"
+  },
+  {
+   "group": "chat",
+   "params_model": null,
+   "setup": "GPT-6.2 Astra (high)",
+   "status": "not started (waiting for quota reset and approval)",
+   "tag": "planned 23 Nov, no league record"
+  },
+  {
+   "group": "chat",
+   "params_model": null,
+   "setup": "GPT-6.2 Sol (high)",
+   "status": "not started (waiting for quota reset and approval)",
+   "tag": "planned 23 Nov, no league record"
+  },
+  {
+   "group": "chat",
+   "params_model": null,
+   "setup": "Gemini 4 Neon (high)",
+   "status": "not started (waiting for quota reset and approval)",
+   "tag": "planned 23 Nov, no league record"
+  },
+  {
+   "group": "chat",
+   "params_model": null,
+   "setup": "Claude Fable 5.2 (high)",
+   "status": "not started (waiting for quota reset and approval)",
+   "tag": "planned 23 Nov, no league record"
   },
   {
    "group": "decision",
@@ -852,6 +899,13 @@
     "updated_at": "2026-11-22T01:56:39+00:00"
    },
    {
+    "reason": "waiting for its turn",
+    "series_done": 0,
+    "setup": "LFM2.5-24B-A2B (off)",
+    "status": "paused",
+    "updated_at": "2026-11-08T16:10:46+00:00"
+   },
+   {
     "reason": null,
     "series_done": 5,
     "setup": "Gemma 4 E4B (on)",
@@ -905,7 +959,7 @@
     "series_done": 1,
     "setup": "Qwen3.5-2B (on)",
     "status": "running",
-    "updated_at": "2026-11-23T09:29:32+00:00"
+    "updated_at": "2026-11-23T12:39:35+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -978,7 +1032,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-23T09:29:32+00:00"
+  "updated_at": "2026-11-23T13:06:59+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -6889,6 +6943,51 @@
    },
    {
     "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": null,
+    "before": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [],
+    "empty_done": 0,
+    "improved": null,
+    "key": "lfm2.5-24b-a2b-off",
+    "progress": {
+     "reason": "waiting for its turn",
+     "series_done": 0,
+     "status": "paused",
+     "updated_at": "2026-11-08T16:10:46+00:00"
+    },
+    "range": null,
+    "reason": "waiting for its turn in its lane",
+    "series": [],
+    "series_finished": 0,
+    "setup": "LFM2.5-24B-A2B (off)",
+    "state": "paused",
+    "status": "paused: waiting for its turn in its lane",
+    "steps_done": [],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
      "error_rate": 64.42583580315113,
      "right_safety": 83.8,
      "risks_found": 26.6
@@ -8410,12 +8509,12 @@
      "updated_at": "2026-11-08T16:10:46+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": "operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
     "series": [],
     "series_finished": 0,
     "setup": "Gemma 4 E2B (on)",
     "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "status": "paused: operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -8954,7 +9053,7 @@
      "reason": null,
      "series_done": 1,
      "status": "running",
-     "updated_at": "2026-11-23T09:29:32+00:00"
+     "updated_at": "2026-11-23T12:39:35+00:00"
     },
     "range": null,
     "reason": null,
@@ -9075,12 +9174,12 @@
      "updated_at": "2026-11-08T16:10:46+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": "operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
     "series": [],
     "series_finished": 0,
     "setup": "Raon-1 nano (on)",
     "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "status": "paused: operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -9210,12 +9309,12 @@
      "updated_at": "2026-11-08T16:10:46+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": "operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
     "series": [],
     "series_finished": 0,
     "setup": "SmolLM3-3B (off)",
     "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "status": "paused: operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -9255,12 +9354,12 @@
      "updated_at": "2026-11-08T16:10:46+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": "operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
     "series": [],
     "series_finished": 0,
     "setup": "SmolLM3-3B (on)",
     "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
+    "status": "paused: operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -9874,14 +9973,14 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-23T09:29:32+00:00"
+  "updated_at": "2026-11-23T13:06:59+00:00"
  },
- "source_sha256": "a4392d39fde7831422a05481586e63e024335ad83ec3535ae4cfe6f04246da83",
+ "source_sha256": "ecb8ae5191d3d6f594f6f74f40a22e841c28a56b5a7df59af910b84726c6ee2d",
  "status": {
-  "last_update": "2026-11-23T09:29:32+00:00",
-  "line": "16 of 31 models with a verdict · 1 running · 13 paused · 1 incomplete or stopped",
-  "models": 31,
-  "paused": 13,
+  "last_update": "2026-11-23T13:06:59+00:00",
+  "line": "16 of 32 models with a verdict · 1 running · 14 paused · 1 incomplete or stopped",
+  "models": 32,
+  "paused": 14,
   "phase": "running",
   "running": 1,
   "stopped": 1,
