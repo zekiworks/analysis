@@ -901,11 +901,11 @@
     "updated_at": "2026-11-21T12:16:04+00:00"
    },
    {
-    "reason": "waiting for its turn",
+    "reason": null,
     "series_done": 0,
     "setup": "Qwen3.5-2B (on)",
-    "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
+    "status": "running",
+    "updated_at": "2026-11-23T05:16:10+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -958,6 +958,13 @@
    },
    {
     "reason": "waiting for its turn",
+    "series_done": 0,
+    "setup": "Inkling 2 Mini (on, effort 0.2)",
+    "status": "paused",
+    "updated_at": "2026-11-08T16:10:46+00:00"
+   },
+   {
+    "reason": "waiting for its turn",
     "series_done": 4,
     "setup": "GPT-6.1 Sol (high)",
     "status": "paused",
@@ -971,7 +978,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-23T04:03:17+00:00"
+  "updated_at": "2026-11-23T05:16:10+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -8886,11 +8893,21 @@
      "risks_found": null
     },
     "answers_after": null,
-    "answers_before": null,
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 68.14294189214706,
+     "right_safety": 87.0,
+     "risks_found": 26.0
     },
     "change": {
      "error_rate": null,
@@ -8903,24 +8920,42 @@
      "estimate_usd": null,
      "reported_usd": null
     },
-    "empty": [],
-    "empty_done": 0,
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 68.14294189214706,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 87.0,
+      "risk_pays": 100,
+      "risks_found": 26.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 4234.3
+     }
+    ],
+    "empty_done": 1,
     "improved": null,
     "key": "qwen3.5-2b-on",
     "progress": {
-     "reason": "waiting for its turn",
+     "reason": null,
      "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
+     "status": "running",
+     "updated_at": "2026-11-23T05:16:10+00:00"
     },
     "range": null,
-    "reason": "waiting for its turn in its lane",
+    "reason": null,
     "series": [],
     "series_finished": 0,
     "setup": "Qwen3.5-2B (on)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
-    "steps_done": [],
+    "state": "running",
+    "status": "running on our GPU, 0 of 5 series",
+    "steps_done": [
+     "E1"
+    ],
     "threshold": null,
     "verdict": false
    },
@@ -9264,6 +9299,51 @@
     "steps_done": [
      "E1"
     ],
+    "threshold": null,
+    "verdict": false
+   },
+   {
+    "after": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "answers_after": null,
+    "answers_before": null,
+    "before": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "change": {
+     "error_rate": null,
+     "right_safety": null,
+     "risks_found": null
+    },
+    "cost": {
+     "api_equivalent_usd": 0.0,
+     "billed_usd": 0.0,
+     "estimate_usd": null,
+     "reported_usd": null
+    },
+    "empty": [],
+    "empty_done": 0,
+    "improved": null,
+    "key": "inkling-2-mini-e02",
+    "progress": {
+     "reason": "waiting for its turn",
+     "series_done": 0,
+     "status": "paused",
+     "updated_at": "2026-11-08T16:10:46+00:00"
+    },
+    "range": null,
+    "reason": "waiting for its turn in its lane",
+    "series": [],
+    "series_finished": 0,
+    "setup": "Inkling 2 Mini (on, effort 0.2)",
+    "state": "paused",
+    "status": "paused: waiting for its turn in its lane",
+    "steps_done": [],
     "threshold": null,
     "verdict": false
    },
@@ -9713,16 +9793,16 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-23T04:03:17+00:00"
+  "updated_at": "2026-11-23T05:16:10+00:00"
  },
- "source_sha256": "b2f80ef6ba4ec0405cacacfc757015a6ffc22957056894092015541e2889c88b",
+ "source_sha256": "f64ea9d64311440e94001dca8db7d74a73fad442d1fd30208ebacbcbbe90650e",
  "status": {
-  "last_update": "2026-11-23T04:03:17+00:00",
-  "line": "16 of 31 models with a verdict · 0 running · 13 paused · 1 incomplete or stopped",
+  "last_update": "2026-11-23T05:16:10+00:00",
+  "line": "16 of 31 models with a verdict · 1 running · 13 paused · 1 incomplete or stopped",
   "models": 31,
   "paused": 13,
   "phase": "running",
-  "running": 0,
+  "running": 1,
   "stopped": 1,
   "verdicts": 16
  },
