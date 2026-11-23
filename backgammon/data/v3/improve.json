@@ -949,10 +949,10 @@
    },
    {
     "reason": null,
-    "series_done": 2,
+    "series_done": 3,
     "setup": "Qwen3.5-2B (on)",
     "status": "running",
-    "updated_at": "2026-11-23T14:51:26+00:00"
+    "updated_at": "2026-11-23T19:27:42+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -1025,7 +1025,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-23T14:51:27+00:00"
+  "updated_at": "2026-11-23T19:27:43+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -8935,20 +8935,20 @@
    },
    {
     "after": {
-     "error_rate": 72.01250649988651,
-     "right_safety": 89.0,
-     "risks_found": 14.0
+     "error_rate": 73.70752672354381,
+     "right_safety": 85.66666666666667,
+     "risks_found": 16.333333333333332
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 400,
-     "expected": 400,
+     "answered": 600,
+     "expected": 600,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 200,
-     "safety_pays": 200,
-     "tests": 2,
-     "valid": 400
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -8967,9 +8967,9 @@
      "risks_found": 25.5
     },
     "change": {
-     "error_rate": -1.1880401149392128,
-     "right_safety": 3.5,
-     "risks_found": -11.5
+     "error_rate": 0.5069801087180821,
+     "right_safety": 0.1666666666666714,
+     "risks_found": -9.166666666666668
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -9014,9 +9014,9 @@
     "key": "qwen3.5-2b-on",
     "progress": {
      "reason": null,
-     "series_done": 2,
+     "series_done": 3,
      "status": "running",
-     "updated_at": "2026-11-23T14:51:26+00:00"
+     "updated_at": "2026-11-23T19:27:42+00:00"
     },
     "range": null,
     "reason": null,
@@ -9158,17 +9158,87 @@
        "wall_seconds": 3822.6
       },
       "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 195,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Always evaluate board geometry before moving.\n- Focus on fairness and avoiding wasteful moves.\n- Do not gamble when equity loss exceeds risk.\n- Watch opponent's bars, not your own concerns.\n- Re-evaluate your position after losing equity."
+       },
+       {
+        "game": 2,
+        "text": "- Avoid \"no risk trade-off\" when equity is negative, even with odds.\n- Don't gamble when equity is below 0.25.\n- Prioritize safety over aggression.\n- Check equity before risking every point in evaluation.\n- Don't let opponent control position create uncertainty."
+       },
+       {
+        "game": 3,
+        "text": "- Secure the 13-10 line by prioritizing stability before any risk play. Verify your opponent has no counter-play before moving to your board.\n- Avoid 24/22 positions - they often sacrifice security for temporary gain in favor of slower builds.\n- Do not risk 14/11 before analyzing 24/20 line - it is volatile unless verified.\n- Prioritize the 12-8 line first - wait for opponent to build pressure to your advantage.\n- Stay on the 13-8 line unless the opponent builds defense carefully. Do not rush."
+       },
+       {
+        "game": 4,
+        "text": "- Assess the center state carefully. Don't risk the bar if you have an even position. Always prioritize safety over strength. Play early. Check the board. Go to bar.\n- Never ignore bar identification. Trust engine when safety is certain, not risky with evidence. Always trust my engine's predictions. Watch the board. Safe. Good.\n- Do not overcommit the center during a lull. Play conservatively and follow the rules strictly. Manage your risk levels. Win. Avoid the loss. Safe. Good. Now.\n- Ensure your opponent's safety before every move. Read the opponent's bar correctly. Avoid moves that cost too much equity. Check the position. Avoid the loss. Safe. Good.\n- Check engine advice always. Don't gamble. Read every board state. Make the door open. Avoid risk. Win. It. Best. Go. Safe. Fine. It's. Best. Game. Well."
+       },
+       {
+        "game": 5,
+        "text": "- Prioritize safe play when opponent risk is high.\n- Check opponent risk before risking anything heavy.\n- Don't play unless opponent needs you to make points.\n- Improve your defensive play after opponent's moves.\n- Match engine evaluation with safe counterplay."
+       },
+       {
+        "game": 6,
+        "text": "- Don't chase 'missed risk' calls when equity is already negative.\n- Prioritize safety over aggressive pressure if engine evaluates differently.\n- Avoid risking major pieces on weakly-evaluated opponent positions.\n- Review backgammon history to confirm board strategy logic.\n- Play conservatively against opponent's pushing to minimize equity loss."
+       },
+       {
+        "game": 7,
+        "text": "- Verify 22/20 stability before playing 13/9 or 7/5 attacks.\n- Risk big equity moves without securing own 24/22 block support.\n- Check for 18/4 partners on opponent board before making safety trades.\n- Do not sacrifice own position for small gains unless risk mitigation guaranteed.\n- Always verify opponent's bar status before playing 24/22 counter moves."
+       },
+       {
+        "game": 8,
+        "text": "- Avoid opening high risk checkers early, unless equity positive.\n- Never gamble risk calls, don't risk only safe play.\n- Prioritize your own supply, don't risk bet.\n- Always check equity before opening heavy checks.\n- Risk trade-off only if sure of survival."
+       },
+       {
+        "game": 9,
+        "text": "- Avoid risk trade-offs without clear equity gain found.\n- Prioritize defense over aggressive mid-game moves.\n- Always check equity before committing to any risky far future move.\n- Do not play 'no risk trade-off' pass if better play exists.\n- Focus on security for evacuation against risk trades."
+       },
+       {
+        "game": 10,
+        "text": "- Always review sequences before committing to any move.\n- Do not risk calls where board equity is below 10%.\n- Avoid 2-over-1 when opponent structure weakens.\n- Maintain checkers until you have a solid advantage.\n- Never leave checkers at bar unless risk is safe."
+       }
+      ],
+      "lessons_cut": 1,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 77.09756717085838,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 79.0,
+       "risk_pays": 100,
+       "risks_found": 21.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 3856.7
+      },
+      "wins": 1
      }
     ],
-    "series_finished": 2,
+    "series_finished": 3,
     "setup": "Qwen3.5-2B (on)",
     "state": "running",
-    "status": "running on our GPU, 2 of 5 series",
+    "status": "running on our GPU, 3 of 5 series",
     "steps_done": [
      "E1",
      "S1",
      "S2",
-     "E2"
+     "E2",
+     "S3"
     ],
     "threshold": null,
     "verdict": false
@@ -10007,11 +10077,11 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-23T14:51:27+00:00"
+  "updated_at": "2026-11-23T19:27:43+00:00"
  },
- "source_sha256": "8cff3660063b33b04939314e49ba4bed9a0637eff102b6f26d949a5b0e56788a",
+ "source_sha256": "b45ea9a73ecb109fe5e0c8b75b76e8875e9334ed4d38513fde35817f9f70d10c",
  "status": {
-  "last_update": "2026-11-23T14:51:27+00:00",
+  "last_update": "2026-11-23T19:27:43+00:00",
   "line": "16 of 32 models with a verdict · 1 running · 13 paused · 1 incomplete or stopped",
   "models": 32,
   "paused": 13,
