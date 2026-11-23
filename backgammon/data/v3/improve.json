@@ -899,13 +899,6 @@
     "updated_at": "2026-11-22T01:56:39+00:00"
    },
    {
-    "reason": "waiting for its turn",
-    "series_done": 0,
-    "setup": "LFM2.5-24B-A2B (off)",
-    "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
-   },
-   {
     "reason": null,
     "series_done": 5,
     "setup": "Gemma 4 E4B (on)",
@@ -956,10 +949,10 @@
    },
    {
     "reason": null,
-    "series_done": 1,
+    "series_done": 2,
     "setup": "Qwen3.5-2B (on)",
     "status": "running",
-    "updated_at": "2026-11-23T12:39:35+00:00"
+    "updated_at": "2026-11-23T13:43:17+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -1032,7 +1025,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-23T13:06:59+00:00"
+  "updated_at": "2026-11-23T13:43:17+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -6943,51 +6936,6 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
-    },
-    "answers_after": null,
-    "answers_before": null,
-    "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
-    },
-    "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
-    },
-    "cost": {
-     "api_equivalent_usd": 0.0,
-     "billed_usd": 0.0,
-     "estimate_usd": null,
-     "reported_usd": null
-    },
-    "empty": [],
-    "empty_done": 0,
-    "improved": null,
-    "key": "lfm2.5-24b-a2b-off",
-    "progress": {
-     "reason": "waiting for its turn",
-     "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
-    },
-    "range": null,
-    "reason": "waiting for its turn in its lane",
-    "series": [],
-    "series_finished": 0,
-    "setup": "LFM2.5-24B-A2B (off)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
-    "steps_done": [],
-    "threshold": null,
-    "verdict": false
-   },
-   {
-    "after": {
      "error_rate": 64.42583580315113,
      "right_safety": 83.8,
      "risks_found": 26.6
@@ -8987,20 +8935,20 @@
    },
    {
     "after": {
-     "error_rate": 72.09395870566368,
-     "right_safety": 88.0,
-     "risks_found": 12.0
+     "error_rate": 72.01250649988651,
+     "right_safety": 89.0,
+     "risks_found": 14.0
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 200,
-     "expected": 200,
+     "answered": 400,
+     "expected": 400,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 100,
-     "safety_pays": 100,
-     "tests": 1,
-     "valid": 200
+     "risk_pays": 200,
+     "safety_pays": 200,
+     "tests": 2,
+     "valid": 400
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -9019,9 +8967,9 @@
      "risks_found": 26.0
     },
     "change": {
-     "error_rate": 3.951016813516617,
-     "right_safety": 1.0,
-     "risks_found": -14.0
+     "error_rate": 3.8695646077394485,
+     "right_safety": 2.0,
+     "risks_found": -12.0
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -9051,9 +8999,9 @@
     "key": "qwen3.5-2b-on",
     "progress": {
      "reason": null,
-     "series_done": 1,
+     "series_done": 2,
      "status": "running",
-     "updated_at": "2026-11-23T12:39:35+00:00"
+     "updated_at": "2026-11-23T13:43:17+00:00"
     },
     "range": null,
     "reason": null,
@@ -9126,15 +9074,85 @@
        "wall_seconds": 3866.5
       },
       "wins": 3
+     },
+     {
+      "finished": true,
+      "game_decisions": 171,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Risk calls must align with safety if opponent has 10-10.\n- Prefer 15% equity over complex risk trades.\n- Never play until bar 24/v or 10-10/10-10 is clear.\n- Don't play 6/23 unless safety or opponent is 10-10.\n- Use 18/16 if risk trade-off is guaranteed."
+       },
+       {
+        "game": 2,
+        "text": "- Evaluate risk levels carefully before making critical moves.\n- Prioritize safety over chasing small mathematical wins.\n- Review equity losses to avoid committing game action.\n- Play only if chance or advantage defies safety calls.\n- Don't risk moves without clear reward potential."
+       },
+       {
+        "game": 3,
+        "text": ""
+       },
+       {
+        "game": 4,
+        "text": "- Prioritize safety over aggressive risk when equity is low.\n- Use engine's 2-ply guidance only when board safety is assured.\n- Focus on board equalization before committing to big bets.\n- Wait for the right support to call increases, avoid premature risk.\n- Never gamble on a move where equity loss exceeds risk allowance."
+       },
+       {
+        "game": 5,
+        "text": "- Prioritize safety over aggression when equity is decreased or near zero.\n- Reduce risk exposure significantly if opponent's setup remains low.\n- Avoid chasing high equity if opponent's blocks are low.\n- Watch opponent's build rates to adjust your stance.\n- Never take unnecessary risk if your equity is zero."
+       },
+       {
+        "game": 6,
+        "text": "- Avoid needless risks when equity is low and the board is tight.\n- Preserve board safety over attacking strategies unblocking off-board.\n- Always analyze all options before making a move carefully.\n- Don't trade unless the equity gain is immediate and real.\n- Patience is better than aggressive risk trade-offs always."
+       },
+       {
+        "game": 7,
+        "text": "- Always prioritize security over aggression until board state is clear. Review board before playing.\n- Review equity before every move to avoid losing advantage too early. Total equity not lost on small moves.\n- Never accept safety calls without securing back-heat risk first. Do not miss chance on early risk.\n- Use opponent board to build checks instead of just counting checkers. Avoid losing equity during count.\n- Plan defense before forcing risky counter to save total equity. Never trade equity for position. Use engine eval to guide moves."
+       },
+       {
+        "game": 8,
+        "text": "- Minimize variance to preserve capital and reduce equity erosion.\n- Focus on safety over risk calls to secure long-term equity.\n- Avoid excessive trade-offs when opponent holds a significant lead.\n- Stop checking moves and take confidence in your future evaluations.\n- Consolidate your checkers distribution into a single solid position."
+       },
+       {
+        "game": 9,
+        "text": "- Stop pivoting to risk until equity is confirmed. Turn 15, 17 showed equity losses from premature promotion.\n- Verify your board state and safety before moving. Turn 17 and 21 recall that errors occur without gains.\n- Prioritize security over promotion early. Turn 9 emphasized safety outperformed promotion in win scenarios.\n- Avoid small mistakes in minor states. Turn 39 cost of errors in minor positions far exceeded utility.\n- Maintain advantage only when built. Turn 29 shows errors cost more than equity gain in minor settings."
+       },
+       {
+        "game": 10,
+        "text": "- Analyze board equity before committing moves.\n- Watch for 24-point governors to avoid losing.\n- Prioritize conservative moves over aggressive plays.\n- Match dice rolls with checkers distribution time.\n- Minimize risk exposure by matching distribution well."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 1,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 71.93105429410934,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 90.0,
+       "risk_pays": 100,
+       "risks_found": 16.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 3822.6
+      },
+      "wins": 1
      }
     ],
-    "series_finished": 1,
+    "series_finished": 2,
     "setup": "Qwen3.5-2B (on)",
     "state": "running",
-    "status": "running on our GPU, 1 of 5 series",
+    "status": "running on our GPU, 2 of 5 series",
     "steps_done": [
      "E1",
-     "S1"
+     "S1",
+     "S2"
     ],
     "threshold": null,
     "verdict": false
@@ -9973,14 +9991,14 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-23T13:06:59+00:00"
+  "updated_at": "2026-11-23T13:43:17+00:00"
  },
- "source_sha256": "ecb8ae5191d3d6f594f6f74f40a22e841c28a56b5a7df59af910b84726c6ee2d",
+ "source_sha256": "ccda89ddecf468b9eec1ca3f3e59e354da8dc2b0f688039785499134c20daceb",
  "status": {
-  "last_update": "2026-11-23T13:06:59+00:00",
-  "line": "16 of 32 models with a verdict · 1 running · 14 paused · 1 incomplete or stopped",
+  "last_update": "2026-11-23T13:43:17+00:00",
+  "line": "16 of 32 models with a verdict · 1 running · 13 paused · 1 incomplete or stopped",
   "models": 32,
-  "paused": 14,
+  "paused": 13,
   "phase": "running",
   "running": 1,
   "stopped": 1,
