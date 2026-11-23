@@ -897,13 +897,14 @@
    "model_id": "deepseek-v4.1-flash",
    "model_type": "chat model, answer-letter probabilities",
    "name": "DeepSeek-V4.1-Flash (off)",
-   "notes": "Fireworks via OpenRouter (model ID deepseek/deepseek-v4.1-flash, quantization not published, at most 5 top logprobs) until 20 Oct 21:56 UTC, then the published weights on our GPUs (SGLang), still 5 top logprobs; the price stays Fireworks' list price for comparison",
+   "notes": "Fireworks via OpenRouter (model ID deepseek/deepseek-v4.1-flash, quantization not published, at most 5 top logprobs) until 20 Oct 21:56 UTC, then the published weights on our GPUs (SGLang), still 5 top logprobs. League 1 cost combines 1,641 stored Fireworks decisions with 95 local decisions; the local part is an at-most GPU wall-clock estimate.",
    "option_groups": "up to 26 options per request (letters A-Z); more legal plays are split into equal groups, a winner per group, then among the winners",
    "price": {
     "date": null,
     "input_per_mtok": 0.3,
-    "label": "estimate: GPU time, at most",
-    "output_per_mtok": 1.2
+    "label": "recorded API price + GPU time estimate, at most",
+    "output_per_mtok": 1.2,
+    "source": "turns.cost_usd for Fireworks via OpenRouter decisions; content/own_cost.json (wall clock on our machines × hourly rate) for local decisions"
    },
    "provider": "Fireworks via OpenRouter (quantization not published) until 20 Oct 21:56 UTC, then 4 × NVIDIA RTX PRO 6000 Blackwell (96 GB) (SGLang, published FP4/FP8 weights, 17 Oct revision)",
    "reasoning": "thinking off",
