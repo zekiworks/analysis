@@ -3,7 +3,7 @@ const dates=[]; // data/index.json's snapshots, its default first (init)
 // All benches last, after the five benches (Ümit #11580).
 const sections=['Reading & Grammar','Logic & Math','Backgammon','Answer Check','Toolbench','Science','All benches'];
 const pages=['decision-models/','logic/','backgammon/','grading/','tool-calling/','science/results.json','all-benches/'];
-const initialTracks=['Turkish Reading & Grammar','Logic','Risk judgement ranking','Grading','Candidate setups','Textbook problems (English)','Combined'];
+const initialTracks=['Turkish Reading & Grammar','Logic','Risk judgement ranking','Grading','Candidate setups','Maths','Combined'];
 const sourceViews=new Map(), guides=new Map();
 const data=new Map(), records=new Map(), commits=new Map();
 const originSite='https://zekiworks.github.io/analysis/';
@@ -158,11 +158,14 @@ function resultNote(f){
  // Toolbench: one small link to what each tab measures, on Toolbench's page, its Methodology (#method); no explanation on the tabs (Ümit #12107, #12121).
  const what=s.section==='Toolbench'&&['Results','Tool choice (decision models)'].includes(f?.chosen)?'<p class="whatLink"><a href="/analysis/tool-calling/#method">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('What this measures →'))+'</a></p>':'';
  // Science: one line on what the chosen experiment is (Ümit #16331: 'exact answers must explain what they are')
- const sciAbout={'Textbook problems':'50 university maths and physics problems (25 each), five options; every number changed from the source book, the answer computed again.',
-  'TÜBİTAK 2026 maths':'32 high-school maths questions (a national olympiad\'s first stage, 2026), five options.',
-  'Exact answers':'The same 50 university maths and physics problems without options: the model writes the number, counted right within 0.1%.',
-  'Broken questions':'The 50 problems plus 42 copies with one number changed so that no option is right; option F says the question is flawed. Decision models are in the same table: choose Decision models under Model type.'};
- const sciKey=s.section==='Science'?(f?.chosen||'').replace(/ \(English\)$/,''):'';
+ const sciAbout={'Maths':'25 university maths problems, five options; every number changed from the source book, the answer computed again.',
+  'Physics':'25 university physics problems, five options; every number changed from the source book, the answer computed again.',
+  'High-school maths':'32 high-school maths questions (a national olympiad\'s first stage, 2026), five options.',
+  'Maths: write the number, no options':'The same 25 maths problems without options: the model writes the number, counted right within 0.1%.',
+  'Physics: write the number, no options':'The same 25 physics problems without options: the model writes the number, counted right within 0.1%.',
+  'Maths: spot the broken questions':'The 25 maths problems plus 21 copies with one number changed so that no option is right; option F says the question is flawed. Decision models are here too: choose Decision models under Model type.',
+  'Physics: spot the broken questions':'The 25 physics problems plus 21 copies with one number changed so that no option is right; option F says the question is flawed. Decision models are here too: choose Decision models under Model type.'};
+ const sciKey=s.section==='Science'?(f?.chosen||'').replace(/ \(Turkish\)$/,''):'';
  const about=sciAbout[sciKey]?'<p class="whatLink">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)(sciAbout[sciKey]))+'</p>':'';
  // An older snapshot than the newest: say so, with the way to the newest (Ümit #11253 looked at an old one).
  const old=dates.length&&s.snapshot!==dates[0]?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('You are looking at an older snapshot:'))+' '+safe(dateLabel(s.snapshot))+'. <button class="textLink" data-newest="1">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Show the newest'))+'</button> ('+safe(dateLabel(dates[0]))+')</div>':'';
@@ -289,7 +292,7 @@ function resultSurface(f){
  const rows=f.rows.slice((s.page-1)*pageSize,s.page*pageSize);
  const one=rows.find(r=>metric(r)[1]!==null)||rows[0];
  const measure=one?metric(one)[0]:'Outcome';
- const popular={'Reading & Grammar':['Turkish Reading & Grammar','Turkish Reading','Turkish Grammar','English Reading'], 'Logic & Math':['Logic','Math','Logic and Math'],Backgammon:['Risk judgement ranking','League 1','League 2','League 3'], 'All benches':['Combined','Decision Index','Turkish Reading','Turkish Grammar','English Reading','Logic','Math','Backgammon','Answer Check'], Toolbench:['Results','Tool choice (decision models)'], Science:['Textbook problems (English)','TÜBİTAK 2026 maths (English)','Exact answers (English)','Broken questions (English)','Textbook problems','TÜBİTAK 2026 maths','Exact answers','Broken questions']};
+ const popular={'Reading & Grammar':['Turkish Reading & Grammar','Turkish Reading','Turkish Grammar','English Reading'], 'Logic & Math':['Logic','Math','Logic and Math'],Backgammon:['Risk judgement ranking','League 1','League 2','League 3'], 'All benches':['Combined','Decision Index','Turkish Reading','Turkish Grammar','English Reading','Logic','Math','Backgammon','Answer Check'], Toolbench:['Results','Tool choice (decision models)'], Science:['Maths','Physics','High-school maths','Maths: write the number, no options','Physics: write the number, no options','Maths: spot the broken questions','Physics: spot the broken questions','Maths (Turkish)','Physics (Turkish)','High-school maths (Turkish)','Maths: write the number, no options (Turkish)','Physics: write the number, no options (Turkish)','Maths: spot the broken questions (Turkish)','Physics: spot the broken questions (Turkish)']};
  const visibleTracks=(['Learning','Learning pilot','Vision'].includes(s.panel)?f.tracks:popular[s.section]||[]).filter(t=>f.tracks.includes(t));
  // Backgammon as its own page has it (Ümit #11706, #11710): Risk judgement and Learning first, the leagues after;
  // Learning is its own panel, so its tab switches panels and the others come back to Results.
