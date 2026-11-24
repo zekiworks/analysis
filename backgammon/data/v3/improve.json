@@ -204,6 +204,86 @@
     "note": "Subscription successors moved from planned rows into the Learning roster: Gemini 4 Neon through Antigravity at thinking high; GPT-6.2 Astra and Sol through the ChatGPT/Codex route at reasoning high; Claude Fable 5.2 through the separate Claude subscription at adaptive-thinking effort high with a 32,768-token output limit. They use the same 50-game, 50-lesson and eight-test schedule. Subscription use is prioritized ahead of a new paid API route. Claude Opus 5.5 is not rerun because its existing Learning run is complete.",
     "record": "Hidden setup rows 115–118; improve harness amendment",
     "source": "Ümit's subscription Learning decision of 24 Nov 2026"
+   },
+   {
+    "at": "2026-11-24",
+    "models": [
+     {
+      "maker": "Qwen",
+      "route": "OpenRouter; Alibaba endpoint pinned before first call",
+      "setting": "reasoning high; High phase",
+      "setup": "Qwen4 Max (high)"
+     },
+     {
+      "maker": "Tencent",
+      "route": "OpenRouter; Tencent endpoint to be pinned before first call",
+      "setting": "reasoning high; High phase",
+      "setup": "Hy4 (high)"
+     },
+     {
+      "maker": "DeepSeek",
+      "route": "our local DeepSeek V4.1 Flash 1017 checkpoint when its GPU is available; $0 billed",
+      "setting": "reasoning high; High phase",
+      "setup": "DeepSeek-V4.1-Flash 1017 (high)"
+     },
+     {
+      "maker": "Moonshot",
+      "route": "OpenRouter; exact endpoint to be pinned before first call",
+      "setting": "reasoning high, maker top_p 0.95; High phase",
+      "setup": "Kimi K3.1 Pro (high)"
+     },
+     {
+      "maker": "Qwen",
+      "route": "local vLLM when a GPU is available",
+      "setting": "thinking on; High phase",
+      "setup": "Qwen3.8 Flash Next (on)"
+     },
+     {
+      "maker": "Z.ai",
+      "route": "Z.ai/BigModel; route or login not configured",
+      "setting": "reasoning high; High phase",
+      "setup": "GLM-5.4 (high)"
+     },
+     {
+      "maker": "Qwen",
+      "route": "same pinned route as High",
+      "setting": "reasoning low; Low phase waits for every High setup",
+      "setup": "Qwen4 Max (low)"
+     },
+     {
+      "maker": "Tencent",
+      "route": "same pinned route as High",
+      "setting": "reasoning low; Low phase waits for every High setup",
+      "setup": "Hy4 (low)"
+     },
+     {
+      "maker": "DeepSeek",
+      "route": "same local checkpoint route as High",
+      "setting": "reasoning low; Low phase waits for every High setup",
+      "setup": "DeepSeek-V4.1-Flash 1017 (low)"
+     },
+     {
+      "maker": "Moonshot",
+      "route": "same pinned route as High",
+      "setting": "reasoning low, maker top_p 0.95; Low phase waits for every High setup",
+      "setup": "Kimi K3.1 Pro (low)"
+     },
+     {
+      "maker": "Qwen",
+      "route": "same local vLLM route as High",
+      "setting": "thinking off; Low phase waits for every High setup",
+      "setup": "Qwen3.8 Flash Next (off)"
+     },
+     {
+      "maker": "Z.ai",
+      "route": "same route as High; not configured",
+      "setting": "reasoning low; Low phase waits for every High setup",
+      "setup": "GLM-5.4 (low)"
+     }
+    ],
+    "note": "Recorded before any focused-cohort call. Run every High setup before any Low setup. The original 20-model Agent Arena screenshot cohort was reduced for cost: Qwen4 Max was added; MiMo-V2.6-Pro, MiniMax-M3.1-Flash and Inkling 2 Small were removed; Kimi K3.1 Pro was restored. Qwen4 Max High runs first after spending approval. Literal high and low are used where the model supports them; Qwen3.8 Flash Next uses thinking on then off. Maker-recommended sampling remains in each mode. DeepSeek V4.1 Flash 1017 reuses our local checkpoint at $0 billed. The three currently routable paid High setups have a $415.07 conservative planning envelope at 5,000 input and 10,000 output tokens per request across about 2,700 requests each; at 2,000 and 4,000 output tokens per request their estimates are $105.64 and $183.00. Qwen4 Max alone is $134.66 under the conservative envelope. Qwen3.8 Flash Next is also local and GLM-5.4 has no configured route. The existing cap has $31.86 left; no paid call starts without John's spending approval.",
+    "record": "Ümit #16335/#16337/#16362/#16363/#16365/#16370; spending approval delegated to John in #16372",
+    "source": "Ümit's focused newest-model Learning decision of 24 Nov 2026"
    }
   ],
   "commitment": "Results will be published whichever way they go.",
@@ -679,6 +759,162 @@
     "setting": "adaptive thinking, effort high; 32,768 output tokens",
     "setup": "Claude Fable 5.2 (high)",
     "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "qwen4-max-high",
+    "label": "",
+    "late_entry": false,
+    "maker": "Qwen",
+    "n": 37,
+    "route": "OpenRouter; Alibaba endpoint pinned before first call",
+    "route_detail": "",
+    "setting": "reasoning high; High phase",
+    "setup": "Qwen4 Max (high)",
+    "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "hy4-high",
+    "label": "",
+    "late_entry": false,
+    "maker": "Tencent",
+    "n": 38,
+    "route": "OpenRouter; Tencent endpoint to be pinned before first call",
+    "route_detail": "",
+    "setting": "reasoning high; High phase",
+    "setup": "Hy4 (high)",
+    "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "deepseek-v4.1-flash-1017-high",
+    "label": "",
+    "late_entry": false,
+    "maker": "DeepSeek",
+    "n": 39,
+    "route": "our local DeepSeek V4.1 Flash 1017 checkpoint when its GPU is available; $0 billed",
+    "route_detail": "",
+    "setting": "reasoning high; High phase",
+    "setup": "DeepSeek-V4.1-Flash 1017 (high)",
+    "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "kimi-k3.1-pro-high",
+    "label": "",
+    "late_entry": false,
+    "maker": "Moonshot",
+    "n": 40,
+    "route": "OpenRouter; exact endpoint to be pinned before first call",
+    "route_detail": "",
+    "setting": "reasoning high, maker top_p 0.95; High phase",
+    "setup": "Kimi K3.1 Pro (high)",
+    "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "qwen3.8-flash-next-on",
+    "label": "",
+    "late_entry": false,
+    "maker": "Qwen",
+    "n": 41,
+    "route": "local vLLM when a GPU is available",
+    "route_detail": "",
+    "setting": "thinking on; High phase",
+    "setup": "Qwen3.8 Flash Next (on)",
+    "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "glm-5.4-high",
+    "label": "",
+    "late_entry": false,
+    "maker": "Z.ai",
+    "n": 42,
+    "route": "Z.ai/BigModel; route or login not configured",
+    "route_detail": "",
+    "setting": "reasoning high; High phase",
+    "setup": "GLM-5.4 (high)",
+    "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "qwen4-max-low",
+    "label": "",
+    "late_entry": false,
+    "maker": "Qwen",
+    "n": 43,
+    "route": "same pinned route as High",
+    "route_detail": "",
+    "setting": "reasoning low; Low phase waits for every High setup",
+    "setup": "Qwen4 Max (low)",
+    "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "hy4-low",
+    "label": "",
+    "late_entry": false,
+    "maker": "Tencent",
+    "n": 44,
+    "route": "same pinned route as High",
+    "route_detail": "",
+    "setting": "reasoning low; Low phase waits for every High setup",
+    "setup": "Hy4 (low)",
+    "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "deepseek-v4.1-flash-1017-low",
+    "label": "",
+    "late_entry": false,
+    "maker": "DeepSeek",
+    "n": 45,
+    "route": "same local checkpoint route as High",
+    "route_detail": "",
+    "setting": "reasoning low; Low phase waits for every High setup",
+    "setup": "DeepSeek-V4.1-Flash 1017 (low)",
+    "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "kimi-k3.1-pro-low",
+    "label": "",
+    "late_entry": false,
+    "maker": "Moonshot",
+    "n": 46,
+    "route": "same pinned route as High",
+    "route_detail": "",
+    "setting": "reasoning low, maker top_p 0.95; Low phase waits for every High setup",
+    "setup": "Kimi K3.1 Pro (low)",
+    "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "qwen3.8-flash-next-off",
+    "label": "",
+    "late_entry": false,
+    "maker": "Qwen",
+    "n": 47,
+    "route": "same local vLLM route as High",
+    "route_detail": "",
+    "setting": "thinking off; Low phase waits for every High setup",
+    "setup": "Qwen3.8 Flash Next (off)",
+    "status": "added 2026-11-24 (amendment)"
+   },
+   {
+    "billed": false,
+    "key": "glm-5.4-low",
+    "label": "",
+    "late_entry": false,
+    "maker": "Z.ai",
+    "n": 48,
+    "route": "same route as High; not configured",
+    "route_detail": "",
+    "setting": "reasoning low; Low phase waits for every High setup",
+    "setup": "GLM-5.4 (low)",
+    "status": "added 2026-11-24 (amendment)"
    }
   ],
   "notes": [
@@ -757,34 +993,6 @@
   "title": "Did they improve? Pre-registration (2026-11-08)"
  },
  "planned": [
-  {
-   "group": "chat",
-   "params_model": "MiniMax-M3.1-Flash",
-   "setup": "MiniMax-M3.1-Flash",
-   "status": "not started (waiting for budget)",
-   "tag": "added 9 Nov, no league record"
-  },
-  {
-   "group": "chat",
-   "params_model": null,
-   "setup": "GLM-5.4 (high)",
-   "status": "not started (waiting for Z.ai/BigModel route or login)",
-   "tag": "planned 24 Nov, no league record"
-  },
-  {
-   "group": "chat",
-   "params_model": null,
-   "setup": "GLM-5.4 (low)",
-   "status": "not started (waiting for Z.ai/BigModel route or login)",
-   "tag": "planned 24 Nov, no league record"
-  },
-  {
-   "group": "chat",
-   "params_model": "Inkling Small",
-   "setup": "Inkling Small",
-   "status": "not started (waiting for budget)",
-   "tag": "added 9 Nov, no league record"
-  },
   {
    "group": "decision",
    "notes": "not started (waiting for D5 and a GPU; local render check pending)",
@@ -1082,10 +1290,10 @@
    },
    {
     "reason": null,
-    "series_done": 0,
+    "series_done": 1,
     "setup": "Inkling 2 Mini (on, effort 0.2)",
     "status": "running",
-    "updated_at": "2026-11-24T10:12:52+00:00"
+    "updated_at": "2026-11-24T14:57:46+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -1117,10 +1325,10 @@
    },
    {
     "reason": null,
-    "series_done": 0,
+    "series_done": 1,
     "setup": "Gemini 4 Neon (high)",
     "status": "running",
-    "updated_at": "2026-11-24T09:58:22+00:00"
+    "updated_at": "2026-11-24T15:33:35+00:00"
    },
    {
     "reason": "usage limit",
@@ -1130,7 +1338,7 @@
     "updated_at": "2026-11-24T10:35:14+00:00"
    }
   ],
-  "updated_at": "2026-11-24T10:35:15+00:00"
+  "updated_at": "2026-11-24T15:51:39+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -9894,11 +10102,21 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 50.84784931874689,
+     "right_safety": 92.04545454545455,
+     "risks_found": 28.235294117647058
     },
-    "answers_after": null,
+    "answers_after": {
+     "answer_rate": 86.5,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 27,
+     "risk_pays": 85,
+     "safety_pays": 88,
+     "tests": 1,
+     "valid": 173
+    },
     "answers_before": {
      "answer_rate": 93.0,
      "answered": 200,
@@ -9916,9 +10134,9 @@
      "risks_found": 25.0
     },
     "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": -2.9390271424513656,
+     "right_safety": -1.2878787878787818,
+     "risks_found": 3.235294117647058
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -9948,19 +10166,90 @@
     "key": "inkling-2-mini-e02",
     "progress": {
      "reason": null,
-     "series_done": 0,
+     "series_done": 1,
      "status": "running",
-     "updated_at": "2026-11-24T10:12:52+00:00"
+     "updated_at": "2026-11-24T14:57:46+00:00"
     },
     "range": null,
     "reason": null,
-    "series": [],
-    "series_finished": 0,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 192,
+      "game_invalid": 18,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Before moving, check the risk call: compare the equity cost of the risky line with the safe line; don't default to the familiar move.\n- In midgame, use the dice to improve your own structure and create threats, not just to rearrange checkers; ask what the opponent can do next.\n- When you have a blot or vulnerable point, prefer moves that keep contact, support, or force a response over tidy moves that concede a free hit.\n- In the endgame, push your own checkers toward the bar/off and keep the opponent's prime under pressure; avoid passive moves that let them bear off or consolidate.\n- After a bad move, re-evaluate the whole board rather than the last roll; in lost-point endgames, one passive move can cost the game."
+       },
+       {
+        "game": 2,
+        "text": "- When GNUbg flags “missed risk,” check whether a forcing or hitting move is actually better than the safe-looking line; don’t default to safety.\n- Avoid “needless risk”: if a move only looks active but gives up equity, prefer the solid move unless the gain is clear.\n- In endgames, prioritize bearing off, keeping checkers coordinated, and not wasting moves on low-value destinations.\n- Re-enter from the bar promptly and keep entry points covered; a slow re-entry can cost more than the move looks.\n- Review each bad/doubtful move for the pattern: missed risk versus needless risk, then choose by equity, not by feel."
+       },
+       {
+        "game": 3,
+        "text": "- When GNUbg flags “missed risk,” compare the active/hitting/bearing-off line against the safe one before choosing; safety is not automatically best.\n- In midgame, use doubles and blots to create pressure rather than defaulting to solid moves that leave the opponent’s structure intact.\n- In the endgame, prioritize bearing off and keeping checkers in your home/front; avoid leaving checkers stuck on 3/6 when a bear-off or advance is available.\n- Do not waste doubles on passive moves; if a double can bear off, hit, or force a decision, test it first.\n- Before finalizing a move, ask what the opponent can do next; if the engine says the safe line loses equity, take the risk and reassess."
+       },
+       {
+        "game": 4,
+        "text": "- When GNUbg flags a large equity loss, treat it as a decision point, not a shrug: compare the forcing/risky line before choosing the safe-looking move.\n- Do not confuse “safe” with “best”: a quiet move that misses a bar, bear-off, or tempo can cost far more than a calculated risk.\n- In endgames, keep checkers connected and mobile; avoid doubling moves that strand a checker or leave a point vulnerable.\n- Use tempo to reduce opponent’s off-board progress and your own bar/entry problems; don’t spend moves on low-value rearrangements.\n- After a big error, reset: re-evaluate the board fresh each turn, and prefer moves that improve both safety and bearing-off prospects."
+       },
+       {
+        "game": 5,
+        "text": "- When GNUbg flags “very bad” or “missed risk,” do not chase contact; compare equity and choose the safer/best move.\n- In midgame, protect and build safe points; avoid leaving loose checkers that give the opponent free play.\n- Do not make needless risky plays when the best line is safer; take risk only when it improves equity.\n- Treat small equity losses as real: review every turn, not just the big swings.\n- In endgames, coordinate both dice, keep checkers connected/safe, and check best play before overextending."
+       },
+       {
+        "game": 6,
+        "text": "- Before moving, scan the 24-point/bear-off and hitting options first; do not default to natural moves when the engine flags 24/22-type moves.\n- Separate safety from risk: if a hit or bear-off is not clearly better, take the safe move; avoid needless risk when ahead.\n- When ahead, prioritize keeping the opponent’s bar/hitting under control and preserving your own structure over squeezing extra points.\n- Compare all legal moves, not just the obvious one; a small equity loss often comes from ignoring one strong alternative.\n- In the endgame, keep checkers coordinated and avoid overextending; check the opponent’s threats before committing to a risky line."
+       },
+       {
+        "game": 7,
+        "text": "- When the engine flags a small or missed-risk error, re-check the move before playing; don’t let a comfortable-looking safe line hide a larger equity loss.\n- In midgame, compare the engine’s best line against your plan; if you choose differently, make it a deliberate risk, not a default.\n- Don’t waste double-dice moves by moving the same checker repeatedly; spread checkers and keep bearing-off options open.\n- In the endgame, prioritize the race and the opponent’s bearing-off threats; avoid moves that look safe but leave you behind.\n- When you’re behind, take the engine’s risk call seriously: sometimes the best move creates counterplay, not the one that feels safest."
+       },
+       {
+        "game": 8,
+        "text": "- When on the bar, enter with the best available point and pair it with a move that creates a threat or keeps the opponent off; don’t spend dice on safe but weak moves while a stronger entry/hit is available.\n- In midgame, treat “missed risk” as a prompt to check whether hitting, entering, or forcing the opponent off gains more than consolidation; don’t play safe when the engine says the risk is worth taking.\n- Avoid needless risk too: only take a risky move when it clearly improves equity; otherwise choose the solid move even if it looks less exciting.\n- Prioritize the largest equity losses first: moves costing 0.1+ are the ones to fix; small 0.01–0.05 errors are worth reviewing but not worth overcorrecting.\n- In the endgame, trust the engine’s best play and avoid improvising; once you’re close to bearing off, small mistakes compound quickly."
+       },
+       {
+        "game": 9,
+        "text": "- When GNUbg flags “missed risk,” don’t default to safe moves; compare the forcing line against the solid one and take the higher-equity option.\n- In midgame, prefer moves that create threats or activate checkers over passive re-entry; a small equity loss now compounds later.\n- With a bar checker or opponent close to bearing off, use active checkers to force contact/hits rather than tidy, low-impact moves.\n- In the endgame, calculate the race first; avoid low-value moves when the opponent has a large off-board lead.\n- Review every doubtful/bad verdict before the next game and fix the repeated pattern, not just the single position."
+       },
+       {
+        "game": 10,
+        "text": "- Treat small equity losses as real: compare your move with the engine’s suggestion and ask why it is better; small errors compound.\n- When the engine flags a missed risk, re-check safety, doubling, and blocking before racing; don’t chase off-board points if they leave a weak point.\n- On doubles, choose the point that improves structure and safety, not just the most natural roll; compare both doubled moves.\n- In races, move the checker that best advances the plan; avoid wasting dice on a point that does not help the race or threaten the opponent.\n- After a bad move, reassess the whole board and re-enter with a plan; one mistake can be recovered, repeated small errors cannot."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 1,
+      "t10": {
+       "answer_rate": 86.5,
+       "answered": 200,
+       "error_rate": 50.84784931874689,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 27,
+       "right_safety": 92.04545454545455,
+       "risk_pays": 85,
+       "risks_found": 28.235294117647058,
+       "safety_pays": 88,
+       "valid": 173,
+       "wall_seconds": 10255.0
+      },
+      "wins": 4
+     }
+    ],
+    "series_finished": 1,
     "setup": "Inkling 2 Mini (on, effort 0.2)",
     "state": "running",
-    "status": "running on our GPU, 0 of 5 series",
+    "status": "running on our GPU, 1 of 5 series",
     "steps_done": [
-     "E1"
+     "E1",
+     "S1"
     ],
     "threshold": null,
     "verdict": false
@@ -10802,11 +11091,21 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 17.999034747481346,
+     "right_safety": 96.0,
+     "risks_found": 65.0
     },
-    "answers_after": null,
+    "answers_after": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "answers_before": {
      "answer_rate": 100.0,
      "answered": 200,
@@ -10824,12 +11123,12 @@
      "risks_found": 61.0
     },
     "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": -1.4112669974565506,
+     "right_safety": -3.0,
+     "risks_found": 4.0
     },
     "cost": {
-     "api_equivalent_usd": 105.7402,
+     "api_equivalent_usd": 164.3,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -10856,19 +11155,90 @@
     "key": "gemini-4-neon-high",
     "progress": {
      "reason": null,
-     "series_done": 0,
+     "series_done": 1,
      "status": "running",
-     "updated_at": "2026-11-24T09:58:22+00:00"
+     "updated_at": "2026-11-24T15:33:35+00:00"
     },
     "range": null,
     "reason": null,
-    "series": [],
-    "series_finished": 0,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 253,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When holding a strong home board with an opponent on the bar, take the calculated risk to hit their remaining inner-board blot rather than playing passively, aiming for a full closeout and gammon.\n- While bringing checkers home against a closed board, prioritize advancing your backmost checkers evenly instead of rushing closer checkers onto already-made home points.\n- Avoid piling checkers onto the 6-point as you bear in; use spare small numbers to smooth checkers onto lower home-board points for a cleaner, safer bear-off.\n- Maintain aggressive hitting whenever your home board outclasses your opponent's, shifting to safety only after neutralizing their threats or securing key points."
+       },
+       {
+        "game": 2,
+        "text": "- Hit loose opponent blots inside your home board aggressively instead of making passive, safe plays—especially when hitting also unstacks heavy points.\n- Prioritize escaping a back checker early when the opponent starts building their home board, rather than stripping key points for a weak loose hit.\n- When the opponent is on the bar, use the tempo to bring down builders, unstack heavy points, or slot key home-board points instead of just moving safely.\n- Avoid burying checkers unnecessarily on the 1-point; keep checkers distributed on higher home-board points for better flexibility during the bear-in."
+       },
+       {
+        "game": 3,
+        "text": "- Early in the game, look for active plays that hit exposed opponent blots—even deep in your home board—while splitting your back checkers, rather than passively bringing builders down.\n- Don't automatically settle for making a quiet home-board point when a loose hit on a key outer point gains major tempo and keeps multiple opponent checkers under attack.\n- When holding a strong prime with opponent checkers on the bar, be willing to slot an open home-board point to accelerate a closeout while simultaneously securing outer-board blots.\n- When bearing in safely against a closed-out opponent, favor moves that distribute checkers evenly across home-board points to keep your future bear-off flexible and efficient."
+       },
+       {
+        "game": 4,
+        "text": "- Prioritize making key priming points like the bar point to contain opposing back checkers, accepting a single blot when the opponent's home board is weak.\n- Avoid burying checkers on low home-board points or over-stacking heavy points purely for safety; preserve checker distribution and flexibility.\n- Bring midpoint checkers forward even if it risks indirect shots from a deep anchor, rather than crunching your home board.\n- When bearing in against checkers on the bar, avoid leaving direct shots from their open entry points and prioritize bringing checkers cleanly inside.\n- Keep higher home-board points intact and make clean lower points instead of dumping extra checkers onto already stacked low points."
+       },
+       {
+        "game": 5,
+        "text": "- Prioritize running back checkers all the way past opponent builders instead of stopping halfway to make passive home-board plays.\n- When the opponent has checkers on the bar or blots in your home board, favor hitting and closing points over rushing a back checker home.\n- Avoid burying checkers on low points like the 2-point when you can escape a back checker or preserve your midpoint.\n- When preparing to bear off against an opponent's low anchor, unstack overloaded points behind the anchor rather than stripping higher home-board points.\n- Advance trailing outfield blots past enemy builders together instead of breaking strong points like the midpoint while leaving a straggler exposed."
+       },
+       {
+        "game": 6,
+        "text": "- Split your back checkers early instead of making passive or redundant inner-board moves, so you do not get trapped behind a prime.\n- When your opponent has checkers on the bar, prioritize stepping up or escaping trapped back checkers over their prime rather than chasing extra outer-board hits.\n- After entering from the bar, check for strong attacking hits before defaulting to making a passive deep anchor.\n- Favor making solid home-board points over loose, risky hits on the ace point.\n- Avoid burying checkers deep in your home board when you can instead bring outfield checkers home or preserve a balanced distribution for the bearoff."
+       },
+       {
+        "game": 7,
+        "text": "- Fight back against a developing prime by stepping up spare back checkers toward its edge, especially while the opponent is on the bar, rather than making passive safe plays.\n- When trapped against a strong board, prioritize hitting blots inside the opponent's home board to disrupt their point-making instead of making loose hits in your own weak board.\n- Avoid burying checkers on the 1-point or 3-point; use those numbers to make higher home-board points, activate back checkers, or secure outfield blots.\n- When your opponent is on the bar, prioritize building strong inner-board points over shifting a deep anchor.\n- When choosing which blots to protect, secure exposed outfield checkers rather than reflexively hiding a home-board checker on the ace point."
+       },
+       {
+        "game": 8,
+        "text": "- When far behind with a deep anchor, bring your outer checkers home first and hold the anchor as long as possible for a late shot while saving the gammon.\n- Advance your outfield checkers rather than crunching your home board or burying checkers on low points; preserve home-board structure and avoid wasting pips.\n- Avoid breaking safe points to scatter extra blots when you can simply advance a lone checker; keep blot exposure low during tactical battles.\n- Prioritize hitting on key contested points, especially in the opponent's inner board, over outer-board hits that leave vulnerable return shots.\n- Accept calculated positional risks to activate builders or secure useful points instead of making passive plays that surrender initiative."
+       },
+       {
+        "game": 9,
+        "text": "- Favor calculated risks over passive safety; repeatedly avoiding exposure when the upside is high leaks far more equity than occasional hits.\n- When your opponent is on the bar against your strong board, seize the tempo to escape trapped back checkers instead of merely advancing safe outfield checkers.\n- Once an opponent starts bearing off against your deep anchor, break and escape back checkers promptly rather than playing safely with outfield checkers.\n- Early in the game against a weak enemy board, actively split your back checkers and slot prime home points like the 5-point instead of making passive safe plays.\n- When racing home with an opponent on the bar against a near-closed board, advance lagging checkers together efficiently rather than leaving a straggler behind for temporary safety."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize making key home-board points and completing primes over running a back checker or saving an outfield blot.\n- Take aggressive double hits and home-board attacks to put the opponent on the bar instead of settling for safe, passive plays.\n- Preserve your prime and clear checkers from the back rather than breaking prime points or burying checkers on low points just to avoid blots.\n- Bring outfield builders into play to extend your prime instead of stacking deep home-board points or making unproductive outer points.\n- When bearing off against a weakened backgame, hit loose blots in your home board to maximize gammons and deny counterplay."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 1,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 17.999034747481346,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 96.0,
+       "risk_pays": 100,
+       "risks_found": 65.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 7020.8
+      },
+      "wins": 8
+     }
+    ],
+    "series_finished": 1,
     "setup": "Gemini 4 Neon (high)",
     "state": "running",
-    "status": "running, 0 of 5 series",
+    "status": "running, 1 of 5 series",
     "steps_done": [
-     "E1"
+     "E1",
+     "S1"
     ],
     "threshold": null,
     "verdict": false
@@ -11118,13 +11488,13 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-24T10:35:15+00:00"
+  "updated_at": "2026-11-24T15:51:39+00:00"
  },
- "source_sha256": "a43997d1623775e505fa6bc8c8dca9aa962c3cdeb700685d46356130ec2f472d",
+ "source_sha256": "c2249af6da50781f4eed219a09416d52ecfeb77f4f58adc682549c5a2a471dcf",
  "status": {
-  "last_update": "2026-11-24T10:35:15+00:00",
-  "line": "17 of 36 models with a verdict · 2 running · 16 paused · 1 incomplete or stopped",
-  "models": 36,
+  "last_update": "2026-11-24T15:51:39+00:00",
+  "line": "17 of 48 models with a verdict · 2 running · 16 paused · 1 incomplete or stopped",
+  "models": 48,
   "paused": 16,
   "phase": "running",
   "running": 2,
