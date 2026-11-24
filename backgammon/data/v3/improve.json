@@ -949,10 +949,10 @@
    },
    {
     "reason": null,
-    "series_done": 4,
+    "series_done": 5,
     "setup": "Qwen3.5-2B (on)",
-    "status": "running",
-    "updated_at": "2026-11-24T01:19:44+00:00"
+    "status": "done",
+    "updated_at": "2026-11-24T06:30:02+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -1025,7 +1025,7 @@
     "updated_at": "2026-11-14T14:04:46+00:00"
    }
   ],
-  "updated_at": "2026-11-24T01:19:44+00:00"
+  "updated_at": "2026-11-24T06:30:03+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -8935,20 +8935,20 @@
    },
    {
     "after": {
-     "error_rate": 75.29976228252053,
-     "right_safety": 84.5,
-     "risks_found": 16.5
+     "error_rate": 76.06382670998573,
+     "right_safety": 84.8,
+     "risks_found": 17.4
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 800,
-     "expected": 800,
+     "answered": 1000,
+     "expected": 1000,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 400,
-     "safety_pays": 400,
-     "tests": 4,
-     "valid": 800
+     "risk_pays": 500,
+     "safety_pays": 500,
+     "tests": 5,
+     "valid": 1000
     },
     "answers_before": {
      "answer_rate": 100.0,
@@ -8967,9 +8967,9 @@
      "risks_found": 23.666666666666668
     },
     "change": {
-     "error_rate": -1.4010199469824585,
-     "right_safety": 0.8333333333333286,
-     "risks_found": -7.166666666666668
+     "error_rate": -0.636955519517258,
+     "right_safety": 1.1333333333333258,
+     "risks_found": -6.266666666666669
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -9025,13 +9025,13 @@
      }
     ],
     "empty_done": 3,
-    "improved": null,
+    "improved": false,
     "key": "qwen3.5-2b-on",
     "progress": {
      "reason": null,
-     "series_done": 4,
-     "status": "running",
-     "updated_at": "2026-11-24T01:19:44+00:00"
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-24T06:30:02+00:00"
     },
     "range": 6.0,
     "reason": null,
@@ -9311,12 +9311,81 @@
        "wall_seconds": 3776.3
       },
       "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 195,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Avoid gambiting 24/21 trades on safe boards or wait types.\n- Prioritize safety on 6-over-2 markers rather than blocking.\n- Never risk 1 point equity on 24 markers or wait types.\n- Don't use 6/4 as a buffer if you have a delay.\n- Always match your moves to your bar counts."
+       },
+       {
+        "game": 2,
+        "text": "- Analyze risk trade-offs before any single move to improve outcome.\n- Don't play when opponent is taking advantage of your errors.\n- Check engine's best play again when 100% loss is inevitable.\n- Keep checkers off board unless forced and the game is over.\n- Avoid long checkers that create more risk than necessary."
+       },
+       {
+        "game": 3,
+        "text": "- Minimize high equity risk moves over 0.3 when playing is key. Secure board edges before committing big risks. Prioritize safety over opponent gains. Don't ignore small equity costs. Cancel risky moves early."
+       },
+       {
+        "game": 4,
+        "text": "- Risk call right if opponent is strong and defense. Wait for board returns value clearly and safely. Balance all checkers before risking 12-16.\n- Avoid rushing trade-offs before returns 100% value. Don't risk after 3-4 down points. Never trade on 1-2 checkers.\n- Balance all checkers before risking 12-16. Wait for perfect board before returning 100% board values. Risk call right if opponent is strong.\n- Don't risk after 3-4 down points. Never trade on 1-2 checkers. Risk if board returns 1-1 checkers.\n- Don't risk after 3-4 down points. Never trade on 1-2 checkers. Prevent trading risk on 12-16 checkers. Risk too early if checkers 3-4 and good risk call."
+       },
+       {
+        "game": 5,
+        "text": "- Don't trade safety for risk when equity drops below expectations in the early moves significantly without delaying now.\n- Keep ranges tight to minimize variance in opponent's strong positions currently to limit the risk significantly now.\n- Prioritize safety calls when your board offers no immediate value today to improve stability overall now.\n- Monitor move history to identify patterns that lead to errors in play now carefully here.\n- Don't over-play when probability of winning is high to stay safe when losing equity happens too now."
+       },
+       {
+        "game": 6,
+        "text": "- Always prioritize safety calls over risky trades unless opponent is desperate now.\n- Profile their board flow to avoid missing risk after premature moves.\n- Check point strength consistently against opponent's off-board resources.\n- Avoid useless risk when you can safely trade point advantage away.\n- Reassess position before committing high-risk points in games efficiently."
+       },
+       {
+        "game": 7,
+        "text": "- Prioritize \"safety calls\" only when opponent equity losses fall below 0.5.\n- Avoid missing \"risk\" calls when board plans shift unpredictably and you lose optimally.\n- Prevent \"overcommitment\" by reviewing \"very bad\" equity losses repeatedly on next games.\n- Pause \"strategic shifts\" if analyzing equity loss as a signal of current game state.\n- Refrain from 'needless risk' without checking equity reduction thresholds for next moves."
+       },
+       {
+        "game": 8,
+        "text": "- Don't chase moves for high equity loss unless you have a clear advantage in mid-game.\n- Prioritize safety over risky calls to protect your position when board is open.\n- Avoid missed risk by tightening formation and reducing exposure to your opponents strategically.\n- Avoid needless risk trades when opponent is strong or equity is low.\n- Maintain tight structure to prevent over-exposure when opponent is strong."
+       },
+       {
+        "game": 9,
+        "text": "- Avoid risky trades that fail safety checks entirely.\n- Trust engine value facts, never overestimate safety.\n- Review opponent safety calls often.\n- Check structure before committing risks to safety.\n- Treat 'no risk' trades carefully with equity focus."
+       },
+       {
+        "game": 10,
+        "text": "- Review equity often before moving.\n- Avoid missed risk calls when equity is low.\n- Stick to safe play when equity is stable.\n- Check opponent's bar setup before moving.\n- Don't rely on one move to secure equity."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 79.12008441984653,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 86.0,
+       "risk_pays": 100,
+       "risks_found": 21.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 4210.1
+      },
+      "wins": 2
      }
     ],
-    "series_finished": 4,
+    "series_finished": 5,
     "setup": "Qwen3.5-2B (on)",
-    "state": "running",
-    "status": "running on our GPU, 4 of 5 series",
+    "state": "complete",
+    "status": "No",
     "steps_done": [
      "E1",
      "S1",
@@ -9324,10 +9393,11 @@
      "E2",
      "S3",
      "S4",
-     "E3"
+     "E3",
+     "S5"
     ],
     "threshold": 6.0,
-    "verdict": false
+    "verdict": true
    },
    {
     "after": {
@@ -10163,18 +10233,18 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-24T01:19:44+00:00"
+  "updated_at": "2026-11-24T06:30:03+00:00"
  },
- "source_sha256": "946474acf134be9533252f39e94d7b8ca5b2e570da8eba9592f5fc0c7b81b5a6",
+ "source_sha256": "abc744cd5745e12396ff9e0a11533b91277a740c561fa3b154496d9ffca50422",
  "status": {
-  "last_update": "2026-11-24T01:19:44+00:00",
-  "line": "16 of 32 models with a verdict · 1 running · 13 paused · 1 incomplete or stopped",
+  "last_update": "2026-11-24T06:30:03+00:00",
+  "line": "17 of 32 models with a verdict · 0 running · 13 paused · 1 incomplete or stopped",
   "models": 32,
   "paused": 13,
   "phase": "running",
-  "running": 1,
+  "running": 0,
   "stopped": 1,
-  "verdicts": 16
+  "verdicts": 17
  },
  "validation": {
   "accepted": true,
