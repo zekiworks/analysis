@@ -3,7 +3,7 @@ const dates=[]; // data/index.json's snapshots, its default first (init)
 // All benches last, after the five benches (Ümit #11580).
 const sections=['Reading & Grammar','Logic & Math','Backgammon','Answer Check','Toolbench','Science','All benches'];
 const pages=['decision-models/','logic/','backgammon/','grading/','tool-calling/','science/results.json','all-benches/'];
-const initialTracks=['Turkish Reading & Grammar','Logic','Risk judgement ranking','Grading','Candidate setups','Exact answers','Combined'];
+const initialTracks=['Turkish Reading & Grammar','Logic','Risk judgement ranking','Grading','Candidate setups','Textbook problems (English)','Combined'];
 const sourceViews=new Map(), guides=new Map();
 const data=new Map(), records=new Map(), commits=new Map();
 const originSite='https://zekiworks.github.io/analysis/';
@@ -88,6 +88,9 @@ function renderNav(){
   const selected=name===s.section;
   return '<button type="button" class="sectionTab" data-section="'+index+'" aria-pressed="'+selected+'">'+safe(name)+'</button>';
  }).join('');
+ // on a phone the tabs are one sideways row (Ümit #16331): keep the chosen bench in view
+ const nav=$('#sectionTabs'),on=nav.querySelector('[aria-pressed=true]');
+ if(on&&nav.scrollWidth>nav.clientWidth){nav.scrollLeft=Math.max(0,on.offsetLeft-nav.offsetLeft-(nav.clientWidth-on.offsetWidth)/2);nav.classList.toggle('atEnd',nav.scrollLeft+nav.clientWidth>=nav.scrollWidth-2)}
 }
 function filtered(){
  const base=(data.get(s.snapshot)||[]).filter(r=>r.section===s.section&&inPanel(r));
@@ -99,14 +102,18 @@ function filtered(){
 }
 const typeTitles={all:'All models',decision:'Decision models',chat:'Chat models',program:'Programs',model:'Bare models',agent:'Agents',unclassified:'Unclassified'};
 const sizeTitles={all:'All classes',tiny:'Tiny',small:'Small',medium:'Medium',large:'Large',efficient:'Efficient',workhorse:'Workhorse',flagship:'Flagship',undisclosed:'Undisclosed',unverified:'Unverified',unclassified:'Unclassified'};
+const titles=(t,v)=>t[v]||v;
 function cohortTabs(f){
  function line(field,label,titles,values){
-  return '<div class="cohortLine"><span class="fieldTitle">'+label+'</span><div class="cohortTabs" role="group" aria-label="'+label+'">'+values.map(v=>'<button data-cohort="'+field+'" data-value="'+v+'" aria-pressed="'+(s[field]===v)+'" class="'+(s[field]===v?'on':'')+'">'+safe(titles[v]||v)+'</button>').join('')+'</div></div>';
+  return '<div class="cohortTabs" role="group" aria-label="'+label+'">'+values.map(v=>'<button data-cohort="'+field+'" data-value="'+v+'" aria-pressed="'+(s[field]===v)+'" class="'+(s[field]===v?'on':'')+'">'+safe(titles[v]||v)+'</button>').join('')+'</div>';
  }
  const types=Object.keys(typeTitles).filter(v=>v==='all'||v===s.models||f.base.some(r=>(r.modelType||'unclassified')===v));
  const available=f.base.filter(r=>s.models==='all'||(r.modelType||'unclassified')===s.models);
  const sizes=Object.keys(sizeTitles).filter(v=>v==='all'||v===s.size||['tiny','small','medium','large','efficient','workhorse','flagship','undisclosed'].includes(v)||available.some(r=>(r.modelClass||'unclassified')===v));
- return '<div class="cohorts">'+line('models','Model type',typeTitles,types)+line('size','Model class',sizeTitles,sizes)+'</div>';
+ // One line (Model Atlas plan, #15323; Ümit #16227): the model type as a small menu, the size classes stay visible as
+ // buttons, scrolling sideways inside their own row on a phone, so the first results show without scrolling the page
+ const typePick='<label class="typePick"><span class="fieldTitle">Model type</span><select data-filter="models" aria-label="Model type">'+types.map(v=>'<option value="'+v+'"'+(s.models===v?' selected':'')+'>'+safe(titles(typeTitles,v))+'</option>').join('')+'</select></label>';
+ return '<div class="cohorts"><div class="cohortLine">'+typePick+'<span class="fieldTitle">Model class</span>'+line('size','Model class',sizeTitles,sizes)+'</div></div>';
 }
 function inPanel(r){
  if(s.panel==='Learning')return r.track.startsWith('Learning ·');
@@ -150,11 +157,18 @@ function trackLabel(t){return {'Pilot results':'Our bench','Results':'Our bench'
 function resultNote(f){
  // Toolbench: one small link to what each tab measures, on Toolbench's page, its Methodology (#method); no explanation on the tabs (Ümit #12107, #12121).
  const what=s.section==='Toolbench'&&['Results','Tool choice (decision models)'].includes(f?.chosen)?'<p class="whatLink"><a href="/analysis/tool-calling/#method">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('What this measures →'))+'</a></p>':'';
+ // Science: one line on what the chosen experiment is (Ümit #16331: 'exact answers must explain what they are')
+ const sciAbout={'Textbook problems':'50 university maths and physics problems (25 each), five options; every number changed from the source book, the answer computed again.',
+  'TÜBİTAK 2026 maths':'32 high-school maths questions (a national olympiad\'s first stage, 2026), five options.',
+  'Exact answers':'The same 50 university maths and physics problems without options: the model writes the number, counted right within 0.1%.',
+  'Broken questions':'The 50 problems plus 42 copies with one number changed so that no option is right; option F says the question is flawed. Decision models are in the same table: choose Decision models under Model type.'};
+ const sciKey=s.section==='Science'?(f?.chosen||'').replace(/ \(English\)$/,''):'';
+ const about=sciAbout[sciKey]?'<p class="whatLink">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)(sciAbout[sciKey]))+'</p>':'';
  // An older snapshot than the newest: say so, with the way to the newest (Ümit #11253 looked at an old one).
  const old=dates.length&&s.snapshot!==dates[0]?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('You are looking at an older snapshot:'))+' '+safe(dateLabel(s.snapshot))+'. <button class="textLink" data-newest="1">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Show the newest'))+'</button> ('+safe(dateLabel(dates[0]))+')</div>':'';
  // A track the snapshot did not re-read keeps its rows from an earlier snapshot: say from when (Zeki #9682)
  const from=uniq((f?.rows||[]).map(r=>r.carriedFrom).filter(Boolean));
- return what+old+(from.length?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Copied unchanged from an earlier snapshot; its source files were not read again for this one:'))+' '+safe(from.map(dateLabel).join(', '))+'</div>':'')+resultNoteText();
+ return what+about+old+(from.length?'<div class="notice neutral">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Copied unchanged from an earlier snapshot; its source files were not read again for this one:'))+' '+safe(from.map(dateLabel).join(', '))+'</div>':'')+resultNoteText();
 }
 function resultNoteText(){
  if(s.panel==='Learning')return '<div class="notice neutral">The source gives each setup its own improvement verdict. Before and after refer to empty context and the final lessons evaluation. A paused or running setup has no final verdict.</div>';
@@ -252,7 +266,10 @@ function usageTable(rows){
  return '<div class="tableScroll resourceTable"><table><thead class="tableHead"><tr><th class="checkCol"><span class="sr">Select</span></th><th>Model and setup</th><th>Cost</th><th>Latency</th></tr></thead><tbody>'+table+'</tbody></table></div>';
 }
 function checkbox(r){return '<input type="checkbox" aria-label="'+safe(r.name)+' select for comparison" data-pick="'+safe(r.id)+'" '+(s.ids.includes(r.id)?'checked':'')+'>'}
-function recButton(r){return '<button class="rowName" data-detail="'+r.id+'">'+branded(r,safe(r.name))+'</button><span class="sub">'+safe([r.setup||r.tag||r.ref||r.track, r.seeds?r.seeds.length+' run average':null].filter(Boolean).join(' · '))+'</span>'}
+// A setup note in brackets after the name ('Turion Jev 31B (decision model, plain vLLM)') goes to the setup line, so the
+// bold name stays short on a phone (codex #16245); the record keeps its full name
+function splitName(r){const m=/^(.+?) \(([^()]+)\)$/.exec(r.name||'');return m&&!/^(open|closed)$/i.test(m[2])?[m[1],m[2]]:[r.name,null]}
+function recButton(r){const [name,note]=splitName(r);return '<button class="rowName" data-detail="'+r.id+'" aria-label="'+safe(r.name)+'">'+branded(r,safe(name))+'</button><span class="sub">'+safe([note,r.setup||r.tag||r.ref||r.track, r.seeds?r.seeds.length+' run average':null].filter(Boolean).join(' · '))+'</span>'}
 function headingActions(){return '<div class="actions"><button class="outline" data-act="share">'+ic('link')+' Copy link</button>'+(s.ids.length?'<button class="primary" data-goto="compare">'+ic('compare')+' Selected ('+s.ids.length+')</button>':'')+'</div>'}
 // Every table in one order (Ümit #12794): its main measure first (best first; an error rate lowest first), or, after a
 // click on Cost or Latency, the cheapest or fastest first; rows without the value go last, in the main order.
@@ -272,7 +289,7 @@ function resultSurface(f){
  const rows=f.rows.slice((s.page-1)*pageSize,s.page*pageSize);
  const one=rows.find(r=>metric(r)[1]!==null)||rows[0];
  const measure=one?metric(one)[0]:'Outcome';
- const popular={'Reading & Grammar':['Turkish Reading & Grammar','Turkish Reading','Turkish Grammar','English Reading'], 'Logic & Math':['Logic','Math','Logic and Math'],Backgammon:['Risk judgement ranking','League 1','League 2','League 3'], 'All benches':['Combined','Decision Index','Turkish Reading','Turkish Grammar','English Reading','Logic','Math','Backgammon','Answer Check'], Toolbench:['Results','Tool choice (decision models)'], Science:['Exact answers','Exact answers (English)','Textbook problems','Textbook problems (English)','TÜBİTAK 2026 maths','TÜBİTAK 2026 maths (English)','Broken questions','Broken questions (English)']};
+ const popular={'Reading & Grammar':['Turkish Reading & Grammar','Turkish Reading','Turkish Grammar','English Reading'], 'Logic & Math':['Logic','Math','Logic and Math'],Backgammon:['Risk judgement ranking','League 1','League 2','League 3'], 'All benches':['Combined','Decision Index','Turkish Reading','Turkish Grammar','English Reading','Logic','Math','Backgammon','Answer Check'], Toolbench:['Results','Tool choice (decision models)'], Science:['Textbook problems (English)','TÜBİTAK 2026 maths (English)','Exact answers (English)','Broken questions (English)','Textbook problems','TÜBİTAK 2026 maths','Exact answers','Broken questions']};
  const visibleTracks=(['Learning','Learning pilot','Vision'].includes(s.panel)?f.tracks:popular[s.section]||[]).filter(t=>f.tracks.includes(t));
  // Backgammon as its own page has it (Ümit #11706, #11710): Risk judgement and Learning first, the leagues after;
  // Learning is its own panel, so its tab switches panels and the others come back to Results.
@@ -285,7 +302,9 @@ function resultSurface(f){
   :'<button data-track="'+safe(t)+'" aria-pressed="'+(t===f.chosen)+'">'+safe(trackLabel(t))+'</button>';
  const more=extra.length?'<details class="moreTracks"'+(extra.includes(f.chosen)&&s.panel==='Results'||!bgTabs&&extra.includes(f.chosen)?' open':'')+'><summary>'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('More experiments'))+' <span class="count">'+extra.length+'</span></summary><div class="trackTabs" role="group" aria-label="More experiments">'+extra.map(tabFor).join('')+'</div></details>':'';
  // Many experiments (Science's English and Turkish sets, its subjects) are one dropdown, not a wall of tabs (Ümit #16227)
- const pick=!bgTabs&&main.length+extra.length>4?'<div class="trackPick"><label><span>'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Experiment'))+'</span> <select data-filter="track" aria-label="Experiment">'+[...main,...extra].map(t=>'<option value="'+safe(t)+'"'+(t===f.chosen?' selected':'')+'>'+safe(trackLabel(t))+'</option>').join('')+'</select></label></div>':'';
+ // Backgammon's own tabs stay tabs, on the Table row, and its other experiments are one menu (Model Atlas plan #15323)
+ const bgPick=bgTabs?'<div class="trackTabs inline" role="group" aria-label="Experiment tabs">'+main.flatMap((t,i)=>i===0?[tabFor(t),'<button data-panel="Learning" aria-pressed="'+(s.panel==='Learning')+'">'+safe(trackLabel('Learning'))+'</button>']:[tabFor(t)]).join('')+'</div>'+(extra.length?'<div class="trackPick"><select data-filter="track" aria-label="More experiments"><option value=""'+(extra.includes(f.chosen)?'':' selected')+' disabled>'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('More experiments'))+' ('+extra.length+')</option>'+extra.map(t=>'<option value="'+safe(t)+'"'+(t===f.chosen?' selected':'')+'>'+safe(trackLabel(t))+'</option>').join('')+'</select></div>':''):'';
+ const pick=bgPick||(!bgTabs&&main.length+extra.length>4?'<div class="trackPick"><label><span>'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)('Experiment'))+'</span> <select data-filter="track" aria-label="Experiment">'+[...main,...extra].map(t=>'<option value="'+safe(t)+'"'+(t===f.chosen?' selected':'')+'>'+safe(trackLabel(t))+'</option>').join('')+'</select></label></div>':'');
  const trackTabs=pick||(main.length+extra.length>1?'<div class="trackTabs" role="group" aria-label="Experiment tabs">'+main.flatMap((t,i)=>bgTabs&&i===0?[tabFor(t),'<button data-panel="Learning" aria-pressed="'+(s.panel==='Learning')+'">'+safe(trackLabel('Learning'))+'</button>']:[tabFor(t)]).join('')+'</div>'+more:'');
  const dims=key=>uniq(f.rows.map(r=>r[key]).filter(v=>v!==undefined));
  const labels=[s.section,...['lang','mode'].map(k=>dims(k).length===1?dims(k)[0]:null),dims('n').length===1&&dims('unit').length===1&&f.rows.every(r=>has(r.n))?fmtNum(dims('n')[0])+' '+(one?.unit||''):null].filter(Boolean);
@@ -318,7 +337,7 @@ function resultSurface(f){
   }).join('')+'</tbody></table></div>'
  }
  const heading=s.section==='Toolbench'?(roster?'Candidate setups':'Results'):s.panel==='Learning'?'Learning results':s.panel==='Learning pilot'?'Learning pilot results':'Experiment results';
- return '<div class="topline"><h2>'+heading+' <span class="count">'+fmtNum(n,0)+'</span></h2>'+headingActions()+'</div><div class="panel"><div class="panelTools"><div class="toggleGroup">'+radio('table','Table','table')+radio('resources','Cost & latency','clock')+(s.section==='Toolbench'?'':radio('chart','Chart','chart')+radio('metrics','Metrics','filters'))+'</div></div>'+trackTabs+'<div class="contextStrip"><span class="dot"></span>'+labels.map(safe).join('<span class="divider">/</span>')+'</div>'+content+(n?'<div class="pager"><span>'+((s.page-1)*pageSize+1)+'–'+Math.min(s.page*pageSize,n)+' / '+fmtNum(n,0)+' records</span><div class="actions"><button class="square" data-page="-1" aria-label="Previous page" '+(s.page===1?'disabled':'')+'>'+ic('left')+'</button><span>'+s.page+' / '+last+'</span><button class="square" data-page="1" aria-label="Next page" '+(s.page===last?'disabled':'')+'>'+ic('right')+'</button></div></div>':'')+'</div><p class="smallnote">'+(roster?'Select a candidate to inspect its eligibility and source.':'¹ Published rank or statistical tier. A dash means no value is reported. Select a model to inspect its method and units.')+'</p>'
+ return '<div class="topline"><h2>'+heading+' <span class="count">'+fmtNum(n,0)+'</span></h2>'+headingActions()+'</div><div class="panel"><div class="panelTools"><div class="toggleGroup">'+radio('table','Table','table')+radio('resources','Cost & latency','clock')+(s.section==='Toolbench'?'':radio('chart','Chart','chart')+radio('metrics','Metrics','filters'))+'</div>'+(pick||'')+'</div>'+(pick?'':trackTabs)+'<div class="contextStrip"><span class="dot"></span>'+labels.map(safe).join('<span class="divider">/</span>')+'</div>'+content+(n?'<div class="pager"><span>'+((s.page-1)*pageSize+1)+'–'+Math.min(s.page*pageSize,n)+' / '+fmtNum(n,0)+' records</span><div class="actions"><button class="square" data-page="-1" aria-label="Previous page" '+(s.page===1?'disabled':'')+'>'+ic('left')+'</button><span>'+s.page+' / '+last+'</span><button class="square" data-page="1" aria-label="Next page" '+(s.page===last?'disabled':'')+'>'+ic('right')+'</button></div></div>':'')+'</div><p class="smallnote">'+(roster?'Select a candidate to inspect its eligibility and source.':'¹ Published rank or statistical tier. A dash means no value is reported. Select a model to inspect its method and units.')+'</p>'
 }
 function selected(){return s.ids.map(id=>records.get(id)).filter(Boolean)}
 function statusTag(r){return '<span class="pill '+(r.status==='Published'?'':'mutedPill')+'">'+safe(r.status)+'</span>'}
@@ -540,3 +559,5 @@ async function init(){
  }catch{$('#workspace').innerHTML='<div class="panel empty"><strong>Source snapshots could not be loaded.</strong><p>Check your connection and try again.</p><button class="outline" id="retry">Reload</button></div>';HildeI18n.localize($('#workspace'),s.ui);$('#retry').onclick=()=>location.reload()}
 }
 init();
+// the size-class strip loses its edge fade once scrolled to its end (codex #16245)
+document.addEventListener('scroll',e=>{const t=e.target;if(t instanceof Element&&t.matches('.cohorts .cohortTabs,.panelTools .trackTabs.inline,.sectionTabs'))t.classList.toggle('atEnd',t.scrollLeft+t.clientWidth>=t.scrollWidth-2)},true);

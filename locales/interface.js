@@ -4,7 +4,11 @@ const HildeI18n=(()=>{
  // English display names that differ from the section keys in the data (Ümit #13926: one naming pattern, so
  // 'Toolbench' shows as 'Tool Calling'; links and data keep 'Toolbench')
  // Ümit #14939: the four Turkish Science tables say so beside their English versions; their track keys stay as they are
- const english={'Toolbench':'Tool Calling','Exact answers':'Exact answers (Turkish)','Textbook problems':'Textbook problems (Turkish)','TÜBİTAK 2026 maths':'TÜBİTAK 2026 maths (Turkish)','Broken questions':'Broken questions (Turkish)'};
+ // Ümit #16331, #16333: Science is English first; the experiments say what they are, the Turkish versions sit at the
+ // bottom of the menu and say 'Turkish'; nothing else names a language. Track keys in the data stay as they are.
+ const science={'Textbook problems':'University maths & physics','TÜBİTAK 2026 maths':'High-school maths',
+  'Exact answers':'Exact answers: no options, write the number','Broken questions':'Broken questions: spot the ones with no right option'};
+ const english={'Toolbench':'Tool Calling',...Object.fromEntries(Object.entries(science).flatMap(([k,v])=>[[k+' (English)',v],[k,v+' (Turkish)']]))};
  function rename(text){
   if(!text||!text.trim())return text;
   const base=text.trim();

@@ -81,3 +81,39 @@ html[data-theme=dark]{--ink:#f1eff0;--dim:#c0bbbf;--line:#424046;--paper:#19191c
 /* Opened from the phone Home Screen (Ümit #14099): room under the status bar and the notch, as Agent Hub does */
 @media (display-mode: standalone){body{padding-top:env(safe-area-inset-top,0px)}}
 .trackPick{border-bottom:1px solid var(--line);padding:8px 12px}.trackPick label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim)}.trackPick select{font-size:13px;max-width:100%;min-width:0;flex:1 1 auto;height:34px;border:1px solid var(--line);border-radius:5px;background:var(--white);color:var(--ink);padding:0 8px}@media(min-width:761px){.trackPick select{flex:0 1 360px}}
+/* First screen (Model Atlas plan #15323, Ümit #16227): the first results rows visible on entry at 1280x577 and 390x844 */
+.atlasTitle{font-size:24px;margin:10px 0 6px}
+.sectionTabs{margin-bottom:4px}
+.cohorts{margin-bottom:8px}
+.cohorts .cohortLine{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;min-width:0}
+.typePick{display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-right:6px}
+.typePick select{font-size:12px;height:30px;border:1px solid var(--line);border-radius:5px;background:var(--white);color:var(--ink);padding:0 6px}
+.cohorts .cohortLine>.fieldTitle{flex:0 0 auto}
+.cohorts .cohortTabs{flex-wrap:nowrap;overflow-x:auto;min-width:0;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.cohorts .cohortTabs button{white-space:nowrap;flex:0 0 auto}
+.whatLink{margin:0 0 4px}
+.topline{margin:0 0 8px;align-items:center}
+.topline h2{font-size:22px}
+.panelTools{padding:8px 12px;gap:10px;align-items:center}
+.panelTools .trackPick{border:0;padding:0;flex:1 1 280px;min-width:0}
+@media(max-width:760px){
+ .atlasTitle{font-size:20px;margin:6px 0 4px}
+ .cohorts .cohortLine{display:flex;flex-wrap:wrap;row-gap:4px}
+ .typePick{width:100%}
+ .cohorts .cohortLine>.fieldTitle{display:none}
+ .cohorts .cohortTabs{width:100%}
+ .topline h2{font-size:20px}
+ .panelTools{padding:6px 8px}
+ .panelTools .trackPick{flex-basis:100%}
+}
+.atlasTitle{margin:8px 0 2px}
+.publicationTabs{margin:4px 0 10px;padding:4px 0}
+.topline{margin:0 0 6px}
+.topline .outline{padding:6px 10px;min-height:32px}
+/* the size-class strip shows it scrolls: a fade at the edge while more classes are offscreen (codex #16245) */
+@media(max-width:760px){.cohorts .cohortTabs{-webkit-mask-image:linear-gradient(to right,#000 85%,transparent);mask-image:linear-gradient(to right,#000 85%,transparent)}.cohorts .cohortTabs.atEnd{-webkit-mask-image:none;mask-image:none}}
+.panelTools .trackTabs.inline{border:0;padding:0;flex:0 1 auto}
+.panelTools .trackTabs.inline+.trackPick{flex:0 1 240px}
+@media(max-width:760px){.panelTools .trackTabs.inline{flex-wrap:nowrap;overflow-x:auto;width:100%;-webkit-mask-image:linear-gradient(to right,#000 85%,transparent);mask-image:linear-gradient(to right,#000 85%,transparent)}.panelTools .trackTabs.inline button{white-space:nowrap;flex:0 0 auto}.panelTools .trackTabs.inline.atEnd{-webkit-mask-image:none;mask-image:none}.panelTools .trackTabs.inline+.trackPick{flex-basis:100%}}
+/* Ümit #16331: the bench tabs were two rows on a phone; one row that scrolls sideways, smaller, with an edge fade */
+@media(max-width:760px){.sectionTabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(to right,#000 85%,transparent);mask-image:linear-gradient(to right,#000 85%,transparent)}.sectionTabs::-webkit-scrollbar{display:none}.sectionTabs.atEnd{-webkit-mask-image:none;mask-image:none}.sectionTabs button{flex:0 0 auto;white-space:nowrap;font-size:12px;padding:6px 8px}}
