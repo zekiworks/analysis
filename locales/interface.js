@@ -4,7 +4,7 @@ const HildeI18n=(()=>{
  // English display names that differ from the section keys in the data (Ümit #13926: one naming pattern, so
  // 'Toolbench' shows as 'Tool Calling'; links and data keep 'Toolbench')
  // Ümit #14939: the four Turkish Science tables say so beside their English versions; their track keys stay as they are
- const english={'Toolbench':'Tool Calling'};
+ const english={'Toolbench':'Tool Calling','Reading & Grammar':'Languages'};  // Ümit #16460: 'Languages'
  function rename(text){
   if(!text||!text.trim())return text;
   const base=text.trim();
