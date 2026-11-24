@@ -766,6 +766,20 @@
   },
   {
    "group": "chat",
+   "params_model": null,
+   "setup": "GLM-5.4 (high)",
+   "status": "not started (waiting for Z.ai/BigModel route or login)",
+   "tag": "planned 24 Nov, no league record"
+  },
+  {
+   "group": "chat",
+   "params_model": null,
+   "setup": "GLM-5.4 (low)",
+   "status": "not started (waiting for Z.ai/BigModel route or login)",
+   "tag": "planned 24 Nov, no league record"
+  },
+  {
+   "group": "chat",
    "params_model": "Inkling Small",
    "setup": "Inkling Small",
    "status": "not started (waiting for budget)",
@@ -1071,7 +1085,7 @@
     "series_done": 0,
     "setup": "Inkling 2 Mini (on, effort 0.2)",
     "status": "running",
-    "updated_at": "2026-11-24T07:24:29+00:00"
+    "updated_at": "2026-11-24T10:12:52+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -1106,17 +1120,17 @@
     "series_done": 0,
     "setup": "Gemini 4 Neon (high)",
     "status": "running",
-    "updated_at": "2026-11-24T07:25:17+00:00"
+    "updated_at": "2026-11-24T09:58:22+00:00"
    },
    {
-    "reason": null,
+    "reason": "usage limit",
     "series_done": 2,
     "setup": "Claude Fable 5.2 (high)",
-    "status": "running",
-    "updated_at": "2026-11-24T07:25:51+00:00"
+    "status": "paused",
+    "updated_at": "2026-11-24T10:35:14+00:00"
    }
   ],
-  "updated_at": "2026-11-24T07:25:53+00:00"
+  "updated_at": "2026-11-24T10:35:15+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -9885,11 +9899,21 @@
      "risks_found": null
     },
     "answers_after": null,
-    "answers_before": null,
+    "answers_before": {
+     "answer_rate": 93.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 14,
+     "risk_pays": 96,
+     "safety_pays": 90,
+     "tests": 1,
+     "valid": 186
+    },
     "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 53.786876461198254,
+     "right_safety": 93.33333333333333,
+     "risks_found": 25.0
     },
     "change": {
      "error_rate": null,
@@ -9902,15 +9926,31 @@
      "estimate_usd": null,
      "reported_usd": null
     },
-    "empty": [],
-    "empty_done": 0,
+    "empty": [
+     {
+      "answer_rate": 93.0,
+      "answered": 200,
+      "error_rate": 53.786876461198254,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 14,
+      "right_safety": 93.33333333333333,
+      "risk_pays": 96,
+      "risks_found": 25.0,
+      "safety_pays": 90,
+      "valid": 186,
+      "wall_seconds": 4782.7
+     }
+    ],
+    "empty_done": 1,
     "improved": null,
     "key": "inkling-2-mini-e02",
     "progress": {
      "reason": null,
      "series_done": 0,
      "status": "running",
-     "updated_at": "2026-11-24T07:24:29+00:00"
+     "updated_at": "2026-11-24T10:12:52+00:00"
     },
     "range": null,
     "reason": null,
@@ -9919,7 +9959,9 @@
     "setup": "Inkling 2 Mini (on, effort 0.2)",
     "state": "running",
     "status": "running on our GPU, 0 of 5 series",
-    "steps_done": [],
+    "steps_done": [
+     "E1"
+    ],
     "threshold": null,
     "verdict": false
    },
@@ -10787,7 +10829,7 @@
      "risks_found": null
     },
     "cost": {
-     "api_equivalent_usd": 75.9602,
+     "api_equivalent_usd": 105.7402,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -10816,7 +10858,7 @@
      "reason": null,
      "series_done": 0,
      "status": "running",
-     "updated_at": "2026-11-24T07:25:17+00:00"
+     "updated_at": "2026-11-24T09:58:22+00:00"
     },
     "range": null,
     "reason": null,
@@ -10850,27 +10892,27 @@
     },
     "answers_before": {
      "answer_rate": 100.0,
-     "answered": 200,
-     "expected": 200,
+     "answered": 400,
+     "expected": 400,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 100,
-     "safety_pays": 100,
-     "tests": 1,
-     "valid": 200
+     "risk_pays": 200,
+     "safety_pays": 200,
+     "tests": 2,
+     "valid": 400
     },
     "before": {
-     "error_rate": 20.687944889068604,
-     "right_safety": 92.0,
+     "error_rate": 19.77453950792551,
+     "right_safety": 94.5,
      "risks_found": 66.0
     },
     "change": {
-     "error_rate": -3.455364629626274,
-     "right_safety": 3.0,
+     "error_rate": -2.541959248483181,
+     "right_safety": 0.5,
      "risks_found": 3.0
     },
     "cost": {
-     "api_equivalent_usd": 195.863,
+     "api_equivalent_usd": 302.1896,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -10890,19 +10932,34 @@
       "safety_pays": 100,
       "valid": 200,
       "wall_seconds": 1576.7
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 18.861134126782417,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 97.0,
+      "risk_pays": 100,
+      "risks_found": 66.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 2340.4
      }
     ],
-    "empty_done": 1,
+    "empty_done": 2,
     "improved": null,
     "key": "claude-fable-5.2-high",
     "progress": {
-     "reason": null,
+     "reason": "usage limit",
      "series_done": 2,
-     "status": "running",
-     "updated_at": "2026-11-24T07:25:51+00:00"
+     "status": "paused",
+     "updated_at": "2026-11-24T10:35:14+00:00"
     },
     "range": null,
-    "reason": null,
+    "reason": "S3: usage limit (429 rate_limit_error)",
     "series": [
      {
       "finished": true,
@@ -11045,12 +11102,13 @@
     ],
     "series_finished": 2,
     "setup": "Claude Fable 5.2 (high)",
-    "state": "running",
-    "status": "running, 2 of 5 series",
+    "state": "paused",
+    "status": "paused: S3: usage limit (429 rate_limit_error)",
     "steps_done": [
      "E1",
      "S1",
-     "S2"
+     "S2",
+     "E2"
     ],
     "threshold": null,
     "verdict": false
@@ -11060,16 +11118,16 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-24T07:25:53+00:00"
+  "updated_at": "2026-11-24T10:35:15+00:00"
  },
- "source_sha256": "3c029a8817133933e56c9ee5dd39cf67cdc6838da1149e867f3dc623bea85a01",
+ "source_sha256": "a43997d1623775e505fa6bc8c8dca9aa962c3cdeb700685d46356130ec2f472d",
  "status": {
-  "last_update": "2026-11-24T07:25:53+00:00",
-  "line": "17 of 36 models with a verdict · 3 running · 15 paused · 1 incomplete or stopped",
+  "last_update": "2026-11-24T10:35:15+00:00",
+  "line": "17 of 36 models with a verdict · 2 running · 16 paused · 1 incomplete or stopped",
   "models": 36,
-  "paused": 15,
+  "paused": 16,
   "phase": "running",
-  "running": 3,
+  "running": 2,
   "stopped": 1,
   "verdicts": 17
  },
