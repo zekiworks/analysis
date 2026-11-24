@@ -4083,6 +4083,288 @@
    }
   },
   {
+   "model": "raon-1-nano",
+   "name": "Raon-1 nano",
+   "tag": "thinking on · chat",
+   "kind": "chat",
+   "route": "vLLM on our GPU (logic's load, RTX PRO 6000), logic's Logic & Math settings for the row; one question per request, answer line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 122,
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 24,
+     "no_letter": 24,
+     "timing": {
+      "median_s_per_problem": 603.2,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 1557,
+      "cost_per_1000_usd": 21.5385,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "tubitak": {
+     "run": 123,
+     "date": "2026-11-22",
+     "questions": 32,
+     "right": 8,
+     "no_letter": 22,
+     "timing": {
+      "median_s_per_problem": 600.31,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 1316,
+      "cost_per_1000_usd": 28.4448,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "broken": {
+     "run": 124,
+     "date": "2026-11-22",
+     "questions": 92,
+     "right": 21,
+     "no_letter": 62,
+     "timing": {
+      "median_s_per_problem": 683.48,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 3660,
+      "cost_per_1000_usd": 27.5163,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     },
+     "intact": 50,
+     "intact_right": 13,
+     "broken": 42,
+     "broken_caught": 8,
+     "flawed_on_intact": 1
+    },
+    "textbook_en": {
+     "run": 275,
+     "date": "2026-11-23",
+     "questions": 50,
+     "right": 32,
+     "no_letter": 13,
+     "timing": {
+      "median_s_per_problem": 362.33,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 1418,
+      "cost_per_1000_usd": 19.6157,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "tubitak_en": {
+     "run": 276,
+     "date": "2026-11-23",
+     "questions": 32,
+     "right": 12,
+     "no_letter": 16,
+     "timing": {
+      "median_s_per_problem": 600.93,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 1380,
+      "cost_per_1000_usd": 29.8281,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "broken_en": {
+     "run": 277,
+     "date": "2026-11-23",
+     "questions": 92,
+     "right": 45,
+     "no_letter": 37,
+     "timing": {
+      "median_s_per_problem": 725.56,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 3080,
+      "cost_per_1000_usd": 23.1558,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     },
+     "intact": 50,
+     "intact_right": 30,
+     "broken": 42,
+     "broken_caught": 15,
+     "flawed_on_intact": 3
+    },
+    "exact_en": {
+     "run": "exact/raon-1-nano-en-raon-1-nano-en.json",
+     "date": "2026-11-24",
+     "questions": 50,
+     "right": 14,
+     "no_letter": 31,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 597.6,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 2127,
+      "cost_per_1000_usd": 29.4276,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "exact": {
+     "run": "exact/raon-1-nano-raon-1-nano.json",
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 11,
+     "no_letter": 25,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 1029.5,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 4178,
+      "cost_per_1000_usd": 57.7984,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "raon-1-nano",
+   "name": "Raon-1 nano",
+   "tag": "thinking off · chat",
+   "kind": "chat",
+   "route": "vLLM on our GPU (logic's load, RTX PRO 6000), logic's Logic & Math settings for the row; one question per request, answer line 'ANSWER: X'",
+   "sets": {
+    "textbook": {
+     "run": 125,
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 12,
+     "no_letter": 28,
+     "timing": {
+      "median_s_per_problem": 623.4,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 1489,
+      "cost_per_1000_usd": 20.5978,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "tubitak": {
+     "run": 126,
+     "date": "2026-11-22",
+     "questions": 32,
+     "right": 2,
+     "no_letter": 20,
+     "timing": {
+      "median_s_per_problem": 1478.89,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 2302,
+      "cost_per_1000_usd": 49.7568,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "broken": {
+     "run": 133,
+     "date": "2026-11-22",
+     "questions": 92,
+     "right": 14,
+     "no_letter": 49,
+     "timing": {
+      "median_s_per_problem": 800.52,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 3363,
+      "cost_per_1000_usd": 25.2834,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     },
+     "intact": 50,
+     "intact_right": 7,
+     "broken": 42,
+     "broken_caught": 7,
+     "flawed_on_intact": 5
+    },
+    "textbook_en": {
+     "run": 278,
+     "date": "2026-11-24",
+     "questions": 50,
+     "right": 33,
+     "no_letter": 5,
+     "timing": {
+      "median_s_per_problem": 55.82,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 911,
+      "cost_per_1000_usd": 12.6022,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "tubitak_en": {
+     "run": 279,
+     "date": "2026-11-24",
+     "questions": 32,
+     "right": 12,
+     "no_letter": 9,
+     "timing": {
+      "median_s_per_problem": 161.55,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 899,
+      "cost_per_1000_usd": 19.4315,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "broken_en": {
+     "run": 280,
+     "date": "2026-11-24",
+     "questions": 92,
+     "right": 47,
+     "no_letter": 8,
+     "timing": {
+      "median_s_per_problem": 181.84,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 1315,
+      "cost_per_1000_usd": 9.8863,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     },
+     "intact": 50,
+     "intact_right": 24,
+     "broken": 42,
+     "broken_caught": 23,
+     "flawed_on_intact": 11
+    },
+    "exact_en": {
+     "run": "exact/raon-1-nano-en-raon-1-nano-nothink-en.json",
+     "date": "2026-11-24",
+     "questions": 50,
+     "right": 6,
+     "no_letter": 11,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 3.25,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 674,
+      "cost_per_1000_usd": 9.3181,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "exact": {
+     "run": "exact/raon-1-nano-raon-1-nano-nothink.json",
+     "date": "2026-11-22",
+     "questions": 50,
+     "right": 0,
+     "no_letter": 9,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 0.4,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 582,
+      "cost_per_1000_usd": 8.051,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
    "model": "granite-4.2-3b",
    "name": "Granite 4.2 3B",
    "tag": "thinking on · chat",
