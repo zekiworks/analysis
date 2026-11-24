@@ -13009,6 +13009,195 @@
    "name": "Gemma 4 31B",
    "tag": "chat",
    "kind": "chat",
+   "route": "vLLM v0.30.0 FP8 on our GPU (logic's load, alone on one RTX PRO 6000), Google's recommended sampling (temperature 1.0, top_p 0.95, top_k 64), max_tokens 8192, no thinking; one question per request, answer line 'ANSWER: X'",
+   "sets": {
+    "chemistry_en": {
+     "run": 712,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-24",
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 21.02,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 46,
+      "cost_per_1000_usd": 0.6363,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_broken_en": {
+     "run": 713,
+     "fix_runs": [],
+     "questions": 95,
+     "date": "2026-11-24",
+     "right": 84,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 48,
+     "broken": 45,
+     "broken_caught": 36,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 24.91,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 158,
+      "cost_per_1000_usd": 1.1504,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_en": {
+     "run": 714,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-24",
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 17.25,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 37,
+      "cost_per_1000_usd": 0.5118,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_broken_en": {
+     "run": 715,
+     "fix_runs": [],
+     "questions": 88,
+     "date": "2026-11-24",
+     "right": 79,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 50,
+     "broken": 38,
+     "broken_caught": 29,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 19.95,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 129,
+      "cost_per_1000_usd": 1.0139,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_en": {
+     "run": 716,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-24",
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 20.67,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 62,
+      "cost_per_1000_usd": 0.8577,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_broken_en": {
+     "run": 717,
+     "fix_runs": [],
+     "questions": 98,
+     "date": "2026-11-24",
+     "right": 93,
+     "no_letter": 1,
+     "intact": 50,
+     "intact_right": 49,
+     "broken": 48,
+     "broken_caught": 44,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 23.44,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 256,
+      "cost_per_1000_usd": 1.8068,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_en": {
+     "run": 718,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-24",
+     "right": 47,
+     "no_letter": 2,
+     "timing": {
+      "median_s_per_problem": 35.64,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 234,
+      "cost_per_1000_usd": 3.237,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_broken_en": {
+     "run": 719,
+     "fix_runs": [],
+     "questions": 69,
+     "date": "2026-11-24",
+     "right": 60,
+     "no_letter": 2,
+     "intact": 50,
+     "intact_right": 46,
+     "broken": 19,
+     "broken_caught": 14,
+     "flawed_on_intact": 1,
+     "timing": {
+      "median_s_per_problem": 38.24,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 254,
+      "cost_per_1000_usd": 2.5461,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_exact_en": {
+     "run": "exact/gemma-4-31b-it-sci50-gemma-4-31b-it-en-t0-en.json",
+     "date": "2026-11-24",
+     "questions": 50,
+     "right": 48,
+     "no_letter": 0,
+     "per_request": 1
+    },
+    "biology_exact_en": {
+     "run": "exact/gemma-4-31b-it-sci50-gemma-4-31b-it-en-t0-en.json",
+     "date": "2026-11-24",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "per_request": 1
+    },
+    "geometry_exact_en": {
+     "run": "exact/gemma-4-31b-it-sci50-gemma-4-31b-it-en-t0-en.json",
+     "date": "2026-11-24",
+     "questions": 50,
+     "right": 48,
+     "no_letter": 0,
+     "per_request": 1
+    },
+    "logic_exact_en": {
+     "run": "exact/gemma-4-31b-it-sci50-gemma-4-31b-it-en-t0-en.json",
+     "date": "2026-11-24",
+     "questions": 50,
+     "right": 40,
+     "no_letter": 1,
+     "per_request": 1
+    }
+   }
+  },
+  {
+   "model": "gemma-4-31B-it",
+   "name": "Gemma 4 31B",
+   "tag": "temperature 0 · chat",
+   "kind": "chat",
    "route": "vLLM v0.30.0 FP8 on our GPU (logic's load, alone on one RTX PRO 6000), the settings of logic's published Logic & Math row (temperature 0, max_tokens 8192, no thinking); one question per request, answer line 'ANSWER: X'",
    "sets": {
     "textbook": {
