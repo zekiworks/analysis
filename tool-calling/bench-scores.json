@@ -1227,14 +1227,14 @@
       "calibration_error": null,
       "class_label": "Open \u00b7 26.4B MoE \u00b7 3.4B active",
       "commit": "ed40e7da625f594fc9c4990f5f66be24873c22d7",
-      "display_name": "Inkling 2 Mini (card sampling, 3 seeds)",
+      "display_name": "Inkling 2 Mini",
       "gpu_cost_usd": 0.18841,
       "gpu_hours": 0.07566666666666666,
       "improvement_points": null,
       "kind": "chat",
       "maker": "Thinking Machines",
       "model_key": "toolbench-e172cf8989708b77",
-      "name": "Inkling 2 Mini (card sampling, 3 seeds)",
+      "name": "Inkling 2 Mini",
       "notes": "original/renamed paired, no chance correction; provider local vLLM (inkling-2-mini image, recipe) served by @logic on bariton, one RTX PRO 6000; Thinking Machines' own sampling from the checkpoint's generation_config (temperature 1.0; the card recommends no other values), thinking on at reasoning_effort 0.9 (the model has no off mode), seeds 0/1/2. Shown at the maker's setting at \u00dcmit's request (#15551); the temperature-0 run it replaces scored 86.5% standard / 91.7% harder, a tie with this row on both sets in a paired test by task (p = 0.14 / 0.22). Served with the maker's vLLM recipe (inkling-2-mini image, inkling tool and reasoning parsers), the only engine that runs the published NVFP4/MXFP8 weights; own load on one GPU. 3.4B active of 26.4B total; three passes through its looped layers make 5.4B effective active per token (card). No reply hit the 32,768-token output cap.",
       "params_active": 3.4,
       "params_total": 26.4,
@@ -1261,6 +1261,6 @@
     "zero": "No tasks passed"
   },
   "title": "Can a small model use tools?",
-  "updated": "2026-11-24T10:20:56Z",
+  "updated": "2026-11-24T13:42:28Z",
   "url": "https://zekiworks.github.io/analysis/tool-calling/"
 }
