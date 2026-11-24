@@ -1654,6 +1654,72 @@
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); card shared with other benches' runs"
      }
     },
+    "textbook_en": {
+     "run": 385,
+     "date": "2026-11-24",
+     "questions": 50,
+     "right": 49,
+     "no_letter": 1,
+     "timing": {
+      "median_s_per_problem": 81.49,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 548,
+      "cost_per_1000_usd": 7.5807,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "tubitak_en": {
+     "run": 386,
+     "date": "2026-11-24",
+     "questions": 32,
+     "right": 25,
+     "no_letter": 7,
+     "timing": {
+      "median_s_per_problem": 176.53,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 674,
+      "cost_per_1000_usd": 14.5682,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "broken_en": {
+     "run": 391,
+     "date": "2026-11-24",
+     "questions": 92,
+     "right": 85,
+     "no_letter": 7,
+     "timing": {
+      "median_s_per_problem": 65.21,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 808,
+      "cost_per_1000_usd": 6.0746,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     },
+     "intact": 50,
+     "intact_right": 50,
+     "broken": 42,
+     "broken_caught": 35,
+     "flawed_on_intact": 0
+    },
+    "exact_en": {
+     "run": "exact/inkling-2-mini-en-inkling-2-mini-en.json",
+     "date": "2026-11-24",
+     "questions": 50,
+     "right": 48,
+     "no_letter": 2,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 74.55,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 601,
+      "cost_per_1000_usd": 8.3194,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
     "exact": {
      "run": "exact/inkling-2-mini-1pq.json",
      "date": "2026-11-21",
@@ -1668,6 +1734,82 @@
       "gpu_seconds": 1599,
       "cost_per_1000_usd": 22.1147,
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice); card shared with other benches' runs"
+     }
+    }
+   },
+   "maker_like": "Inkling 2 Small"
+  },
+  {
+   "model": "inkling-2-mini",
+   "name": "Inkling 2 Mini",
+   "tag": "thinking on (no off mode) · card sampling (temperature 1.0) · chat",
+   "kind": "chat",
+   "route": "vLLM, the maker's image, on our GPU (logic's load, RTX PRO 6000, shared with other benches' runs); reasoning effort 0.9, temperature 1.0 (the card's sampling), seed 0; one question per request, answer line 'ANSWER: X'",
+   "sets": {
+    "textbook_en": {
+     "run": 396,
+     "date": "2026-11-24",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 35.48,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 235,
+      "cost_per_1000_usd": 3.2508,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "tubitak_en": {
+     "run": 397,
+     "date": "2026-11-24",
+     "questions": 32,
+     "right": 27,
+     "no_letter": 5,
+     "timing": {
+      "median_s_per_problem": 134.72,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 618,
+      "cost_per_1000_usd": 13.3578,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "broken_en": {
+     "run": 398,
+     "date": "2026-11-24",
+     "questions": 92,
+     "right": 92,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 71.0,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 509,
+      "cost_per_1000_usd": 3.8267,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     },
+     "intact": 50,
+     "intact_right": 50,
+     "broken": 42,
+     "broken_caught": 42,
+     "flawed_on_intact": 0
+    },
+    "exact_en": {
+     "run": "exact/inkling-2-mini-en-inkling-2-mini-card-en.json",
+     "date": "2026-11-24",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 73.25,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 493,
+      "cost_per_1000_usd": 6.8212,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
      }
     }
    },
