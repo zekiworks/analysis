@@ -1,0 +1,79 @@
+You are playing a backgammon game against a language model. Below are the rules of the game and basic strategy. Your task is to win the game.
+
+# Backgammon: Rules and Strategy
+
+## Rules
+
+### Setup
+
+The board has 24 points in a horseshoe-shaped track, 12 on each side. Each player numbers the points from their own side, 1 to 24, and moves from the 24-point toward the 1-point; the two players move in opposite directions. Each player starts with 15 checkers: two on the 24-point, five on the 13-point (the midpoint), three on the 8-point, and five on the 6-point.
+
+Points 1-6 are your home board and points 7-12 your outer board. The 7-point is the bar point.
+
+### Moving
+
+- **Starting:** each player rolls one die. The higher number moves first, playing both dice. Equal numbers are rolled again. After that, players alternate, rolling two dice each turn.
+- **Using the dice:** move one checker by each die. One checker may take both moves, as long as each step lands on a legal point. A roll of 6-3 moves one checker six and another (or the same) checker three.
+- **Doubles** are played four times: 5-5 is four moves of five.
+- **Using the whole roll:** you must use both dice if you can. If only one die can be played, you must play the higher one when possible. If neither can be played, the turn is lost.
+
+### Hitting and entering
+
+- A checker may land on an empty point, a point holding your own checkers, or a point holding exactly one opposing checker (a blot). Landing on a blot hits it and sends it to the bar.
+- A checker may never land on a point held by two or more opposing checkers, so no point ever holds checkers of both players.
+- A player with checkers on the bar must enter them all before moving anything else. Checkers enter in the opponent's home board: a 1 enters on your 24-point (the opponent's 1-point), a 2 on your 23-point, and so on up to a 6 on your 19-point. Entering on a blot hits it.
+- If no die matches an open point, you dance and the turn is lost. Against a closed board you cannot enter at all until the opponent opens a point.
+
+### Bearing off
+
+Once all 15 of your checkers are in your home board, you may bear them off: a 1 removes a checker from the 1-point, a 2 from the 2-point, and so on. A die higher than your highest occupied point removes a checker from that highest point. For example, with 6-5, no checkers on the 6-point, and two on the 5-point, both checkers come off the 5-point. A checker hit during the bear-off must enter and come home before bearing off continues.
+
+### Scoring
+
+The first player to bear off all 15 checkers wins:
+
+| Result | When | Points |
+| --- | --- | --- |
+| Single game | The loser has borne off at least one checker | 1 |
+| Gammon | The loser has borne off no checkers | 2 |
+| Backgammon | The loser has borne off no checkers and still has one on the bar or in the winner's home board | 3 |
+
+## Strategy principles
+
+Backgammon is a race to bear off first, but the straightest path is rarely the best one. Beginners tend to avoid leaving blots and hit whenever they can; neither habit makes a good plan.
+
+- **Blots and points:** a blot is exposed and goes back to the start if hit. Two or more checkers make a safe point that can also block the opponent.
+- **Distribution:** spread checkers evenly over the points you hold. Three checkers on each of two points beat four and two. Rarely put six checkers on one point and almost never more. Even distribution gives you more good rolls.
+- **Exposure:** leaving shots early to build a strong position is fine. Be more careful as the opponent's home board grows, since entering gets harder. Anchors in the opponent's home board let you play more boldly. Even against a weak board, leave no more than four blots. When well ahead in the race or position, cut your exposure to keep the lead.
+- **Blocking:** make points without gaps directly in front of the opponent's back checkers. The most valuable early points, in rough order, are your 5-, 4- and 7-points. Six in a row is a full prime, and checkers behind it cannot escape while it holds.
+- **Hitting:** hit the opponent's most advanced checkers, or blots they want to cover to make an important point. Hit only when it helps: with two opposing checkers already on the bar, making another home-board point is usually worth more than hitting a third. Do not hit if it leaves you more exposed than your opponent. When genuinely in doubt, hit.
+- **Anchors:** an anchor gives you a safe point to enter on and keeps the opponent from closing their board. Early on, aim for the high points in the opponent's home board: your 20- and 21-points (their 5- and 4-points). Far behind in the race, the low points (your 22-, 23- and 24-points) gain value, because your plan becomes building your board and waiting for a shot. With two anchors, keep them on adjacent points.
+
+## Opening rolls
+
+Plays are written from-point/to-point. Doubles cannot be an opening roll. These are the results of computer rollouts.
+
+| Roll | Best play | Notes |
+| --- | --- | --- |
+| 2-1 | 13/11 6/5 or 24/23 13/11 | The slot and the split are about equal; nothing else is close. |
+| 3-1 | 8/5 6/5 | The only play. |
+| 4-1 | 24/23 13/9 | The split is clearly better than slotting with 13/9 6/5: the builder on the 9-point already gives many numbers to make a point next turn. |
+| 5-1 | 24/23 13/8 | The split is a little better than slotting with 13/8 6/5; 24/18 is clearly worse. |
+| 6-1 | 13/7 8/7 | 13/7 6/5 is very poor. |
+| 3-2 | 24/21 13/11 | The split is a little better than 13/10 13/11. |
+| 4-2 | 8/4 6/4 | |
+| 5-2 | 24/22 13/8 | The split is a little better than 13/11 13/8; slotting with 13/8 6/4 is clearly worse. |
+| 6-2 | 24/18 13/11 | The split is clearly best; 24/16 is second, slotting with 13/5 third. |
+| 4-3 | 13/10 13/9 or 24/20 13/10 | About equal; 24/21 13/9 is only a little behind. |
+| 5-3 | 8/3 6/3 | Clearly best; 13/10 13/8 is far worse. |
+| 6-3 | 24/18 13/10 | Best; 24/15 is not far behind. |
+| 5-4 | 24/20 13/8 | Slightly better than 13/9 13/8; 24/15 is weaker. |
+| 6-4 | 24/14, 24/18 13/9, or 8/2 6/2 | All about equal. |
+| 6-5 | 24/13 | Clearly best. |
+
+## Match rules
+
+- **Rounds:** the match is 3 rounds. Each round is two games with identical dice: in the second game the players swap seats and the same sequence of rolls is repeated, so both players face the same luck. The player who moved first in the first game moves second in the second.
+- **Score:** the points of every game (1, 2 or 3) add up to the match score. The first player to reach 5 points wins the match, but the mirror game of that round is always played first: if the round ends with one player ahead and at least one player at 5 or more, the player ahead wins the match. If the score is tied when the match would end (after the planned rounds, or level at 5 or more after a round), one extra round is played; a tie after that is a draw. In a playoff, extra rounds are played until one player leads after a round, so it cannot end in a draw.
+- **Turn limit:** a game that has not ended after 300 turns (both players' turns counted) ends there. The player with the lower pip count wins a single game (1 point); with equal pip counts, the player due to roll next wins.
+- **Thinking time:** each decision first gets a free delay of 0:30, which does not accumulate; only time beyond it comes out of your bank of 5:00 per game. Both banks are full again at the start of every game. A roll with a single legal play is played for you instantly. If your bank runs out while you decide, you lose that game for 1 point, whatever the position.
