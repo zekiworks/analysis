@@ -287,14 +287,17 @@ function splitName(r){const m=/^(.+?) \(([^()]+)\)$/.exec(r.name||'');return m&&
 function recButton(r){const [name,note]=splitName(r);return '<button class="rowName" data-detail="'+r.id+'" aria-label="'+safe(r.name)+'">'+branded(r,safe(name))+'</button><span class="sub">'+safe([note,r.setup||r.tag||r.ref||r.track, r.seeds?r.seeds.length+' run average':null].filter(Boolean).join(' · '))+'</span>'}
 function headingActions(){return '<div class="actions"><button class="outline" data-act="share">'+ic('link')+' Copy link</button>'+(s.ids.length?'<button class="primary" data-goto="compare">'+ic('compare')+' Selected ('+s.ids.length+')</button>':'')+'</div>'}
 // Every table in one order (Ümit #12794): its main measure first (best first; an error rate lowest first), or, after a
-// click on Cost or Latency, the cheapest or fastest first; rows without the value go last, in the main order.
+// click on Cost or Latency, the cheapest or fastest first; rows without the value go last, in the main order. Learning
+// keeps the source's verdict groups before either sort: Yes first, then No, then unfinished (Ümit #16855).
 function costValue(r){const rate=r.unitCost||r.setupReference?.unitCost;const v=rate?.value??r.cost;const basis=rate?.basis||r.costBasis||'';return has(v)&&!(v===0&&/subscription/i.test(basis))?v:null}
 function latencyValue(r){const v=r.latency??r.setupReference?.latency;return has(v)?v:null}
 function ordered(rows){
  const main=r=>{const [label,v]=metric(r);return v===null?null:(label==='Error rate'||r.lowMetric?-v:v)};
  const byMain=(a,b)=>{const x=main(a),y=main(b);return x===null&&y===null?0:x===null?1:y===null?-1:y-x};
+ const learningGroup=r=>s.panel!=='Learning'?0:r.verdict==='Yes'?0:r.verdict==='No'?1:2;
  const key=s.sort==='cost'?costValue:s.sort==='latency'?latencyValue:null;
  return rows.map((r,i)=>[r,i]).sort(([a,i],[b,j])=>{
+  const ga=learningGroup(a),gb=learningGroup(b);if(ga!==gb)return ga-gb;
   if(key){const x=key(a),y=key(b);if(x!==null||y!==null){if(x===null)return 1;if(y===null)return -1;if(x!==y)return x-y}}
   return byMain(a,b)||i-j}).map(([r])=>r);
 }
