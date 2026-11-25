@@ -39,7 +39,7 @@ function renderField(title,key,values,allLabel){
  const list=allLabel?['',...values]:values;
  return '<label class="field"><span class="fieldTitle">'+title+'</span><select data-filter="'+key+'">'+list.map(v=>'<option value="'+safe(v)+'" '+(s[key]===v?'selected':'')+'>'+safe(v?(key==='snapshot'?dateLabel(v):v):allLabel)+'</option>').join('')+'</select></label>';
 }
-function blank(){return {ui:'en',section:sections[0],panel:'Results',track:initialTracks[0],model:'',models:'all',size:'all',language:'',mode:'',status:'',snapshot:dates[0],view:'results',layout:'table',sort:'',page:1,ids:[],detail:'',dd:'',ds:'',dp:1,dr:'all',dc:'all',db:'all',dk:'all'}}
+function blank(){return {ui:'en',section:sections[0],panel:'Results',track:initialTracks[0],model:'',models:'all',size:'all',language:'',mode:'',status:'',snapshot:dates[0],view:'results',layout:'table',sort:'',page:1,ids:[],detail:'',pa:'',dd:'',ds:'',dp:1,dr:'all',dc:'all',db:'all',dk:'all'}}
 const legacyLabels={"T\u00fcrk\u00e7e \u00b7 Genel":"Turkish Reading & Grammar","Metin":"Text","Yay\u0131mlanm\u0131\u015f":"Published","T\u00fcrk\u00e7e":"Turkish","T\u00fcrk\u00e7e \u00b7 Okuma":"Turkish Reading","T\u00fcrk\u00e7e \u00b7 Dil bilgisi":"Turkish Grammar","English reading":"English Reading","\u0130ngilizce":"English","Bilmiyorum \u00b7 T\u00fcrk\u00e7e":"Turkish abstention option","Se\u00e7enek dili \u00b7 T\u00fcrk\u00e7e":"Turkish option wording","\u00c7al\u0131\u015ft\u0131r\u0131lmad\u0131":"Not run","I don\u2019t know \u00b7 English":"English abstention option","Sayfa deneyi \u00b7 Metin":"Page input \u00b7 Text","Sayfa deneyi \u00b7 Yaln\u0131z g\u00f6r\u00fcnt\u00fc":"Page input \u00b7 Image only","Yaln\u0131z g\u00f6r\u00fcnt\u00fc":"Image only","Sayfa deneyi \u00b7 Metin + g\u00f6r\u00fcnt\u00fc":"Page input \u00b7 Text and image","Metin + g\u00f6r\u00fcnt\u00fc":"Text and image","Sayfa deneyi \u00b7 D chandra-ocr-2":"Page input \u00b7 D chandra-ocr-2","OCR metni":"OCR text","Sayfa deneyi \u00b7 D dots-mocr":"Page input \u00b7 D dots-mocr","Sayfa deneyi \u00b7 D surya-ocr-2":"Page input \u00b7 D surya-ocr-2","Sayfa deneyi \u00b7 D unlimited-ocr-2":"Page input \u00b7 D unlimited-ocr-2","Sayfa deneyi \u00b7 \u00c7al\u0131\u015ft\u0131r\u0131lmad\u0131":"Page input \u00b7 Not run","G\u00f6rsel deney":"Board image experiment","Lig 1":"League 1","Belirtilmemi\u015f":"Unspecified","Lig 2":"League 2","Lig 3":"League 3","Ge\u00e7 kat\u0131l\u0131m \u00b7 Lig 3":"Late entry \u00b7 League 3","Ge\u00e7 kat\u0131l\u0131m \u00b7 Lig 1":"Late entry \u00b7 League 1","v1 pozisyonlar\u0131":"v1 position set","K\u0131sa test \u00b7 Part A":"Smoke test \u00b7 Part A","Nackgammon \u00b7 \u0130lk bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 First look \u00b7 standard","Nackgammon \u00b7 \u0130lk bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 First look \u00b7 nackgammon","Nackgammon \u00b7 Son bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 Final look \u00b7 standard","Nackgammon \u00b7 Son bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 Final look \u00b7 nackgammon","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 \u0130lk bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 Late entry \u00b7 First look \u00b7 standard","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 \u0130lk bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 Late entry \u00b7 First look \u00b7 nackgammon","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 Son bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 Late entry \u00b7 Final look \u00b7 standard","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 Son bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 Late entry \u00b7 Final look \u00b7 nackgammon","Analiz durumu":"Analysis status","Analiz bekliyor":"Analysis pending","\u00d6l\u00e7\u00fclmedi":"Not measured","Tahta g\u00f6r\u00fcnt\u00fcs\u00fc":"Board image","Birle\u015fik kaynak puan\u0131":"Published combined score","Karma":"Mixed","Kapsam eksik":"Incomplete coverage","Web grounding \u00b7 turkish":"Web grounding \u00b7 Turkish","Web grounding \u00b7 english":"Web grounding \u00b7 English","Engellendi":"Blocked","Sayfa tekrar\u0131 \u00b7 B":"Page repeat \u00b7 B","Sayfa tekrar\u0131 \u00b7 C":"Page repeat \u00b7 C"};
 function fromURL(){
  let params=new URLSearchParams(location.search);
@@ -161,7 +161,8 @@ function pageBlocks(blocks){
  end();return out;
 }
 function pageGroup(g,internal){
- const items=g.links.map(([text,url])=>internal.has(url)?'<button class="textLink" data-panel="'+safe(internal.get(url))+'">'+safe(text)+'</button>':ext(url,text)).join('');
+ const inside=url=>{const [base,hash='']=url.split('#');return internal.has(url)?[internal.get(url),'']:internal.has(base)?[internal.get(base),hash]:null};
+ const items=g.links.map(([text,url])=>{const to=inside(url);return to?'<button class="textLink" data-panel="'+safe(to[0])+'"'+(to[1]?' data-anchor="'+safe(to[1])+'"':'')+'>'+safe(text)+'</button>':ext(url,text)}).join('');
  return (g.blocks?pageBlocks(g.blocks):g.text.map(t=>'<p>'+safe(t)+'</p>').join(''))+(items?'<div class="guideLinks">'+items+'</div>':'');
 }
 document.addEventListener('toggle',e=>{
@@ -170,6 +171,20 @@ document.addEventListener('toggle',e=>{
  d.dataset.drawn='1';d.querySelector('.pageGroupBody').innerHTML=pageGroup(g,new Map(Object.entries(pageMap()).map(([k,v])=>[v.url,k])));
  if(s.ui==='tr')HildeI18n.localize(d,s.ui);
 },true);
+// a setup's own old page (models/<id>/), read in by the exporter, in its row's details (Ümit #16874)
+function modelPageBox(r){return r.modelPage?'<details class="guideItem modelPageBox" data-model-page="'+safe(r.modelPage)+'"><summary>Setup page</summary><div class="pageGroupBody" data-verbatim lang="en"><p class="sourceNote">Loading…</p></div></details>':''}
+document.addEventListener('toggle',async e=>{
+ const d=e.target;if(!(d instanceof HTMLDetailsElement)||!d.open||!d.dataset.modelPage||d.dataset.drawn)return;
+ d.dataset.drawn='1';pageFile(d.dataset.modelPage);const p=await pageFiles.get(d.dataset.modelPage),internal=new Map(Object.entries(pageMap()).map(([k,v])=>[v.url,k]));
+ d.querySelector('.pageGroupBody').innerHTML=p.error?'<p class="sourceNote">This page could not be loaded.</p>':p.groups.map(g=>(g.title?'<h3 class="pageHead">'+safe(g.title)+'</h3>':'')+pageGroup(g,internal)).join('');
+ if(s.ui==='tr')HildeI18n.localize(d,s.ui);
+},true);
+// a link to an old page's #id (s.pa) opens the section holding it and scrolls there once (jevgammon #16944)
+let anchorShown='';
+function showAnchor(){
+ const key=s.section+'|'+s.panel+'|'+s.pa,t=s.pa&&document.querySelector('details[data-anchor-target]');
+ if(!t||anchorShown===key)return;anchorShown=key;t.scrollIntoView({block:'start'});
+}
 function reader(){
  const resource=pageMap()[s.panel], url=resource?.url||sourceViews.get(s.snapshot)?.[s.section]?.[s.panel];
  if(!url)return '';
@@ -177,10 +192,11 @@ function reader(){
  const page=resource?.page?pageFile(resource.page):null;
  const groups=(page?page.groups:resource?.groups||[]).filter(g=>g.title||(g.blocks||g.text).length||g.links.length);
  const internal=new Map(Object.entries(pageMap()).map(([k,v])=>[v.url,k]));
+ const target=s.pa&&page?.anchors?.[s.pa];
  const body=resource?.page&&!page?'<p class="sourceNote">Loading…</p>':page?.error?'<p class="sourceNote">This page could not be loaded.</p>':groups.map((g,i)=>{
-  const first=i===0;
+  const first=target===undefined||target===''||target===null?i===0:i===target;
   if(!g.title)return pageGroup(g,internal);
-  return page?'<details class="guideItem" data-page-group="'+i+'" '+(first?'open data-drawn="1"':'')+'><summary>'+safe(g.title)+'</summary><div class="pageGroupBody">'+(first?pageGroup(g,internal):'')+'</div></details>':'<details class="guideItem" '+(first?'open':'')+'><summary>'+safe(g.title)+'</summary>'+pageGroup(g,internal)+'</details>';
+  return page?'<details class="guideItem" data-page-group="'+i+'" '+(first?'open data-drawn="1"':'')+(first&&s.pa&&i===target?' data-anchor-target':'')+'><summary>'+safe(g.title)+'</summary><div class="pageGroupBody">'+(first?pageGroup(g,internal):'')+'</div></details>':'<details class="guideItem" '+(first?'open':'')+'><summary>'+safe(g.title)+'</summary>'+pageGroup(g,internal)+'</details>';
  }).join('');
  return '<article class="panel guide"><div class="eyelabel">'+safe(s.section)+' · '+safe(dateLabel(s.snapshot))+'</div><h2>'+safe(resource?.title||s.panel)+'</h2><div class="guideLinks">'+links+'</div>'+(s.ui==='tr'?'<p class="sourceNote">Yayımlanmış kaynaktan alıntılar İngilizcedir.</p>':'')+'<div data-verbatim lang="en">'+body+'</div></article>';
 }
@@ -430,9 +446,11 @@ function earlier(r){return [...records.values()].filter(x=>x.match===r.match&&x.
 function historyButtons(r){const list=earlier(r);return '<p class="fieldTitle">Other snapshots of this record</p><div class="historyList">'+(list.length?list.map(x=>'<button class="outline" data-history="'+x.id+'" data-origin="'+r.id+'">'+ic('compare')+safe(dateLabel(snap(x)))+'</button>').join(''):'<span class="unavailable">No matching record was found in the other snapshots.</span>')+'</div>'}
 function showDetail(r,open=true){
  s.detail=r.id;persist();
- const body=$('.dialogBody');
+ const body=$('.dialogBody'),kept=!open&&body.querySelector('details.modelPageBox')?.open; // a redraw (other snapshots loaded) keeps an opened setup page open
  body.innerHTML='<div class="drawerHead"><div><span class="eyelabel">'+safe(r.section)+'</span><h2>'+branded(r,safe(r.name))+'</h2></div><button class="square" data-act="close" aria-label="Close">'+ic('close')+'</button></div><div class="tagLine">'+statusTag(r)+'<span class="pill">'+safe(r.lang)+'</span><span class="pill">'+safe(r.mode)+'</span></div><p class="drawerMeta">'+[r.track,r.setup||r.tag,dateLabel(snap(r))].map(safe).join(' / ')+'</p>'+metricGrid(r,false)+detailsDl(r)+sourceLinks(r)+historyButtons(r)+'<div class="modalFooter"><button class="primary" data-toggle-detail="'+r.id+'">'+ic('compare')+(s.ids.includes(r.id)?'Remove from selection':'Add to comparison')+'</button><button class="outline" data-act="share">'+ic('link')+' Copy record link</button></div>';
  body.querySelector('.modalFooter')?.insertAdjacentHTML('afterbegin',decEntry(r));
+ body.querySelector('.modalFooter')?.insertAdjacentHTML('beforebegin',modelPageBox(r));
+ if(kept){const d=body.querySelector('details.modelPageBox');if(d)d.open=true}
  HildeI18n.localize(body,s.ui);
  if(open&&!$('#modal').open)$('#modal').showModal();
  // the record's other snapshots: load them once, then redraw the box if it still shows this record
@@ -516,7 +534,8 @@ function draftView(){
 // <dataset>/<setup>/risk.json.gz. It is Backgammon's Decisions panel; the address keeps dd (dataset), ds (setup slug),
 // dp (page), dr (position class), dc (risk call), db (stake band) and dk (close choice), and #d<id> scrolls to a decision.
 const decKeys=['dd','ds','dp','dr','dc','db','dk'];
-const decRoot='backgammon/decisions/';
+const decRoot='backgammon/'; // decisions/ (the browser's files) and data/manifest.json (the footer line)
+let decLast=null, decShown=new Map(); // the view and decisions on screen, for the PNG exports
 const decFiles=new Map(), decWaiting=new Map(), decContexts=new Map(), decContextText=new Map();
 let decReturn=null, decHash=decodeURIComponent(location.hash.slice(1)), decTop=false; // the results the reader came from; where to scroll
 function isDecisionPanel(){return s.section==='Backgammon'&&s.panel==='Decisions'}
@@ -553,7 +572,7 @@ function decGet(path,done=decRedraw){
 }
 function decRedraw(){if(s.view==='results'&&isDecisionPanel()){render();persist()}}
 function decContext(hash){
- if(!decContexts.has(hash))decContexts.set(hash,decFetch(decRoot+'contexts/'+encodeURIComponent(hash)+'.txt').then(t=>{decContextText.set(hash,t);return t},e=>{decContexts.delete(hash);throw e}));
+ if(!decContexts.has(hash))decContexts.set(hash,decFetch(decRoot+'decisions/contexts/'+encodeURIComponent(hash)+'.txt').then(t=>{decContextText.set(hash,t);return t},e=>{decContexts.delete(hash);throw e}));
  return decContexts.get(hash);
 }
 // the board from the mover's side: the mover at the bottom, moving 24 -> 1 (top right, along the top to the left, down,
@@ -604,7 +623,7 @@ function decPlays(d){
  const probNote=d.program?'This player is a program and gives no probabilities.':d.probability_source==='choice_only'?'This setup names one play and gives no probability; its recorded 1.0 is not a confidence.':d.probability_source===null?'No probabilities were recorded for this decision.':d.group_size?'A dash: the play was not in the request that decided.':'';
  const groupNote=!d.group_size||d.program?'':L(d.prompt&&d.prompt.format==='letters'?' The plays were sent in groups of {0}, each lettered from A in its own request, and the group winners were then compared in a further request.':' The plays were sent in groups of {0}, and the group winners were then compared in a further request.',decCount(d.group_size));
  const th=(label,n)=>'<th scope="col" aria-sort="none"'+(n?' class="num"':'')+'><button class="sortHead" data-dec-sort title="'+safe(L('Sort by this column'))+'">'+safe(L(label))+'</button></th>';
- return '<p class="decSwipe">'+safe(L('Swipe for more columns \u2192'))+'</p><div class="decPlaysWrap"><table class="decPlays"><caption>'+safe(L(d.program?'{0}, in the order shown to the player':'{0}, in the order shown to the model',decPlural(d.plays.length,'legal play')))+'</caption><thead class="tableHead"><tr>'+th('Letter')+th('Play')+th('Engine equity',1)+th('Equity lost',1)+th('Model probability',1)+th('Opponent hits (of 36)',1)+th('Consequences, as shown')+'</tr></thead><tbody>'+rows+'</tbody></table></div><p class="decNote">'+safe(L("Engine equity: GNUbg 2-ply, cubeless, for the side to move. Equity lost: the best play's equity minus this play's.")+groupNote+(probNote?' '+L(probNote):''))+'</p>';
+ return '<p class="decSwipe">'+safe(L('Swipe for more columns \u2192'))+'</p><div class="decPlaysWrap"><table class="decPlays"><caption>'+safe(L(d.program?'{0}, in the order shown to the player':'{0}, in the order shown to the model',decPlural(d.plays.length,'legal play')))+'</caption><thead class="tableHead"><tr>'+th('Letter')+th('Play')+th('Engine equity',1)+th('Equity lost',1)+th('Model probability',1)+th('Opponent hits (of 36)',1)+th('Consequences, as shown')+'</tr></thead><tbody>'+rows+'</tbody></table></div><p class="decPngLine"><button class="outline" data-dec-png>'+safe(L('Download PNG'))+'</button></p><p class="decNote">'+safe(L("Engine equity: GNUbg 2-ply, cubeless, for the side to move. Equity lost: the best play's equity minus this play's.")+groupNote+(probNote?' '+L(probNote):''))+'</p>';
 }
 // a play table's head sorts it: ascending, descending, then the order shown to the model
 function decSort(b){
@@ -705,7 +724,7 @@ function decControls(v,idx){
  const opt=(list,cur)=>list.map(([k,l])=>'<option value="'+safe(k)+'"'+(k===cur?' selected':'')+'>'+safe(l)+'</option>').join('');
  const field=(title,key,options,off)=>'<label class="field"><span class="fieldTitle">'+safe(L(title))+'</span><select data-dec="'+key+'"'+(off?' disabled':'')+'>'+options+'</select></label>';
  const rc=v.setup?.risk||{},calls=rc.calls||{},cc=rc.close||{close:0,other:0},hasClose=cc.close+cc.other>0,n=x=>' ('+decCount(x||0)+')';
- const method='<button class="textLink" data-panel="Method">'+safe(L('Method'))+'</button>';
+ const method='<button class="textLink" data-panel="Method" data-anchor="risk">'+safe(L('Method'))+'</button>',closeMethod='<button class="textLink" data-panel="Method" data-anchor="close-choices">'+safe(L('Method'))+'</button>';
  return '<div class="decControls">'+field('Dataset','dd',opt(idx.datasets.map(x=>[x.id,L(x.label)]),v.d))
   +field('Setup','ds',opt(v.dataset.setups.map(x=>[x.slug,x.name+' ('+(x.decisions?decPlural(x.decisions,'decision'):L('none scored yet'))+')']),v.s))
   +field('Position class','dr',opt([['all',L('All decisions')],...Object.entries(decKind).map(([k,l])=>[k,L(l)+n(rc[k])])],v.r))
@@ -714,25 +733,25 @@ function decControls(v,idx){
   +field('Close choice','dk',opt(hasClose?[['all',L('All decisions')],['close',L('Close choices ({0})',decCount(cc.close))],['other',L('Not close choices ({0})',decCount(cc.other))]]:[['all',L('N/A: no full probability distribution')]],v.k),!hasClose)
   +'</div><p class="decNote"><span class="pill">'+safe(L(v.dataset.badge))+'</span></p>'+(v.dataset.note?'<p class="decNote">'+safe(L(v.dataset.note))+'</p>':'')
   +'<p class="decNote">'+Lh('Position class, stake and risk call as defined in {0}; hit risk only: gammon risk and priming are not in it.',method)+'</p>'
-  +(v.k!=='all'?'<p class="decNote">'+Lh('Close choice: the second most likely play has at least half the probability of the first ({0}). Each decision shows p1, p2 and both plays.',method)+' '+safe(L(decCloseLabel))+'</p>':'');
+  +(v.k!=='all'?'<p class="decNote">'+Lh('Close choice: the second most likely play has at least half the probability of the first ({0}). Each decision shows p1, p2 and both plays.',closeMethod)+' '+safe(L(decCloseLabel))+'</p>':'');
 }
 function decisionsView(){
  const links=[['Disagreements','Where models disagree'],['Phases','Phases'],['Compare plays','Compare']].filter(([p])=>panelNames().includes(p));
- const head='<div class="topline"><div><span class="eyelabel">'+safe(L('Every decision'))+'</span><h2>'+safe(L('What did each model see, and what did it play?'))+'</h2></div><div class="actions"><button class="outline" data-dec-back>'+ic('left')+' '+safe(L('Back to results'))+'</button></div></div>'+(links.length?'<nav class="decLinks" aria-label="'+safe(L('More on decisions'))+'">'+links.map(([p,t])=>'<button class="textLink" data-panel="'+safe(p)+'">'+safe(L(t))+'</button>').join('')+'</nav>':'');
+ const head='<div class="topline"><div><span class="eyelabel">'+safe(L('Every decision'))+'</span><h2>'+safe(L('What did each model see, and what did it play?'))+'</h2></div><div class="actions"><button class="outline" data-dec-page-png>'+safe(L('Export page as PNG'))+'</button><button class="outline" data-dec-back>'+ic('left')+' '+safe(L('Back to results'))+'</button></div></div>'+(links.length?'<nav class="decLinks" aria-label="'+safe(L('More on decisions'))+'">'+links.map(([p,t])=>'<button class="textLink" data-panel="'+safe(p)+'">'+safe(L(t))+'</button>').join('')+'</nav>':'');
  const about='<details class="decAbout"><summary>'+safe(L('About this page'))+'</summary><p>'+safe(L("Every scored decision, 50 to a page: the board, the position exactly as the model saw it, every legal play with its consequences, the engine's equity for each play, the equity the chosen play lost and the model's probability where it gives one. Click a column header to sort a play table."))+'</p></details>';
  // the whole view is in the reader's language already: the page-wide translation (HildeI18n) leaves it alone
- const wrap=body=>'<div class="decView" data-verbatim>'+head+body+about+'</div>',status=html=>'<p class="decStatus" role="status">'+html+'</p>';
- const idx=decGet('index.json');
+ const version=decVersionText(),wrap=body=>'<div class="decView" data-verbatim>'+head+body+about+(version?'<p class="decVersion">'+safe(version)+'</p>':'')+'</div>',status=html=>'<p class="decStatus" role="status">'+html+'</p>';
+ const idx=decGet('decisions/index.json');
  if(!idx)return wrap(status('<span class="decLoading">'+safe(L('Loading…'))+'</span>'));
  if(idx.error)return wrap(status('<span class="decError">'+safe(L('Could not load the list of decisions ({0}).',idx.error))+'</span>'));
  if(!idx.datasets.length)return wrap(status(decNm(L('Analysis pending'))));
  const v=decResolve(idx),size=idx.page_size;
  const panel=(line,list='')=>wrap('<section class="panel decPanel">'+decControls(v,idx)+decPager(v,size)+'</section>'+status(line)+list+(list?'<div class="decPagerBottom">'+decPager(v,size)+'</div>':''));
  if(!v.setup||!v.setup.decisions)return panel(decNm(L('Analysis pending'))+' '+safe(L('No decision of this setup has been scored yet.')));
- const page=pg=>decGet(encodeURIComponent(v.d)+'/'+encodeURIComponent(v.s)+'/'+pg+'.json.gz');
+ const page=pg=>decGet('decisions/'+encodeURIComponent(v.d)+'/'+encodeURIComponent(v.s)+'/'+pg+'.json.gz');
  let decisions=null,fail=null;
  if(decFiltered(v)){
-  const rows=decGet(encodeURIComponent(v.d)+'/'+encodeURIComponent(v.s)+'/risk.json.gz');
+  const rows=decGet('decisions/'+encodeURIComponent(v.d)+'/'+encodeURIComponent(v.s)+'/risk.json.gz');
   if(rows?.error)fail=rows.error;
   else if(rows){
    const hits=decMatches(rows,v);v.total=hits.length;v.pages=Math.ceil(hits.length/size);v.p=Math.min(v.p,Math.max(1,v.pages));
@@ -747,6 +766,7 @@ function decisionsView(){
  s.dp=v.p;
  if(fail)return panel('<span class="decError">'+safe(L('Could not load this page of decisions ({0}).',fail))+'</span>');
  if(!decisions)return panel('<span class="decLoading">'+safe(L('Loading…'))+'</span>');
+ decLast=v;decShown=new Map(decisions.map(d=>[String(d.id),d]));
  const invalid=decisions.filter(d=>d.invalid).length;
  return panel(safe(v.total===0?L('{0}: no decision matches these filters.',v.setup.name):L('{0}: page {1} of {2}, {3}, {4} on this page ({5} in all {6}).',v.setup.name,decCount(v.p),decCount(v.pages),decPlural(decisions.length,'decision'),decPlural(invalid,'invalid answer'),decPlural(v.setup.invalid,'invalid answer'),decCount(v.setup.decisions))),'<div class="decList">'+decisions.map(d=>decCard(d,v)).join('')+'</div>');
 }
@@ -760,7 +780,7 @@ function decAfter(){
 // a results row's drawer: 'Every decision' when the row's setup has its decisions in the export
 function decEntry(r){
  const m=/^backgammon\/models\/([^/]+)\/([^/]+)\/$/.exec(r.page||'');if(!m)return '';
- const idx=decGet('index.json',()=>{if($('#modal').open&&s.detail===r.id)showDetail(r,false)});
+ const idx=decGet('decisions/index.json',()=>{if($('#modal').open&&s.detail===r.id)showDetail(r,false)});
  return idx?.datasets?.some(x=>x.id===m[1]&&x.setups.some(y=>y.slug===m[2]))?'<button class="outline" data-dec-open="'+safe(m[1])+'" data-dec-slug="'+safe(m[2])+'">'+ic('board')+' '+safe(L('Every decision'))+'</button>':'';
 }
 function decOpen(dataset,slug){
@@ -788,6 +808,8 @@ function decClick(b){
  else if(d.decStep)decGo({dp:s.dp+Number(d.decStep)});
  else if(d.decBack!==undefined)decBack();
  else if(d.decSort!==undefined)decSort(b);
+ else if(d.decPng!==undefined)decPng.run(b,()=>decPng.table(b.closest('.decCard')));
+ else if(d.decPagePng!==undefined)decPng.run(b,decPng.page);
  else return false;
  return true;
 }
@@ -803,6 +825,259 @@ document.addEventListener('toggle',e=>{
 },true);
 window.addEventListener('popstate',()=>{decHash=decodeURIComponent(location.hash.slice(1))});
 window.addEventListener('hashchange',()=>{if(isDecisionPanel()){decHash=decodeURIComponent(location.hash.slice(1));decAfter()}});
+// PNG exports as on the old page (its png.js, Can, 23 Oct 2026): 'Download PNG' under each decision's plays table, the table
+// with every column and row, the headings above it and its note under it; 'Export page as PNG', the whole page, its
+// scrolling boxes opened, in parts of at most 16,000 pixels. In small type under each: league, rows shown, filters and
+// sort, the results version, theme and address. No library: the page is read box by box (background, borders, rounding,
+// inset rules) and line by line (each line of text where the browser placed it, in its font and colour); SVG is drawn as
+// an image.
+const decPng=(()=>{
+ const LIMIT=16000,PAD=16,px=v=>parseFloat(v)||0;
+ const clear=c=>!c||c==='transparent'||/^rgba\(.*,\s*0\)$/.test(c)||/\/\s*0\)$/.test(c);
+ const ALIGN={right:'right',end:'right','-webkit-right':'right',center:'center','-webkit-center':'center'};
+ const SVG_PROPS=['fill','stroke','stroke-width','stroke-dasharray','stroke-linecap','stroke-linejoin','opacity','fill-opacity','stroke-opacity','font-family','font-size','font-weight','font-style','text-anchor','dominant-baseline','display','visibility','paint-order','letter-spacing'];
+ const fontOf=cs=>cs.fontStyle+' '+cs.fontWeight+' '+cs.fontSize+' '+cs.fontFamily;
+ const transform=(t,cs)=>cs.textTransform==='uppercase'?t.toUpperCase():cs.textTransform==='lowercase'?t.toLowerCase():cs.textTransform==='capitalize'?t.replace(/(^|\s)(\S)/g,(_,a,b)=>a+b.toUpperCase()):t;
+ function splitTop(v){const out=[];let depth=0,from=0;for(let i=0;i<v.length;i++){if(v[i]==='(')depth++;else if(v[i]===')')depth--;else if(v[i]===','&&!depth){out.push(v.slice(from,i).trim());from=i+1}}out.push(v.slice(from).trim());return out}
+ // the first linear gradient of a background-image: {angle, stops: [[colour, 0..1]]}; a repeating one in its first colour
+ function gradient(value){
+  const m=value.match(/(repeating-)?linear-gradient\(/);if(!m)return null;
+  let i=m.index+m[0].length,depth=0;const start=i;
+  for(;i<value.length;i++){if(value[i]==='(')depth++;else if(value[i]===')'){if(!depth)break;depth--}}
+  const parts=splitTop(value.slice(start,i)),SIDES={'to top':0,'to right':90,'to bottom':180,'to left':270};let angle=180;
+  if(parts[0] in SIDES)angle=SIDES[parts.shift()];else if(/^-?[\d.]+deg$/.test(parts[0]))angle=parseFloat(parts.shift());else if(/^-?[\d.]+turn$/.test(parts[0]))angle=360*parseFloat(parts.shift());else if(/^to /.test(parts[0]))parts.shift();
+  const stops=parts.map(p=>{const x=p.match(/^(.*?\)|[#\w-]+)(?:\s+(-?[\d.]+)%)?/);return x?[x[1],x[2]===undefined?null:Number(x[2])/100]:null}).filter(Boolean);
+  if(!stops.length)return null;
+  const rad=angle*Math.PI/180;
+  if(m[1])return {angle:rad,stops:[[stops[0][0],0],[stops[0][0],1]]};
+  stops.forEach((x,k)=>{if(x[1]===null)x[1]=stops.length===1?0:k/(stops.length-1)});
+  return {angle:rad,stops};
+ }
+ // drawing steps for an element and everything in it, in viewport coordinates, read in one go
+ function read(root){
+  const ops=[],range=document.createRange(),rectOf=(node,a,b)=>{range.setStart(node,a);range.setEnd(node,b);return range.getBoundingClientRect()};
+  function box(el,cs,st){
+   if(cs.visibility==='hidden')return;
+   for(const r of cs.display==='inline'?[...el.getClientRects()]:[el.getBoundingClientRect()]){
+    if(r.width<=0||r.height<=0)continue;
+    const rr=cs.borderTopLeftRadius,rad=Math.min(rr.endsWith('%')?px(rr)/100*Math.min(r.width,r.height):px(rr),r.width/2,r.height/2);
+    const at={x:r.left,y:r.top,w:r.width,h:r.height,rad,clip:st.clip,alpha:st.alpha};
+    if(!clear(cs.backgroundColor))ops.push({k:'box',fill:cs.backgroundColor,...at});
+    if(cs.backgroundImage!=='none'){const g=gradient(cs.backgroundImage);if(g)ops.push({k:'grad',g,...at})}
+    if(cs.boxShadow!=='none')splitTop(cs.boxShadow).filter(x=>/\binset\b/.test(x)).forEach(x=>{
+     const colour=(x.match(/(rgba?\([^)]*\)|color\([^)]*\)|#[0-9a-f]+)/i)||[])[1];
+     const [ox=0,oy=0,blur=0,spread=0]=(x.replace(/(rgba?|color)\([^)]*\)/g,'').match(/-?[\d.]+px/g)||[]).map(px);
+     if(!colour||clear(colour)||blur)return;
+     const strip=(x,y,w,h)=>ops.push({k:'box',fill:colour,x,y,w,h,rad:0,clip:st.clip,alpha:st.alpha});
+     if(ox>0)strip(r.left,r.top,ox,r.height);if(ox<0)strip(r.right+ox,r.top,-ox,r.height);if(oy>0)strip(r.left,r.top,r.width,oy);if(oy<0)strip(r.left,r.bottom+oy,r.width,-oy);
+     if(!ox&&!oy&&spread>0)ops.push({k:'ring',colour,lw:spread,...at,x:r.left+spread/2,y:r.top+spread/2,w:r.width-spread,h:r.height-spread});
+    });
+    const sides=['Top','Right','Bottom','Left'].map(x=>({w:cs['border'+x+'Style']==='none'||cs['border'+x+'Style']==='hidden'?0:px(cs['border'+x+'Width']),c:cs['border'+x+'Color']}));
+    if(rad>0&&sides.every(x=>x.w===sides[0].w&&x.c===sides[0].c)&&sides[0].w>0&&!clear(sides[0].c)){const lw=sides[0].w;ops.push({k:'ring',colour:sides[0].c,lw,...at,x:r.left+lw/2,y:r.top+lw/2,w:r.width-lw,h:r.height-lw,rad:Math.max(0,rad-lw/2)})}
+    else{
+     const [t,rt,b,l]=sides,strip=(x,X,y,w,h)=>{if(x.w>0&&!clear(x.c))ops.push({k:'box',fill:x.c,x:X,y,w,h,rad:0,clip:st.clip,alpha:st.alpha})};
+     strip(t,r.left,r.top,r.width,t.w);strip(b,r.left,r.bottom-b.w,r.width,b.w);strip(l,r.left,r.top,l.w,r.height);strip(rt,r.right-rt.w,r.top,rt.w,r.height);
+    }
+   }
+  }
+  function text(node,cs,st){
+   const data=node.data,first=data.search(/\S/);
+   if(first<0||cs.visibility==='hidden')return;
+   const end=data.trimEnd().length;range.setStart(node,first);range.setEnd(node,end);
+   const lines=[...range.getClientRects()].filter(r=>r.width>0&&r.height>0);if(!lines.length)return;
+   // where each line starts: the first character whose box sits on that line (a binary search per line break); line
+   // boxes may overlap when the line height is tight, so a line is told by its top, half-way to the next one
+   const starts=[first],topAt=k=>{for(let j=k;j<end;j++){const r=rectOf(node,j,j+1);if(r.width>0||r.height>0)return r.top}return Infinity};
+   let prev=lines[0].top;
+   for(let i=1;i<lines.length;i++){
+    if(lines[i].top<=prev+1)continue;
+    const cut=(prev+lines[i].top)/2;prev=lines[i].top;
+    let lo=starts[starts.length-1]+1,hi=end;
+    while(lo<hi){const mid=(lo+hi)>>1;if(topAt(mid)>cut)hi=mid;else lo=mid+1}
+    if(lo<end&&lo>starts[starts.length-1])starts.push(lo);
+   }
+   starts.push(end);
+   const pre=/^(pre|pre-wrap|break-spaces)$/.test(cs.whiteSpace),align=ALIGN[cs.textAlign]||'left',font=fontOf(cs);
+   for(let i=0;i+1<starts.length;i++){
+    const seg=data.slice(starts[i],starts[i+1]),lead=seg.search(/\S/);if(lead<0)continue;
+    const a=starts[i]+lead,z=starts[i]+seg.trimEnd().length,r0=rectOf(node,a,a+1),r1=rectOf(node,z-1,z);
+    let t=data.slice(a,z);t=pre?t.replace(/\t/g,'    '):t.replace(/\s+/g,' ');
+    ops.push({k:'text',text:transform(t,cs),x0:r0.left,x1:Math.max(r1.right,r0.right),top:r0.top,h:r0.height,font,colour:cs.color,align,ls:cs.letterSpacing,under:st.under,clip:st.clip,alpha:st.alpha});
+   }
+  }
+  function pseudo(el,cs,which,st){
+   const ps=getComputedStyle(el,which),m=ps.content&&ps.content.match(/^"((?:[^"\\]|\\.)*)"$/);
+   if(!m||!m[1].trim()||ps.display==='none'||/absolute|fixed/.test(ps.position)||ps.visibility==='hidden')return;
+   range.selectNodeContents(el);
+   const rects=[...range.getClientRects()].filter(r=>r.width>0&&r.height>0),r=el.getBoundingClientRect(),ref=which==='::after'?rects[rects.length-1]:rects[0];
+   const x=which==='::after'?(ref?ref.right:r.right-px(cs.paddingRight)):r.left+px(cs.borderLeftWidth)+px(cs.paddingLeft);
+   ops.push({k:'text',text:transform(m[1].replace(/\\(.)/g,'$1'),ps),x0:x,x1:null,top:ref?ref.top:r.top,h:ref?ref.height:r.height,font:fontOf(ps),colour:ps.color,align:'left',ls:ps.letterSpacing,under:null,clip:st.clip,alpha:st.alpha});
+  }
+  function control(el,cs,st){
+   const r=el.getBoundingClientRect();if(!r.width||!r.height||cs.visibility==='hidden')return;
+   const type=(el.type||'').toLowerCase();
+   if(type==='checkbox'||type==='radio'){
+    const sz=Math.min(r.width,r.height);
+    ops.push({k:'ring',colour:cs.color,lw:1,x:r.left+.5,y:r.top+.5,w:sz-1,h:sz-1,rad:type==='radio'?sz/2:3,clip:st.clip,alpha:st.alpha});
+    if(el.checked)ops.push({k:'box',fill:cs.accentColor==='auto'?cs.color:cs.accentColor,x:r.left+3,y:r.top+3,w:sz-6,h:sz-6,rad:type==='radio'?sz/2:2,clip:st.clip,alpha:st.alpha});
+    return;
+   }
+   const value=el.tagName==='SELECT'?(el.selectedOptions[0]?.text||''):(el.value||el.placeholder||'');if(!value)return;
+   const left=r.left+px(cs.borderLeftWidth)+px(cs.paddingLeft),size=px(cs.fontSize),right=r.right-px(cs.borderRightWidth)-px(cs.paddingRight)-(el.tagName==='SELECT'?size:0);
+   ops.push({k:'text',text:value.replace(/\s+/g,' ').trim(),x0:left,x1:right,top:r.top+(r.height-size*1.2)/2,h:size*1.2,font:fontOf(cs),colour:cs.color,align:'left',ls:cs.letterSpacing,under:null,clip:{x1:left,y1:r.top,x2:right,y2:r.bottom},alpha:st.alpha,fit:false});
+   if(el.tagName==='SELECT')ops.push({k:'text',text:'\u25BE',x0:right+size*.2,x1:null,top:r.top+(r.height-size*1.2)/2,h:size*1.2,font:fontOf(cs),colour:cs.color,align:'left',ls:'normal',under:null,clip:st.clip,alpha:st.alpha});
+  }
+  function svg(el,cs,st){
+   const r=el.getBoundingClientRect();if(!r.width||!r.height||cs.visibility==='hidden')return;
+   const clone=el.cloneNode(true),from=[el,...el.querySelectorAll('*')];
+   [clone,...clone.querySelectorAll('*')].forEach((c,i)=>{const x=getComputedStyle(from[i]);SVG_PROPS.forEach(p=>c.style.setProperty(p,x.getPropertyValue(p)))});
+   clone.setAttribute('width',r.width);clone.setAttribute('height',r.height);clone.style.setProperty('display','block');
+   ops.push({k:'svg',markup:new XMLSerializer().serializeToString(clone),x:r.left,y:r.top,w:r.width,h:r.height,clip:st.clip,alpha:st.alpha});
+  }
+  function walk(el,st){
+   const cs=getComputedStyle(el);if(cs.display==='none')return;
+   const alpha=st.alpha*px(cs.opacity===''?'1':cs.opacity);if(alpha<=0)return;
+   st={...st,alpha};box(el,cs,st);
+   const tag=el.tagName;
+   if(tag==='svg'){svg(el,cs,st);return}
+   if(tag==='IMG'||tag==='CANVAS'){
+    const r=el.getBoundingClientRect(),ok=tag==='CANVAS'||(el.complete&&el.naturalWidth&&new URL(el.currentSrc||el.src,location.href).origin===location.origin);
+    if(ok&&r.width&&r.height&&cs.visibility!=='hidden')ops.push({k:'img',el,x:r.left,y:r.top,w:r.width,h:r.height,clip:st.clip,alpha});
+    return;
+   }
+   if(tag==='SELECT'||tag==='INPUT'||tag==='TEXTAREA'){control(el,cs,st);return}
+   if(/^(SCRIPT|STYLE|TEMPLATE|NOSCRIPT|OPTION)$/.test(tag))return;
+   if(/underline/.test(cs.textDecorationLine))st={...st,under:clear(cs.textDecorationColor)?cs.color:cs.textDecorationColor};
+   if(el!==root&&(cs.overflowX!=='visible'||cs.overflowY!=='visible')){
+    const r=el.getBoundingClientRect(),c={x1:r.left+px(cs.borderLeftWidth),y1:r.top+px(cs.borderTopWidth),x2:r.right-px(cs.borderRightWidth),y2:r.bottom-px(cs.borderBottomWidth)};
+    st={...st,clip:st.clip?{x1:Math.max(c.x1,st.clip.x1),y1:Math.max(c.y1,st.clip.y1),x2:Math.min(c.x2,st.clip.x2),y2:Math.min(c.y2,st.clip.y2)}:c};
+    if(st.clip.x2<=st.clip.x1||st.clip.y2<=st.clip.y1)return;
+   }
+   pseudo(el,cs,'::before',st);
+   for(const n of tag==='DETAILS'&&!el.open?[el.querySelector(':scope > summary')].filter(Boolean):el.childNodes){if(n.nodeType===Node.ELEMENT_NODE)walk(n,st);else if(n.nodeType===Node.TEXT_NODE)text(n,cs,st)}
+   pseudo(el,cs,'::after',st);
+  }
+  walk(root,{clip:null,alpha:1,under:null});range.detach();return ops;
+ }
+ async function images(ops){
+  await Promise.all(ops.filter(o=>o.k==='svg').map(o=>new Promise(resolve=>{const url=URL.createObjectURL(new Blob([o.markup],{type:'image/svg+xml'})),img=new Image();img.onload=()=>{o.img=img;resolve()};img.onerror=()=>resolve();img.src=url;o.url=url})));
+ }
+ function draw(ctx,ops,dx,dy){
+  for(const o of ops){
+   ctx.save();ctx.globalAlpha=o.alpha;
+   if(o.clip){ctx.beginPath();ctx.rect(o.clip.x1+dx,o.clip.y1+dy,o.clip.x2-o.clip.x1,o.clip.y2-o.clip.y1);ctx.clip()}
+   if(o.k==='box'||o.k==='grad'){
+    if(o.k==='box')ctx.fillStyle=o.fill;
+    else{
+     const cx=o.x+dx+o.w/2,cy=o.y+dy+o.h/2,sx=Math.sin(o.g.angle),sy=-Math.cos(o.g.angle),half=(Math.abs(o.w*sx)+Math.abs(o.h*sy))/2;
+     const g=ctx.createLinearGradient(cx-sx*half,cy-sy*half,cx+sx*half,cy+sy*half);
+     try{o.g.stops.forEach(([c,p])=>g.addColorStop(Math.min(1,Math.max(0,p)),c))}catch{ctx.restore();continue}
+     ctx.fillStyle=g;
+    }
+    ctx.beginPath();if(o.rad>0)ctx.roundRect(o.x+dx,o.y+dy,o.w,o.h,o.rad);else ctx.rect(o.x+dx,o.y+dy,o.w,o.h);ctx.fill();
+   }else if(o.k==='ring'){
+    ctx.strokeStyle=o.colour;ctx.lineWidth=o.lw;ctx.beginPath();if(o.rad>0)ctx.roundRect(o.x+dx,o.y+dy,o.w,o.h,o.rad);else ctx.rect(o.x+dx,o.y+dy,o.w,o.h);ctx.stroke();
+   }else if(o.k==='text'){
+    ctx.font=o.font;ctx.letterSpacing=o.ls==='normal'?'0px':o.ls;ctx.fillStyle=o.colour;
+    const m=ctx.measureText(o.text),asc=m.fontBoundingBoxAscent,desc=m.fontBoundingBoxDescent,base=o.top+dy+(o.h-asc-desc)/2+asc,room=o.x1===null?Infinity:o.x1-o.x0;
+    let x=o.x0+dx,w=m.width;
+    if(w>room+1&&o.fit!==false)w=room+1;
+    else if(Math.abs(w-room)>1&&room!==Infinity){if(o.align==='right')x=o.x1+dx-w;else if(o.align==='center')x=o.x0+dx+(room-w)/2}
+    ctx.textAlign='left';ctx.textBaseline='alphabetic';
+    if(w<m.width)ctx.fillText(o.text,x,base,w);else ctx.fillText(o.text,x,base);
+    if(o.under){ctx.fillStyle=o.under;ctx.fillRect(x,base+Math.max(1,desc*.35),w,Math.max(1,Math.round(asc/14)))}
+   }else if(o.k==='svg'||o.k==='img'){const img=o.k==='svg'?o.img:o.el;if(img)ctx.drawImage(img,o.x+dx,o.y+dy,o.w,o.h)}
+   ctx.restore();
+  }
+ }
+ function wrapLines(ctx,text,width){const out=[];let line='';for(const word of text.split(/\s+/).filter(Boolean)){const next=line?line+' '+word:word;if(line&&ctx.measureText(next).width>width){out.push(line);line=word}else line=next}if(line)out.push(line);return out}
+ // one image (or several, split at LIMIT pixels): a heading, the region read from the page, notes, then the small-type lines
+ async function compose({ops,region,bg,head=[],notes=[],foot=[],pad=PAD,scale=2,minWidth=560}){
+  const root=getComputedStyle(document.documentElement),colour={text:root.getPropertyValue('--ink').trim(),text2:root.getPropertyValue('--dim').trim(),edge:root.getPropertyValue('--line').trim()};
+  const sans=getComputedStyle(document.body).fontFamily,width=Math.ceil(Math.max(region.w+2*pad,minWidth)),measure=document.createElement('canvas').getContext('2d');
+  const block=(lines,font,size,step,c)=>{measure.font=font+' '+size+'px '+sans;const rows=lines.flatMap(l=>wrapLines(measure,l,width-2*PAD));return {rows,font:font+' '+size+'px '+sans,step,colour:c,height:rows.length*step}};
+  const blocks={head:block(head,'700',15,21,colour.text),notes:block(notes,'400',12.5,18,colour.text2),foot:block(foot,'400',11.5,16,colour.text2)};
+  const headH=blocks.head.rows.length?PAD+blocks.head.height+6:pad,notesH=blocks.notes.rows.length?10+blocks.notes.height:0,footH=blocks.foot.rows.length?14+blocks.foot.height+PAD:pad;
+  const height=Math.ceil(headH+region.h+notesH+footH);
+  scale=Math.min(scale,32000/width);
+  await images(ops);
+  const slice=Math.floor(Math.min(LIMIT,2e8/(width*scale))/scale),parts=Math.max(1,Math.ceil(height/slice)),canvases=[];
+  for(let p=0;p<parts;p++){
+   const top=p*slice,h=Math.min(slice,height-top),canvas=document.createElement('canvas');
+   canvas.width=Math.round(width*scale);canvas.height=Math.round(h*scale);
+   const ctx=canvas.getContext('2d');ctx.scale(scale,scale);ctx.translate(0,-top);ctx.fillStyle=bg;ctx.fillRect(0,top,width,h);
+   const text=(b,y)=>{ctx.font=b.font;ctx.fillStyle=b.colour;ctx.textBaseline='alphabetic';b.rows.forEach((row,i)=>ctx.fillText(row,PAD,y+(i+1)*b.step-b.step*.3))};
+   if(blocks.head.rows.length)text(blocks.head,PAD-2);
+   draw(ctx,ops,pad-region.x,headH-region.y);
+   let y=headH+region.h;
+   if(blocks.notes.rows.length){text(blocks.notes,y+6);y+=notesH}
+   if(blocks.foot.rows.length){ctx.fillStyle=colour.edge;ctx.fillRect(PAD,y+7,width-2*PAD,1);text(blocks.foot,y+12)}
+   canvases.push(canvas);
+  }
+  ops.forEach(o=>o.url&&URL.revokeObjectURL(o.url));
+  return canvases;
+ }
+ async function save(canvases,name){
+  for(let i=0;i<canvases.length;i++){
+   const blob=await new Promise(resolve=>canvases[i].toBlob(resolve,'image/png')),a=document.createElement('a');
+   a.href=URL.createObjectURL(blob);a.download=canvases.length>1?name+'-part-'+(i+1)+'-of-'+canvases.length+'.png':name+'.png';
+   document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+   if(i+1<canvases.length)await new Promise(resolve=>setTimeout(resolve,400));
+  }
+ }
+ const slug=t=>String(t).toLowerCase().normalize('NFKD').replace(/[^\w.]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60);
+ const clean=t=>String(t).replace(/\s+/g,' ').trim();
+ const theme=()=>L(document.documentElement.dataset.theme==='light'?'Light background':'Dark background');
+ const site=()=>L('Model Atlas · Backgammon'),title=()=>L('What did each model see, and what did it play?');
+ const version=()=>decVersionText().replace(/\.$/,'');
+ function backgroundOf(el){for(let x=el;x;x=x.parentElement){const c=getComputedStyle(x).backgroundColor;if(!clear(c))return c}return getComputedStyle(document.documentElement).getPropertyValue('--paper').trim()||'#fff'}
+ // the dataset, setup, filters and page in view (the old page's pngView)
+ function filters(){
+  const v=decLast;if(!v)return [];
+  const call=Object.keys(decCallCode).find(k=>decCallCode[k]===v.c);
+  return [L('Setup: {0}',v.setup?v.setup.name:''),v.r!=='all'&&L('Position class: {0}',L(decKind[v.r])),call&&L('Risk call: {0}',L(decCall[call])),v.b!=='all'&&L('Stake, or equity lost by a needless risk: {0}',L(decBand[v.b])),v.k!=='all'&&L('Close choice: {0}',L({close:'close choices',other:'not close choices (full distribution)'}[v.k])),v.pages&&L('page {0} of {1}',decCount(v.p),decCount(v.pages))].filter(Boolean);
+ }
+ const filterLine=()=>{const f=filters();return L('Filters: {0}',f.length?f.join(' · '):L('none'))};
+ // one decision's plays table; the file is named as on the old page: backgammon-decisions-decision-<id>-<league>-game-<n>-turn-<n>-legal-plays
+ async function table(card){
+  const t=card.querySelector('table.decPlays'),d=decShown.get(card.id.slice(1)),v=decLast;
+  t.classList.add('decPngCapture');let ops,region;
+  try{
+   const rects=[t.getBoundingClientRect(),t.caption?.getBoundingClientRect()].filter(r=>r&&r.width),x1=Math.min(...rects.map(r=>r.left)),y1=Math.min(...rects.map(r=>r.top));
+   region={x:x1,y:y1,w:Math.max(...rects.map(r=>r.right))-x1,h:Math.max(...rects.map(r=>r.bottom))-y1};ops=read(t);
+  }finally{t.classList.remove('decPngCapture')}
+  const th=t.querySelector('thead th[aria-sort="ascending"],thead th[aria-sort="descending"]');
+  const sort=th?L('sorted by "{0}", {1}',clean(th.textContent),L(th.getAttribute('aria-sort'))):L("rows in the page's order");
+  const head=[site(),[title(),clean(card.querySelector('.decCardHead h3').textContent)+' · '+clean(card.querySelector('.decCardHead .sub').textContent),L('Legal plays')].join(' · ')];
+  const foot=[L(v.dataset.label)+' · '+L('{0} rows shown',decCount(t.tBodies[0].rows.length)),filterLine()+' · '+sort,[version(),theme()].filter(Boolean).join(' · '),location.origin+location.pathname+location.search+'#'+card.id];
+  const canvases=await compose({ops,region,bg:backgroundOf(t.closest('.decPlaysWrap')),head,notes:[clean(card.querySelector('.decNote').innerText)],foot});
+  await save(canvases,'backgammon-decisions-'+slug('Decision '+d.id+' · '+v.dataset.label+' · '+(d.league===null?'position '+d.id:'game '+d.game)+' · turn '+d.turn_no+' Legal plays'));
+ }
+ // the whole page as shown, its scrolling boxes opened to their full height
+ async function page(){
+  const doc=document.documentElement,sx=scrollX,sy=scrollY,wraps=[...document.querySelectorAll('.decPlaysWrap')].map(w=>[w,w.scrollLeft]);
+  doc.classList.add('decPngPage');let ops,region;
+  try{wraps.forEach(([w])=>{w.scrollLeft=0});const top=doc.getBoundingClientRect();region={x:top.left,y:top.top,w:doc.clientWidth,h:doc.scrollHeight};ops=read(document.body)}
+  finally{doc.classList.remove('decPngPage');wraps.forEach(([w,left])=>{w.scrollLeft=left});scrollTo(sx,sy)}
+  const foot=[L('{0} · the page as shown at {1} px wide · {2}',title(),doc.clientWidth,theme()),filterLine(),version(),location.href].filter(Boolean);
+  const canvases=await compose({ops,region,bg:backgroundOf(document.body),head:[site()],foot,pad:0,minWidth:0,scale:doc.clientWidth<=800?2:1.5});
+  await save(canvases,'backgammon-page-decisions-'+(doc.dataset.theme==='light'?'light':'dark')+'-'+doc.clientWidth+'px');
+ }
+ async function run(button,job){
+  if(button.getAttribute('aria-busy')==='true')return;
+  button.setAttribute('aria-busy','true');
+  try{await job()}catch(error){console.warn('PNG export failed:',error)}finally{button.removeAttribute('aria-busy')}
+ }
+ return {table,page,run};
+})();
+// the old page's footer line, from Backgammon's own manifest (backgammon/data/manifest.json: results hash, data time);
+// the engine and its depth are the old build's own words (jevgammon tools/site/pages.py version_line)
+function decVersionText(){
+ const m=decGet('data/manifest.json'),t=/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2})Z$/.exec(m?.data_as_of||'');
+ if(!t||!m.results)return '';
+ const day=new Intl.DateTimeFormat(s.ui==='tr'?'tr-TR':'en-GB',{day:'numeric',month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(t[1]+'T12:00:00Z'));
+ return L('Results {0}, updated {1}; scored by GNU Backgammon 1.08, 2-ply.',m.results,day+', '+t[2]+':'+t[3]+' UTC');
+}
 function render(){
  if(dates.length&&!data.has(s.snapshot)){loadSnapshot(s.snapshot).then(()=>render());return} // chosen before it arrived
  renderNav();
@@ -813,6 +1088,7 @@ function render(){
  else if(s.view==='results'){$('#workspace').innerHTML=decisionsView();applyLanguage();decAfter();return}
  $('#workspace').innerHTML=s.view==='results'?'<div class="workgrid'+(isRecordPanel()?' single':'')+'">'+(isRecordPanel()?'':'<aside class="sidebar guideSide"><h2>Source</h2>'+renderField('Source snapshot','snapshot',dates,null)+'<button class="outline" data-act="share">'+ic('link')+' Copy link</button></aside>')+'<div class="mainCol">'+(isRecordPanel()?cohortTabs(f)+resultNote(f)+resultSurface(f)+readerSources():reader())+'</div></div>':s.view==='compare'?compareView():draftView();
  applyLanguage();
+ if(s.view==='results'&&!isRecordPanel())showAnchor();
 }
 function sourceDialog(){
  const list=dates.map(v=>'<li><span>'+dateLabel(v)+'</span><span>'+ext('data/'+v+'.json','Atlas JSON')+' · '+ext('https://github.com/zekiworks/analysis/tree/'+commits.get(v),'Source revision')+'</span></li>').join('');
@@ -832,9 +1108,9 @@ document.addEventListener('click',e=>{
  const d=b.dataset;
  if(decClick(b))return;
  if(d.view||d.goto)return openView(d.view||d.goto);
- if(d.panel){s.panel=d.panel;s.track='';s.page=1;openView('results');return}
+ if(d.panel){s.panel=d.panel;s.pa=d.anchor||'';s.track='';s.page=1;openView('results');return}
  if(d.newest){const sel=$('select[data-filter="snapshot"]');if(sel){sel.value=dates[0];sel.dispatchEvent(new Event('change',{bubbles:true}))}return}
- if(has(d.section)){s.panel='Results';s.section=sections[+d.section];s.track=initialTracks[+d.section];s.models='all';s.size='all';s.page=1;openView('results');return} // a type or class chosen on another bench need not exist here
+ if(has(d.section)){s.panel='Results';s.pa='';s.section=sections[+d.section];s.track=initialTracks[+d.section];s.models='all';s.size='all';s.page=1;openView('results');return} // a type or class chosen on another bench need not exist here
  if(d.ui){
   if(d.ui===s.ui)return;
   s.ui=d.ui==='tr'?'tr':'en';
