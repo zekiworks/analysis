@@ -1204,11 +1204,11 @@
     "updated_at": "2026-11-22T01:56:39+00:00"
    },
    {
-    "reason": "waiting for its turn",
-    "series_done": 0,
+    "reason": null,
+    "series_done": 5,
     "setup": "LFM2.5-24B-A2B (off)",
-    "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
+    "status": "done",
+    "updated_at": "2026-11-24T17:58:17+00:00"
    },
    {
     "reason": null,
@@ -1222,7 +1222,7 @@
     "series_done": 5,
     "setup": "MiniCPM5-2B (on)",
     "status": "done",
-    "updated_at": "2026-11-23T04:03:17+00:00"
+    "updated_at": "2026-11-24T17:53:32+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -1246,11 +1246,11 @@
     "updated_at": "2026-11-21T12:07:28+00:00"
    },
    {
-    "reason": "waiting for its turn",
-    "series_done": 0,
+    "reason": null,
+    "series_done": 5,
     "setup": "Gemma 4 E2B (on)",
-    "status": "paused",
-    "updated_at": "2026-11-24T06:32:27+00:00"
+    "status": "done",
+    "updated_at": "2026-11-25T00:04:15+00:00"
    },
    {
     "reason": null,
@@ -1264,14 +1264,14 @@
     "series_done": 5,
     "setup": "Qwen3.5-2B (on)",
     "status": "done",
-    "updated_at": "2026-11-24T06:30:02+00:00"
+    "updated_at": "2026-11-24T17:55:45+00:00"
    },
    {
-    "reason": "waiting for its turn",
+    "reason": null,
     "series_done": 0,
     "setup": "Raon-1 nano (on)",
-    "status": "paused",
-    "updated_at": "2026-11-08T16:10:46+00:00"
+    "status": "running",
+    "updated_at": "2026-11-25T13:04:23+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -1317,10 +1317,10 @@
    },
    {
     "reason": null,
-    "series_done": 1,
+    "series_done": 5,
     "setup": "Inkling 2 Mini (on, effort 0.2)",
-    "status": "running",
-    "updated_at": "2026-11-24T14:57:46+00:00"
+    "status": "done",
+    "updated_at": "2026-11-25T06:35:33+00:00"
    },
    {
     "reason": "waiting for its turn",
@@ -1352,10 +1352,10 @@
    },
    {
     "reason": null,
-    "series_done": 1,
+    "series_done": 4,
     "setup": "Gemini 4 Neon (high)",
     "status": "running",
-    "updated_at": "2026-11-24T15:33:35+00:00"
+    "updated_at": "2026-11-25T16:17:09+00:00"
    },
    {
     "reason": "usage limit",
@@ -1365,7 +1365,7 @@
     "updated_at": "2026-11-24T10:35:14+00:00"
    }
   ],
-  "updated_at": "2026-11-24T15:51:39+00:00"
+  "updated_at": "2026-11-25T16:17:09+00:00"
  },
  "progress_refused": null,
  "redacted": 0,
@@ -7276,21 +7276,41 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 99.20091952383518,
+     "right_safety": 73.8,
+     "risks_found": 18.8
     },
-    "answers_after": null,
-    "answers_before": null,
+    "answers_after": {
+     "answer_rate": 100.0,
+     "answered": 1000,
+     "expected": 1000,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 500,
+     "safety_pays": 500,
+     "tests": 5,
+     "valid": 1000
+    },
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 600,
+     "expected": 600,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
+    },
     "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 90.83625520269077,
+     "right_safety": 77.33333333333333,
+     "risks_found": 21.666666666666668
     },
     "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 8.364664321144417,
+     "right_safety": -3.5333333333333314,
+     "risks_found": -2.866666666666667
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -7298,26 +7318,427 @@
      "estimate_usd": null,
      "reported_usd": null
     },
-    "empty": [],
-    "empty_done": 0,
-    "improved": null,
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 91.84445179998875,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 77.0,
+      "risk_pays": 100,
+      "risks_found": 19.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 13.6
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 90.89878685772419,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 78.0,
+      "risk_pays": 100,
+      "risks_found": 22.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 3.9
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 89.76552695035934,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 77.0,
+      "risk_pays": 100,
+      "risks_found": 24.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 14.9
+     }
+    ],
+    "empty_done": 3,
+    "improved": false,
     "key": "lfm2.5-24b-a2b-off",
     "progress": {
-     "reason": "waiting for its turn",
-     "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
+     "reason": null,
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-24T17:58:17+00:00"
     },
-    "range": null,
-    "reason": "waiting for its turn in its lane",
-    "series": [],
-    "series_finished": 0,
+    "range": 5.0,
+    "reason": null,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 202,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When an attacking shot is possible, do not pass or play defensively away; GNUbg flags \"missed risk\" for undervalued hits and costs 0.026–0.231 in equity.\n- Pre‑check your contact with the opponent before advancing: opening a blot near their anchor point created the very losses on turns 7, 31 and 43.\n- Avoid adding new risks at already‑safe primes; the 0.675 loss on turn 9 was a classic needless‑risk mistake where stabilization was enough.\n- Hold a solid structure rather than hoarding individual checkers; \"wrong risk\" and \"needless risk\" events all came from leaving blots the opponent could hit.\n- In late‑game endgames treat any slight equity loss as serious: the final three turns included small \"right safety call\" misreads that still cost points."
+       },
+       {
+        "game": 2,
+        "text": "- Stop forcing risky hitter calls on cheap turns; \"needless risk\" and \"wrong risk\" were expensive errors — trust GNUbg's equity and play the safe equivalent when the gain is within a point.\n- Trust the game's risk-call metric: when the equity lost is under 0.025 (\"no risk trade-off\"), hold your current move and do not override.\n- Keep your hitters safe against opponent bearing-in; double-bottoms reward patience and consolidation more than aggressive entries.\n- Missed risks on multi-move turns can erase several percent of equity; slow down and verify the risk call before moving.\n- Review the small-equity mistakes immediately after the game while the evaluation numbers are fresh."
+       },
+       {
+        "game": 3,
+        "text": "- When a risk call is offered, compare the equity trade-off carefully — accept it only if your win probability rises clearly; several missed calls lost 0.9 points.\n- Do not take short, aggressive moves that look fast; large equity drops (0.6–1.2) come from such \"shortcut\" plays, especially when you have a checker on the opponent's inner or home board.\n- Before attacking forward or barreling, verify that the opponent's guard is not blocking your target point; overreach into their home board is a frequent source of bad turns 26, 56, 68.\n- If an opponent builds a prime on your side, switch to offensive pressure rather than defensive retreating — avoid moving checkers into exposed positions.\n- In the endgame, verify the exact count of points still needed for the gammon before lowering the cube; small misjudgments turned narrow losses into bigger ones."
+       },
+       {
+        "game": 4,
+        "text": "- In the bear-off phase, favor double checkerboard splits over single splits; a selfish single split left a blot and cost 0.268 equity.\n- Before taking an obvious risk move, verify whether the opponent has blots near the target point; several needless-risk mistakes had no real counterplay.\n- When the engine flags a missed risk call, reconsider the safe alternative immediately; the recalculation usually regains the equity lost.\n- While heading out, push active checkers toward the midpoint instead of hauling them all back; this keeps the opponent running up and prevents early kills.\n- In late endgames, trust the two-ply line against the opponent unless a concrete attack or escape exists; most losses came from unnecessary aggression."
+       },
+       {
+        "game": 5,
+        "text": "- Take the risk call on blot hits and close-out decisions; skipping them cost 0.01–0.14 equity and accounts for most of my small losses.\n- When ahead, prioritize closeout/safety over flashy moves; classic late-game blunders show the penalty of complacency.\n- Avoid delaying defensive duties to shuffle checkers: unnecessary point advances weaken positions throughout the match.\n- Favor aggressive safety when leading: once you have a made point, cut off your opponent's escape rather than running checkers inward.\n- Spot short-roll threats: when a hit is available and your safe move gives the opponent a ready-making roll, call the risk instead of passing."
+       },
+       {
+        "game": 6,
+        "text": "- When deciding whether to bear off fast or set a safety, don't run checkers home prematurely if the opponent still has a contact — the 0.129 loss at turn 4 and 0.568 loss at turn 12 show that hasty advances surrendered a clean race.\n- On turns where the engine prefers a safety-style move like 24/22 over a quick home (13/11), take the safety first; rushing the runner forward leaves blots that swing equity by a hundredth.\n- Before a risky action, ask whether the opponent is one prime away from a hit — the small equity swings at turns 2, 8, 38 (0.013–0.129) survive by a timed 24/22 or a corner-gamble in disguise.\n- After the mid-game bust, follow the engine's late-rally safety calls — those were best play, and the only real losses came from unforced mistakes when a safer layoff should have been made."
+       },
+       {
+        "game": 7,
+        "text": "- Avoid needless, high-variance risks that blow gammons — overly aggressive early shots drain equity; prefer safer block-building or measured bear-offs when behind.\n- When the position is close (≤0.05 equity swing), follow the engine's best play and don't deviate for marginal gain.\n- Early doubling or running gambles routinely swing large equity — save that kind of shot for the last points, and only when the risk math clearly favors a big payoff.\n- Safe, positive-equity late-game plays — minimal-blot bear-offs and solid blocks — were the cheapest; mirror them to minimize losses.\n- Safety calls at the margin to push for the gammon are justified when the prize exceeds the volatility; always check the evaluation before committing."
+       },
+       {
+        "game": 8,
+        "text": "- Always consider taking the riskier hitting move when your opponent's blots are exposed; missing those \"risk calls\" consistently costs large equity.\n- Before contacting, calculate whether your move makes your structure safe — \"safety call\" decisions lost dozens of points.\n- Be careful with long races and the back gammon phase; don't force hitters past a point where they already have settled.\n- Avoid all-in or excessive variance moves unless the position demands it; the final-game loss was one such reckless choice.\n- Review double decisions carefully: many small equity losses came from misjudging risk trade-offs."
+       },
+       {
+        "game": 9,
+        "text": "- Evaluate risk calls carefully: several of my losses came from missing clear safety opportunities or from taking unnecessary risks.\n- Avoid overly aggressive plays in contact positions during the midgame; giving away key points without adequate backup costs equity.\n- In late-stage positions near gammon, prioritize safety over greed: a few unchecked hits produced the largest equity drops.\n- When faced with multiple equally plausible options, stop and reread the board before committing; repeated moves without assessment signal impatience.\n- Trust the engine's best play when standings are roughly even rather than second-guessing under pressure."
+       },
+       {
+        "game": 10,
+        "text": "- Trust the risk-call label: when GNUbg marks a \"wrong risk call\" or \"needless risk,\" the move really cost equity; play more cautiously and re-derive the double/safety decision.\n- Early contests (turns 1–9) account for most losses; verify point advances before choosing between a regular move and contact play.\n- Avoid unnecessary double-crosses — the 0.53 equity loss shows an aggressive hitting shot paid for with nothing; if leading, stay calm long.\n- \"No risk trade-off\" rows were saved by playing nothing; don't force a risky hit when the equity loss outweighs the gain.\n- Double-check the basic 2-ply best play before any creative double-crossing; the small (0.033) and mid-size (0.157) errors all came from bypassing the engine's baseline."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 1,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 97.68445856869221,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 73.0,
+       "risk_pays": 100,
+       "risks_found": 20.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 13.5
+      },
+      "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 187,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When the equity gap is tiny and you are one point short in the race, take a small risk (a single hit or early bear-in attempt) rather than passing the safety call.\n- Don't build a triple or prime while your own back checkers sit on or near the bar; exposing your home board invites a counter-attack that costs more than the prize.\n- Late-game splits or double-hits win only when the distance to a gammon is known to favor you; otherwise keep the position simple to preserve gammon.\n- At close margins the \"risk call\" is often right if the alternative is a sure 0; check the exact swing before committing to a risky shot.\n- In endgame bearing-off positions, never leave a checker in a hitable place when the opponent is threatening a hit; a tidy bearing-off sequence saves the most equity."
+       },
+       {
+        "game": 2,
+        "text": "- Follow GNUbg's risk-call advice: take the clearly winning risk when it saves equity; the repeated missed risk calls cost us about 1.2 points across turns 3, 11, 17, and 21.\n- Before committing a long race toward the opponent's home, confirm your bear-in and blocking; weak bear-ins directly produced the large 0.450 and 0.705 equity drops.\n- In close mid-game duels preserve checker symmetry and avoid isolated exposed men that invite forced hits; small errors alone aren't enough to lose.\n- Trust low-level engine evaluation over intuition when judging \"barely close\" positions: subtle double-cross threats were ignored multiple times.\n- Never make a chase that hands the opponent a timing/double opportunity; the missed safety call on turn 17 illustrates this recurring pattern."
+       },
+       {
+        "game": 3,
+        "text": "- Trust the engine's best play in tight close games; staying on the recommended line saved you more than half a point in this series.\n- Avoid needless and wrong risk calls — most of your biggest losses came from taking a risk without enough mathematical payoff.\n- An offered risk call is only worth taking when the expected value is positive; otherwise stick with the lower-variance alternative.\n- Prefer blocking and point-building over speculative checkers; gambling with bearing activity is what burned so much equity.\n- Watch your own consistency: identical positions getting different answers suggests a recurring habit to re-check your reasoning at these moments."
+       },
+       {
+        "game": 4,
+        "text": "- Trust the engine's risk-call recommendations: abandoning a bold long shot in favor of the safer best play usually preserves equity and avoids losses of 0.1 or more.\n- In carry-over positions, do not commit to a forceful double-bar move without verifying an actual equity gain; such forced saves consistently cost 0.06–0.15 points.\n- When both checkers are off and reachable, simplify: one safe hit is almost always better than two simultaneous moves that leave a loose back checker.\n- Avoid aggressive advance in the midgame: pushing ahead when material balance dictates consolidation wastes time and can flip a near-draw into a race loss.\n- Respect the opponent's manpower: when the match score is neutral, play the objective move even if it looks passive rather than forcing a risky shot."
+       },
+       {
+        "game": 5,
+        "text": "- In mid-game, leave no hit-able blots near opponent's prime or bear area — several costly misses came exactly there.\n- Treat every \"risk call: wrong/needless risk\" at face value; an option that looks optional is usually a forced hit, and passing can cost up to 0.5 equity.\n- In the late endgame, stop trying speculative moves; the engine's 0-equity ends were right, and any deviation cost real equity.\n- Trust the eval over intuition in doubling contexts; the engine knows when a risk is material versus a tactical illusion.\n- If a risk call is flagged by the engine, make the forced hit cleanly; otherwise pass — overplay tends to multiply losses."
+       },
+       {
+        "game": 6,
+        "text": "- In close-out situations, always run a gammon-safety read first; several of my largest equity losses came from overlooking hidden gammons.\n- Late-stage doubles require careful value-of-successive-pips analysis — mistaking a quick win for a safe reset cost me nearly 0.75 points in one game.\n- Stick to the computer's best-play suggestions on non-tactical turns; overthinking moves wastes momentum and creates avoidable risk.\n- Re-check your board geometry and bar-return logic as the match progresses into the later stages; misreading position loses gammon equity.\n- After the midpoint, prioritize minimizing split/triple damage over taking extra risks — my errors there were unnecessary gambles for position."
+       },
+       {
+        "game": 7,
+        "text": "- When bearing off under pressure, take the safe 2-point returns rather than risky 3-point advances; this preserves your board and stops the opponent's progress.\n- Never skip a risk-call decision — ignoring engine flags like \"missed risk,\" \"needless risk,\" or \"right safety call\" regularly costs equity.\n- Keep a checking presence during the contact phase; retreating too early leaves your bowman exposed and invites danger.\n- Before committing to the bear-off, sanity-check the opponent's contact status -- a race can hide dangerous anchors.\n- Small midgame checker decisions accumulate; review each move for unnecessary risks before settling."
+       },
+       {
+        "game": 8,
+        "text": "- Pause before risky single-hit takes; \"missed/needless risk\" calls mean your opponent can escape cheaply, so stay safe.\n- Defend key bearer points first; several large equity drops (0.6–1.0) came from leaving a hole after a blind hit.\n- Prefer 2-ply legal doubling/cash paths over speculative hits when your edge is thin; the engine's best play usually avoids the gamble.\n- Trust the engine's best-line advice in tight spots—\"right safety/risk call\" marks are proven zero-equity moves.\n- Review take/victory-point pushes with the cube: a mistake there cost ≥0.4 equity and wiped the lead."
+       },
+       {
+        "game": 9,
+        "text": "- Learn to read GNUbg's risk-call labels: \"right safety call\" wins the trade; \"wrong risk\", \"missed risk\", \"needless risk\" cost equity—avoid repeating them.\n- Avoid risky returns when your opponent has multiple runners near yours; leaving high-value checkers invites backgammons.\n- Note that small per-turn equity slips (even 0.03) add up; in long series, careful play at borderline points matters more than occasional aggression.\n- In races, don't abandon ships by leaving loose blots; save a quick \"safe\" checker to win.\n- Stay safe—when behind, favor blocking and hitting off the bar; GNUbg consistently rated those as best."
+       },
+       {
+        "game": 10,
+        "text": "- Commit to depth when clearing the penultimate point: a shallow 6/4 exit was a small loss; double-deep (24/22 or further) preserves the win before the final stage.\n- Do not default to safety at the cost of a race — when you are behind by a point or two, take the shot or cut it; playing passively lets the race flip the outcome.\n- Watch the board for a single decisive action before any risky gamble; the late-game 24/20/24/23 collapse shows overconfident speed can kill an advantage.\n- In double decisions, calculate equity: missed, needless, and wrong-risk calls all point to a poorly assessed edge — decide by math, not feel.\n- After the game, verify each decision against known endgame patterns so these familiar trap moments drop out next time."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 102.12277568876743,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 73.0,
+       "risk_pays": 100,
+       "risks_found": 15.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 13.6
+      },
+      "wins": 0
+     },
+     {
+      "finished": true,
+      "game_decisions": 210,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Keep the endgame bear-off orderly: several of my biggest gammon losses came from aggressive advances instead of sequencing checkers off methodically.\n- Distinguish a missed gamble from a bad one: when the analysis flagged \"missed risk,\" the calculated gamble is the stronger move.\n- Estimate the true cost of risky split entries — \"right risk call\" and \"no risk trade-off\" from the bot show when bolder is actually justified.\n- On \"no risk trade-off\" and similar safe spots, the safe line is enough; I should stop chasing negligible edge gains.\n- After review, re-examine each \"risk call\" mismatch to internalize when the risk is correct and when it isn't."
+       },
+       {
+        "game": 2,
+        "text": "- Avoid risky safety or cube decisions when the position is close to finishing; most very bad losses came from gambling instead of playing conservatively.\n- Re-check cost-benefit of safety actions: doubtful and missed-risk errors accumulated into meaningful point swings.\n- Near the end of the game, stop attempting bold contact plays; convert your advantages quietly.\n- Don't extend a position hoping for a distant payoff; cash it early to hold the buffer.\n- Verify gammon-point targets when evaluating your checker structure; several mistakes stem from misreading the outcome value."
+       },
+       {
+        "game": 3,
+        "text": "- Before using a bar return, verify that it doesn't leave your anchor exposed and that it preserves a defensive blocker.\n- Avoid risk calls where the immediate gain is hidden and the opponent gains a potent positional advantage.\n- When racing, protect both clusters before launching; single-checker advances often lose more equity than coordinated moves.\n- On mid-game positions, prefer safety moves over aggressive hits whenever the win probability barely changes.\n- Re-run the equity delta after every risky switch; small equity drops compound into a loss."
+       },
+       {
+        "game": 4,
+        "text": "- Avoid needless risk-taking even when a split/run seems tempting; multiple speculative blunders (several turns) erased equity.\n- A 'right risk call' only wins if the move genuinely helps; rejecting a good gamble (e.g., missing a block/take) is the main source of lost equity.\n- When setting up the bar, safety plays secured equities, while reckless two-point runs cost away value.\n- Chasing a take when the opponent's position is strong is a losing habit; stop gambling for comebacks past the halfway point.\n- Last-game caution pays: a tiny loss at the close still confirms the pattern of small errors outweighing a few sharp mistakes."
+       },
+       {
+        "game": 5,
+        "text": "- In a bear-off race, don't play the safer move when a single hit decides the outcome — hesitation there led to the largest losses in the match.\n- On long doubles and even rolls, accept a modest risk call: refusing a small, calculable risk is more costly than a small gamble.\n- When the opponent is on track to return home, prioritize hitting them over keeping your own checkers in a safe corner — a common source of bad swings.\n- Small margin errors (0.002–0.015) happen at the end of the game; a strict safety-check habit prevents cumulative drift even when equity looks flat.\n- Replicate the style of games 26 and 36, where GNUbg's best play matched yours to zero equity: consistency in endgame execution wins points."
+       },
+       {
+        "game": 6,
+        "text": "- Don't force speculative moves when the opponent can close; when the equity swap is volatile, the safe line preserves points.\n- Reject unsound risk calls on runs — large losses (Turns 5, 7, 9, 15, 51) came from overreaching while trailing.\n- Favor cube safety whenever a move could let the opponent reassert; the worst losses tied to cube misjudgments.\n- Check that each move advances a concrete endgame goal; several errors were attempts to save checkers left stranded rather than close out.\n- Stick to the engine's 2-ply best line; don't second-guess ambiguous positions with free-form experimentation."
+       },
+       {
+        "game": 7,
+        "text": "- Treat every risk call as a separate calculation; wrong-risk calls produced equity drops of 0.30–0.45, while right-risk calls held the score.\n- Minimize needless risk: unnecessary high-variance gambles cost 0.1–0.45 equity versus a clearly safer alternative, and this repeats in most middlegames.\n- Off the bar, favor safety over contact: the engine preferred quiet block-and-run or prime-breaking moves, but your play favored contact anyway.\n- Guard your runner's coordinates: several errors placed checkers awkwardly (on or near your own bar and early home), creating exposure a safe non-contact move would have avoided.\n- When in doubt, default to the engine's best move (e.g., 21/18 18/16 in the closing game); splitting half-points and then gambling turns closeness into a match loss."
+       },
+       {
+        "game": 8,
+        "text": "- In tight late-game positions your opponent's exposed points (22–24) reward the aggressive hit over the safe development; don't let caution cost you a large chunk of equity.\n- At turn 36 the catastrophic 0.923 equity loss showed that one bad risk can outweigh all later decisions; treat each risk as a trade with the whole game in mind.\n- When the engine labels a move a \"risk call,\" execute it; several losing spots were exactly cases where GNU's best play required taking the risk.\n- Avoid defaulting to neutral bar/exit moves when your race needs speed — many \"best\" plays (turn 4, 6) confirm that passivity isn't always right.\n- After a poor play, step back and recompute; the session-wide slide (from 0.242, 0.193, 0.154...) hints at cumulative mental fatigue."
+       },
+       {
+        "game": 9,
+        "text": "- Bearer attempts need a clear, calculated gamble; prefer the single highest-equity shot over a chained sequence of weaker moves.\n- Before any risk call, verify the exact probability-to-payoff: conservative play wins when the ratio is near even.\n- Early-game positioning matters: a small equity error in the opening can cascade into a large deficit by mid-game.\n- Keep checkers precisely placed; unnecessary or duplicated moves waste turns and hand the race to the opponent.\n- When trailing, take the safe path over a high-variance gamble; the smaller, steadier lead survives endgame pressure."
+       },
+       {
+        "game": 10,
+        "text": "- On baring from the bar, do not lead with two runners unless both enter safely; a single, well-placed runner plus a safety cover wins more often than a high-variance double advance.\n- A risk call must raise your equity; if the suggested move does not improve odds, take the safety-return option and avoid the tempting-but-losing gamble.\n- Resist the urge to rush the final come-off in the late endgame; verifying prime coverage before bearing in is safer than trying to extract a small advantage.\n- Before committing checkers to any point, confirm all your runners are enterable; an uncovered blot turns a safe setup into a losing trap.\n- When the eval report shows no risk trade-off, there is rarely a reason to deviate from the conservative play—stop chasing marginal gains."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 101.63426496088505,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 71.0,
+       "risk_pays": 100,
+       "risks_found": 16.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 13.5
+      },
+      "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 229,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- In bear-ins, keep your approach conservative against the opponent's bear-in; 13/11 or 6/2 beats the reckless 20/18/20/14 and avoids swapping equity by >0.1 points.\n- A 0.2+ late-game equity drop (e.g., turn 10) means you entered your home board too early as a bear-in without a secure connection; finish the midgame with checkers held back.\n- Aggressive 20-point entries win nothing when equity is neutral; build one point behind the run before committing, otherwise an early attack becomes costly.\n- Simple pip races and shortcut shots (as on turns 2 and 26) are where small errors compound; rehearse the two-point and one-point developments before moving.\n- Retain a closed home board late in the match; only leave a blot once you have enough point coverage to hold against the opponent's run."
+       },
+       {
+        "game": 2,
+        "text": "- Check safety at every turn: several losses show how quickly skipping the safety check can destroy the game.\n- Before committing to a long race, weigh risk and reward carefully: small calculated risks help, but don't gamble where the position turns on a decisive point.\n- In positions within a few hundredths of equity, the result can flip; keep your moves tidy while the outcome is still uncertain.\n- Re‑evaluate every move's final effect before committing; one bad choice can cascade and wipe out a previously solid advantage.\n- Don't rush the finish when ahead; a single early misplay can destroy a large advantage."
+       },
+       {
+        "game": 3,
+        "text": "- Avoid speculative risks unless the equity gain clearly exceeds the downside — many of your losses (turns 4, 6, 8, 10, 12, 26) were flagged \"risk call: wrong\" and cost 0.29–0.48 points.\n- When bearing off near the end, don't leave isolated checkers or loose bearers; your biggest losses came from leaving a corner that let your opponent force another hit.\n- Re-evaluate \"small errors\" — even 0.02–0.03 deficits compound to a whole point over a match; verify every short move before committing.\n- Confirm that a risky shot is actually necessary; several \"missed risk\" calls show you had a chance to recover that was left unconquered.\n- Favor simple safety/slot plays over complicated combinations that appear clever but shave tiny equity; best-play moves (equity 0.000) consistently beat your choices."
+       },
+       {
+        "game": 4,
+        "text": "- In doubling/critical positions, always get a second look at risk calls — most of the losses came from choosing the wrong risk when a safer option was available.\n- Avoid needless risks, especially late in games when an early lead has already been built up; a non-risk play usually holds equity better.\n- When bearing off, prioritize safety: keep blots behind the point you intend to bear and clear the inside points first; several early turns lacked this discipline.\n- Avoid forced multi-move sequences that look elaborate mid-endgame; a simpler single move often preserves more equity than a carefully-tabled forced chain.\n- Track and review small equity drops in the close finishes — each 0.01–0.03 loss typically stems from a marginally worse contact or timing decision."
+       },
+       {
+        "game": 5,
+        "text": "- Always evaluate the equity of risky shots before committing — missed risk calls cost up to 0.65 points.\n- Maintain a safety buffer for your blot during the race; avoid being driven onto the back bar where the opponent has made a home.\n- When bearing in, advance your hitter first and keep your own pair secure instead of splitting onto lower-value shots.\n- Use computer analysis as an unbiased guide and do not second-guess plays that match the engine's evaluation.\n- Track equity shifts through the late game – the worst blow occurred when the pip lead had already shifted, undoing earlier gains."
+       },
+       {
+        "game": 6,
+        "text": "- In late bear-off positions, verify the position before playing — two of my biggest losses (turns 15 & 17) came from bearing off too aggressively while the opponent's anchor was still alive; prefer safety over risk.\n- On turns labeled \"missed risk,\" re-evaluate whether the opponent can use my hit — the engine found that my play would open a successful blot on my own position.\n- When multiple checkers threaten, never put both on the same high-point home board move; split the threat and keep one checker safe.\n- Risk call decisions often hinge on the race gap: if the opponent leads by more than half the pip range, take the safer safety line and trust the equity table.\n- Systematically check the bar, off/on, and checker locations before any risky double move — a misread (as on turns 35, 55, 57) turned a manageable position into a large loss."
+       },
+       {
+        "game": 7,
+        "text": "- Always compare gammon-equity changes before layering or taking a double; several of my equity drops came from wrong risk decisions.\n- Do not commit a gambit to a single checker when an opponent holds a point behind — a reckless shot cost me 0.78 equity; favour a safer double or block.\n- Follow the engine’s cube recommendations in race/double situations; my missed-risk calls in recent games ignored the safer options the evaluation favoured.\n- When your checkers are hemmed in, make a controlled safety double rather than a suicide shot that risks your entire position.\n- Trust the 2-ply equity figures and re-derive every risk call ahead of time; disciplined consistency saves more equity than intuition."
+       },
+       {
+        "game": 8,
+        "text": "- When a risk trade is required, follow GNUbg's best play; avoid \"needless risks\" and correct \"wrong risk\" calls that drained equity.\n- Favor safety before risk: when running to home, make sure an opposing anchor stays untouched; double-check that your bear-in/contact positions don't leave blots.\n- In bear-off and endgame phases, don't start moving too early; a prematurely raised prime reproduces the late-turn losses.\n- Trust \"best play\" moves (0% equity lost) as reliable; every divergence was exactly where the biggest damages were.\n- Practice race evaluations — early-turn lead-spot mistakes waste the whole game; count points and double values first."
+       },
+       {
+        "game": 9,
+        "text": "- Distrust aggressive hits and quick cuts: most of your lost equity came from risk calls that left blots undefendable or allowed a straight shot; prefer the safer play when equity swing matters.\n- Watch the opponent's bear-off and late run: several times you rushed to run a race while a winning prime was about to close.\n- In the endgame, lock down your home and inner boards before gambling; some of your later losses were 0.1–0.6-pip equity drops from unguarded winners.\n- Re-evaluate at the first sign of a large equity swing: once the margin exceeds about 0.2, stop doubling down and protect the winable edge.\n- Trust the engine's risk judgment; every \"missed risk\" or \"wrong risk\" label marks exactly where your lost equity came from."
+       },
+       {
+        "game": 10,
+        "text": "- On every turn, check whether a risk call (offering to take a hit to chase / enter) changes equity more than a safe alternative, and do not \"miss the risk call.\"\n- When entering the bear from the bar, favor the high-point approach (e.g., 24/18) over slow races along a single point, especially if the opponent's checkers are anchored near the edge.\n- Guard your anchor points during races — leaving vulnerable hiters late in the game turned several 4-point runs into disasters.\n- \"Right safety call\" plays consistently saved the game; train recognizing when to block and when to accept a hit.\n- Avoid passive plays when the position favors aggression (turns flagged \"doubtful\" or \"very bad\"), particularly on dice 3–5 in the early mid-game."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 4,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 98.64863105118275,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 75.0,
+       "risk_pays": 100,
+       "risks_found": 21.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 14.1
+      },
+      "wins": 0
+     },
+     {
+      "finished": true,
+      "game_decisions": 229,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- On low-dice home situations, advance back men rather than retreating — small roll positions (4-1, 4-3) losing equity show a back-man retreat to a blot costs dearly.\n- Evaluate any proposed contact shot or risky cut under full visibility: \"missed risk\" and \"wrong risk\" classifications cost 0.2–0.3 equity per turn, so prefer the safer geometric move unless the gain is clear.\n- When facing an exposed opponent blot, run a safety play (\"close the eyes\") rather than leaving your own back men to be hit; multiple errors here cost almost half a point.\n- Avoid blitzing the opponent's homeboard when the score is lost; the 1-6 bar roll on turn 25 was needlessly risky and swung equity by 0.37 points.\n- Trust the engine's play when it matches standard safety and response sequences (turns 5, 7, 19, 21, 35, 37), and review the ones where equity is lost to internalise the pattern."
+       },
+       {
+        "game": 2,
+        "text": "- Trust your intuition in rare safe cases, but never skip a risk call that materially shifts the balance; skipped calls bleed equity (see turns 4, 17).\n- Avoid needless risks—several turns (8, 14, 32) show equity falling far without any gain, so keep the expected cost low.\n- On scores where the endgame is close, play on the safer side of a doubtful throw; the \"doubtful\" verdicts hide hidden downfalls.\n- When your formation is blocked, prioritize a defensive (safety) game plan over an aggressive gamble.\n- Track small losses; a few 0.03–0.06 equity bites pile up and turn into a gammon loss."
+       },
+       {
+        "game": 3,
+        "text": "- Rely on GNUbg's risk-call signals (missed, wrong, needless): when they appear, fix the decision type for the next similar position.\n- Never weaken your board structure for a small tactical gain; most small equity losses came from clutching weak points.\n- In late-game rolls (e.g., 5-2, 4-2) take the longest playable move rather than risking a fragile hold; the 1.00 loss on turn 63 shows the stakes.\n- Assess how many opponent hit-ers are still available; \"needless risk\" positions often leave too many escape routes.\n- Preference the largest move that keeps all checkers in play over short-check moves that invite splits."
+       },
+       {
+        "game": 4,
+        "text": "- Re-scan every risk-call moment: large equity losses (even 1.28 points) revealed where missed or misapplied risks cost matches.\n- When in a winning position, avoid leaving blots near the opponent's anchor squares; careless holding let the lead slip.\n- In the midgame, play defensively — don't underestimate the opponent's cut or their ability to make safe shots.\n- Favor safety and blocking over open races until the position is clearly favorable to you.\n- Trust 2-ply engine evaluations at each turn; when two moves look similar, let the tool decide rather than intuition."
+       },
+       {
+        "game": 5,
+        "text": "- Watch every doubling/risk‑call decision — the largest point swings in this game came from passing up right risk calls or taking an unwarranted risk, so treat marginal doubles with extra care.\n- When defending against an opponent's cut‑off, keep tactical checks safe first; several \"missed risk\" moves left blots exposed and turned wins into gammons.\n- Don't try an extra pip push to make up a deficit — several \"needless risk\" and \"no risk trade‑off\" losses came from aggressive recovery that only widened the gap.\n- Re‑check every bar/24 point before committing checkers; many large losses (turns 8, 10, and 58) were rooted in leaving a fatal hit after a checkers‑only attempt.\n- Stay tight in safeties — when behind, the engine's right safety call beats my aggressive play; avoid premature attacks that cost 0.20 equity."
+       },
+       {
+        "game": 6,
+        "text": "- Always verify the gammon-equity implication of a move before committing, especially any entry or bar move — \"risk call\" situations cost 0.2–0.6 equities and caused most of the loss in this game.\n- When choosing a doubling entry from the bar, prefer the conservative/flatter option suggested by GNUbg over aggressive shortcuts; the wrong entry (turns 3, 5) threw away nearly half a gammon.\n- On bar versus middle-game setups, doubling stance checks (like 24/18 in the fatal turn 19) must be coordinated with the cube move 18/12; mismatching them lost 0.63 gammons.\n- Recompute the opponent's escape routes after each of your moves — several of your losses came from missing a bearing-off threat or a holding spot, even when the board looked fine."
+       },
+       {
+        "game": 7,
+        "text": "- Before taking any big hit, weigh the gain against the risk of being pinned or entered; large drops like your 0.9-equity blundering cost the game.\n- Heed the engine's risk-call flags ('missed/wrong/needless risk') — trust safety over aggression, especially late in the race.\n- Favor conservative blockage and safety when even-matched; turns 7, 13, 35 and 37 show that sloppy safety costs chips.\n- Avoid forcing flashy entries when a quiet alternate move keeps your equity; small, steady plays beat speculative swings in the endgame.\n- Review each turn's play to catch recurring errors early, so you don't repeat them across a series of games against the same opponent."
+       },
+       {
+        "game": 8,
+        "text": "- Trust the engine's risk-call recommendations in close positions; \"wrong risk\" and \"missed risk\" repeatedly indicate that sidestepping the defined safety plays costs more than it gains.\n- Simplify movements near the home board: once your pieces are bearing off, prioritize reducing your own risk over racing into opponent's hitting opportunities.\n- Bearing off late is safer: avoid speculative shots when the opponent still needs points; an unprepared push can drain equity quickly.\n- Watch for structural traps on double-space turns: when the board is fluid, the engine prefers a simple reshuffling or shortening move; extending a block without purpose leaves you vulnerable.\n- Before playing an aggressive check move, check whether a simple safety alternative exists; almost all of my worst losses stemmed from ignoring the right safety option."
+       },
+       {
+        "game": 9,
+        "text": "- Treat every risk call as a safety decision: before committing to a run that exposes a lone checker, compare true odds — I lost 0.47 at turn 6 from a wrong risk call, and the pattern repeats.\n- Avoid overly aggressive entry plays when trailing or when the opponent is closing in; keep your position contained rather than advancing a checker into unsafe territory.\n- Follow the \"right safety call\" when your opponent has pulled ahead or has borne off — risky late-game shots cost 0.2–0.35 points per mistake.\n- Minimize blot and isolation: most large equity losses came from creating a single loose checker instead of sliding in parallel.\n- Small recurring errors compound: in tighter games, prioritize safe, low-risk technique over ambitious blitzes."
+       },
+       {
+        "game": 10,
+        "text": "- Prefer conservative moves on risk-call decisions; multiple missed risk calls cost 0.08–0.53.\n- Verify precise checker numbers early on; turn 7's 8/5* vs 7/6 mistake cascaded.\n- In pure race positions (both off) my late-game placement errors erased ~0.3 points; recompute the race before moving.\n- Trust the engine's risk-call notes — these recur and account for most of the equity lost.\n- Avoid large-chip gambles on narrow swings; the 1.03 drop at turn 51 came from skipping the simplest exit."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 95.91446734964848,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 77.0,
+       "risk_pays": 100,
+       "risks_found": 22.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 14.9
+      },
+      "wins": 1
+     }
+    ],
+    "series_finished": 5,
     "setup": "LFM2.5-24B-A2B (off)",
-    "state": "paused",
-    "status": "paused: waiting for its turn in its lane",
-    "steps_done": [],
-    "threshold": null,
-    "verdict": false
+    "state": "complete",
+    "status": "No",
+    "steps_done": [
+     "E1",
+     "S1",
+     "S2",
+     "E2",
+     "S3",
+     "S4",
+     "E3",
+     "S5"
+    ],
+    "threshold": 5.0,
+    "verdict": true
    },
    {
     "after": {
@@ -7883,7 +8304,7 @@
      "reason": null,
      "series_done": 5,
      "status": "done",
-     "updated_at": "2026-11-23T04:03:17+00:00"
+     "updated_at": "2026-11-24T17:53:32+00:00"
     },
     "range": 7.0,
     "reason": null,
@@ -8809,21 +9230,41 @@
    },
    {
     "after": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 73.38083843886852,
+     "right_safety": 76.8,
+     "risks_found": 34.8
     },
-    "answers_after": null,
-    "answers_before": null,
+    "answers_after": {
+     "answer_rate": 100.0,
+     "answered": 1000,
+     "expected": 1000,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 500,
+     "safety_pays": 500,
+     "tests": 5,
+     "valid": 1000
+    },
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 600,
+     "expected": 600,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 300,
+     "safety_pays": 300,
+     "tests": 3,
+     "valid": 600
+    },
     "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 77.3395686596632,
+     "right_safety": 72.0,
+     "risks_found": 40.333333333333336
     },
     "change": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": -3.9587302207946777,
+     "right_safety": 4.799999999999997,
+     "risks_found": -5.5333333333333385
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -8831,26 +9272,427 @@
      "estimate_usd": null,
      "reported_usd": null
     },
-    "empty": [],
-    "empty_done": 0,
-    "improved": null,
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 74.79711167514324,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 68.0,
+      "risk_pays": 100,
+      "risks_found": 41.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 1040.8
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 70.87355732917786,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 76.0,
+      "risk_pays": 100,
+      "risks_found": 41.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 939.9
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 86.3480369746685,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 72.0,
+      "risk_pays": 100,
+      "risks_found": 39.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 879.7
+     }
+    ],
+    "empty_done": 3,
+    "improved": false,
     "key": "gemma-4-e2b-on",
     "progress": {
-     "reason": "waiting for its turn",
-     "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-24T06:32:27+00:00"
+     "reason": null,
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-25T00:04:15+00:00"
     },
-    "range": null,
-    "reason": "operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
-    "series": [],
-    "series_finished": 0,
+    "range": 2.0,
+    "reason": null,
+    "series": [
+     {
+      "finished": true,
+      "game_decisions": 213,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Prioritize engine-suggested safety moves, especially when facing complex decision points, as demonstrated by several zero-equity loss games.\n- Be cautious about unnecessary risk-taking; many high-equity losses resulted from accepting risky calls when the engine preferred a safer alternative.\n- When in a bar situation, look for the safest development path (e.g., bar/21) rather than immediate aggressive moves, confirming the engine’s safety recommendations.\n- Avoid tactical plays that deviate significantly from the engine’s suggested strategic line unless you have a strong, calculated reason to override it.\n- Focus on securing established positional advantages and making stable prime formations rather than chasing speculative runs when the board state is critical."
+       },
+       {
+        "game": 2,
+        "text": "- When the engine suggests a specific safety move, trust that advice over personal impulses, even if it seems slower.\n- Avoid making aggressive movements that deviate from the engine's path, especially if it leads to a higher equity loss.\n- Be extremely cautious about risky calls (like hitting or bearing off) when the engine suggests a different, safer sequence.\n- Review complex mid-game maneuvers like building prime structures, as small deviations can lead to significant long-term errors.\n- In tight end-game situations, prioritize solid, calculated moves over speculative plays, especially if the equity loss is high."
+       },
+       {
+        "game": 3,
+        "text": "- When faced with multiple options, prioritize the engine's suggested structure or safety play over speculative moves that leave blots exposed.\n- Avoid needless risk calls, especially when the engine suggests a clearer path for establishing primes or securing key points.\n- Review your strategy when building or running; ensure your moves are supporting the overall game plan rather than reacting immediately to the dice.\n- Be cautious when making aggressive shots, as miscalculating the resulting board state can lead to significantly higher equity loss.\n- In later stages, focus on solidifying existing structures or improving your prime positions rather than initiating risky maneuvers."
+       },
+       {
+        "game": 4,
+        "text": "- When the engine suggests a move, prioritize following its recommendation, especially when equity loss is significant.\n- Avoid making aggressive plays or \"risk calls\" unless the engine confirms the risk is warranted and the potential reward justifies the loss.\n- Be cautious about making unnecessary risks, as this led to the highest equity losses in several turns.\n- Pay close attention to engine suggestions for entry points or critical holding moves, as deviating from them resulted in poor outcomes.\n- Trust calculated risk assessments: a move that seems risky might be the correct path if it aligns with the engine's optimal line."
+       },
+       {
+        "game": 5,
+        "text": "- Prioritize safety and consolidation over aggressive running when faced with multiple risky options.\n- Be extremely cautious when entering the bar; always seek the path the engine recommends for the best safety outcome.\n- Avoid unnecessary risk-taking or over-commitment on points where the gain does not justify the potential loss of structure.\n- Pay close attention to engine advice when evaluating trades or moves that involve crossing critical points.\n- Review the sequence of moves leading up to significant equity losses to identify where risk assessment failed."
+       },
+       {
+        "game": 6,
+        "text": "- Prioritize engine-suggested lines, especially when evaluating risk calls; often, the engine's \"best play\" indicates a safer or more structurally sound path.\n- Scrutinize moves flagged as \"very bad\" or \"needless risk\" before execution; avoid pursuing aggressive options without clear strategic necessity.\n- Improve the assessment of safety calls; ensure that defensive moves, particularly when facing opponent pressure, align with the engine's preferred safety options.\n- Be wary of small equity losses; prioritize moves that maintain positional stability over chasing marginal gains when the deviation is small.\n- When facing a choice between risk and safety, defer to the engine’s recommendation unless you have a strong positional reason to deviate."
+       },
+       {
+        "game": 7,
+        "text": "- Be more cautious when facing engine recommendations that involve high risk; verify that your chosen risk aligns with the strategic goal, not just the immediate shot.\n- Focus on completing structural plays suggested by the engine, particularly when building prime structures or escaping the bar.\n- Avoid making moves that offer no clear structural improvement in the endgame; prioritize consolidation over speculative plays when stability is needed.\n- When dealing with bar situations, ensure your subsequent moves maximize the advantage gained, even if it involves slight deviations from the engine’s suggested line.\n- Re-evaluate non-risk trade-offs in late game; often, maintaining minimal risk is superior to forcing complex maneuvers that don't yield clear benefits."
+       },
+       {
+        "game": 8,
+        "text": "- When facing critical development points, prioritize structural improvements over aggressive attempts unless the positional gain is overwhelming.\n- Carefully assess risk vs. reward; avoid playing risky moves simply because they feel necessary, especially when the engine suggests a different path.\n- Review your risk calls. A \"right risk\" must be clearly justified by the board state, not just by intuition.\n- Be more cautious when advancing primes if it exposes a vulnerable blot or allows the opponent to gain easy counter-positions.\n- Maintain discipline in late-game races; ensure safety calls are executed precisely to secure the win, rather than making them purely based on feeling."
+       },
+       {
+        "game": 9,
+        "text": "- When evaluation indicates a bad move, strongly consider following the engine's suggested line, particularly when equity loss is significant.\n- Be cautious of unnecessary risk-taking; avoid moves that unnecessarily expose your position or violate established safety principles.\n- Re-evaluate tactical decisions before committing to a sequence, especially when faced with intermediate strategic choices.\n- Pay close attention to where the engine identifies potential weaknesses; avoid obvious traps or poor follow-ups.\n- Maintain consistency in lower-stakes phases, as efficient execution there leads to small, positive equity gains."
+       },
+       {
+        "game": 10,
+        "text": "- When the engine suggests a move, especially if it warns of \"needless risk\" or \"very bad\" equity loss, follow its recommendation.\n- Avoid making significant positional changes (like moving checkers away from a prime or critical points) without strong engine confirmation.\n- Be cautious when splitting or making aggressive moves if the engine has a clear, safer alternative path available.\n- Ensure that safety moves (like bar clearance or securing home points) are executed precisely as the engine verifies.\n- Re-evaluate decisions on risk management; sometimes avoiding a minor risk now prevents a larger loss later."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 1,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 76.7937283962965,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 76.0,
+       "risk_pays": 100,
+       "risks_found": 30.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 816.2
+      },
+      "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 208,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Trust the engine's structural recommendations over immediate tactical sequences, especially when building prime points.\n- Be extremely cautious when dealing with the bar; prioritize movement that maximizes safety and control over aggressive running unless necessary.\n- When evaluating multiple options, prioritize the move suggested by the engine that optimizes board structure over personal intuition.\n- Avoid initiating complex positional changes or high-risk plays if the engine indicates a simpler, safer move yields near-equal equity.\n- In late-game situations where equity loss is high, stick rigidly to the engine's suggested path to minimize further damage."
+       },
+       {
+        "game": 2,
+        "text": "- Avoid making aggressive risk calls when the engine suggests a safer, more structural approach.\n- Be cautious about repeating risky moves; look for sequential plays that build structure rather than repeated high-risk maneuvers.\n- When faced with multiple options, trust the engine's primary recommendation unless you have a clear, calculated advantage.\n- Recognize when a move does not offer a clear trade-off (risk vs. reward) and avoid pursuing them.\n- Evaluate your position frequently to ensure your current build aligns with the optimal long-term strategy suggested by the computer."
+       },
+       {
+        "game": 3,
+        "text": "- Trust the engine's suggestion when evaluating risk; avoid moves labeled as \"wrong risk.\"\n- When facing complex mid-game situations, prioritize solid safety over speculative advancements if the engine suggests a safer path.\n- Review missed opportunities, especially when a move results in a high equity loss, to ensure you are executing the strongest available combination.\n- Ensure consistent application of known safety procedures, particularly when managing bar situations or securing prime points.\n- Focus on maximizing positional stability rather than forcing aggressive trades that do not align with the overall strategic goal."
+       },
+       {
+        "game": 4,
+        "text": "- Prioritize moves that closely align with the engine's top suggestion, especially when equity differences are small.\n- Be wary of over-committing multiple checkers to the same area if a simpler safety build-up is available.\n- Re-evaluate risk calls; avoid moves that seem aggressive if the engine suggests a safer, more structured approach.\n- Focus on building solid anchor points and prime positions rather than scattering checkers unnecessarily across the board.\n- In complex mid-game positions, default to the move that maximizes structural integrity over immediate point-scoring."
+       },
+       {
+        "game": 5,
+        "text": "- When facing a choice between a calculated risk and a safer line, prioritize the engine's evaluation, especially when equity loss is high.\n- Review decision points where you made \"wrong\" or \"needless\" risk calls; self-correction on aggressive plays is essential.\n- Improve consistency in recognizing when a position demands pure safety over aggressive maneuvering.\n- Seek alignment with the engine's suggested sequence, as it often reveals structural advantages missed by intuition.\n- Pay close attention to early game decisions; small errors in establishing prime building can lead to cascading losses later."
+       },
+       {
+        "game": 6,
+        "text": "- When facing complex positional choices, prioritize the engine's recommended sequence over intuition, especially when the error rate is high.\n- Be extremely cautious about taking unnecessary risks or speculative shots, as high equity loss often indicates poor risk assessment.\n- Review the engine's suggested follow-ups immediately after a primary move; deviating from the suggested plan often leads to worse outcomes.\n- Focus on executing established safety sequences precisely; avoid introducing new complications unless the engine confirms the safety call is optimal.\n- Complex shots require meticulous execution; avoid aggressive or ambitious sequences unless the analysis strongly validates the resulting equity gain."
+       },
+       {
+        "game": 7,
+        "text": "- Prioritize consolidation and building prime points over speculative moves when facing engine suggestions.\n- Be cautious with high-risk shots, especially when the engine indicates a safer path; avoid unnecessary risks.\n- Review bar management decisions; when facing immediate pressure, follow recommended safety calls rather than trying to force a sequence.\n- When the evaluation shows a significant equity loss, trust the engine’s proposed restructuring or positional improvements.\n- Focus on securing key outer points early, rather than committing to complex mid-board maneuvers that leave blots exposed."
+       },
+       {
+        "game": 8,
+        "text": "- When the engine suggests a significant improvement (high equity loss), trust the structural advice over local tactical options.\n- Avoid overcommitting to multiple simultaneous moves when a simpler, more consolidated move is available.\n- Be cautious when dealing with high-variance moves, especially when the engine identifies a \"needless risk.\"\n- Prioritize macro safety and long-term board structure over immediate tactical gains when facing tough dice.\n- Review the engine's suggested sequence for key phases (like holding the bar or escaping) to avoid major errors."
+       },
+       {
+        "game": 9,
+        "text": "- When facing complex positions, trust the engine's suggestion for structural improvements or high-impact moves, especially if the equity loss is significant.\n- Be cautious about taking unnecessary risks; identify and avoid speculative moves unless they directly secure a critical advantage or are clearly supported by the board state.\n- Ensure consistent execution of high-potential plans, particularly when dealing with mid-game development and positioning relative to opponent builders.\n- Pay close attention to dice rolls on the bar; prioritize moves that establish safe positions or clear the bar efficiently, rather than just advancing checkers.\n- Reassess your defensive posture before committing to major positional moves in the mid-game to prevent being outmaneuvered."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize safety moves when the engine suggests them, even if they seem aggressive in the moment.\n- Be extremely cautious about taking risks when the evaluation indicates a significant negative equity loss.\n- Review risk calls carefully; avoid decisions where the engine suggests a safer alternative.\n- When facing complex mid-game positions, trust the engine's recommendation over intuitive, risky plays.\n- Focus on consistent, low-loss moves rather than chasing high-variance outcomes."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 73.33621628582478,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 77.0,
+       "risk_pays": 100,
+       "risks_found": 35.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 757.8
+      },
+      "wins": 0
+     },
+     {
+      "finished": true,
+      "game_decisions": 218,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Prioritize the engine's suggested path when evaluating complex mid-game positions, especially when equity loss is high.\n- Avoid making speculative moves or unnecessary risks if a cleaner, positional development route is available.\n- Be cautious about committing to risky shots when the engine suggests a safer alternative, even if the risk appears tempting.\n- Resist the urge to ignore consistent engine advice, as ignoring it led to the largest equity losses in this game.\n- Focus on executing the optimal end-game safety plays rather than aggressive, undirected maneuvers."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize solid internal structure and point building over immediate aggressive shots when the engine suggests consolidation.\n- Be cautious about taking risks, especially when the equity lost is high or the sequence doesn't lead to immediate safety.\n- Always evaluate whether a move is a true risk trade-off or merely an unnecessary gamble.\n- When facing an opponent's threat, check if your move is the mathematically optimal response or just a reactive attempt.\n- Follow the engine's recommended structural improvements rather than purely reacting to the dice roll."
+       },
+       {
+        "game": 3,
+        "text": "- Be more cautious about taking risks when entering; evaluate if the risk is truly necessary versus just being opportunistic.\n- Prioritize building structure and primes over immediate aggressive moves if the engine suggests a more strategic path.\n- Avoid making multiple sequential risky plays if the engine suggests a single, coherent sequence for maximizing position.\n- Re-evaluate running moves (blots) when faced with opponent contact; look for options that maintain board stability.\n- Focus on executing the engine's recommended sequences, even if your intuition suggests a slightly different immediate response."
+       },
+       {
+        "game": 4,
+        "text": "- When facing complex decisions, prioritize the engine's suggested sequence, especially if it involves immediate safety or blot management.\n- Avoid unnecessary risks; a high equity loss often stems from taking a gamble when a safer, albeit slightly less exciting, move exists.\n- Pay close attention to when the engine suggests a \"risk call\" versus when it suggests a guaranteed safety play.\n- Re-evaluate moves before committing when the board state is murky; confirm the engine's analysis for high-variance positions.\n- Consistency is key: When evaluation lines converge, trust the engine's calculated best path to minimize small errors."
+       },
+       {
+        "game": 5,
+        "text": "- Trust the engine's safety calls, particularly when dealing with blots or entering/leaving the bar, as deviations resulted in significant equity loss.\n- Avoid unnecessary risk-taking or complex shots when multiple options exist; simple, safe exchanges are often superior to aggressive moves.\n- Be cautious about executing hitting shots or overly complex maneuvers when your primary goal is securing your position or dealing with back checkers.\n- In the mid-game, small positional adjustments can accumulate; ensure your moves align closely with the engine's suggested positional improvements.\n- Adopt a conservative approach in the endgame; prioritize solid consolidation over ambitious maneuvers when facing an opponent's advanced position."
+       },
+       {
+        "game": 6,
+        "text": "- Trust the engine's best line, especially when evaluating complex positional situations, rather than relying on immediate gut feelings.\n- Be cautious when attempting aggressive moves or speculative hits; assess the equity loss carefully before committing checkers that could be better used for safety.\n- When evaluating risk calls, ensure you are confirming the best outcome; avoid unnecessary risks that lead to significant losses.\n- Pay closer attention to when the engine suggests a safety move; sometimes the optimal path is the safest one.\n- In the endgame, resist the urge to play passively or ignore favorable opportunities to consolidate your position."
+       },
+       {
+        "game": 7,
+        "text": "- When faced with multiple options, prioritize the sequence suggested by the engine, especially when the evaluation suggests a high equity loss.\n- Avoid taking calculated risks (like hitting or aggressive development) if the engine advises a less committal, safer alternative.\n- Reassess your follow-up moves after making aggressive plays; failing to follow the engine's recommended sequence led to significant losses.\n- Be cautious about making multiple consecutive aggressive moves when building points, as this can lead to compounding errors.\n- Evaluate whether a \"right safety call\" is truly necessary or if it commits you to a worse overall position later."
+       },
+       {
+        "game": 8,
+        "text": "- When the engine suggests a superior move, especially concerning equity loss, trust its recommendation over intuition.\n- Be highly cautious when dealing with the bar; prioritize safe entry or escape over risky aggressive plays.\n- In late-game situations, prioritize securing established points and avoiding unnecessary risks over speculative moves.\n- Review high-equity-loss moves; if the engine flags a move as \"very bad,\" avoid it immediately.\n- Focus on tactical safety during critical bearing-off phases rather than maximizing marginal gains."
+       },
+       {
+        "game": 9,
+        "text": "- When facing choices involving potential risk, prioritize moves suggested by the engine over personal instinct, especially when the engine flags the option as a \"risk call.\"\n- Avoid over-committing to aggressive plays if a more incremental positional gain or consolidation is available; assess the long-term structure before making bold moves.\n- Scrutinize sequences to ensure you are taking optimal trade-offs rather than making moves that provide no discernible benefit or safety improvement.\n- Focus on maintaining structural integrity; ensure safety calls or building prime positions are executed precisely according to established optimal routes.\n- Pay close attention to engine suggestions regarding blots and prime building, as these often reveal hidden inefficiencies in human decision-making."
+       },
+       {
+        "game": 10,
+        "text": "- Be highly cautious when facing risk calls, as missing or misjudging the required risk often leads to significant equity loss.\n- Trust the engine’s evaluation when it suggests a path with near-zero equity loss; avoid playing moves that deviate significantly from the suggested best line.\n- Maintain a disciplined approach to safety; only commit to a safety move when the engine explicitly confirms it is the best, not just because it feels necessary.\n- Review bar management thoroughly, as risks taken while bearing off or dealing from the bar often prove costly later on.\n- Focus on smaller, consistent errors in the mid-game, rather than chasing large, high-variance opportunities."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 67.62000635266304,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 80.0,
+       "risk_pays": 100,
+       "risks_found": 40.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 806.8
+      },
+      "wins": 0
+     },
+     {
+      "finished": true,
+      "game_decisions": 223,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Trust the engine's suggested sequence when facing high-risk moves; avoid needless aggressive risk calls.\n- Focus on building stable anchors and primes rather than immediate, high-variance escape moves.\n- When hitting or escaping, ensure your chosen point targets align with the engine's optimal exit strategy.\n- Be cautious when multiple consecutive moves are required; check for the most efficient chaining of movements.\n- Re-evaluate the long-term goal of a move before committing, especially when facing high equity loss evaluations."
+       },
+       {
+        "game": 2,
+        "text": "- Trust the engine's suggested optimal line when the equity loss is near zero; it has evaluated complex risks better than a single player can.\n- Re-evaluate risk calls carefully, especially when the engine suggests a path that carries potential downside; avoid hesitation in high-variance situations.\n- Pay closer attention to defensive setups; sometimes prioritizing safety over immediate aggression yields better long-term results.\n- Identify trade-offs over blind risk-taking, particularly in late-game scenarios where missed opportunities can compound into significant losses.\n- Ensure consistency in executing the mathematically sound plan rather than deviating based on momentary intuition."
+       },
+       {
+        "game": 3,
+        "text": "- When entering the board, prioritize the engine's suggested follow-up moves over immediate aggressive plays.\n- Avoid making highly speculative or high-risk moves if the engine suggests a safer, positional path.\n- Pay close attention to developing prime positions rather than chasing single checkers in the mid-game.\n- Be cautious about over-committing to risky shots; assess the true equity cost before making a critical move.\n- Trust the evaluation when facing critical safety decisions, as deviations often lead to significant loss."
+       },
+       {
+        "game": 4,
+        "text": "- When evaluating complex mid-game positions, prioritize playing moves suggested by the engine, especially if your alternatives carry a significantly higher equity loss.\n- Be highly skeptical of risk calls; only commit to aggressive moves when the engine confirms the risk is appropriately rewarded.\n- Avoid needless risk-taking that exposes your structure or allows the opponent to gain positional advantage, as demonstrated by high equity losses.\n- Focus on securing safe points and building solid structures over short-term aggressive gains when facing unfavorable dice rolls.\n- Review the sequence of your moves immediately following the engine's suggested line to ensure proper follow-through and avoid reactive errors."
+       },
+       {
+        "game": 5,
+        "text": "- Re-evaluate aggressive moves; often, the engine's suggestion for safer development (even if seemingly slower) should be preferred over immediate, high-risk hits.\n- Be highly cautious when facing mandatory safety calls or hitting opportunities; trust the engine's identification of the correct safety trade-off.\n- Avoid making unnecessary risks late in the game; focusing on consolidation and positional advantage yields better results than attempting forced shots.\n- When facing a critical decision point, do not deviate from the engine's preferred sequence, particularly regarding bar clearing or prime building.\n- Pay closer attention to the engine's suggested follow-ups after a key move, as minor missteps can lead to significant equity loss."
+       },
+       {
+        "game": 6,
+        "text": "- Trust the engine's suggested sequence, especially early on, rather than forcing your own line.\n- Avoid unnecessary risk plays when the evaluation shows a significant drop in equity loss.\n- Be cautious when executing complex build-up moves; ensure your specific play aligns with the highest EV path.\n- Analyze risk calls carefully, as misjudging a risk can lead to very large equity losses.\n- Prioritize maintaining solid safety structures over aggressive, high-variance moves."
+       },
+       {
+        "game": 7,
+        "text": "- Prioritize following the engine's line when the equity difference is small; deviation often leads to unnecessary losses.\n- Be cautious with risk calls; evaluate potential safety gains against the actual risk incurred before committing, especially when facing tough mid-game positions.\n- Focus on consolidation. When building points or primes, ensure your moves maximize structural strength rather than just hitting immediate targets.\n- Improve decision-making when handling the bar. Avoid speculative plays and always assess the immediate safety structure available.\n- Avoid trades that offer no tangible advantage. If the engine suggests a specific trade, trust the calculated path over self-initiated exchanges."
+       },
+       {
+        "game": 8,
+        "text": "- When dealing with the bar, strictly adhere to the engine's suggested sequence, even if it seems less immediately aggressive.\n- Avoid taking high-risk shots unless the engine explicitly labels them as the best risk call; unnecessary risks lead to large equity losses.\n- During complex mid-game development, prioritize the engine's suggested checker positioning over simple immediate moves.\n- Review moves where the equity loss is high to identify patterns of deviation from optimal play.\n- Ensure consistency in handling all safety maneuvers, particularly around building prime points or clearing the bar."
+       },
+       {
+        "game": 9,
+        "text": "- Prioritize engine recommendations, especially when equity loss is low, as deviation often leads to greater losses.\n- Be extremely cautious about unnecessary risk-taking; avoid aggressive shots unless the risk/reward calculation is clearly favorable.\n- When facing a critical situation involving hitting or escaping the bar, always verify the engine's suggested line before committing.\n- Pay close attention to sequence optimization, as small errors in building primes (like Turn 58) result in significant missed opportunities.\n- Focus on executing established safety plans; minor deviations from the engine's safety calls can increase overall vulnerability."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize engine-recommended positional improvements over aggressive shots when the evaluation suggests a lesser risk.\n- Avoid unnecessary risk calls, especially when the engine flags the proposed move as suboptimal or a needless risk.\n- Be highly cautious when facing critical situations where risk assessment is key; check for the engine's suggested sequence before committing.\n- Minimize large equity losses caused by poor tactical decisions (e.g., on turns like 5, 23, and 41).\n- Maintain focus on building solid structures rather than chasing immediate high-risk outcomes."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 4,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 77.4298121035099,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 75.0,
+       "risk_pays": 100,
+       "risks_found": 34.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 740.3
+      },
+      "wins": 1
+     },
+     {
+      "finished": true,
+      "game_decisions": 223,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Prioritize engine suggestions regarding risk management; missed risk calls led to significant equity losses.\n- When evaluating multiple options, trust the engine’s sequencing, especially when a clear safety move is available.\n- Avoid making complex moves unless they are clearly dictated by a specific strategic goal, as unnecessary risk erodes the game.\n- Pay close attention to engine advice on checker movement patterns, not just immediate point advancement.\n- Re-evaluate positions where the engine suggests a specific follow-up sequence rather than just the next single move."
+       },
+       {
+        "game": 2,
+        "text": "- When facing potential risk calls, prioritize engine suggestions over personal instinct, especially when equity loss is high.\n- Focus on building solid frameworks and established points rather than speculative moves when the engine suggests a more constructive build.\n- Re-evaluate bar entry decisions; ensure the chosen shot maximizes future potential rather than just clearing the bar immediately.\n- Be cautious of unnecessary risk when advancing checkers, as safer, incremental improvements often yield better long-term results.\n- When consolidating positions late in the game, focus on established structures rather than attempting aggressive, scattered moves."
+       },
+       {
+        "game": 3,
+        "text": "- When faced with multiple options, prioritize the engine's recommendation, especially when it involves high-value points or creating strong structure.\n- Avoid making speculative moves that lead to significant equity loss, even if they seem superficially promising.\n- Re-evaluate risk/reward trade-offs; ensure your chosen move aligns with the objective strategy, not just immediate tactical gains.\n- Pay close attention to safety calls; if the engine suggests a defensive move, it often mitigates future losses.\n- Be wary of moves that don't create necessary blocking or advancement; often, building a solid framework is more valuable than aggressive development."
+       },
+       {
+        "game": 4,
+        "text": "- When facing a choice between a safe move and a slightly riskier move, trust the engine's recommendation if the difference in equity loss is small.\n- Review tactical decisions after a series of poor results; consistently check if you missed a high-impact positional opportunity.\n- Be cautious when trying to manage multiple checkers; prioritize building structure over immediate low-level hitting if safety is compromised.\n- Analyze situations where the engine suggests a move that changes the structure significantly; these often represent better long-term development.\n- Focus on maintaining consistent safety when facing high variance rolls, as errors in those situations led to the highest equity losses."
+       },
+       {
+        "game": 5,
+        "text": "- Trust the engine's evaluation when complex, multi-checker plays are presented, as missing a core strategic option led to significant equity loss.\n- When facing critical moments, prioritize secure safety moves over aggressive building attempts, especially if the engine flags the move as high-risk.\n- Re-evaluate risk/reward trade-offs, particularly when the opponent has a strong structure; avoid moves that lack a clear, safe payoff.\n- Ensure your development plays align with the engine's suggestions for constructive positioning rather than simple movement.\n- Pay close attention to defensive structuring when making critical point advancements, as poor safety choices result in severe losses."
+       },
+       {
+        "game": 6,
+        "text": "- Always prioritize the engine's suggested sequence when evaluating shot opportunities, especially in complex mid-game positions.\n- Be highly cautious when facing evaluation losses; check if the chosen move involves an unnecessary risk or deviates significantly from safe structure building.\n- Identify the difference between a \"right risk call\" and a \"missed risk\"—avoid making speculative moves if a guaranteed safety improvement exists.\n- Focus on maintaining solid positional structure rather than aggressively chasing difficult shots when the board state is balanced.\n- Review endgame decisions to ensure you are maximizing point accumulation rather than focusing too heavily on single high-variance moves."
+       },
+       {
+        "game": 7,
+        "text": "- When facing multiple options, prioritize the engine's suggested best move, especially when equity loss is low.\n- Avoid aggressive moves that lead to significant equity loss unless the board state absolutely demands high risk.\n- Be cautious about making needless risks; if an action is not clearly optimal, defer to safer, calculated plays.\n- Pay close attention to engine advice regarding risk calls versus safe positional improvements.\n- Consistency in executing the engine's recommended sequencing, particularly during critical phase transitions, improves overall performance."
+       },
+       {
+        "game": 8,
+        "text": "- Prioritize the engine's suggested move when equity loss is substantial, as it often indicates a better positional choice.\n- Be cautious with high-variance plays, especially when large equity losses are predicted; avoid chasing speculative moves.\n- Review the context before committing to a move that deviates from standard safety or prime building strategies.\n- Avoid taking \"needless risks\" that do not significantly improve board position or secure essential safety points.\n- When facing complex sequencing, trust the engine's multi-step recommendation rather than trying to execute a suboptimal single step."
+       },
+       {
+        "game": 9,
+        "text": "- Prioritize positional consolidation over aggressive moves when the engine suggests safer alternatives, especially when equity loss is high.\n- Be cautious about initiating high-variance plays (risks) if the engine flags them as needless risks, even if they seem promising in the moment.\n- Review bar situations carefully; simple, solid safety moves are often superior to complex bar escapes.\n- Trust engine evaluations when the equity loss is low; avoid making speculative moves unless the engine strongly supports the line.\n- Focus on consistent, incremental improvements rather than chasing high-reward, high-risk maneuvers in subsequent turns."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize engine suggestions when faced with conflicting choices, especially concerning prime building or safety moves.\n- Be cautious about moves that seem aggressive but don't directly serve the overall board structure.\n- Avoid unnecessary risk calls; assess the equity lost before committing to high-variance moves.\n- When entering key points, look to secure the most advantageous position (like hitting a prime) rather than just clearing checkers.\n- Ensure moves maintain structural integrity; don't sacrifice long-term board shape for short-term tactical gains."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 71.7244290560484,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 76.0,
+       "risk_pays": 100,
+       "risks_found": 35.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 812.1
+      },
+      "wins": 2
+     }
+    ],
+    "series_finished": 5,
     "setup": "Gemma 4 E2B (on)",
-    "state": "paused",
-    "status": "paused: operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
-    "steps_done": [],
-    "threshold": null,
-    "verdict": false
+    "state": "complete",
+    "status": "No",
+    "steps_done": [
+     "E1",
+     "S1",
+     "S2",
+     "E2",
+     "S3",
+     "S4",
+     "E3",
+     "S5"
+    ],
+    "threshold": 5,
+    "verdict": true
    },
    {
     "after": {
@@ -9416,7 +10258,7 @@
      "reason": null,
      "series_done": 5,
      "status": "done",
-     "updated_at": "2026-11-24T06:30:02+00:00"
+     "updated_at": "2026-11-24T17:55:45+00:00"
     },
     "range": 6.0,
     "reason": null,
@@ -9791,11 +10633,21 @@
      "risks_found": null
     },
     "answers_after": null,
-    "answers_before": null,
+    "answers_before": {
+     "answer_rate": 100.0,
+     "answered": 200,
+     "expected": 200,
+     "failed": 0,
+     "invalid": 0,
+     "risk_pays": 100,
+     "safety_pays": 100,
+     "tests": 1,
+     "valid": 200
+    },
     "before": {
-     "error_rate": null,
-     "right_safety": null,
-     "risks_found": null
+     "error_rate": 68.48745055496693,
+     "right_safety": 73.0,
+     "risks_found": 41.0
     },
     "change": {
      "error_rate": null,
@@ -9808,24 +10660,42 @@
      "estimate_usd": null,
      "reported_usd": null
     },
-    "empty": [],
-    "empty_done": 0,
+    "empty": [
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 68.48745055496693,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 73.0,
+      "risk_pays": 100,
+      "risks_found": 41.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 36126.5
+     }
+    ],
+    "empty_done": 1,
     "improved": null,
     "key": "raon-1-nano-on",
     "progress": {
-     "reason": "waiting for its turn",
+     "reason": null,
      "series_done": 0,
-     "status": "paused",
-     "updated_at": "2026-11-08T16:10:46+00:00"
+     "status": "running",
+     "updated_at": "2026-11-25T13:04:23+00:00"
     },
     "range": null,
-    "reason": "operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
+    "reason": null,
     "series": [],
     "series_finished": 0,
     "setup": "Raon-1 nano (on)",
-    "state": "paused",
-    "status": "paused: operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
-    "steps_done": [],
+    "state": "running",
+    "status": "running on our GPU, 0 of 5 series",
+    "steps_done": [
+     "E1"
+    ],
     "threshold": null,
     "verdict": false
    },
@@ -9954,12 +10824,12 @@
      "updated_at": "2026-11-08T16:10:46+00:00"
     },
     "range": null,
-    "reason": "operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
+    "reason": "waiting for its turn in its lane",
     "series": [],
     "series_finished": 0,
     "setup": "SmolLM3-3B (off)",
     "state": "paused",
-    "status": "paused: operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
+    "status": "paused: waiting for its turn in its lane",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -9999,12 +10869,12 @@
      "updated_at": "2026-11-08T16:10:46+00:00"
     },
     "range": null,
-    "reason": "operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
+    "reason": "waiting for its turn in its lane",
     "series": [],
     "series_finished": 0,
     "setup": "SmolLM3-3B (on)",
     "state": "paused",
-    "status": "paused: operator hold: LFM2.5-24B-A2B (off) goes immediately after Qwen3.5-2B (Ümit, 23 Nov 2026)",
+    "status": "paused: waiting for its turn in its lane",
     "steps_done": [],
     "threshold": null,
     "verdict": false
@@ -10129,41 +10999,41 @@
    },
    {
     "after": {
-     "error_rate": 50.84784931874689,
-     "right_safety": 92.04545454545455,
-     "risks_found": 28.235294117647058
+     "error_rate": 54.188480500992476,
+     "right_safety": 90.95293206092644,
+     "risks_found": 26.733649620164737
     },
     "answers_after": {
-     "answer_rate": 86.5,
-     "answered": 200,
-     "expected": 200,
+     "answer_rate": 89.3,
+     "answered": 1000,
+     "expected": 1000,
      "failed": 0,
-     "invalid": 27,
-     "risk_pays": 85,
-     "safety_pays": 88,
-     "tests": 1,
-     "valid": 173
+     "invalid": 107,
+     "risk_pays": 441,
+     "safety_pays": 452,
+     "tests": 5,
+     "valid": 893
     },
     "answers_before": {
-     "answer_rate": 93.0,
-     "answered": 200,
-     "expected": 200,
+     "answer_rate": 95.0,
+     "answered": 600,
+     "expected": 600,
      "failed": 0,
-     "invalid": 14,
-     "risk_pays": 96,
-     "safety_pays": 90,
-     "tests": 1,
-     "valid": 186
+     "invalid": 30,
+     "risk_pays": 286,
+     "safety_pays": 284,
+     "tests": 3,
+     "valid": 570
     },
     "before": {
-     "error_rate": 53.786876461198254,
-     "right_safety": 93.33333333333333,
-     "risks_found": 25.0
+     "error_rate": 54.02528344193883,
+     "right_safety": 91.94586167800453,
+     "risks_found": 26.21383438643166
     },
     "change": {
-     "error_rate": -2.9390271424513656,
-     "right_safety": -1.2878787878787818,
-     "risks_found": 3.235294117647058
+     "error_rate": 0.163197059053644,
+     "right_safety": -0.9929296170780901,
+     "risks_found": 0.5198152337330768
     },
     "cost": {
      "api_equivalent_usd": 0.0,
@@ -10186,18 +11056,48 @@
       "safety_pays": 90,
       "valid": 186,
       "wall_seconds": 4782.7
+     },
+     {
+      "answer_rate": 97.5,
+      "answered": 200,
+      "error_rate": 52.6165049809676,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 5,
+      "right_safety": 89.79591836734694,
+      "risk_pays": 97,
+      "risks_found": 27.835051546391753,
+      "safety_pays": 98,
+      "valid": 195,
+      "wall_seconds": 2068.9
+     },
+     {
+      "answer_rate": 94.5,
+      "answered": 200,
+      "error_rate": 55.672468883650644,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 11,
+      "right_safety": 92.70833333333333,
+      "risk_pays": 93,
+      "risks_found": 25.806451612903224,
+      "safety_pays": 96,
+      "valid": 189,
+      "wall_seconds": 2503.4
      }
     ],
-    "empty_done": 1,
-    "improved": null,
+    "empty_done": 3,
+    "improved": false,
     "key": "inkling-2-mini-e02",
     "progress": {
      "reason": null,
-     "series_done": 1,
-     "status": "running",
-     "updated_at": "2026-11-24T14:57:46+00:00"
+     "series_done": 5,
+     "status": "done",
+     "updated_at": "2026-11-25T06:35:33+00:00"
     },
-    "range": null,
+    "range": 2.835051546391753,
     "reason": null,
     "series": [
      {
@@ -10268,18 +11168,300 @@
        "wall_seconds": 10255.0
       },
       "wins": 4
+     },
+     {
+      "finished": true,
+      "game_decisions": 232,
+      "game_invalid": 21,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Before committing, compare the main candidate rolls and check equity/risk; a plausible move is not enough when the engine shows a large loss.\n- In midgame, protect your points and keep the opponent off your board; avoid both needless risk and missed risk.\n- Do not rush checkers off or leave weak points; compare bearing off with keeping pieces back and maintaining contact.\n- Review the biggest equity losses first; small errors repeat and compound, so fix the pattern, not just the single position.\n- When unsure, choose the move that preserves flexibility and safety, then reassess after the opponent’s reply rather than forcing a line."
+       },
+       {
+        "game": 2,
+        "text": "- When GNUbg flags “missed risk,” pause and compare safety versus progress; a slightly slower move that avoids a hit or backgammon can be worth more than a flashy advance.\n- In the midgame, keep your own points secure and deny the opponent entry points; do not trade a safe structure for a small gain unless the dice clearly justify it.\n- When you are close to bearing off, use the dice to move checkers off and keep the opponent off your points; avoid “safe” moves that leave you behind in the race.\n- In endgames, calculate the exact bearing-off order and check whether a move can be hit or blocked; do not move into a vulnerable point just to look conservative.\n- Treat small equity losses as warnings: if a move is flagged as risky, ask what the opponent can do next, not only what you gain immediately."
+       },
+       {
+        "game": 3,
+        "text": "- When close to bearing off, compare quiet moves against bear-off/forcing moves; do not default to “safe” play if the engine shows a clear equity gain.\n- Look for opponent blots and bar opportunities: hitting or forcing a response often beats a comfortable non-forcing move.\n- In midgame, treat risk as a real decision: a missed risk call can cost more than a small safety gain.\n- Keep checkers mobile and avoid leaving pieces stuck in the middle while the opponent has open targets or is bearing off.\n- Before committing, ask what the opponent can do next; choose the move that improves your position and limits their options, not just the one that feels safest."
+       },
+       {
+        "game": 4,
+        "text": "- When GNUbg flags “missed risk,” don’t default to the safest-looking move; compare the equity cost of the risky play before choosing the passive one.\n- With doubles, prioritize moves that build, hit, or improve the whole board, not just one checker’s safety.\n- In midgame, avoid over-consolidating: if the engine prefers advancing/hitting over a “safe” block, trust the evaluation over comfort.\n- In endgames, check the full sequence of moves; a small-looking error in one checker can compound into a larger equity loss.\n- When bar/entry or a checker is loose, choose the entry/move that creates the most threats, not merely the one that avoids immediate trouble."
+       },
+       {
+        "game": 5,
+        "text": "- Prioritize advancing the farthest-back checker (especially around 21/20); don't spend dice on local safe moves while it stays stuck.\n- When the engine flags \"missed risk,\" reconsider whether a safe-looking move is actually passive; compare the equity cost of the risky advance.\n- Don't take needless risks either: only hit or enter when it clearly improves your position, not just to look active.\n- Use both dice to make real progress; avoid wasting a die on a point that doesn't advance or improve your structure.\n- In the endgame, keep checkers safe but keep pushing them off; safety without progress loses the game."
+       },
+       {
+        "game": 6,
+        "text": "- When GNUbg flags “missed risk” or “needless risk,” pause and compare the safe move against the engine’s line before committing; don’t equate “looks safe” with “best.”\n- In midgame, check whether a move keeps your back-point/bar structure intact; avoid moves that leave you vulnerable to a hit or a bad bearing-off sequence.\n- In endgames, prioritize the engine’s equity-loss signal over intuition: small losses can compound, and one very bad move can erase a good position.\n- When doubling/hitting/bearing off, ask what the opponent can do next; a move that looks strong but allows a forced hit or blockade is usually not best.\n- After a big equity loss, review the exact decision point and the engine’s alternative; repeat the pattern of checking “what does the engine do instead?” before your next move."
+       },
+       {
+        "game": 7,
+        "text": "- Before moving, check for hits, bar entries, and bearing-off moves; a safe move that loses large equity is usually wrong.\n- Don’t confuse safety with good play: when the engine flags a missed risk, look for the hit or race; when it flags needless risk, don’t chase it.\n- In endgames, prioritize bearing off and advancing the most advanced checkers; avoid safe shuffles that stall the race.\n- After a hit or bar entry, plan the follow-up move; the hit alone does not guarantee equity.\n- Review the largest equity losses first; if a turn loses more than ~0.1, re-evaluate the whole turn, not just the last checker."
+       },
+       {
+        "game": 8,
+        "text": "- When you have checkers on the bar, use the double/hit to make contact or secure the bar first; quiet moves after barring often cost more than the risk.\n- Don't take a risky hit just because it looks active; if a safe move keeps the same or better equity, take it.\n- In races, move the checker that advances the main threat or hits, not the most convenient one; check the opponent's bar/contact first.\n- With doubles, coordinate both moves: keep checkers connected and avoid moving the same checker twice when the double should improve the whole position.\n- In endgames, prioritize contact/hits and keeping opponent checkers off your points; a small extra move can lose the race."
+       },
+       {
+        "game": 9,
+        "text": "- Check forcing moves first: hits, bar entry, and doubles can outweigh safe moves; when a risk is flagged, pause and compare the risky line before settling.\n- Evaluate the whole move, not one checker: use the dice to improve structure, create threats, and avoid leaving a checker stuck or passive.\n- In midgame, prioritize advancing/anchoring and pressure over safe shuffling; a small-looking safe move can cost more than a calculated risk.\n- In endgame, keep checkers mobile and active: advance or hit, avoid moving the same checker twice when another checker can do more.\n- When the engine says “missed risk,” treat it as a prompt to reconsider the plan, not just the final placement."
+       },
+       {
+        "game": 10,
+        "text": "- When GNUbg flags “missed risk,” don’t default to safe moves; compare the equity cost of the safe line against the upside of hitting, racing, or bearing off.\n- When it flags “needless risk,” don’t chase drama; take the safer line unless the extra risk clearly improves your race or blockade.\n- In endgames, prioritize bearing off and keeping the opponent’s checkers off the board; a stray checker or weak point can cost more than a small tempo.\n- Treat small equity losses as real: repeated “small error” moves compound, so check the engine’s best line even when your move looks natural.\n- Before committing, ask: does this move improve my race, blockade, or bearing-off path, or does it just look active? Choose the move that improves the position, not the one that feels bolder."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 93.0,
+       "answered": 200,
+       "error_rate": 53.20851440711688,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 14,
+       "right_safety": 88.04347826086956,
+       "risk_pays": 94,
+       "risks_found": 26.595744680851062,
+       "safety_pays": 92,
+       "valid": 186,
+       "wall_seconds": 3252.3
+      },
+      "wins": 2
+     },
+     {
+      "finished": true,
+      "game_decisions": 220,
+      "game_invalid": 15,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When on the bar, prioritize forcing entries that hit or block; do not settle for a safe non-hitting move when a better forcing option exists.\n- After a hit, use the remaining checker to double or advance the most valuable point, not just repeat safe moves.\n- Avoid over-doubling one point; spread checkers and keep a solid prime/back-point structure.\n- In endgames, double the point that best improves equity, not merely the safest one.\n- Check the risk call before aggressive moves: avoid needless risk, but do not fear a forcing move that improves your position."
+       },
+       {
+        "game": 2,
+        "text": "- When GNUbg flags “missed risk,” do not default to the safe-looking move; compare the equity cost of the risky play before choosing safety.\n- In endgames, move the checker that improves your overall position, not just the one that looks natural; small equity losses can compound.\n- Avoid moves that leave a checker stranded or off-target while a better move keeps the bar/off race alive.\n- When ahead, prioritize bearing off and keeping the opponent’s checkers from entering; do not spend tempo on low-value advances.\n- Treat any equity loss above ~0.05 as a red flag and re-check the board before committing, especially with bar/off and races."
+       },
+       {
+        "game": 3,
+        "text": "- When the engine flags a missed risk, pause and compare the safe line against the higher-equity line before committing.\n- Do not default to the most conservative legal move; in midgame, a slightly riskier move can be clearly better.\n- Keep checkers mobile and moving toward the bear-off; avoid passive moves that leave you boxed in.\n- Treat “very bad” and “bad” verdicts as a pattern to fix, not a one-off; review the move before the next game.\n- In endgames, still check whether advancing/bearing off beats a safe shuffle, even when the position looks close to over."
+       },
+       {
+        "game": 4,
+        "text": "- When the engine flags a move as doubtful or bad, compare the safe alternative before chasing a flashy hit or double-checker.\n- Avoid needless risk: if a move adds pressure without improving safety or bearing off, take the safer line.\n- In midgame, keep your own points protected and avoid leaving checkers exposed on reachable points.\n- In the endgame, prioritize bearing off and keeping the bar/back row safe; don’t spend dice on risky advances when a safe bearing-off move exists.\n- Check risk calls explicitly: missed risk means you under-played a threat; needless risk means you over-played one—match the call to the position."
+       },
+       {
+        "game": 5,
+        "text": "- When GNUbg flags a missed risk, do not settle for a passive local move; compare the engine’s risky/bearing-off/hitting option before committing.\n- Avoid needless risk: do not move into or through vulnerable points, or hit, unless it clearly improves the race; prefer safe double moves and bear-offs.\n- Do not double-move the same checker when another checker has a better move; choose the most productive checker first.\n- Keep the endgame plan consistent: after bearing off, advance the right checker rather than wasting double moves on a point that does not improve the race.\n- Treat doubtful/bad/very bad verdicts as real signals: check equity lost and the risk call, not just whether the move looks legal or natural."
+       },
+       {
+        "game": 6,
+        "text": "- When GNUbg flags “missed risk,” don’t default to the safe shuffle; compare tempo/bearing off against safety and take the risk if it gains equity.\n- In midgame, prioritize bearing off and hitting/keeping opponent checkers off your board over shuffling checkers inside your home board.\n- Before committing, ask what each die does: advance, bear off, hit, or defend; avoid moves that only rearrange checkers.\n- Treat large equity losses as a slow-down signal, not a scolding; re-check the board and opponent’s threats before playing.\n- Keep checkers coordinated and avoid loose/bar-prone positions; plan for the opponent’s next roll, not just this roll."
+       },
+       {
+        "game": 7,
+        "text": "- When GNUbg flags a missed risk, pause and re-check the race/bearing-off plan before choosing the “safe” move.\n- Safety is not a substitute for progress: in endgames, use doubles and far checkers to advance, bear off, or create threats.\n- Do not leave a checker behind while others move; if one checker is far from home, prioritize it unless the engine clearly says otherwise.\n- Small errors add up: review every doubtful or small-error turn, not only the big losses.\n- After a big equity loss, replay the position mentally: what did I value (safety, tempo, bearing off) that the engine valued more?"
+       },
+       {
+        "game": 8,
+        "text": "- Early turns were the biggest losses: before committing, check the whole board and the opponent's threats, not just the obvious move.\n- Missed risk calls cost the most; when a move risks a hit or a blot, compare the equity of the safe and risky options rather than defaulting to the flashy one.\n- In the midgame, prioritize keeping your own points safe and your checkers coordinated over grabbing a single point.\n- When the engine flags a \"very bad\" move, treat it as a signal to re-examine the position, not to force the line you already liked.\n- Late-game play was solid; keep that discipline throughout, especially when ahead, and avoid turning good positions into gammons with one careless early decision."
+       },
+       {
+        "game": 9,
+        "text": "- In the endgame, prioritize bearing off and racing over making points; don't waste moves shuffling checkers when the engine says advance or bear off.\n- Don't confuse safety with best play: when the engine flags missed or wrong risk, consider hitting, bearing off, or racing even if it looks risky.\n- Use doubles efficiently: advance or bear off with them, not by moving the same checker sideways or backwards.\n- After entering from the bar, use the remaining moves to advance or bear off, not to build points.\n- When the opponent has few checkers left, race and bear off aggressively; don't consolidate while they are close to finishing."
+       },
+       {
+        "game": 10,
+        "text": "- When the engine flags a missed risk, look for forcing moves—hits, bear-offs, races—before choosing the safest-looking line.\n- In endgames, move the checker that advances the race or bears off fastest; avoid passive moves while the opponent is close to home.\n- If the engine says a risk is needless, take the safety call; don’t gamble for points you don’t need.\n- When two moves look close, compare the follow-up after the opponent’s best reply, not just the immediate board.\n- After a bad move, re-evaluate the whole position rather than trying to recover with a flashy move."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 89.5,
+       "answered": 200,
+       "error_rate": 56.71573076501239,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 21,
+       "right_safety": 90.3225806451613,
+       "risk_pays": 86,
+       "risks_found": 24.41860465116279,
+       "safety_pays": 93,
+       "valid": 179,
+       "wall_seconds": 3926.7
+      },
+      "wins": 4
+     },
+     {
+      "finished": true,
+      "game_decisions": 206,
+      "game_invalid": 15,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Before committing, compare your move with the engine’s top line; even small equity losses can compound across a game.\n- When the engine flags “needless risk,” prefer the safer/anchoring line over a flashier active move.\n- With a checker on the bar, choose the bar move and the best follow-up together, not just the first legal follow-up.\n- In endgames, keep points solid and avoid loose checkers that can be hit; legality is not enough.\n- Review the largest equity-loss move first; one very bad move can decide the game, so don’t let it repeat."
+       },
+       {
+        "game": 2,
+        "text": "- Before committing, compare the move against the engine’s best line; a “natural” double or hit can hide a large equity loss.\n- When dice are doubles, check whether you are overcommitting checkers; prefer moves that keep flexibility and avoid unnecessary exposure.\n- Treat bar/hits and opponent’s back-rank pressure as priority; do not spend a move on a quiet point when a hit or safety move is available.\n- Review “missed risk” moments: ask whether the move is safe, whether it gives the opponent a hit, and whether a slightly less flashy move is better.\n- Small errors add up; after each turn, ask if the position is still stable, and avoid repeating the same pattern of doubtful doubles."
+       },
+       {
+        "game": 3,
+        "text": "- Before playing, compare the safe line and the risky line; if the risk is sound, take it, and if it is not, don’t force it.\n- Treat “missed risk” and “wrong risk” flags as a prompt to re-check the roll, not as a reason to play the familiar safe move.\n- Evaluate the full pair of dice together; one good move can be wasted by a poor second move.\n- In the endgame, prioritize bearing off, keeping opponent checkers off, and forcing the opponent into bad decisions over cosmetic moves.\n- When ahead, use hits and bear-offs to create pressure; when behind, avoid needless risk that gives the opponent tempo or a free escape."
+       },
+       {
+        "game": 4,
+        "text": "- Before moving, check for hits, doubles, and forcing moves; do not default to safe moves when the engine flags a missed risk.\n- Do not take risks for show: if a move is not clearly forcing or gains material, prefer the safer consolidation.\n- When doubles are available, compare doubled and single moves explicitly; never assume doubling is automatically wrong.\n- Keep your points coordinated and avoid leaving loose points or bar exposure; reassess after every roll.\n- Treat missed-risk and needless-risk flags as habits to fix, not one-off position quirks."
+       },
+       {
+        "game": 5,
+        "text": "- When the engine flags a missed risk, stop and compare the quiet move against hitting/bearing off; do not choose the safe-looking line just because it feels controlled.\n- In the endgame, prioritize bearing off and racing, especially with doubles and checkers near the edge; avoid spending moves on far-back checkers while the opponent is close to off.\n- Use doubles to bear off and keep your own checkers connected/centralized; avoid moving the same checker twice when another checker can make progress.\n- Before committing, ask what the opponent can do next and whether your move leaves a hit, a bear-off, or a race available; choose the move that keeps the most forcing options.\n- Treat small equity losses as signals, not noise: if a move is doubtful or bad, re-evaluate the whole turn rather than averaging it away."
+       },
+       {
+        "game": 6,
+        "text": "- When GNUbg flags “missed risk,” compare the safe move against the engine’s risky move before committing; do not default to safety.\n- In endgames, weigh bearing off, race, and tempo as heavily as point safety.\n- A legal or solid move is not automatically best; check equity loss and the risk call, not just whether the move looks reasonable.\n- Avoid moves that leave weak points, block your own bearing off, or give the opponent easy entry/hitting chances.\n- Treat small errors as worth reviewing; repeated small losses compound into the final result."
+       },
+       {
+        "game": 7,
+        "text": "- When GNUbg flags “missed risk,” do not default to the safe-looking move; compare the equity cost of the safe line against the upside of the risky one.\n- Treat any loss above ~0.05 as a review trigger: stop, re-read the board, and ask what the engine’s best move does that yours does not.\n- Avoid “plausible but passive” midgame moves; prioritize moves that create threats, hit, or improve bearing-off/entry chances.\n- In the endgame, small errors compound; check whether a move bears off, advances, or keeps the opponent’s checkers contained before committing.\n- After each game, group mistakes by theme (missed risk, bad midgame choice, endgame slip) and make one rule for the next game from each theme."
+       },
+       {
+        "game": 8,
+        "text": "- When a hit is available, check it first; don't default to safe moves that leave an opponent's single checker untouched.\n- With doubles, use both checkers to hit, bear off, or create pressure, not to make one safe point and duplicate.\n- In the endgame, prioritize advancing and bearing off back-rank checkers over making low-value points.\n- When on the bar, get off and keep remaining checkers safe; avoid needless risky moves.\n- Don't repeat the same move pattern turn after turn; re-evaluate the board and consider aggressive alternatives even when a safe move looks natural."
+       },
+       {
+        "game": 9,
+        "text": "- With doubles, spread the four moves across different checkers/points instead of chaining one checker forward.\n- After a hit, don't automatically move the hit checker; check whether another checker or bearing off is better.\n- When the opponent has checkers on the bar, weigh hitting/bearing off against leaving your own points vulnerable.\n- Don't bear off too early; keep checkers back to defend and block until the position is clearly safe.\n- Before committing, compare alternatives by which move improves the most points, not just the natural-looking one."
+       },
+       {
+        "game": 10,
+        "text": "- When GNUbg flags a missed risk, compare the equity loss before choosing safety; do not default to the “safe” move if the engine says the risk is worth it.\n- When it flags needless risk or wrong risk, stop and re-check the board: avoid extra exposure when a quiet move keeps the same equity.\n- Treat equity loss as the scoreboard, not the move’s look; a legal, attractive move can still be clearly worse.\n- In midgame, prioritize the move that preserves your best structure and keeps the opponent’s bar/entry and prime under control.\n- After a big loss, pause and re-evaluate the whole turn, including doubles, bar entry, and bearing off, rather than reacting to the last roll."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 4,
+      "t10": {
+       "answer_rate": 89.0,
+       "answered": 200,
+       "error_rate": 51.60937500133943,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 22,
+       "right_safety": 92.04545454545455,
+       "risk_pays": 90,
+       "risks_found": 30.0,
+       "safety_pays": 88,
+       "valid": 178,
+       "wall_seconds": 4156.1
+      },
+      "wins": 4
+     },
+     {
+      "finished": true,
+      "game_decisions": 239,
+      "game_invalid": 16,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When GNUbg flags a missed risk, do not default to the safe-looking move; compare the race, bearing-off value, and entry/contact risk before committing.\n- Avoid needless risk: if the engine prefers a quieter move, do not chase aggression unless it clearly improves the race or wins material.\n- In the endgame, prioritize bearing off and keeping your own checkers safe; do not leave blots or weak points that the opponent can attack.\n- Check the bar/entry and bearing-off order early; a move that looks natural can lose a tempo or block your own bear-off.\n- Treat small equity losses as real: before playing, ask whether the engine’s alternative is better, and avoid moves that give the opponent a free hit or tempo."
+       },
+       {
+        "game": 2,
+        "text": "- Before moving, compare your choice with the engine’s best line; a “reasonable” move that loses 0.1+ equity is not reasonable.\n- When the engine flags a missed risk, ask whether hitting, racing, or bearing off is worth the danger; don’t confuse safety with good play.\n- When it flags needless risk, don’t enter, hit, or bear off into a vulnerable point without a clear gain; keep your prime and avoid exposing checkers.\n- Use doubles and primed points deliberately: don’t spend them on passive moves while the engine races or bears off.\n- In the endgame, prioritize bearing off, opposition, and keeping your opponent’s checkers out; avoid moves that leave you behind in the race."
+       },
+       {
+        "game": 3,
+        "text": "- Do not default to “safe” moves; when the engine prefers a riskier line, compare equity loss before choosing.\n- In mid-game, check whether you are leaving a point/checker undeveloped or passive; missed risk often comes from over-protecting.\n- Use the dice to create threats and open lines, not just to consolidate; a small equity loss can compound.\n- Before moving, ask what the opponent can do next; a move that looks solid can still concede a large swing.\n- In endgames, prioritize bearing off and keeping the opponent off your board, but still verify the exact sequence rather than assuming any safe move is best."
+       },
+       {
+        "game": 4,
+        "text": "- Before moving, ask what the opponent can do next; a “safe” move that leaves a loose point or entry can cost more than a calculated risk.\n- In midgame, prioritize safety and coordination over advancing isolated checkers; a blocked/hit point often beats a flashy advance.\n- When a move risks a hit, compare the equity cost of the risk against the gain; don’t confuse legality with good play.\n- Use both dice moves as a unit: check whether the second move can support the first, hit, or enter, not just the first legal play.\n- Review the largest equity losses first; small errors are fine, but repeated missed risks mean your risk judgment needs deliberate practice."
+       },
+       {
+        "game": 5,
+        "text": "- Before committing, check the risk call: if the engine says “missed risk,” ask whether the move is actually safer or just looks active.\n- In midgame, avoid cosmetic moves that leave loose points; prefer contact, blocking, entering the bar, or improving your structure.\n- Small equity losses are not the main issue; repeated “very bad” moves are. Review each one by asking what the best alternative did differently.\n- In the endgame, count tempo and coordination, not just “off” progress; avoid premature races and naked checkers.\n- When unsure, compare the move against the engine’s alternative in one sentence: what it gains, what it risks, and whether the risk is worth it."
+       },
+       {
+        "game": 6,
+        "text": "- When the engine flags a “missed risk,” check whether a quiet move is actually safer; don’t chase activity that gives up equity.\n- Don’t bear off early just to clear a checker; keep a checker back to support, enter, or keep the opponent honest.\n- In endgames, prioritize structure and safety over speed; a good bear-off is better than a flashy one that loses a checker.\n- If a move is marked “needless risk,” ask what it buys: if it only looks active, choose the quiet move.\n- When on the bar, re-enter with purpose and keep the rest of the position coordinated; don’t move a checker to a vulnerable square for show."
+       },
+       {
+        "game": 7,
+        "text": "- When GNUbg flags a move as doubtful or small error, don't default to the familiar safe line; compare the engine's alternative and take the higher-equity move.\n- On double-checker or double-six turns, verify that moving the same checker twice is really best; spreading checkers or using the other die is often stronger.\n- In the endgame, keep checkers mobile and avoid self-blocking; don't leave a checker stuck where it cannot bear off while another can.\n- When ahead, don't spend a tempo on a low-value move just to look safe; use the dice to bear off or improve the most valuable checker.\n- After a bad move, reassess the whole board before the next turn; one mistake can cascade, so don't chase the last move."
+       },
+       {
+        "game": 8,
+        "text": "- When GNUbg flags “missed risk,” do not default to the safe-looking move; consider hitting, bearing off, or forcing the opponent before settling.\n- In midgame, prefer moves that create threats or reduce the opponent’s bearing-off options over quiet shuffling.\n- If the engine’s best play differs sharply from yours, pause and re-evaluate the whole turn, not just the first checker.\n- In the endgame, choose moves that keep your checkers safe and make the opponent’s bearing off harder, not merely legal moves.\n- Treat small equity losses as signals to slow down: check the board, the opponent’s threats, and whether a forcing move is available."
+       },
+       {
+        "game": 9,
+        "text": "- When GNUbg flags “wrong/missed risk,” pause and re-check the risk trade-off; don’t play a legal active move just because it looks natural.\n- In mid/endgame, verify the exact checker and point, not only the move count; small checker-selection errors compound into gammons.\n- Prefer forcing, safe moves that keep your prime/anchors and avoid self-hits or exposing the bar, even if they look less flashy.\n- If equity loss is above ~0.1, treat it as a stop-and-rethink signal, not a minor wobble.\n- Late game: prioritize bearing off cleanly and denying the opponent entry; avoid overextending with the wrong checker."
+       },
+       {
+        "game": 10,
+        "text": "- Before moving, compare your choice with the engine’s best play; if it flags a missed risk, don’t default to the “safe” move just because it looks calm.\n- In late/endgame positions, prioritize bearing off, hitting, and entering from the bar over passive shuffling; wasted moves cost real equity.\n- When ahead, take calculated risks that improve your race or reduce opponent’s counterplay, even if they look less tidy.\n- Check the equity loss, not just legality: a move that looks solid but loses 0.1+ is usually wrong.\n- Avoid repeating the same checker or point when the dice offer a more productive bearing-off/hitting line."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 5,
+      "t10": {
+       "answer_rate": 88.5,
+       "answered": 200,
+       "error_rate": 58.56093301274682,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 23,
+       "right_safety": 92.3076923076923,
+       "risk_pays": 86,
+       "risks_found": 24.41860465116279,
+       "safety_pays": 91,
+       "valid": 177,
+       "wall_seconds": 4038.1
+      },
+      "wins": 2
      }
     ],
-    "series_finished": 1,
+    "series_finished": 5,
     "setup": "Inkling 2 Mini (on, effort 0.2)",
-    "state": "running",
-    "status": "running on our GPU, 1 of 5 series",
+    "state": "complete",
+    "status": "No",
     "steps_done": [
      "E1",
-     "S1"
+     "S1",
+     "S2",
+     "E2",
+     "S3",
+     "S4",
+     "E3",
+     "S5"
     ],
-    "threshold": null,
-    "verdict": false
+    "threshold": 5,
+    "verdict": true
    },
    {
     "after": {
@@ -11118,44 +12300,44 @@
    },
    {
     "after": {
-     "error_rate": 17.999034747481346,
-     "right_safety": 96.0,
-     "risks_found": 65.0
+     "error_rate": 18.030592929571867,
+     "right_safety": 94.75,
+     "risks_found": 65.25
     },
     "answers_after": {
      "answer_rate": 100.0,
-     "answered": 200,
-     "expected": 200,
+     "answered": 800,
+     "expected": 800,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 100,
-     "safety_pays": 100,
-     "tests": 1,
-     "valid": 200
+     "risk_pays": 400,
+     "safety_pays": 400,
+     "tests": 4,
+     "valid": 800
     },
     "answers_before": {
      "answer_rate": 100.0,
-     "answered": 200,
-     "expected": 200,
+     "answered": 400,
+     "expected": 400,
      "failed": 0,
      "invalid": 0,
-     "risk_pays": 100,
-     "safety_pays": 100,
-     "tests": 1,
-     "valid": 200
+     "risk_pays": 200,
+     "safety_pays": 200,
+     "tests": 2,
+     "valid": 400
     },
     "before": {
-     "error_rate": 19.410301744937897,
+     "error_rate": 19.617840051651,
      "right_safety": 99.0,
-     "risks_found": 61.0
+     "risks_found": 59.5
     },
     "change": {
-     "error_rate": -1.4112669974565506,
-     "right_safety": -3.0,
-     "risks_found": 4.0
+     "error_rate": -1.587247122079134,
+     "right_safety": -4.25,
+     "risks_found": 5.75
     },
     "cost": {
-     "api_equivalent_usd": 164.3,
+     "api_equivalent_usd": 467.651,
      "billed_usd": 0.0,
      "estimate_usd": null,
      "reported_usd": null
@@ -11175,16 +12357,31 @@
       "safety_pays": 100,
       "valid": 200,
       "wall_seconds": 7417.1
+     },
+     {
+      "answer_rate": 100.0,
+      "answered": 200,
+      "error_rate": 19.825378358364105,
+      "expected": 200,
+      "failed": 0,
+      "in_flight_max": 4,
+      "invalid": 0,
+      "right_safety": 99.0,
+      "risk_pays": 100,
+      "risks_found": 58.0,
+      "safety_pays": 100,
+      "valid": 200,
+      "wall_seconds": 6549.8
      }
     ],
-    "empty_done": 1,
+    "empty_done": 2,
     "improved": null,
     "key": "gemini-4-neon-high",
     "progress": {
      "reason": null,
-     "series_done": 1,
+     "series_done": 4,
      "status": "running",
-     "updated_at": "2026-11-24T15:33:35+00:00"
+     "updated_at": "2026-11-25T16:17:09+00:00"
     },
     "range": null,
     "reason": null,
@@ -11257,15 +12454,226 @@
        "wall_seconds": 7020.8
       },
       "wins": 8
+     },
+     {
+      "finished": true,
+      "game_decisions": 229,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- When holding a strong prime against trapped checkers, roll it forward aggressively by slotting or making the next inner point, even at the cost of a small shot.\n- Avoid burying checkers passively on the 1-point when you can build or slot higher home-board points to strengthen the close-out and press for gammons.\n- When your opponent is trapped behind a prime, recognize unreachable or low-risk blots and prioritize keeping spares and clearing outer points over unnecessary safety.\n- After entering from the bar, do not reflexively run into opponent builders if leaving the back checker lets you improve your own board or prime.\n- In race bear-offs, avoid needlessly stacking checkers onto the 1-point; prefer plays that leave a smoother distribution and minimize wasted pips on future rolls."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize tempo-gaining hits in the outer board early in the game over passively making a defensive anchor.\n- Escape your back checkers before your opponent seals a prime in front of them, rather than delaying to make home-board points.\n- Avoid burying checkers on your 1-point early; keep checkers active to build outer points and free back runners.\n- When your opponent has checkers on the bar against a strong board, prioritize building blocking points over rushing a single back checker to safety.\n- Use doubles to make solid, clean points instead of leaving unnecessary loose blots."
+       },
+       {
+        "game": 3,
+        "text": "- Prioritize making key priming points, especially the bar point, over passive anchoring when the opponent has checkers trapped behind you or on the bar.\n- Use the opponent's time on the bar to split or advance your back checkers rather than stripping your midpoint or burying checkers on already-made points.\n- Avoid hitting a late-game blot that has already passed your exposed home-board checkers, since sending it to the bar gives the opponent fresh return shots.\n- When bearing in against a low anchor, clear your highest points first and preserve outer-board blocking points as long as possible.\n- Resist loose hits deep in your home board when the opponent is already on the bar; bringing down outer-board builders is usually stronger and safer."
+       },
+       {
+        "game": 4,
+        "text": "- In the opening, prefer active development—escaping back checkers and bringing builders down—over committing early to deep, inflexible home-board points.\n- When advancing a trailing checker neither clears the opponent's blocking point nor reduces return shots, prioritize unstacking heavy outer points and bringing spares into your home board.\n- Look for tempo hits that simultaneously escape back checkers or tighten your home board, especially when you hold a stronger board or race lead.\n- Stay disciplined during bear-in and bear-off against contact by clearing outer points cleanly and refusing unnecessary shots even when ahead."
+       },
+       {
+        "game": 5,
+        "text": "- Escape your back checkers early once the opponent holds an anchor and your priming chances fade, accepting reasonable risk rather than staying pinned.\n- Avoid burying checkers on deep home points and crunching your own board when you still have trapped back checkers that need to run.\n- When the opponent is already on the bar against a strong home board, attack aggressively to put a second checker on the bar instead of playing passively.\n- Prioritize making the 5-point and keeping structural points intact over hitting loose deep in your home board.\n- Cover vulnerable blots deep in your home board while the opponent is on the bar, rather than stacking points and risking a costly return hit."
+       },
+       {
+        "game": 6,
+        "text": "- Prioritize escaping back checkers before your opponent completes a prime, even if stepping out leaves a blot.\n- When your opponent is on the bar against a strong board, use the tempo to escape trapped checkers or hit a second blot rather than making passive home-board plays.\n- Avoid breaking your own prime or crunching your home board just to stay safe when you can advance a stranded back checker instead.\n- Take aggressive shots from your back anchor to disrupt an opponent's building prime instead of settling for safe, passive outer-board moves."
+       },
+       {
+        "game": 7,
+        "text": "- Prioritize bearing checkers off over clearing high points or piling checkers onto the ace point when you are safe and chasing a gammon against a lone back checker.\n- When hitting the opponent's last back checker during a bear-off, check whether you can bear the hitting checker directly off instead of spending the other die to cover it.\n- With a strong home board against a deep anchor, bring spare checkers down from the midpoint to build priming flexibility rather than burying checkers on low home-board points.\n- Accept small indirect-shot risks in the outer board when your opponent would have to break a deep anchor to hit into your strong board."
+       },
+       {
+        "game": 8,
+        "text": "- When holding a prime against a low anchor and a bar checker, keep an outer-board checker to attack escapees and smooth clearing rather than rushing everything home.\n- During a safe bear-off against a deep anchor with gammons at stake, take checkers off immediately instead of making unnecessary internal shifts.\n- Prioritize making new blocking points to extend a prime in front of your opponent's anchor rather than stacking existing points.\n- Accept small tactical risks to activate back checkers and develop outer-board builders, especially when your opponent is on the bar or unable to punish.\n- Early in the game, prefer hitting once and bringing down a builder over burying a checker on your 1-point just to hit a second blot."
+       },
+       {
+        "game": 9,
+        "text": "- Prioritize disrupting an opponent's developing prime over making your own home-board points; hitting a slotted priming point takes precedence over routine point-making.\n- Split buried back checkers early to fight for an advanced anchor before the opponent locks in a prime in front of them.\n- Hit loose on a lone opponent checker in your home board to gain crucial tempo, rather than making quiet outfield plays that let them develop freely.\n- When trapped behind a prime, favor active plays that combine hitting for tempo with advancing back checkers over safe, passive consolidation.\n- When forced to move inside a closed board while waiting to escape, shift spares down from higher points rather than burying checkers on low points to delay crunching."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize making key home-board points like your 5-point over loose, scattered hitting plays.\n- Avoid slotting home-board points while your opponent is on the bar; use spare pips to split or advance your back checkers instead.\n- Bring spare checkers down from the midpoint to build your prime rather than burying checkers deep in your home board or breaking key points.\n- Leave a lone back checker safely behind rather than running it into direct fire when you can strengthen your blockade instead.\n- When bearing off against a deep anchor, clear your highest points safely before taking checkers off lower points to avoid leaving late shots."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 2,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 18.871796429157257,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 93.0,
+       "risk_pays": 100,
+       "risks_found": 64.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 6538.6
+      },
+      "wins": 9
+     },
+     {
+      "finished": true,
+      "game_decisions": 231,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Prioritize making key home-board points—especially the 5-point—over creating redundant back anchors or playing purely for safety.\n- Don't huddle extra checkers on deep back anchors; actively step up, split for higher anchors, and race to escape before an opponent builds a prime.\n- Accept calculated exposure in the backfield when stepping forward improves your escape prospects or keeps an opponent on the bar under pressure.\n- Avoid burying checkers on the 1- and 2-points early just to hit loose blots; bring down builders and make higher home-board points instead.\n- When you have stragglers behind an opponent's blockers, prioritize running them forward rather than making passive or awkward home-board plays."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize building key priming points (such as the bar point) over rushing to make a defensive anchor when the opponent has checkers stranded in your home board.\n- When holding a strong prime with opposing checkers trapped behind it, unstack heavy points and preserve outer-board timing rather than hurrying spare checkers forward into a cramped position.\n- Avoid unnecessary safety plays in the outer board when the opponent's checkers are trapped behind your prime and pose very little hitting threat.\n- During a bearoff against a deep anchor, take two checkers off whenever it is safe instead of needlessly tucking a checker down to a lower point."
+       },
+       {
+        "game": 3,
+        "text": "- Unstack the midpoint to deploy active builders in the outfield—especially when your opponent is on the bar—rather than prematurely clearing safe blots to an already stacked point.\n- When building a prime against an opponent's anchor, accept calculated shots to bring down builders for key blocking points instead of playing timidly and burying checkers deep in your home board.\n- When bearing in against trapped checkers, prioritize clearing awkward outer points and keeping your home board flexible over immediately rescuing a rear checker that faces only indirect shots.\n- In non-contact bearoffs, avoid emptying a low point with small doubles when it leaves gaps; spread checkers smoothly across low points to minimize wastage on future rolls."
+       },
+       {
+        "game": 4,
+        "text": "- Prioritize splitting and escaping your back checkers before your opponent builds a prime, rather than making passive or deep home-board plays.\n- Cover vulnerable blots in your home board to secure points before running an isolated back checker.\n- Don't bury extra checkers on the 1-point just to avoid a blot after hitting; accept modest risk to preserve flexibility and advance back checkers.\n- Take calculated risks to hit key opponent blots—especially on your 5-point or to put a second checker on the bar—instead of playing passively.\n- Favor making key structural points (like the bar point) and advancing back checkers over unfocused, loose hits deep in your home board."
+       },
+       {
+        "game": 5,
+        "text": "- When your opponent is on the bar or undeveloped, prioritize splitting and contesting high anchors over burying checkers on the ace point.\n- Disrupt an opponent's developing prime by hitting blots in their home board rather than settling for quiet outer-board points.\n- Avoid breaking made home-board points for speculative loose hits when your opponent has a strong board ready to punish a return shot.\n- Preserve your prime and higher home-board points instead of clearing an interior blocking point just to cover a hit on the ace point.\n- During the late bear-in, keep advancing checkers smoothly into your home board rather than playing overly safely against a deeply anchored opponent."
+       },
+       {
+        "game": 6,
+        "text": "- When the opponent is on the bar, prioritize building your home board over running an outfield blot to safety.\n- Bring builders down from the midpoint rather than stepping a blot into direct range of the opponent's back checkers.\n- Keep active builders aimed at key points and opponent blots instead of burying checkers deep on already-made low points.\n- Use spare small pips to smooth tall home-board stacks before bearing in, especially against an opponent's deep anchor."
+       },
+       {
+        "game": 7,
+        "text": "- When blitzing with opponent checkers on the bar, prioritize hitting and closing key inner-board points over passively covering a deep blot like the 1-point.\n- Avoid clearing your 6-point just to cover a low blot while the opponent is on the bar; keep high board points closed to deny anchors and bring outer checkers home instead.\n- When the opponent has several checkers on the bar against a strong board, verify whether they even have spare rolls to hit before making passive safety plays that hurt your bearing-in distribution.\n- In the early game, look for opportunities to split or advance your back checkers alongside tactical hits and point-making plays rather than unnecessarily stripping your midpoint."
+       },
+       {
+        "game": 8,
+        "text": "- In a pure race bear-in, avoid overloading the 6-point, as heavy stacks there lead to wastage and inefficient bear-offs.\n- Advance your rearmost outer-board checkers evenly rather than racing one checker all the way home while leaving another stranded behind.\n- During bear-in, look to fill lightly occupied high home-board points to create a smooth, balanced distribution before you start bearing off.\n- Keep trusting disciplined hitting, anchoring, and safety choices during contact, as clean early-game structure sets up winning races."
+       },
+       {
+        "game": 9,
+        "text": "- Prefer building inner-board points and hitting loose home-board blots over passive outer-board moves when you can put the opponent on the bar.\n- Distribute builders across outer points instead of stacking an already heavy point, accepting minor blot risk for stronger attacking flexibility.\n- Avoid burying extra checkers on the ace-point when you can safely bring outer-board checkers closer to home instead.\n- Keep key blocking points—especially six pips ahead of an opponent's anchor—intact rather than breaking them while other points can clear safely.\n- In bear-offs against a deep anchor, take checkers off rather than wasting pips dropping spares onto the ace-point when bearing off is safe."
+       },
+       {
+        "game": 10,
+        "text": "- Prioritize making key inner-board points (like the 4- and 5-points) to extend a prime and trap deep opposing checkers, even when it leaves an outer-board shot.\n- Avoid stripping your 6-point or shifting checkers to awkward mid-board points when you can instead reinforce high home-board points with extra spares.\n- When bearing in against deep anchors, cleanly clear an outer point when you have the chance rather than leaving multiple two-checker points that are hard to clear safely later.\n- In pure races with one straggler and a heavy stack on the 2-point, use spare 1s to fill the 1-point so you can bear off efficiently once the straggler arrives."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 3,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 17.94233910739422,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 98.0,
+       "risk_pays": 100,
+       "risks_found": 64.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 6855.6
+      },
+      "wins": 8
+     },
+     {
+      "finished": true,
+      "game_decisions": 223,
+      "game_invalid": 0,
+      "games": 10,
+      "lesson_calls": 10,
+      "lessons": [
+       {
+        "game": 1,
+        "text": "- Look for loose hits in your own home board early to gain tempo and disrupt the opponent, rather than defaulting to passive outfield safety plays.\n- Prioritize bringing builders down from the midpoint to key blocking points like the bar point to build priming and attacking flexibility.\n- After hitting early in the opponent's home board, weigh developing builders on your side of the board against running the hitter to an exposed outfield spot.\n- Once your back checkers have escaped, stay aggressive against opponent blots in your home board to press your lead instead of settling for quiet positional moves."
+       },
+       {
+        "game": 2,
+        "text": "- Prioritize making the 5-point early over extra hits or safe moves, even when it means leaving blots.\n- Avoid burying checkers on low home-board points just to stay safe; accept calculated risks to stay active and preserve timing.\n- When holding two back anchors, step out and escape the deeper anchor first while keeping the forward anchor as support.\n- In a closed-board bearoff against checkers on the bar, maintain your high points and start bearing off immediately rather than clearing the 6-point early."
+       },
+       {
+        "game": 3,
+        "text": "- Prioritize escaping back checkers past an opponent's prime, especially when they are on the bar, rather than making passive safety plays elsewhere.\n- Avoid burying extra checkers on deep back or home points when you can instead rescue exposed outer blots or advance trailing checkers.\n- When choosing between hits, target the opponent's more advanced checkers with spare checkers rather than breaking key points to hit checkers still far back.\n- When forced to leave a blot in your home board, tuck it behind the opponent's back checkers instead of stepping directly into their shot range.\n- During the bear-in, use small numbers to bring remaining outer checkers closer to home rather than stacking low points and hurting your bear-off distribution."
+       },
+       {
+        "game": 4,
+        "text": "- Prefer making a solid home-board point over hitting loose inside your board early when the opponent has direct return shots from an anchor or the bar.\n- Don't fear leaving outfield blots when the opponent's only rear checkers are pinned far back with no direct shots; use that freedom to advance stranded checkers.\n- Escape lone back checkers promptly instead of passively tidying safe outfield checkers while the opponent builds a blocking board.\n- Bring midpoint checkers into play to stay flexible rather than burying checkers deep in your home board too early.\n- During a bear-off, prioritize taking checkers off over cautious internal shifting whenever bearing off still leaves enough spares to avoid immediate blot danger."
+       },
+       {
+        "game": 5,
+        "text": "- Prioritize securing prime inner-board points like the 5-point over escaping a lone back checker to an exposed square, especially when doing so cleans up blots and maintains attacking pressure.\n- Keep outer containment points like the 8-point intact against an opponent's remaining back checker; unstack overloaded home-board points before clearing your outer points.\n- When safely filling in your home board, unstack crowded points and keep checkers on higher open points to preserve flexibility for making inner points.\n- In a pure non-contact bear-off, always maximize the number of checkers you take off instead of moving checkers down unnecessarily."
+       },
+       {
+        "game": 6,
+        "text": "- When you have a strong home board, attack opponent blots inside it—even loosely—rather than playing passively and letting them escape.\n- Prioritize splitting and escaping your back checkers before your opponent builds a prime, instead of leaving them trapped deep while making awkward internal moves.\n- Avoid burying extra checkers on low home-board points or stripping useful outer points while your back checkers are still behind.\n- When choosing which checker makes an outfield hit, prefer advancing a trapped back checker over exposing an already-escaped checker to direct return shots."
+       },
+       {
+        "game": 7,
+        "text": "- Prioritize escaping or splitting your back checkers early when the opponent is building a prime, rather than making secondary outfield points or leaving direct shots.\n- Secure home-board blots and strengthen your inner board before running a lone back checker through heavy enemy outfield fire.\n- After entering from the bar against a menacing outfield, avoid reflexively running into more danger when you can instead bring down a builder to improve your position.\n- When the opponent has two checkers on the bar, swiftly advance your rear-most checkers and position builders to close open home-board points, as outfield blots are rarely hit when both dice are needed to enter.\n- When bearing off with strong gammon chances, prioritize taking checkers off the board over extra distribution moves that sacrifice tempo."
+       },
+       {
+        "game": 8,
+        "text": "- Never break key high home-board points or bury checkers deep just to avoid leaving outer-board blots; accept calculated risks to keep your structure intact.\n- Unstack the midpoint proactively to bring builders into the outer board, especially when you have gaps left to fill in your prime.\n- When your opponent is on the bar or trapped on a deep anchor with little threat, leave outer-board blots to develop builders instead of making sterile safe plays.\n- Hit loose on valuable points like the bar-point in the opening when the opponent's board is undeveloped, rather than settling for passive plays.\n- When hitting from a heavy midpoint while ahead, prefer bringing two checkers down for better coverage and flexibility over advancing a single checker to safety."
+       },
+       {
+        "game": 9,
+        "text": "- Activate and split your back checkers early—especially while the opponent is on the bar—to fight for a higher anchor before getting trapped behind a prime.\n- When the opponent has a strong prime forming, prioritize advancing your back checkers over making minor outer-board points or playing safe elsewhere.\n- Avoid burying checkers deep in your home board while your back checkers are still stuck; stacking low points wastes timing and accelerates a crunch.\n- Cover vulnerable blots inside your home board rather than unnecessarily stacking already-made points, denying the opponent easy anchor-building or hitting opportunities."
+       },
+       {
+        "game": 10,
+        "text": "- When putting a second opponent checker on the bar, prioritize bringing builders down to extend your prime over passively escaping a lone back checker.\n- Against a deep anchor, accept a calculated shot to bring outer checkers home rather than breaking your 6-point and letting your board crunch.\n- When forced to move inside during a holding game, keep home-board points covered as long as possible instead of clearing a point and creating awkward gaps.\n- With a strong board already established, look for chances to point on or hit stray blots deep in your home board to seize tempo.\n- In the opening, favor bringing builders down cleanly over pushing a single back checker into vulnerable outfield spots without a clear anchor target."
+       }
+      ],
+      "lessons_cut": 0,
+      "lessons_empty": 0,
+      "restarts": 0,
+      "series": 4,
+      "t10": {
+       "answer_rate": 100.0,
+       "answered": 200,
+       "error_rate": 17.309201434254646,
+       "expected": 200,
+       "failed": 0,
+       "in_flight_max": 4,
+       "invalid": 0,
+       "right_safety": 92.0,
+       "risk_pays": 100,
+       "risks_found": 68.0,
+       "safety_pays": 100,
+       "valid": 200,
+       "wall_seconds": 6513.5
+      },
+      "wins": 9
      }
     ],
-    "series_finished": 1,
+    "series_finished": 4,
     "setup": "Gemini 4 Neon (high)",
     "state": "running",
-    "status": "running, 1 of 5 series",
+    "status": "running, 4 of 5 series",
     "steps_done": [
      "E1",
-     "S1"
+     "S1",
+     "S2",
+     "E2",
+     "S3",
+     "S4"
     ],
     "threshold": null,
     "verdict": false
@@ -11515,18 +12923,18 @@
    "billed_total_usd": 78.1389,
    "total_cap_usd": 110.0
   },
-  "updated_at": "2026-11-24T15:51:39+00:00"
+  "updated_at": "2026-11-25T16:17:09+00:00"
  },
- "source_sha256": "f0eec809a6a348a4be991cc3610e9e514edca719365444d5e952208828f4d222",
+ "source_sha256": "2dedd12b827c02fe8abe9e0b6202c1f9853cc5438d5609e6441e7fd5f34aae3b",
  "status": {
-  "last_update": "2026-11-24T15:51:39+00:00",
-  "line": "17 of 49 models with a verdict · 2 running · 16 paused · 1 incomplete or stopped",
+  "last_update": "2026-11-25T16:17:09+00:00",
+  "line": "20 of 49 models with a verdict · 2 running · 13 paused · 1 incomplete or stopped",
   "models": 49,
-  "paused": 16,
+  "paused": 13,
   "phase": "running",
   "running": 2,
   "stopped": 1,
-  "verdicts": 17
+  "verdicts": 20
  },
  "validation": {
   "accepted": true,

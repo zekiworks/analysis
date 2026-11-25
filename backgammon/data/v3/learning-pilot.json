@@ -751,6 +751,744 @@
    "series": 10
   }
  ],
+ "explore": {
+  "accepted": true,
+  "agreement": {
+   "positions_not_unanimous_across_retests": 3,
+   "summary": {
+    "T0 vs budget": {
+     "max": 12,
+     "mean": 9.2,
+     "min": 7,
+     "n": 20,
+     "sd": 1.0563093645728086
+    },
+    "T0 vs retests": {
+     "max": 11,
+     "mean": 9.0,
+     "min": 8,
+     "n": 5,
+     "sd": 1.224744871391589
+    },
+    "budget vs budget": {
+     "max": 14,
+     "mean": 6.042105263157895,
+     "min": 0,
+     "n": 190,
+     "sd": 4.722827127210684
+    },
+    "retest vs retest": {
+     "max": 3,
+     "mean": 1.4,
+     "min": 0,
+     "n": 10,
+     "sd": 1.0749676997731399
+    },
+    "retests vs budget": {
+     "max": 14,
+     "mean": 5.03,
+     "min": 1,
+     "n": 100,
+     "sd": 4.400309906441508
+    }
+   },
+   "unit": "positions (of 200) where two runs chose different plays"
+  },
+  "arm_minus_budget": {
+   "lessons": {
+    "T10": {
+     "error_rate": {
+      "ci": [
+       -9.028665348887444,
+       -7.444161653518677
+      ],
+      "mean": -8.291990607976913
+     },
+     "right_safety": {
+      "ci": [
+       -0.2,
+       0.8
+      ],
+      "mean": 0.3
+     },
+     "risk_judgement": {
+      "ci": [
+       1.8499999999999985,
+       3.8999999999999986
+      ],
+      "mean": 2.8999999999999972
+     },
+     "risks_found": {
+      "ci": [
+       3.7,
+       7.3
+      ],
+      "mean": 5.5
+     }
+    },
+    "T5": {
+     "error_rate": {
+      "ci": [
+       -8.703995913267136,
+       -7.079707860946655
+      ],
+      "mean": -7.891534522175789
+     },
+     "right_safety": {
+      "ci": [
+       -0.9,
+       -0.1
+      ],
+      "mean": -0.5
+     },
+     "risk_judgement": {
+      "ci": [
+       2.1499999999999972,
+       3.1999999999999984
+      ],
+      "mean": 2.6999999999999957
+     },
+     "risks_found": {
+      "ci": [
+       4.5,
+       7.2
+      ],
+      "mean": 5.9
+     }
+    }
+   },
+   "records": {
+    "T10": {
+     "error_rate": {
+      "ci": [
+       -2.420711427927017,
+       -0.7251364588737488
+      ],
+      "mean": -1.6083146035671234
+     },
+     "right_safety": {
+      "ci": [
+       -0.1,
+       1.1
+      ],
+      "mean": 0.5
+     },
+     "risk_judgement": {
+      "ci": [
+       -0.2,
+       1.25
+      ],
+      "mean": 0.5
+     },
+     "risks_found": {
+      "ci": [
+       -0.5,
+       1.5
+      ],
+      "mean": 0.5
+     }
+    },
+    "T5": {
+     "error_rate": {
+      "ci": [
+       -2.3321638852357864,
+       0.36230894923210144
+      ],
+      "mean": -1.032906413078308
+     },
+     "right_safety": {
+      "ci": [
+       -1.1,
+       -0.1
+      ],
+      "mean": -0.6
+     },
+     "risk_judgement": {
+      "ci": [
+       -1.25,
+       0.7
+      ],
+      "mean": -0.25
+     },
+     "risks_found": {
+      "ci": [
+       -1.6,
+       1.7
+      ],
+      "mean": 0.1
+     }
+    }
+   }
+  },
+  "generated_at": "2026-11-08T11:29:15+00:00",
+  "label": "exploratory, after the results",
+  "problems": [],
+  "retest_answer_counts": {
+   "1": 200,
+   "2": 200,
+   "3": 200,
+   "4": 200,
+   "5": 200
+  },
+  "runs": [
+   {
+    "answered": 200,
+    "checkpoint": null,
+    "error_rate": 55.55215932428837,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "t0",
+    "retest": null,
+    "right_safety": 96.0,
+    "risk_appetite": 18.0,
+    "risk_judgement": 60.5,
+    "risks_found": 25.0,
+    "series": null,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": null,
+    "error_rate": 54.66305263340473,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "retest",
+    "retest": 1,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": null,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": null,
+    "error_rate": 54.67233054339886,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "retest",
+    "retest": 2,
+    "right_safety": 97.0,
+    "risk_appetite": 19.0,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": null,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": null,
+    "error_rate": 54.66305263340473,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "retest",
+    "retest": 3,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": null,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": null,
+    "error_rate": 54.43257264792919,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "retest",
+    "retest": 4,
+    "right_safety": 97.0,
+    "risk_appetite": 19.0,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": null,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": null,
+    "error_rate": 54.67233054339886,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "retest",
+    "retest": 5,
+    "right_safety": 97.0,
+    "risk_appetite": 19.0,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": null,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T5",
+    "error_rate": 54.45885233581066,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": 1,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T10",
+    "error_rate": 56.872075870633125,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 95.0,
+    "risk_appetite": 18.0,
+    "risk_judgement": 59.5,
+    "risks_found": 24.0,
+    "series": 1,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T5",
+    "error_rate": 53.702126517891884,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 96.0,
+    "risk_appetite": 20.0,
+    "risk_judgement": 63.0,
+    "risks_found": 30.0,
+    "series": 2,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T10",
+    "error_rate": 54.47900302708149,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": 2,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T5",
+    "error_rate": 54.47900302708149,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": 3,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T10",
+    "error_rate": 54.47900302708149,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": 3,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T5",
+    "error_rate": 54.40627120435238,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 19.5,
+    "risk_judgement": 63.5,
+    "risks_found": 30.0,
+    "series": 4,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T10",
+    "error_rate": 55.0763987749815,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 17.5,
+    "risk_judgement": 61.5,
+    "risks_found": 26.0,
+    "series": 4,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T5",
+    "error_rate": 54.47900302708149,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": 5,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T10",
+    "error_rate": 54.132450595498085,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 19.5,
+    "risk_judgement": 63.5,
+    "risks_found": 30.0,
+    "series": 5,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T5",
+    "error_rate": 52.64764405786991,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 19.5,
+    "risk_judgement": 63.5,
+    "risks_found": 30.0,
+    "series": 6,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T10",
+    "error_rate": 54.122404381632805,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 19.0,
+    "risk_judgement": 63.0,
+    "risks_found": 29.0,
+    "series": 6,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T5",
+    "error_rate": 52.5362142175436,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 96.0,
+    "risk_appetite": 19.5,
+    "risk_judgement": 62.5,
+    "risks_found": 29.0,
+    "series": 7,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T10",
+    "error_rate": 54.300212040543556,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 19.0,
+    "risk_judgement": 63.0,
+    "risks_found": 29.0,
+    "series": 7,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T5",
+    "error_rate": 54.47900302708149,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": 8,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T10",
+    "error_rate": 54.47900302708149,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": 8,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T5",
+    "error_rate": 54.47900302708149,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": 9,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T10",
+    "error_rate": 54.47900302708149,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": 9,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T5",
+    "error_rate": 54.47900302708149,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": 10,
+    "valid": 200
+   },
+   {
+    "answered": 200,
+    "checkpoint": "T10",
+    "error_rate": 54.47900302708149,
+    "failed": 0,
+    "invalid": 0,
+    "kind": "budget",
+    "retest": null,
+    "right_safety": 97.0,
+    "risk_appetite": 18.5,
+    "risk_judgement": 62.5,
+    "risks_found": 28.0,
+    "series": 10,
+    "valid": 200
+   }
+  ],
+  "sampling": {
+   "answers_checked": 5200,
+   "grouped_positions": 32,
+   "in_flight_budget": 1,
+   "in_flight_t0_and_retests": 4,
+   "max_options_per_request": 26,
+   "max_tokens": 1,
+   "positions": 200,
+   "requests_checked": 7202,
+   "server_default_temperature": 1.0,
+   "server_default_top_k": 64,
+   "server_default_top_p": 0.95,
+   "temperature": 1.0,
+   "top_logprobs": 20
+  },
+  "series": 10,
+  "spread": {
+   "all": {
+    "error_rate": {
+     "max": 56.872075870633125,
+     "mean": 54.450006868976814,
+     "min": 52.5362142175436,
+     "n": 26,
+     "sd": 0.7842168936752293
+    },
+    "right_safety": {
+     "max": 97.0,
+     "mean": 96.8076923076923,
+     "min": 95.0,
+     "n": 26,
+     "sd": 0.4914656259988704
+    },
+    "risk_appetite": {
+     "max": 20.0,
+     "mean": 18.73076923076923,
+     "min": 17.5,
+     "n": 26,
+     "sd": 0.5519197266046799
+    },
+    "risk_judgement": {
+     "max": 63.5,
+     "mean": 62.44230769230769,
+     "min": 59.5,
+     "n": 26,
+     "sd": 0.8405584224421653
+    },
+    "risks_found": {
+     "max": 30.0,
+     "mean": 28.076923076923077,
+     "min": 24.0,
+     "n": 26,
+     "sd": 1.3834182859302366
+    }
+   },
+   "budget": {
+    "error_rate": {
+     "max": 56.872075870633125,
+     "mean": 54.35223401337862,
+     "min": 52.5362142175436,
+     "n": 20,
+     "sd": 0.8515940522768534
+    },
+    "right_safety": {
+     "max": 97.0,
+     "mean": 96.8,
+     "min": 95.0,
+     "n": 20,
+     "sd": 0.5231483637805969
+    },
+    "risk_appetite": {
+     "max": 20.0,
+     "mean": 18.75,
+     "min": 17.5,
+     "n": 20,
+     "sd": 0.5960395606792697
+    },
+    "risk_judgement": {
+     "max": 63.5,
+     "mean": 62.525,
+     "min": 59.5,
+     "n": 20,
+     "sd": 0.8503095411610255
+    },
+    "risks_found": {
+     "max": 30.0,
+     "mean": 28.25,
+     "min": 24.0,
+     "n": 20,
+     "sd": 1.409553867457061
+    }
+   },
+   "retests": {
+    "error_rate": {
+     "max": 54.67233054339886,
+     "mean": 54.620667800307274,
+     "min": 54.43257264792919,
+     "n": 5,
+     "sd": 0.10525066810836235
+    },
+    "right_safety": {
+     "max": 97.0,
+     "mean": 97.0,
+     "min": 97.0,
+     "n": 5,
+     "sd": 0.0
+    },
+    "risk_appetite": {
+     "max": 19.0,
+     "mean": 18.8,
+     "min": 18.5,
+     "n": 5,
+     "sd": 0.27386127875258304
+    },
+    "risk_judgement": {
+     "max": 62.5,
+     "mean": 62.5,
+     "min": 62.5,
+     "n": 5,
+     "sd": 0.0
+    },
+    "risks_found": {
+     "max": 28.0,
+     "mean": 28.0,
+     "min": 28.0,
+     "n": 5,
+     "sd": 0.0
+    }
+   },
+   "t0+retests": {
+    "error_rate": {
+     "max": 55.55215932428837,
+     "mean": 54.77591638763746,
+     "min": 54.43257264792919,
+     "n": 6,
+     "sd": 0.39175873406716655
+    },
+    "right_safety": {
+     "max": 97.0,
+     "mean": 96.83333333333333,
+     "min": 96.0,
+     "n": 6,
+     "sd": 0.408248290463863
+    },
+    "risk_appetite": {
+     "max": 19.0,
+     "mean": 18.666666666666668,
+     "min": 18.0,
+     "n": 6,
+     "sd": 0.408248290463863
+    },
+    "risk_judgement": {
+     "max": 62.5,
+     "mean": 62.166666666666664,
+     "min": 60.5,
+     "n": 6,
+     "sd": 0.816496580927726
+    },
+    "risks_found": {
+     "max": 28.0,
+     "mean": 27.5,
+     "min": 25.0,
+     "n": 6,
+     "sd": 1.224744871391589
+    }
+   }
+  }
+ },
  "lesson_prompt": {
   "sha256": "d755001513b60546cbcc4159db0965dbeda09a65d65377d874b22e247f74550e",
   "stated_in_plan": true,
@@ -2106,7 +2844,7 @@
   },
   "updated_at": "2026-11-08T07:28:06+00:00"
  },
- "source_sha256": "be0cb9ed9d97c90a90456680da5ea1ffbf528f3012fb3ea6662bb16419eeff1f",
+ "source_sha256": "2190dc75f786799c885d0f34ab64f0f90f9fccabdc02d59808fce8568deaa116",
  "status": {
   "last_update": "2026-11-08T07:28:04+00:00",
   "line": "Done",
