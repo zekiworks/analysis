@@ -117,3 +117,15 @@ html[data-theme=dark]{--ink:#f1eff0;--dim:#c0bbbf;--line:#424046;--paper:#19191c
 @media(max-width:760px){.panelTools .trackTabs.inline{flex-wrap:nowrap;overflow-x:auto;width:100%;-webkit-mask-image:linear-gradient(to right,#000 85%,transparent);mask-image:linear-gradient(to right,#000 85%,transparent)}.panelTools .trackTabs.inline button{white-space:nowrap;flex:0 0 auto}.panelTools .trackTabs.inline.atEnd{-webkit-mask-image:none;mask-image:none}.panelTools .trackTabs.inline+.trackPick{flex-basis:100%}}
 /* Ümit #16331: the bench tabs were two rows on a phone; one row that scrolls sideways, smaller, with an edge fade */
 @media(max-width:760px){.sectionTabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(to right,#000 85%,transparent);mask-image:linear-gradient(to right,#000 85%,transparent)}.sectionTabs::-webkit-scrollbar{display:none}.sectionTabs.atEnd{-webkit-mask-image:none;mask-image:none}.sectionTabs button{flex:0 0 auto;white-space:nowrap;font-size:12px;padding:6px 8px}}
+/* old pages read again into the Atlas (Ümit #16874): their tables scroll inside their own box, never the page */
+.guide .tableScroll{overflow-x:auto;max-width:100%;margin:10px 0 14px;-webkit-overflow-scrolling:touch}
+.pageTable{border-collapse:collapse;font-size:12px;line-height:1.35;min-width:100%}
+.pageTable caption{text-align:left;color:var(--dim);font-size:12px;padding:0 0 6px;caption-side:top}
+.pageTable th,.pageTable td{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top;overflow-wrap:normal}
+.pageTable th{font-weight:650;background:var(--soft,transparent);white-space:nowrap}
+.pageTable td:first-child{min-width:12ch}
+.guide .pageHead{font-size:14px;margin:16px 0 4px}
+.guide .pagePre{white-space:pre-wrap;font-size:12px;background:var(--soft,transparent);border:1px solid var(--line);border-radius:5px;padding:8px;max-height:24em;overflow:auto}
+.guide ul{padding-left:1.2em;max-width:75ch}
+.guideItem .pageGroupBody{padding-top:6px}
+@media(max-width:760px){.guide{padding:14px 12px}}

@@ -139,16 +139,47 @@ function publicationTabs(){
  const main=names.filter(v=>primary.includes(v)),more=names.filter(v=>!primary.includes(v));
  return '<nav class="publicationTabs" aria-label="'+safe(s.section)+' sections">'+buttons(main)+(more.length?'<details class="moreTabs" '+(more.includes(s.panel)?'open':'')+'><summary>More sections</summary><div>'+buttons(more)+'</div></details>':'')+'</nav>';
 }
+// Old pages read again by the exporter (data/pages/, Ümit #16874 'no loss of information'): loaded when a panel opens;
+// a section's contents are drawn when it is opened, so a page of thousands of blocks stays light on a phone
+const pageFiles=new Map();
+function pageFile(name){
+ if(!pageFiles.has(name))pageFiles.set(name,fetch('data/'+name).then(r=>{if(!r.ok)throw Error(name);return r.json()}).catch(()=>({groups:[],error:true})).then(p=>{pageFiles.set(name,p);if(s.view==='results'&&pageMap()[s.panel]?.page===name)render();return p}));
+ const p=pageFiles.get(name);return p instanceof Promise?null:p;
+}
+function pageBlocks(blocks){
+ let out='',list=[];
+ const end=()=>{if(list.length){out+='<ul>'+list.map(t=>'<li>'+safe(t)+'</li>').join('')+'</ul>';list=[]}};
+ for(const b of blocks){
+  if('li' in b){list.push(b.li);continue}
+  end();
+  if('h' in b)out+='<h3 class="pageHead">'+safe(b.h)+'</h3>';
+  else if('pre' in b)out+='<pre class="pagePre">'+safe(b.pre)+'</pre>';
+  else if('table' in b){const t=b.table;out+='<div class="tableScroll"><table class="pageTable">'+(t.caption?'<caption>'+safe(t.caption)+'</caption>':'')+(t.head.length?'<thead>'+t.head.map(r=>'<tr>'+r.map(c=>'<th scope="col">'+safe(c)+'</th>').join('')+'</tr>').join('')+'</thead>':'')+'<tbody>'+t.rows.map(r=>'<tr>'+r.map(c=>'<td>'+safe(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>'}
+  else out+='<p>'+safe(b.p)+'</p>';
+ }
+ end();return out;
+}
+function pageGroup(g,internal){
+ const items=g.links.map(([text,url])=>internal.has(url)?'<button class="textLink" data-panel="'+safe(internal.get(url))+'">'+safe(text)+'</button>':ext(url,text)).join('');
+ return (g.blocks?pageBlocks(g.blocks):g.text.map(t=>'<p>'+safe(t)+'</p>').join(''))+(items?'<div class="guideLinks">'+items+'</div>':'');
+}
+document.addEventListener('toggle',e=>{
+ const d=e.target;if(!(d instanceof HTMLDetailsElement)||!d.open||!d.dataset.pageGroup||d.dataset.drawn)return;
+ const res=pageMap()[s.panel],p=res?.page&&pageFile(res.page),g=p?.groups[+d.dataset.pageGroup];if(!g)return;
+ d.dataset.drawn='1';d.querySelector('.pageGroupBody').innerHTML=pageGroup(g,new Map(Object.entries(pageMap()).map(([k,v])=>[v.url,k])));
+ if(s.ui==='tr')HildeI18n.localize(d,s.ui);
+},true);
 function reader(){
  const resource=pageMap()[s.panel], url=resource?.url||sourceViews.get(s.snapshot)?.[s.section]?.[s.panel];
  if(!url)return '';
  const links=ext(url,'Open published page')+(resource?.file?ext(repo+commits.get(s.snapshot)+'/'+resource.file,'Pinned source'):'');
- const groups=(resource?.groups||[]).filter(g=>g.title||g.text.length||g.links.length);
+ const page=resource?.page?pageFile(resource.page):null;
+ const groups=(page?page.groups:resource?.groups||[]).filter(g=>g.title||(g.blocks||g.text).length||g.links.length);
  const internal=new Map(Object.entries(pageMap()).map(([k,v])=>[v.url,k]));
- const body=groups.map((g,i)=>{
-  const items=g.links.map(([text,url])=>internal.has(url)?'<button class="textLink" data-panel="'+safe(internal.get(url))+'">'+safe(text)+'</button>':ext(url,text)).join('');
-  const contents=g.text.map(t=>'<p>'+safe(t)+'</p>').join('')+(items?'<div class="guideLinks">'+items+'</div>':'');
-  return g.title?'<details class="guideItem" '+(i===0?'open':'')+'><summary>'+safe(g.title)+'</summary>'+contents+'</details>':contents;
+ const body=resource?.page&&!page?'<p class="sourceNote">Loading…</p>':page?.error?'<p class="sourceNote">This page could not be loaded.</p>':groups.map((g,i)=>{
+  const first=i===0;
+  if(!g.title)return pageGroup(g,internal);
+  return page?'<details class="guideItem" data-page-group="'+i+'" '+(first?'open data-drawn="1"':'')+'><summary>'+safe(g.title)+'</summary><div class="pageGroupBody">'+(first?pageGroup(g,internal):'')+'</div></details>':'<details class="guideItem" '+(first?'open':'')+'><summary>'+safe(g.title)+'</summary>'+pageGroup(g,internal)+'</details>';
  }).join('');
  return '<article class="panel guide"><div class="eyelabel">'+safe(s.section)+' · '+safe(dateLabel(s.snapshot))+'</div><h2>'+safe(resource?.title||s.panel)+'</h2><div class="guideLinks">'+links+'</div>'+(s.ui==='tr'?'<p class="sourceNote">Yayımlanmış kaynaktan alıntılar İngilizcedir.</p>':'')+'<div data-verbatim lang="en">'+body+'</div></article>';
 }
@@ -287,17 +318,14 @@ function splitName(r){const m=/^(.+?) \(([^()]+)\)$/.exec(r.name||'');return m&&
 function recButton(r){const [name,note]=splitName(r);return '<button class="rowName" data-detail="'+r.id+'" aria-label="'+safe(r.name)+'">'+branded(r,safe(name))+'</button><span class="sub">'+safe([note,r.setup||r.tag||r.ref||r.track, r.seeds?r.seeds.length+' run average':null].filter(Boolean).join(' · '))+'</span>'}
 function headingActions(){return '<div class="actions"><button class="outline" data-act="share">'+ic('link')+' Copy link</button>'+(s.ids.length?'<button class="primary" data-goto="compare">'+ic('compare')+' Selected ('+s.ids.length+')</button>':'')+'</div>'}
 // Every table in one order (Ümit #12794): its main measure first (best first; an error rate lowest first), or, after a
-// click on Cost or Latency, the cheapest or fastest first; rows without the value go last, in the main order. Learning
-// keeps the source's verdict groups before either sort: Yes first, then No, then unfinished (Ümit #16855).
+// click on Cost or Latency, the cheapest or fastest first; rows without the value go last, in the main order.
 function costValue(r){const rate=r.unitCost||r.setupReference?.unitCost;const v=rate?.value??r.cost;const basis=rate?.basis||r.costBasis||'';return has(v)&&!(v===0&&/subscription/i.test(basis))?v:null}
 function latencyValue(r){const v=r.latency??r.setupReference?.latency;return has(v)?v:null}
 function ordered(rows){
  const main=r=>{const [label,v]=metric(r);return v===null?null:(label==='Error rate'||r.lowMetric?-v:v)};
  const byMain=(a,b)=>{const x=main(a),y=main(b);return x===null&&y===null?0:x===null?1:y===null?-1:y-x};
- const learningGroup=r=>s.panel!=='Learning'?0:r.verdict==='Yes'?0:r.verdict==='No'?1:2;
  const key=s.sort==='cost'?costValue:s.sort==='latency'?latencyValue:null;
  return rows.map((r,i)=>[r,i]).sort(([a,i],[b,j])=>{
-  const ga=learningGroup(a),gb=learningGroup(b);if(ga!==gb)return ga-gb;
   if(key){const x=key(a),y=key(b);if(x!==null||y!==null){if(x===null)return 1;if(y===null)return -1;if(x!==y)return x-y}}
   return byMain(a,b)||i-j}).map(([r])=>r);
 }
