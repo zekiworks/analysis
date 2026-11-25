@@ -39,7 +39,7 @@ function renderField(title,key,values,allLabel){
  const list=allLabel?['',...values]:values;
  return '<label class="field"><span class="fieldTitle">'+title+'</span><select data-filter="'+key+'">'+list.map(v=>'<option value="'+safe(v)+'" '+(s[key]===v?'selected':'')+'>'+safe(v?(key==='snapshot'?dateLabel(v):v):allLabel)+'</option>').join('')+'</select></label>';
 }
-function blank(){return {ui:'en',section:sections[0],panel:'Results',track:initialTracks[0],model:'',models:'all',size:'all',language:'',mode:'',status:'',snapshot:dates[0],view:'results',layout:'table',sort:'',page:1,ids:[],detail:''}}
+function blank(){return {ui:'en',section:sections[0],panel:'Results',track:initialTracks[0],model:'',models:'all',size:'all',language:'',mode:'',status:'',snapshot:dates[0],view:'results',layout:'table',sort:'',page:1,ids:[],detail:'',dd:'',ds:'',dp:1,dr:'all',dc:'all',db:'all',dk:'all'}}
 const legacyLabels={"T\u00fcrk\u00e7e \u00b7 Genel":"Turkish Reading & Grammar","Metin":"Text","Yay\u0131mlanm\u0131\u015f":"Published","T\u00fcrk\u00e7e":"Turkish","T\u00fcrk\u00e7e \u00b7 Okuma":"Turkish Reading","T\u00fcrk\u00e7e \u00b7 Dil bilgisi":"Turkish Grammar","English reading":"English Reading","\u0130ngilizce":"English","Bilmiyorum \u00b7 T\u00fcrk\u00e7e":"Turkish abstention option","Se\u00e7enek dili \u00b7 T\u00fcrk\u00e7e":"Turkish option wording","\u00c7al\u0131\u015ft\u0131r\u0131lmad\u0131":"Not run","I don\u2019t know \u00b7 English":"English abstention option","Sayfa deneyi \u00b7 Metin":"Page input \u00b7 Text","Sayfa deneyi \u00b7 Yaln\u0131z g\u00f6r\u00fcnt\u00fc":"Page input \u00b7 Image only","Yaln\u0131z g\u00f6r\u00fcnt\u00fc":"Image only","Sayfa deneyi \u00b7 Metin + g\u00f6r\u00fcnt\u00fc":"Page input \u00b7 Text and image","Metin + g\u00f6r\u00fcnt\u00fc":"Text and image","Sayfa deneyi \u00b7 D chandra-ocr-2":"Page input \u00b7 D chandra-ocr-2","OCR metni":"OCR text","Sayfa deneyi \u00b7 D dots-mocr":"Page input \u00b7 D dots-mocr","Sayfa deneyi \u00b7 D surya-ocr-2":"Page input \u00b7 D surya-ocr-2","Sayfa deneyi \u00b7 D unlimited-ocr-2":"Page input \u00b7 D unlimited-ocr-2","Sayfa deneyi \u00b7 \u00c7al\u0131\u015ft\u0131r\u0131lmad\u0131":"Page input \u00b7 Not run","G\u00f6rsel deney":"Board image experiment","Lig 1":"League 1","Belirtilmemi\u015f":"Unspecified","Lig 2":"League 2","Lig 3":"League 3","Ge\u00e7 kat\u0131l\u0131m \u00b7 Lig 3":"Late entry \u00b7 League 3","Ge\u00e7 kat\u0131l\u0131m \u00b7 Lig 1":"Late entry \u00b7 League 1","v1 pozisyonlar\u0131":"v1 position set","K\u0131sa test \u00b7 Part A":"Smoke test \u00b7 Part A","Nackgammon \u00b7 \u0130lk bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 First look \u00b7 standard","Nackgammon \u00b7 \u0130lk bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 First look \u00b7 nackgammon","Nackgammon \u00b7 Son bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 Final look \u00b7 standard","Nackgammon \u00b7 Son bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 Final look \u00b7 nackgammon","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 \u0130lk bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 Late entry \u00b7 First look \u00b7 standard","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 \u0130lk bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 Late entry \u00b7 First look \u00b7 nackgammon","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 Son bak\u0131\u015f \u00b7 standard":"Nackgammon \u00b7 Late entry \u00b7 Final look \u00b7 standard","Nackgammon \u00b7 Ge\u00e7 kat\u0131l\u0131m \u00b7 Son bak\u0131\u015f \u00b7 nackgammon":"Nackgammon \u00b7 Late entry \u00b7 Final look \u00b7 nackgammon","Analiz durumu":"Analysis status","Analiz bekliyor":"Analysis pending","\u00d6l\u00e7\u00fclmedi":"Not measured","Tahta g\u00f6r\u00fcnt\u00fcs\u00fc":"Board image","Birle\u015fik kaynak puan\u0131":"Published combined score","Karma":"Mixed","Kapsam eksik":"Incomplete coverage","Web grounding \u00b7 turkish":"Web grounding \u00b7 Turkish","Web grounding \u00b7 english":"Web grounding \u00b7 English","Engellendi":"Blocked","Sayfa tekrar\u0131 \u00b7 B":"Page repeat \u00b7 B","Sayfa tekrar\u0131 \u00b7 C":"Page repeat \u00b7 C"};
 function fromURL(){
  let params=new URLSearchParams(location.search);
@@ -58,7 +58,7 @@ function fromURL(){
  if(!['results','compare','drafts'].includes(st.view))st.view='results';
  if(!['chart','table','metrics','resources'].includes(st.layout))st.layout='table';
  if(!['','cost','latency'].includes(st.sort))st.sort='';
- st.page=Math.max(1,parseInt(st.page,10)||1);return st
+ st.page=Math.max(1,parseInt(st.page,10)||1);st.dp=Math.max(1,parseInt(st.dp,10)||1);return st
 }
 let s=fromURL();
 function serialize(){
@@ -66,13 +66,14 @@ function serialize(){
  // one is out (Ümit #11706 reopened a 14:04 address at 17:22 and saw old rows); a chosen older one stays in the link.
  const p=new URLSearchParams({v:'2',ui:s.ui});
  if(s.snapshot&&s.snapshot!==dates[0])p.set('snapshot',s.snapshot);
- for(const key of Object.keys(blank()))if(key!=='ids'&&s[key]!==''&&s[key]!==blank()[key])p.set(key,s[key]);
+ for(const key of Object.keys(blank()))if(key!=='ids'&&s[key]!==''&&s[key]!==blank()[key]&&(isDecisionPanel()||!decKeys.includes(key)))p.set(key,s[key]);
  for(const id of s.ids)p.append('pick',id);
  return p.toString();
 }
 function persist(push=false){
  const q=serialize();
- if(location.search!=='?'+q)history[push?'pushState':'replaceState'](null,'',location.pathname+'?'+q);
+ // a decision's #d<id> stays in the address until the reader moves on (Every decision)
+ if(location.search!=='?'+q)history[push?'pushState':'replaceState'](null,'',location.pathname+'?'+q+(!push&&isDecisionPanel()?location.hash:''));
  try{localStorage.setItem(storeName,q)}catch{}
 }
 const closeModal=()=>{if($('#modal').open)$('#modal').close()};
@@ -316,7 +317,7 @@ function checkbox(r){return '<input type="checkbox" aria-label="'+safe(r.name)+'
 // bold name stays short on a phone (codex #16245); the record keeps its full name
 function splitName(r){const m=/^(.+?) \(([^()]+)\)$/.exec(r.name||'');return m&&!/^(open|closed)$/i.test(m[2])?[m[1],m[2]]:[r.name,null]}
 function recButton(r){const [name,note]=splitName(r);return '<button class="rowName" data-detail="'+r.id+'" aria-label="'+safe(r.name)+'">'+branded(r,safe(name))+'</button><span class="sub">'+safe([note,r.setup||r.tag||r.ref||r.track, r.seeds?r.seeds.length+' run average':null].filter(Boolean).join(' · '))+'</span>'}
-function headingActions(){return '<div class="actions"><button class="outline" data-act="share">'+ic('link')+' Copy link</button>'+(s.ids.length?'<button class="primary" data-goto="compare">'+ic('compare')+' Selected ('+s.ids.length+')</button>':'')+'</div>'}
+function headingActions(){return '<div class="actions">'+(s.section==='Backgammon'?'<button class="outline" data-dec-open="">'+ic('board')+' '+safe(L('Every decision'))+'</button>':'')+'<button class="outline" data-act="share">'+ic('link')+' Copy link</button>'+(s.ids.length?'<button class="primary" data-goto="compare">'+ic('compare')+' Selected ('+s.ids.length+')</button>':'')+'</div>'}
 // Every table in one order (Ümit #12794): its main measure first (best first; an error rate lowest first), or, after a
 // click on Cost or Latency, the cheapest or fastest first; rows without the value go last, in the main order.
 function costValue(r){const rate=r.unitCost||r.setupReference?.unitCost;const v=rate?.value??r.cost;const basis=rate?.basis||r.costBasis||'';return has(v)&&!(v===0&&/subscription/i.test(basis))?v:null}
@@ -431,6 +432,7 @@ function showDetail(r,open=true){
  s.detail=r.id;persist();
  const body=$('.dialogBody');
  body.innerHTML='<div class="drawerHead"><div><span class="eyelabel">'+safe(r.section)+'</span><h2>'+branded(r,safe(r.name))+'</h2></div><button class="square" data-act="close" aria-label="Close">'+ic('close')+'</button></div><div class="tagLine">'+statusTag(r)+'<span class="pill">'+safe(r.lang)+'</span><span class="pill">'+safe(r.mode)+'</span></div><p class="drawerMeta">'+[r.track,r.setup||r.tag,dateLabel(snap(r))].map(safe).join(' / ')+'</p>'+metricGrid(r,false)+detailsDl(r)+sourceLinks(r)+historyButtons(r)+'<div class="modalFooter"><button class="primary" data-toggle-detail="'+r.id+'">'+ic('compare')+(s.ids.includes(r.id)?'Remove from selection':'Add to comparison')+'</button><button class="outline" data-act="share">'+ic('link')+' Copy record link</button></div>';
+ body.querySelector('.modalFooter')?.insertAdjacentHTML('afterbegin',decEntry(r));
  HildeI18n.localize(body,s.ui);
  if(open&&!$('#modal').open)$('#modal').showModal();
  // the record's other snapshots: load them once, then redraw the box if it still shows this record
@@ -508,12 +510,307 @@ function draftView(){
  }
  return '<div class="topline"><h2>Research drafts</h2><button class="outline" data-goto="compare">'+ic('compare')+' Selected records ('+list.length+')</button></div>'+compareNotice(list)+'<div class="stack">'+editor('summary','Finding summary',drafts.summary,false)+drafts.posts.map((t,i)=>editor('post'+i,'X draft'+(drafts.posts.length>1?' · '+(i+1)+' / '+drafts.posts.length:''),t,true)).join('')+'</div>'
 }
+// Every decision (Ümit #16874, #16875; jevgammon #16940): Backgammon's decision browser, with the fields, filters and
+// wording of the old page (backgammon/decisions/, its decisions.js), read on demand from jevgammon's export in
+// backgammon/decisions/: index.json, <dataset>/<setup>/<page>.json.gz (50 decisions each) and, for the filters,
+// <dataset>/<setup>/risk.json.gz. It is Backgammon's Decisions panel; the address keeps dd (dataset), ds (setup slug),
+// dp (page), dr (position class), dc (risk call), db (stake band) and dk (close choice), and #d<id> scrolls to a decision.
+const decKeys=['dd','ds','dp','dr','dc','db','dk'];
+const decRoot='backgammon/decisions/';
+const decFiles=new Map(), decWaiting=new Map(), decContexts=new Map(), decContextText=new Map();
+let decReturn=null, decHash=decodeURIComponent(location.hash.slice(1)), decTop=false; // the results the reader came from; where to scroll
+function isDecisionPanel(){return s.section==='Backgammon'&&s.panel==='Decisions'}
+// its words in Turkish (locales/tr.js, hildeTurkishDecisions); L for text, Lh for HTML whose {0}, {1}… are HTML already
+const decWord=m=>s.ui==='tr'&&window.hildeTurkishDecisions?.[m]||m;
+const L=(m,...a)=>decWord(m).replace(/\{(\d)\}/g,(_,i)=>a[i]);
+const Lh=(m,...a)=>safe(decWord(m)).replace(/\{(\d)\}/g,(_,i)=>a[i]);
+const decNum=(x,d)=>{const t=Math.abs(x).toFixed(d);return s.ui==='tr'?t.replace('.',','):t};
+const decSigned=(x,d)=>(x>0?'+':x<0?'\u2212':'')+decNum(x,d);
+const decFixed=(x,d)=>(x<0?'\u2212':'')+decNum(x,d);
+const decCount=n=>Number(n).toLocaleString(s.ui==='tr'?'tr-TR':'en-US');
+const decPlural=(n,word)=>L('{0} '+word+(n===1?'':'s'),decCount(n));
+const decNm=text=>'<span class="nil">'+safe(text)+'</span>';
+const decKind={risk:'Risk pays',safety:'Safety pays',none:'No trade-off'};
+const decCall={right_risk:'right risk',wrong_risk:'wrong risk',needless:'needless risk',missed:'missed risk',right_safety:'right safety'};
+const decCallCode={right_risk:'rr',wrong_risk:'wr',needless:'nr',missed:'mr',right_safety:'rs'};
+const decBand={s:'small (below 0.02)',m:'medium (0.02 to 0.08)',b:'big (above 0.08)'};
+const decSources={decision:'decision-model probability',logprobs:'letter probability',choice_only:'none (the model names one play)'};
+const decCloseLabel='Probabilities over plays, not sampled reasoning.';
+// GitHub Pages hands a .gz file over as it is; a server that sends it with Content-Encoding: gzip hands over the JSON
+async function decFetch(url){
+ const res=await fetch(url);if(!res.ok)throw Error(url+': HTTP '+res.status);
+ const bytes=new Uint8Array(await res.arrayBuffer());
+ const text=bytes[0]===0x1f&&bytes[1]===0x8b?await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text():new TextDecoder().decode(bytes);
+ return url.endsWith('.txt')?text:JSON.parse(text);
+}
+// a file once loaded, kept; its error is shown once, then it is tried again; while it loads, done() runs when it arrives
+function decGet(path,done=decRedraw){
+ const url=decRoot+path,v=decFiles.get(url);
+ if(v===undefined){decFiles.set(url,null);decWaiting.set(url,new Set());decFetch(url).catch(e=>({error:e.message})).then(x=>{decFiles.set(url,x);const w=decWaiting.get(url);decWaiting.delete(url);w.forEach(f=>f())})}
+ if(!v){decWaiting.get(url).add(done);return null}
+ if(v.error)decFiles.delete(url);
+ return v;
+}
+function decRedraw(){if(s.view==='results'&&isDecisionPanel()){render();persist()}}
+function decContext(hash){
+ if(!decContexts.has(hash))decContexts.set(hash,decFetch(decRoot+'contexts/'+encodeURIComponent(hash)+'.txt').then(t=>{decContextText.set(hash,t);return t},e=>{decContexts.delete(hash);throw e}));
+ return decContexts.get(hash);
+}
+// the board from the mover's side: the mover at the bottom, moving 24 -> 1 (top right, along the top to the left, down,
+// along the bottom to the right) and bearing off on the right
+const decBoard=(()=>{
+ const P=32,R=15,BAR=30,FRAME=8,TRAY=40,BAND=18,H=150,GAP=34,LEFT=FRAME,MID=FRAME+6*P,RIGHT=MID+BAR,EDGE=RIGHT+6*P,WIDTH=EDGE+FRAME+TRAY,TOP=BAND+6,BOTTOM=TOP+2*H+GAP,HEIGHT=BOTTOM+6+BAND;
+ const pointX=p=>p<=6?EDGE-(p-.5)*P:p<=12?MID-(p-6.5)*P:p<=18?LEFT+(p-12.5)*P:RIGHT+(p-18.5)*P;
+ function checkers(x,n,mine,fromTop,base){
+  const cls=mine?'ck-me':'ck-opp',shown=Math.min(n,5);let out='';
+  for(let k=0;k<shown;k++){const y=fromTop?base+R+k*2*R:base-R-k*2*R;out+='<circle class="ck '+cls+'" cx="'+x+'" cy="'+y+'" r="'+(R-1)+'"/>';if(k===shown-1&&n>5)out+='<text class="ck-count '+cls+'-text" x="'+x+'" y="'+(y+4)+'">'+n+'</text>'}
+  return out;
+ }
+ function die(x,y,value){
+  const size=26,q=size/4,spots={1:[[2,2]],2:[[1,1],[3,3]],3:[[1,1],[2,2],[3,3]],4:[[1,1],[3,1],[1,3],[3,3]],5:[[1,1],[3,1],[2,2],[1,3],[3,3]],6:[[1,1],[3,1],[1,2],[3,2],[1,3],[3,3]]}[value]||[];
+  return '<rect class="die" x="'+x+'" y="'+y+'" width="'+size+'" height="'+size+'" rx="4"/>'+spots.map(([i,j])=>'<circle class="pip" cx="'+(x+i*q)+'" cy="'+(y+j*q)+'" r="2.6"/>').join('');
+ }
+ return d=>{
+  const {points,bar,off}=d.board,barX=MID+BAR/2,midY=TOP+H+GAP/2,trayX=EDGE+FRAME+4,trayW=TRAY-4,dx=RIGHT+3*P;
+  let g='<rect class="bd-frame" x="0" y="'+BAND+'" width="'+(EDGE+FRAME)+'" height="'+(BOTTOM-BAND+6)+'" rx="6"/><rect class="bd-felt" x="'+LEFT+'" y="'+TOP+'" width="'+6*P+'" height="'+(BOTTOM-TOP)+'"/><rect class="bd-felt" x="'+RIGHT+'" y="'+TOP+'" width="'+6*P+'" height="'+(BOTTOM-TOP)+'"/><rect class="bd-tray" x="'+trayX+'" y="'+BAND+'" width="'+trayW+'" height="'+(BOTTOM-BAND+6)+'" rx="4"/>';
+  for(let p=1;p<=24;p++){
+   const x=pointX(p),top=p>=13,tip=top?TOP+H:BOTTOM-H,base=top?TOP:BOTTOM,n=points[p-1];
+   g+='<path class="bd-point '+(p%2?'bd-a':'bd-b')+'" d="M'+(x-P/2)+' '+base+'L'+(x+P/2)+' '+base+'L'+x+' '+tip+'Z"/><text class="bd-num" x="'+x+'" y="'+(top?BAND-5:HEIGHT-4)+'">'+p+'</text>';
+   if(n)g+=checkers(x,Math.abs(n),n>0,top,base);
+  }
+  if(bar[1])g+=checkers(barX,bar[1],false,false,midY-4);
+  if(bar[0])g+=checkers(barX,bar[0],true,true,midY+4);
+  for(let k=0;k<off[1];k++)g+='<rect class="ck-off ck-opp" x="'+(trayX+5)+'" y="'+(TOP+2+k*7)+'" width="'+(trayW-10)+'" height="6" rx="1.5"/>';
+  for(let k=0;k<off[0];k++)g+='<rect class="ck-off ck-me" x="'+(trayX+5)+'" y="'+(BOTTOM-8-k*7)+'" width="'+(trayW-10)+'" height="6" rx="1.5"/>';
+  if(off[1])g+='<text class="bd-label" x="'+(trayX+trayW/2)+'" y="'+(midY-10)+'">'+off[1]+'</text>';
+  g+='<text class="bd-label" x="'+(trayX+trayW/2)+'" y="'+(midY+4)+'">'+safe(L('off'))+'</text>';
+  if(off[0])g+='<text class="bd-label" x="'+(trayX+trayW/2)+'" y="'+(midY+18)+'">'+off[0]+'</text>';
+  g+=die(dx-30,midY-13,d.dice[0])+die(dx+4,midY-13,d.dice[1])+'<text class="bd-label bd-side" x="'+(LEFT+3*P)+'" y="'+(midY+4)+'">'+safe(L('you move 24 \u2192 1'))+'</text>';
+  const label=L("Board from the mover's side, the mover at the bottom: dice {0}; on the bar: you {1}, opponent {2}; borne off: you {3}, opponent {4}; pip count: you {5}, opponent {6}.",d.dice.join('-'),bar[0],bar[1],off[0],off[1],d.pips[0],d.pips[1]);
+  return '<svg class="bd" viewBox="0 0 '+WIDTH+' '+HEIGHT+'" role="img" aria-label="'+safe(label)+'">'+g+'</svg>';
+ };
+})();
+function decPlays(d){
+ const tag=(cls,text)=>'<span class="decTag '+cls+'">'+safe(L(text))+'</span>';
+ const num=(x,html)=>'<td class="num" data-v="'+(x===null?'':x)+'">'+html+'</td>';
+ const rows=d.plays.map((p,k)=>{
+  const marks=[];
+  if(k===d.chosen)marks.push(d.invalid?tag('decTagRandom','random play (invalid answer)'):tag('decTagChosen',d.program?'played':"model's choice"));
+  if(p.loss===0||k===d.best)marks.push(tag('decTagBest',"engine's best"));
+  if(d.close&&(k===d.close.c1||k===d.close.c2))marks.push(tag('decTagClose',k===d.close.c1?'most likely':'second most likely'));
+  const cls=[k===d.chosen?'isChosen':'',k===d.best?'isBest':''].filter(Boolean).join(' ');
+  return '<tr data-order="'+k+'"'+(cls?' class="'+cls+'"':'')+'><td class="decLetter">'+(p.letter===null?'':safe(p.letter))+'</td><td class="decPlay" data-t="'+safe(p.notation)+'"><code>'+safe(p.notation)+'</code>'+(marks.length?'<span class="decMarks">'+marks.join(' ')+'</span>':'')+'</td>'+num(p.equity,p.equity===null?decNm(L('not scored')):decSigned(p.equity,3))+num(p.loss,p.loss===null?decNm(L('not scored')):decFixed(p.loss,3))+num(p.probability,p.probability===null?decNm('\u2014'):decNum(100*p.probability,1)+'%')+num(p.hitting_rolls,p.hitting_rolls===null?'':p.hitting_rolls)+'<td class="decDesc" lang="en">'+safe(p.description)+'</td></tr>';
+ }).join('');
+ const probNote=d.program?'This player is a program and gives no probabilities.':d.probability_source==='choice_only'?'This setup names one play and gives no probability; its recorded 1.0 is not a confidence.':d.probability_source===null?'No probabilities were recorded for this decision.':d.group_size?'A dash: the play was not in the request that decided.':'';
+ const groupNote=!d.group_size||d.program?'':L(d.prompt&&d.prompt.format==='letters'?' The plays were sent in groups of {0}, each lettered from A in its own request, and the group winners were then compared in a further request.':' The plays were sent in groups of {0}, and the group winners were then compared in a further request.',decCount(d.group_size));
+ const th=(label,n)=>'<th scope="col" aria-sort="none"'+(n?' class="num"':'')+'><button class="sortHead" data-dec-sort title="'+safe(L('Sort by this column'))+'">'+safe(L(label))+'</button></th>';
+ return '<p class="decSwipe">'+safe(L('Swipe for more columns \u2192'))+'</p><div class="decPlaysWrap"><table class="decPlays"><caption>'+safe(L(d.program?'{0}, in the order shown to the player':'{0}, in the order shown to the model',decPlural(d.plays.length,'legal play')))+'</caption><thead class="tableHead"><tr>'+th('Letter')+th('Play')+th('Engine equity',1)+th('Equity lost',1)+th('Model probability',1)+th('Opponent hits (of 36)',1)+th('Consequences, as shown')+'</tr></thead><tbody>'+rows+'</tbody></table></div><p class="decNote">'+safe(L("Engine equity: GNUbg 2-ply, cubeless, for the side to move. Equity lost: the best play's equity minus this play's.")+groupNote+(probNote?' '+L(probNote):''))+'</p>';
+}
+// a play table's head sorts it: ascending, descending, then the order shown to the model
+function decSort(b){
+ const th=b.closest('th'),body=th.closest('table').tBodies[0],col=[...th.parentNode.children].indexOf(th),state=th.getAttribute('aria-sort');
+ const next=state==='ascending'?'descending':state==='descending'?'none':'ascending',sign=next==='ascending'?1:-1;
+ th.parentNode.querySelectorAll('th').forEach(h=>h.setAttribute('aria-sort','none'));th.setAttribute('aria-sort',next);
+ const key=r=>{const c=r.cells[col];return c.dataset.v===undefined?(c.dataset.t??c.textContent).trim().toLowerCase():c.dataset.v===''?null:Number(c.dataset.v)};
+ [...body.rows].sort((a,b)=>{
+  if(next==='none')return a.dataset.order-b.dataset.order;
+  const x=key(a),y=key(b);if(x===null||y===null)return x===y?0:x===null?1:-1;
+  return sign*(typeof x==='number'?x-y:x.localeCompare(y,'en',{numeric:true}))||a.dataset.order-b.dataset.order;
+ }).forEach(r=>body.append(r));
+}
+function decPrompt(d){
+ if(d.program)return '<p class="decSmall">'+safe(L('This player is a program; it gets no prompt.'))+'</p>';
+ const prompt=d.prompt;
+ if(!prompt)return '<p class="decSmall">'+decNm(L('Not recorded'))+' '+safe(L('The prompt of this decision is not in the prompt store yet.'))+'</p>';
+ const pre=text=>'<pre class="decPre" lang="en">'+safe(text)+'</pre>',label=text=>'<p class="decLabel">'+safe(text)+'</p>';
+ let h='<p class="decSmall">'+safe(L(prompt.format==='letters'?'Chat request: a system prompt and one user message with lettered options.':'Decision request: the state text and the options as a list of choices.'))+(s.ui==='tr'?' '+safe(L('The texts are in English, as sent.')):'')+'</p>';
+ if(prompt.context){const text=decContextText.get(prompt.context);h+='<details class="decContext" data-hash="'+safe(prompt.context)+'"'+(text?' data-loaded="1"':'')+'><summary>'+safe(L('Rules text shared by every prompt (shown above the turn text)'))+'</summary>'+pre(text||L('Loading…'))+'</details>'}
+ const n=prompt.requests.length;
+ prompt.requests.forEach((r,i)=>{
+  if(n>1)h+='<h5 class="decRequest">'+safe(L('Request {0} of {1}',i+1,n))+'</h5>';
+  (r.system_prefix||[]).forEach((block,j)=>{h+='<details class="decSystem"><summary>'+safe(L('System block {0}, sent before the system prompt',j+1))+'</summary>'+pre(block)+'</details>'});
+  if(r.system)h+='<details class="decSystem"><summary>'+safe(L('System prompt'))+'</summary>'+pre(r.system)+'</details>';
+  h+=label(L(prompt.format==='letters'?'User message, after the rules text':'State, after the rules text'))+pre(r.text);
+  if(r.instructions)h+=label(L('Instructions'))+pre(r.instructions);
+  if(r.options)h+=label(L('Options sent, in this order ({0})',decCount(r.options.length)))+'<ol class="decOptions" lang="en">'+r.options.map(([notation,description])=>'<li><code>'+safe(notation)+'</code> '+safe(description)+'</li>').join('')+'</ol>';
+ });
+ return h;
+}
+function decRiskText(d){
+ if(!d.risk)return decNm(L(d.invalid?'invalid answer: not classified':'not scored'));
+ const kind='<span class="decTag decKind-'+safe(d.risk.class)+'">'+safe(L(decKind[d.risk.class]))+'</span>';
+ if(d.risk.class==='none')return kind+' '+safe(L('every legal play leaves the same number of hitting rolls'));
+ const band=d.risk.band?L(d.risk.class==='risk'?' ({0} stake)':' ({0} equity lost)',L(d.risk.band)):'';
+ const robust=d.risk.call_robust!==d.risk.call?L('; at the 0.02 margin: {0}',L(decCall[d.risk.call_robust]||'No trade-off')):'';
+ return kind+' '+safe(L(decCall[d.risk.call]||'')+', '+L('stake {0}',decFixed(d.risk.stake,3))+band+robust);
+}
+// Close choices (Method spec 2026-10-24 §9): p1, p2 and both candidate plays of an eligible decision
+function decCloseText(d){
+ if(!d.close)return decNm(L('N/A: no full probability distribution for this decision'));
+ const c=d.close,play=p=>(p.letter?safe(p.letter)+': ':'')+'<code>'+safe(p.notation)+'</code>';
+ return (c.close?'<strong>'+safe(L('yes'))+'</strong>':safe(L('no')))+': p1 '+decFixed(c.p1,4)+' ('+play(d.plays[c.c1])+'), p2 '+decFixed(c.p2,4)+' ('+play(d.plays[c.c2])+'); p1 + p2 '+decFixed(c.p1+c.p2,4)+'. <span class="decSmall">'+safe(L(decCloseLabel))+'</span>';
+}
+function decFacts(d,dataset){
+ const rows=[],add=(term,html)=>rows.push('<dt>'+safe(L(term))+'</dt><dd>'+html+'</dd>');
+ const play=p=>(p.letter?safe(p.letter)+': ':'')+'<code>'+safe(p.notation)+'</code>',lost=p=>p.loss===null?'':safe(L(', equity lost {0}',decFixed(p.loss,3)));
+ add('Dice',safe(d.dice.join('-')));
+ add('Pip count',safe(L('you {0}, opponent {1}',decCount(d.pips[0]),decCount(d.pips[1]))));
+ add('Phase',safe(d.tag?L(d.phase)+' \u00b7 '+L(d.tag):L(d.phase)));
+ add('Side',safe(L(d.side)));
+ const chosen=d.chosen===null?null:d.plays[d.chosen];
+ if(d.invalid)add('Answer',safe(L('invalid'))+(chosen?Lh('; the runner played {0} at random','<code>'+safe(chosen.notation)+'</code>'):''));
+ else if(chosen)add(d.program?'Played':"Model's choice",play(chosen)+lost(chosen));
+ if(d.best!==null)add("Engine's best",'<code>'+safe(d.plays[d.best].notation)+'</code>');
+ if(d.risk&&has(d.risk.best_safe)){const p=d.plays[d.risk.best_safe];add('Best safe play',Lh('{0}, {1} hitting rolls','<code>'+safe(p.notation)+'</code>',decCount(p.hitting_rolls))+lost(p))}
+ add('Risk call',decRiskText(d));
+ if(!d.program&&d.league!==null)add('Close choice',decCloseText(d));
+ if(!d.program){
+  add('Option groups',safe(d.group_size?L('split into groups of {0}; the group winners were compared',decCount(d.group_size)):L('all plays in one request')));
+  add('Probability',safe(d.probability_source?L(decSources[d.probability_source]||d.probability_source):L('none recorded')));
+ }
+ if(has(d.request_seconds))add('Request time',safe(decNum(d.request_seconds,1)+' s'));
+ if(d.retry_seconds)add('Retry and wait time',safe(decNum(d.retry_seconds,1)+' s'));
+ if(has(d.cost_usd))add('Cost',safe('$'+decNum(d.cost_usd,4)));
+ add('Version',safe(dataset.version));
+ return '<dl class="decFacts">'+rows.join('')+'</dl>';
+}
+function decLink(changes){const keep=s;s={...s,...changes};const q=serialize();s=keep;return '?'+q}
+function decCard(d,v){
+ const where=[L(v.dataset.label),d.league===null?L('position {0}',d.id):L('game {0}',d.game),L('turn {0}',d.turn_no)].join(' \u00b7 ');
+ const link=decLink({dp:d._page||v.p,dr:'all',dc:'all',db:'all',dk:'all'})+'#d'+encodeURIComponent(d.id);
+ const flag=d.invalid?'<p class="decFlag">'+safe(L(d.chosen===null?"Invalid answer: no play was chosen; it does not count as the model's choice.":"Invalid answer: the runner played a random legal play; it does not count as the model's choice."))+'</p>':'';
+ return '<article class="decCard" id="d'+safe(d.id)+'"><div class="decCardHead"><h3><a href="'+safe(link)+'" data-dec-link>'+safe(L('Decision {0}',d.id))+'</a></h3><p class="sub">'+safe(where)+'</p></div>'+flag+'<div class="decTopRow"><figure class="decBoard">'+decBoard(d)+'</figure>'+decFacts(d,v.dataset)+'</div><section><h4>'+safe(L('Legal plays'))+'</h4>'+decPlays(d)+'</section><details class="decSeen"><summary>'+safe(L('Position as the model saw it'))+'</summary>'+decPrompt(d)+'</details></article>';
+}
+function decResolve(idx){
+ const dataset=idx.datasets.find(x=>x.id===s.dd)||idx.datasets[0];
+ const setup=dataset.setups.find(x=>x.slug===s.ds)||dataset.setups.find(x=>x.decisions>0)||dataset.setups[0];
+ const r=['risk','safety','none'].includes(s.dr)?s.dr:'all',cc=setup?.risk?.close;
+ const v={d:dataset.id,s:setup?setup.slug:'',p:Math.max(1,s.dp||1),r,c:r!=='none'&&Object.values(decCallCode).includes(s.dc)?s.dc:'all',b:r!=='none'&&['s','m','b'].includes(s.db)?s.db:'all',k:cc&&cc.close+cc.other>0&&['close','other'].includes(s.dk)?s.dk:'all',dataset,setup,total:0,pages:0};
+ Object.assign(s,{dd:v.d,ds:v.s,dr:v.r,dc:v.c,db:v.b,dk:v.k});
+ return v;
+}
+const decFiltered=v=>v.r!=='all'||v.c!=='all'||v.b!=='all'||v.k!=='all';
+// the risk marks of every decision of a setup, [page, id, class r/s/n, call rr/wr/nr/mr/rs, band s/m/b, close 1/0]:
+// the band is the stake for Risk pays decisions and the equity lost for needless risks (B6.3)
+function decMatches(rows,v){
+ const code={risk:'r',safety:'s',none:'n'}[v.r],close={close:1,other:0}[v.k];
+ return rows.filter(([,,cls,call,band,cc])=>cls!==null&&(!code||cls===code)&&(v.c==='all'||call===v.c)&&(v.b==='all'||band===v.b)&&(close===undefined||cc===close));
+}
+function decPager(v,size){
+ if(!v.pages)return '';
+ const first=(v.p-1)*size+1,last=Math.min(v.p*size,v.total);
+ return '<nav class="decPager" aria-label="'+safe(L('Pages'))+'"><button class="outline" data-dec-step="-1"'+(v.p<=1?' disabled':'')+'>'+safe(L('\u2190 Previous'))+'</button><label class="decPage">'+safe(L('Page'))+' <input type="number" inputmode="numeric" min="1" max="'+v.pages+'" value="'+v.p+'" data-dec="dp" aria-label="'+safe(L('Page number'))+'"> '+safe(L('of {0}',decCount(v.pages)))+'</label><button class="outline" data-dec-step="1"'+(v.p>=v.pages?' disabled':'')+'>'+safe(L('Next \u2192'))+'</button><span class="decInView">'+safe(L('decisions {0}\u2013{1} of {2}',decCount(first),decCount(last),decCount(v.total))+(decFiltered(v)?L(' (filtered)'):''))+'</span></nav>';
+}
+function decControls(v,idx){
+ const opt=(list,cur)=>list.map(([k,l])=>'<option value="'+safe(k)+'"'+(k===cur?' selected':'')+'>'+safe(l)+'</option>').join('');
+ const field=(title,key,options,off)=>'<label class="field"><span class="fieldTitle">'+safe(L(title))+'</span><select data-dec="'+key+'"'+(off?' disabled':'')+'>'+options+'</select></label>';
+ const rc=v.setup?.risk||{},calls=rc.calls||{},cc=rc.close||{close:0,other:0},hasClose=cc.close+cc.other>0,n=x=>' ('+decCount(x||0)+')';
+ const method='<button class="textLink" data-panel="Method">'+safe(L('Method'))+'</button>';
+ return '<div class="decControls">'+field('Dataset','dd',opt(idx.datasets.map(x=>[x.id,L(x.label)]),v.d))
+  +field('Setup','ds',opt(v.dataset.setups.map(x=>[x.slug,x.name+' ('+(x.decisions?decPlural(x.decisions,'decision'):L('none scored yet'))+')']),v.s))
+  +field('Position class','dr',opt([['all',L('All decisions')],...Object.entries(decKind).map(([k,l])=>[k,L(l)+n(rc[k])])],v.r))
+  +field('Risk call','dc',opt([['all',L('Any risk call')],...Object.entries(decCallCode).map(([k,c])=>[c,L(decCall[k])+n(calls[k])])],v.c),v.r==='none')
+  +field('Stake, or equity lost by a needless risk','db',opt([['all',L('Any size')],...Object.entries(decBand).map(([k,l])=>[k,L(l)])],v.b),v.r==='none')
+  +field('Close choice','dk',opt(hasClose?[['all',L('All decisions')],['close',L('Close choices ({0})',decCount(cc.close))],['other',L('Not close choices ({0})',decCount(cc.other))]]:[['all',L('N/A: no full probability distribution')]],v.k),!hasClose)
+  +'</div><p class="decNote"><span class="pill">'+safe(L(v.dataset.badge))+'</span></p>'+(v.dataset.note?'<p class="decNote">'+safe(L(v.dataset.note))+'</p>':'')
+  +'<p class="decNote">'+Lh('Position class, stake and risk call as defined in {0}; hit risk only: gammon risk and priming are not in it.',method)+'</p>'
+  +(v.k!=='all'?'<p class="decNote">'+Lh('Close choice: the second most likely play has at least half the probability of the first ({0}). Each decision shows p1, p2 and both plays.',method)+' '+safe(L(decCloseLabel))+'</p>':'');
+}
+function decisionsView(){
+ const links=[['Disagreements','Where models disagree'],['Phases','Phases'],['Compare plays','Compare']].filter(([p])=>panelNames().includes(p));
+ const head='<div class="topline"><div><span class="eyelabel">'+safe(L('Every decision'))+'</span><h2>'+safe(L('What did each model see, and what did it play?'))+'</h2></div><div class="actions"><button class="outline" data-dec-back>'+ic('left')+' '+safe(L('Back to results'))+'</button></div></div>'+(links.length?'<nav class="decLinks" aria-label="'+safe(L('More on decisions'))+'">'+links.map(([p,t])=>'<button class="textLink" data-panel="'+safe(p)+'">'+safe(L(t))+'</button>').join('')+'</nav>':'');
+ const about='<details class="decAbout"><summary>'+safe(L('About this page'))+'</summary><p>'+safe(L("Every scored decision, 50 to a page: the board, the position exactly as the model saw it, every legal play with its consequences, the engine's equity for each play, the equity the chosen play lost and the model's probability where it gives one. Click a column header to sort a play table."))+'</p></details>';
+ // the whole view is in the reader's language already: the page-wide translation (HildeI18n) leaves it alone
+ const wrap=body=>'<div class="decView" data-verbatim>'+head+body+about+'</div>',status=html=>'<p class="decStatus" role="status">'+html+'</p>';
+ const idx=decGet('index.json');
+ if(!idx)return wrap(status('<span class="decLoading">'+safe(L('Loading…'))+'</span>'));
+ if(idx.error)return wrap(status('<span class="decError">'+safe(L('Could not load the list of decisions ({0}).',idx.error))+'</span>'));
+ if(!idx.datasets.length)return wrap(status(decNm(L('Analysis pending'))));
+ const v=decResolve(idx),size=idx.page_size;
+ const panel=(line,list='')=>wrap('<section class="panel decPanel">'+decControls(v,idx)+decPager(v,size)+'</section>'+status(line)+list+(list?'<div class="decPagerBottom">'+decPager(v,size)+'</div>':''));
+ if(!v.setup||!v.setup.decisions)return panel(decNm(L('Analysis pending'))+' '+safe(L('No decision of this setup has been scored yet.')));
+ const page=pg=>decGet(encodeURIComponent(v.d)+'/'+encodeURIComponent(v.s)+'/'+pg+'.json.gz');
+ let decisions=null,fail=null;
+ if(decFiltered(v)){
+  const rows=decGet(encodeURIComponent(v.d)+'/'+encodeURIComponent(v.s)+'/risk.json.gz');
+  if(rows?.error)fail=rows.error;
+  else if(rows){
+   const hits=decMatches(rows,v);v.total=hits.length;v.pages=Math.ceil(hits.length/size);v.p=Math.min(v.p,Math.max(1,v.pages));
+   const slice=hits.slice((v.p-1)*size,v.p*size),wanted=uniq(slice.map(([pg])=>pg)),docs=wanted.map(page);
+   fail=docs.find(x=>x?.error)?.error||null;
+   if(!fail&&docs.every(Boolean)){const byId=new Map(docs.flatMap((doc,k)=>doc.decisions.map(d=>[String(d.id),{...d,_page:wanted[k]}])));decisions=slice.map(([,id])=>byId.get(String(id))).filter(Boolean)}
+  }
+ }else{
+  v.total=v.setup.decisions;v.pages=v.setup.pages;v.p=Math.min(v.p,Math.max(1,v.pages));
+  const doc=page(v.p);if(doc?.error)fail=doc.error;else if(doc)decisions=doc.decisions;
+ }
+ s.dp=v.p;
+ if(fail)return panel('<span class="decError">'+safe(L('Could not load this page of decisions ({0}).',fail))+'</span>');
+ if(!decisions)return panel('<span class="decLoading">'+safe(L('Loading…'))+'</span>');
+ const invalid=decisions.filter(d=>d.invalid).length;
+ return panel(safe(v.total===0?L('{0}: no decision matches these filters.',v.setup.name):L('{0}: page {1} of {2}, {3}, {4} on this page ({5} in all {6}).',v.setup.name,decCount(v.p),decCount(v.pages),decPlural(decisions.length,'decision'),decPlural(invalid,'invalid answer'),decPlural(v.setup.invalid,'invalid answer'),decCount(v.setup.decisions))),'<div class="decList">'+decisions.map(d=>decCard(d,v)).join('')+'</div>');
+}
+// after a redraw: to the decision the address names once it is in, else to the top of what the reader asked for
+function decAfter(){
+ const target=decHash&&document.getElementById(decHash);
+ if(target){decHash='';decTop=false;target.scrollIntoView();return}
+ if(decTop==='entry')scrollTo(0,0);else if(decTop==='page')$('.decPanel')?.scrollIntoView({block:'start'});
+ if(!$('.decLoading'))decTop=false; // once more when the page is in
+}
+// a results row's drawer: 'Every decision' when the row's setup has its decisions in the export
+function decEntry(r){
+ const m=/^backgammon\/models\/([^/]+)\/([^/]+)\/$/.exec(r.page||'');if(!m)return '';
+ const idx=decGet('index.json',()=>{if($('#modal').open&&s.detail===r.id)showDetail(r,false)});
+ return idx?.datasets?.some(x=>x.id===m[1]&&x.setups.some(y=>y.slug===m[2]))?'<button class="outline" data-dec-open="'+safe(m[1])+'" data-dec-slug="'+safe(m[2])+'">'+ic('board')+' '+safe(L('Every decision'))+'</button>':'';
+}
+function decOpen(dataset,slug){
+ if(!isDecisionPanel())decReturn={state:{...s},y:scrollY};
+ closeModal();
+ const league=/^League (\d+)$/.exec(s.track); // from the table's own button: the league in view
+ Object.assign(s,{view:'results',section:'Backgammon',panel:'Decisions',detail:'',dd:dataset||(league?'league-'+league[1]:''),ds:slug||'',dp:1,dr:'all',dc:'all',db:'all',dk:'all'});
+ decHash='';decTop='entry';render();persist(true);
+}
+function decBack(){
+ const back=decReturn;decReturn=null;
+ s=back?{...back.state,ui:s.ui}:{...s,panel:'Results',track:'',page:1};
+ Object.assign(s,{dd:'',ds:'',dp:1,dr:'all',dc:'all',db:'all',dk:'all'});
+ decHash='';render();persist(true);scrollTo(0,back?back.y:0);
+ if(back?.state.detail&&records.has(back.state.detail))showDetail(records.get(back.state.detail));
+}
+function decGo(next){Object.assign(s,next);decHash='';decTop='page';render();persist(true)}
+function decSet(key,value){
+ if(key!=='dp')return decGo({[key]:value,dp:1,...(key==='dd'?{ds:''}:{})});
+ const p=parseInt(value,10);if(p)decGo({dp:p});
+}
+function decClick(b){
+ const d=b.dataset;
+ if(d.decOpen!==undefined)decOpen(d.decOpen,d.decSlug);
+ else if(d.decStep)decGo({dp:s.dp+Number(d.decStep)});
+ else if(d.decBack!==undefined)decBack();
+ else if(d.decSort!==undefined)decSort(b);
+ else return false;
+ return true;
+}
+// a decision's own link (its page, no filters, #d<id>) stays in the page
+document.addEventListener('click',e=>{
+ const a=e.target.closest('a[data-dec-link]');if(!a||e.button||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;
+ e.preventDefault();history.pushState(null,'',a.href);s=fromURL();decHash=decodeURIComponent(location.hash.slice(1));render();persist();
+});
+document.addEventListener('toggle',e=>{
+ const box=e.target;if(!box.matches?.('details.decContext')||!box.open||box.dataset.loaded)return;
+ const out=box.querySelector('pre');
+ decContext(box.dataset.hash).then(t=>{out.textContent=t;box.dataset.loaded='1'},err=>{out.textContent=L('Could not load the rules text ({0}).',err.message)});
+},true);
+window.addEventListener('popstate',()=>{decHash=decodeURIComponent(location.hash.slice(1))});
+window.addEventListener('hashchange',()=>{if(isDecisionPanel()){decHash=decodeURIComponent(location.hash.slice(1));decAfter()}});
 function render(){
  if(dates.length&&!data.has(s.snapshot)){loadSnapshot(s.snapshot).then(()=>render());return} // chosen before it arrived
  renderNav();
  if(!panelNames().includes(s.panel))s.panel='Results';
  const f=filtered();
  $('#publicationTabs').innerHTML=s.view==='results'?publicationTabs():'';
+ if(!isDecisionPanel())decReturn=null;
+ else if(s.view==='results'){$('#workspace').innerHTML=decisionsView();applyLanguage();decAfter();return}
  $('#workspace').innerHTML=s.view==='results'?'<div class="workgrid'+(isRecordPanel()?' single':'')+'">'+(isRecordPanel()?'':'<aside class="sidebar guideSide"><h2>Source</h2>'+renderField('Source snapshot','snapshot',dates,null)+'<button class="outline" data-act="share">'+ic('link')+' Copy link</button></aside>')+'<div class="mainCol">'+(isRecordPanel()?cohortTabs(f)+resultNote(f)+resultSurface(f)+readerSources():reader())+'</div></div>':s.view==='compare'?compareView():draftView();
  applyLanguage();
 }
@@ -533,6 +830,7 @@ async function copy(t){
 document.addEventListener('click',e=>{
  const b=e.target.closest('button');if(!b)return;
  const d=b.dataset;
+ if(decClick(b))return;
  if(d.view||d.goto)return openView(d.view||d.goto);
  if(d.panel){s.panel=d.panel;s.track='';s.page=1;openView('results');return}
  if(d.newest){const sel=$('select[data-filter="snapshot"]');if(sel){sel.value=dates[0];sel.dispatchEvent(new Event('change',{bubbles:true}))}return}
@@ -562,6 +860,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('change',e=>{
  const el=e.target;
+ if(el.dataset.dec){decSet(el.dataset.dec,el.value);return}
  if(el.dataset.filter){s[el.dataset.filter]=el.value;s.page=1;render();persist(true)}
  if(el.dataset.pick){togglePick(el.dataset.pick);render();persist()}
 });
