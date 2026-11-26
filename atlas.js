@@ -230,7 +230,8 @@ function resultNote(f){
   'Chemistry: spot the broken questions':'The 50 chemistry problems plus copies with one number changed so that no option is right; option F says the question is flawed.',
   'Biology: spot the broken questions':'The 50 biology problems plus copies with one number changed so that no option is right; option F says the question is flawed.',
   'Geometry: spot the broken questions':'The 50 geometry problems plus copies with one number changed so that no option is right; option F says the question is flawed.',
-  'Logic: spot the broken questions':'The 50 logic puzzles plus copies with one number changed so that no option is right; option F says the question is flawed.'};
+  'Logic: spot the broken questions':'The 50 logic puzzles plus copies with one number changed so that no option is right; option F says the question is flawed.',
+  "Humanity's First Exam (text)":"Google DeepMind's Humanity's First Exam, the public text part: 48 easy prompts in 12 families of 4 slightly changed versions, each asked 6 times at the maker's settings. The score is the share of right answers; the family score (Family pass^4, in the details) counts a family only if all 4 tries are right on all 4 versions. A judge model (Gemini 4 Neon, temperature 0, HFE's own judge prompt) decides right or wrong."};
  const sciKey=s.section==='Science'?(f?.chosen||'').replace(/ \(Turkish\)$/,''):'';
  const about=sciAbout[sciKey]?'<p class="whatLink">'+safe((m=>s.ui==='tr'?HildeI18n.translate(m):m)(sciAbout[sciKey]))+'</p>':'';
  // An older snapshot than the newest: say so, with the way to the newest (Ümit #11253 looked at an old one).
