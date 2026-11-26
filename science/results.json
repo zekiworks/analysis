@@ -25781,6 +25781,25 @@
       "cost_basis": "GPU time while the run had requests in flight × $2.49 per GPU-hour ÷ problems (not an invoice)",
       "whole_run_problems": 300
      }
+    },
+    "hfe_en": {
+     "run": "hfe/lfm2-5-24b-a2b.json",
+     "questions": 288,
+     "right": 182,
+     "date": "2026-11-26",
+     "no_letter": 1,
+     "family_pass4": 0.17592592592592593,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 126.85,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 3.9379,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 1640
+     }
     }
    }
   },
@@ -27362,6 +27381,64 @@
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
      }
     },
+    "chemistry_broken_en": {
+     "run": 1197,
+     "fix_runs": [],
+     "questions": 95,
+     "date": "2026-11-26",
+     "right": 68,
+     "no_letter": 4,
+     "intact": 50,
+     "intact_right": 49,
+     "broken": 45,
+     "broken_caught": 19,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 660.01,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 2309,
+      "cost_per_1000_usd": 16.8111,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_en": {
+     "run": 1198,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 49,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 366.08,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 844,
+      "cost_per_1000_usd": 11.6753,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_broken_en": {
+     "run": 1199,
+     "fix_runs": [],
+     "questions": 88,
+     "date": "2026-11-26",
+     "right": 59,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 48,
+     "broken": 38,
+     "broken_caught": 11,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 618.6,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 2128,
+      "cost_per_1000_usd": 16.7258,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
     "geometry_en": {
      "run": 1167,
      "fix_runs": [],
@@ -27399,6 +27476,43 @@
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
      }
     },
+    "logic_en": {
+     "run": 1200,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 47,
+     "no_letter": 2,
+     "timing": {
+      "median_s_per_problem": 601.6,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 1393,
+      "cost_per_1000_usd": 19.2698,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_broken_en": {
+     "run": 1201,
+     "fix_runs": [],
+     "questions": 69,
+     "date": "2026-11-26",
+     "right": 56,
+     "no_letter": 6,
+     "intact": 50,
+     "intact_right": 47,
+     "broken": 19,
+     "broken_caught": 9,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 847.85,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 2393,
+      "cost_per_1000_usd": 23.9878,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
     "hfe_en": {
      "run": "hfe/gemma-4-12b-it-think-32k.json",
      "questions": 288,
@@ -27426,7 +27540,27 @@
    "tag": "thinking on · chat",
    "kind": "chat",
    "route": "vLLM v0.30.0 FP8 on our GPU (logic's load), Google's recommended sampling (temperature 1.0, top_p 0.95, top_k 64), thinking on, max_tokens 8192; one question per request, answer line 'ANSWER: X'",
-   "sets": {}
+   "sets": {
+    "hfe_en": {
+     "run": "hfe/gemma-4-31b-it-hfe.json",
+     "questions": 288,
+     "right": 234,
+     "date": "2026-11-26",
+     "no_letter": 9,
+     "family_pass4": 0.3716049382716049,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 33.38,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 1.5627,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 651
+     }
+    }
+   }
   },
   {
    "model": "raon-1-nano",
