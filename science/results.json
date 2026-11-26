@@ -4239,15 +4239,15 @@
      "no_letter": 0,
      "per_request": 10,
      "timing": {
-      "median_s_per_problem": 66.04,
+      "median_s_per_problem": 60.03,
       "problems_per_request": 10,
       "in_flight": 1,
-      "input_tokens_per_problem": 3325,
-      "output_tokens_per_problem": 6083,
-      "cost_per_1000_usd": 129.1854,
+      "input_tokens_per_problem": 3430,
+      "output_tokens_per_problem": 5553,
+      "cost_per_1000_usd": 118.3217,
       "cost_basis": "https://ai.google.dev/gemini-api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)",
       "note": "batched, not comparable with one-per-request runs",
-      "whole_run_problems": 130
+      "whole_run_problems": 230
      }
     },
     "physics_exact_en": {
@@ -4258,15 +4258,53 @@
      "no_letter": 0,
      "per_request": 10,
      "timing": {
-      "median_s_per_problem": 66.04,
+      "median_s_per_problem": 60.03,
       "problems_per_request": 10,
       "in_flight": 1,
-      "input_tokens_per_problem": 3325,
-      "output_tokens_per_problem": 6083,
-      "cost_per_1000_usd": 129.1854,
+      "input_tokens_per_problem": 3430,
+      "output_tokens_per_problem": 5553,
+      "cost_per_1000_usd": 118.3217,
       "cost_basis": "https://ai.google.dev/gemini-api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)",
       "note": "batched, not comparable with one-per-request runs",
-      "whole_run_problems": 130
+      "whole_run_problems": 230
+     }
+    },
+    "chemistry_exact_en": {
+     "run": "exact/carbon-sci50-en.json",
+     "date": "2026-11-26",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "per_request": 10,
+     "timing": {
+      "median_s_per_problem": 60.03,
+      "problems_per_request": 10,
+      "in_flight": 1,
+      "input_tokens_per_problem": 3430,
+      "output_tokens_per_problem": 5553,
+      "cost_per_1000_usd": 118.3217,
+      "cost_basis": "https://ai.google.dev/gemini-api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)",
+      "note": "batched, not comparable with one-per-request runs",
+      "whole_run_problems": 230
+     }
+    },
+    "biology_exact_en": {
+     "run": "exact/carbon-sci50-en.json",
+     "date": "2026-11-26",
+     "questions": 50,
+     "right": 50,
+     "no_letter": 0,
+     "per_request": 10,
+     "timing": {
+      "median_s_per_problem": 60.03,
+      "problems_per_request": 10,
+      "in_flight": 1,
+      "input_tokens_per_problem": 3430,
+      "output_tokens_per_problem": 5553,
+      "cost_per_1000_usd": 118.3217,
+      "cost_basis": "https://ai.google.dev/gemini-api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)",
+      "note": "batched, not comparable with one-per-request runs",
+      "whole_run_problems": 230
      }
     }
    }
@@ -25125,6 +25163,27 @@
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
      }
     },
+    "physics_broken_en": {
+     "run": 1094,
+     "fix_runs": [],
+     "questions": 93,
+     "date": "2026-11-26",
+     "right": 25,
+     "no_letter": 55,
+     "intact": 50,
+     "intact_right": 18,
+     "broken": 43,
+     "broken_caught": 7,
+     "flawed_on_intact": 1,
+     "timing": {
+      "median_s_per_problem": 1246.44,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 4041,
+      "cost_per_1000_usd": 30.054,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
     "chemistry_en": {
      "run": 1081,
      "fix_runs": [],
@@ -25726,6 +25785,43 @@
       "in_flight": 32,
       "gpu_seconds": 1026,
       "cost_per_1000_usd": 7.47,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_en": {
+     "run": 1098,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 20,
+     "no_letter": 8,
+     "timing": {
+      "median_s_per_problem": 136.28,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 757,
+      "cost_per_1000_usd": 10.4718,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_broken_en": {
+     "run": 1099,
+     "fix_runs": [],
+     "questions": 88,
+     "date": "2026-11-26",
+     "right": 36,
+     "no_letter": 10,
+     "intact": 50,
+     "intact_right": 15,
+     "broken": 38,
+     "broken_caught": 21,
+     "flawed_on_intact": 14,
+     "timing": {
+      "median_s_per_problem": 121.89,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 1132,
+      "cost_per_1000_usd": 8.8973,
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
      }
     },
@@ -26884,6 +26980,23 @@
       "gpu_seconds": 1028,
       "cost_per_1000_usd": 10.3048,
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "math_exact_en": {
+     "run": "exact/granite-4.2-3b-sci50-granite-4-2-3b-nothink-en.json",
+     "date": "2026-11-26",
+     "questions": 50,
+     "right": 41,
+     "no_letter": 1,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 444.2,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 2007,
+      "cost_per_1000_usd": 26.6904,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)",
+      "whole_run_problems": 52
      }
     }
    }
