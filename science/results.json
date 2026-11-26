@@ -5477,6 +5477,28 @@
       "cost_basis": "https://openrouter.ai/z-ai/glm-5.3: tokens the route reported, priced at the API list price; nothing billed (subscription)"
      }
     },
+    "math_broken_en": {
+     "run": 1168,
+     "fix_runs": [],
+     "questions": 92,
+     "date": "2026-11-26",
+     "right": 87,
+     "no_letter": 2,
+     "intact": 50,
+     "intact_right": 48,
+     "broken": 42,
+     "broken_caught": 39,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 15.94,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "input_tokens_per_problem": 729,
+      "output_tokens_per_problem": 6096,
+      "cost_per_1000_usd": 19.259,
+      "cost_basis": "https://openrouter.ai/z-ai/glm-5.3: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
+    },
     "physics_en": {
      "run": 1124,
      "fix_runs": [],
@@ -5670,6 +5692,15 @@
      }
     }
    }
+  },
+  {
+   "model": "alibaba-token-plan/qwen4-max",
+   "name": "Qwen4 Max",
+   "tag": "high · chat · 1 per request",
+   "kind": "chat",
+   "route": "Alibaba Token Plan subscription through omp, thinking high; one question per request; nothing billed",
+   "sets": {},
+   "maker_like": "Qwen3.8-27B"
   },
   {
    "model": "xai-oauth/grok-4.7",
@@ -26525,6 +26556,25 @@
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)",
       "note": "the queue was restarted during this run (17:33 UTC); requests in flight were asked again, so its time and cost are too high"
      }
+    },
+    "hfe_en": {
+     "run": "hfe/gemma-4-12b-it.json",
+     "questions": 288,
+     "right": 96,
+     "date": "2026-11-26",
+     "no_letter": 0,
+     "family_pass4": 0.00020576131687242798,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 7.31,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 0.4493,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 187
+     }
     }
    }
   },
@@ -26569,6 +26619,43 @@
       "in_flight": 32,
       "gpu_seconds": 2258,
       "cost_per_1000_usd": 16.9759,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_en": {
+     "run": 1167,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 264.08,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 779,
+      "cost_per_1000_usd": 10.7762,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_broken_en": {
+     "run": 1169,
+     "fix_runs": [],
+     "questions": 98,
+     "date": "2026-11-26",
+     "right": 86,
+     "no_letter": 3,
+     "intact": 50,
+     "intact_right": 50,
+     "broken": 48,
+     "broken_caught": 36,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 705.98,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 2686,
+      "cost_per_1000_usd": 18.9573,
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
      }
     }
@@ -27145,6 +27232,25 @@
       "gpu_seconds": 2452,
       "cost_per_1000_usd": 24.5792,
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "hfe_en": {
+     "run": "hfe/raon-1-nano.json",
+     "questions": 288,
+     "right": 118,
+     "date": "2026-11-26",
+     "no_letter": 18,
+     "family_pass4": 0.12037037037037036,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 147.48,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 7.3182,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 3047
      }
     }
    }
