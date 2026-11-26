@@ -20602,6 +20602,25 @@
       "cost_basis": "GPU time while the run had requests in flight × $2.49 per GPU-hour ÷ problems (not an invoice)",
       "whole_run_problems": 300
      }
+    },
+    "hfe_en": {
+     "run": "hfe/gemma-4-e2b-it-think-32k.json",
+     "questions": 288,
+     "right": 79,
+     "date": "2026-11-26",
+     "no_letter": 1,
+     "family_pass4": 0.0,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 9.51,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 0.6074,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 253
+     }
     }
    }
   },
@@ -26447,8 +26466,121 @@
       "cost_per_1000_usd": 1.5078,
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
      }
+    },
+    "math_broken_en": {
+     "run": 1162,
+     "fix_runs": [],
+     "questions": 92,
+     "date": "2026-11-26",
+     "right": 64,
+     "no_letter": 9,
+     "intact": 50,
+     "intact_right": 49,
+     "broken": 42,
+     "broken_caught": 15,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 76.7,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 383,
+      "cost_per_1000_usd": 2.8794,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_en": {
+     "run": 1163,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 48,
+     "no_letter": 1,
+     "timing": {
+      "median_s_per_problem": 31.37,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 180,
+      "cost_per_1000_usd": 2.49,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_broken_en": {
+     "run": 1164,
+     "fix_runs": [],
+     "questions": 98,
+     "date": "2026-11-26",
+     "right": 75,
+     "no_letter": 15,
+     "intact": 50,
+     "intact_right": 50,
+     "broken": 48,
+     "broken_caught": 25,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 71.14,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 569,
+      "cost_per_1000_usd": 4.0159,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)",
+      "note": "the queue was restarted during this run (17:33 UTC); requests in flight were asked again, so its time and cost are too high"
+     }
     }
    }
+  },
+  {
+   "model": "gemma-4-12b-it",
+   "name": "Gemma 4 12B",
+   "tag": "thinking on, 32,768-token cap · chat",
+   "kind": "chat",
+   "route": "vLLM on our GPU (logic's load, RTX PRO 6000), Google's recommended sampling (temperature 1.0, top_p 0.95, top_k 64), thinking on, max_tokens 32768; one question per request, answer line 'ANSWER: X'",
+   "sets": {
+    "math_en": {
+     "run": 1165,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 50,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 283.97,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 759,
+      "cost_per_1000_usd": 10.4995,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "math_broken_en": {
+     "run": 1166,
+     "fix_runs": [],
+     "questions": 92,
+     "date": "2026-11-26",
+     "right": 70,
+     "no_letter": 2,
+     "intact": 50,
+     "intact_right": 49,
+     "broken": 42,
+     "broken_caught": 21,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 581.28,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "gpu_seconds": 2258,
+      "cost_per_1000_usd": 16.9759,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "gemma-4-31B-it",
+   "name": "Gemma 4 31B",
+   "tag": "thinking on · chat",
+   "kind": "chat",
+   "route": "vLLM v0.30.0 FP8 on our GPU (logic's load), Google's recommended sampling (temperature 1.0, top_p 0.95, top_k 64), thinking on, max_tokens 8192; one question per request, answer line 'ANSWER: X'",
+   "sets": {}
   },
   {
    "model": "raon-1-nano",
@@ -28376,6 +28508,25 @@
       "cost_basis": "GPU time while the run had requests in flight × $2.49 per GPU-hour ÷ problems (not an invoice)",
       "note": "the queue was restarted during this run (06:01, 06:11, 06:14, 06:27, 06:31 UTC); requests in flight were asked again, so its time and cost are too high",
       "whole_run_problems": 300
+     }
+    },
+    "hfe_en": {
+     "run": "hfe/granite-4-2-3b.json",
+     "questions": 288,
+     "right": 167,
+     "date": "2026-11-26",
+     "no_letter": 18,
+     "family_pass4": 0.2228395061728395,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 85.66,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 4.4778,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 1864
      }
     }
    }
