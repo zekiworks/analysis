@@ -256,9 +256,12 @@ function modelLogo(r){
  const logo=/^fi-[a-z0-9-]+$/.test(r.logo||'')?'<svg class="familyLogo" aria-hidden="true"><use href="model-logos.svg#'+r.logo+'"></use></svg>':'<span class="initials" aria-hidden="true">'+safe(r.name.split(/[^a-zA-Z0-9]+/).filter(Boolean).slice(0,2).map(n=>n[0]).join('').toUpperCase())+'</span>';
  return '<span class="logoChip" style="--family:'+color+'" aria-hidden="true">'+logo+'</span>';
 }
+// total parameters, and the active (mixture of experts) or effective (Gemma E, Raon) count next to the name on every
+// page (Ümit #17276/#17282); names are never run through the page translator, so the word is translated here
+function sizeNote(r){const m=/^(.*) (active|effective)$/.exec(r.sizeNote||'');return m?' <span class="sizeNote">('+safe(m[1])+' '+(s.ui==='tr'?{active:'aktif',effective:'etkin'}[m[2]]:m[2])+')</span>':''}
 function branded(r,text){
  const color=/^#[0-9a-f]{6}$/i.test(r.color||'')?r.color:'#64748b';
- return '<span class="modelLabel" style="--family:'+color+'">'+modelLogo(r)+'<span class="modelText">'+text+'</span></span>';
+ return '<span class="modelLabel" style="--family:'+color+'">'+modelLogo(r)+'<span class="modelText">'+text+sizeNote(r)+'</span></span>';
 }
 const nil='<span class="nil" aria-label="Not reported">—</span>';
 // Backgammon Learning in plain words (Ümit #14294, jevgammon #14297): the data keys keep '(pp)'; headers and details say
