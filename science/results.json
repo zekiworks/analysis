@@ -4765,6 +4765,39 @@
       "cost_per_1000_usd": 5.4986,
       "cost_basis": "https://openrouter.ai/moonshotai/kimi-k3.1-pro: tokens the route reported, priced at the API list price; nothing billed (subscription)"
      }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/kimi-k3-1-pro-high-conf.json",
+     "questions": 288,
+     "right": 247,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.39753086419753086,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 20.9,
+      "problems_per_request": 1,
+      "in_flight": 2,
+      "input_tokens_per_problem": 2521,
+      "output_tokens_per_problem": 517,
+      "cost_per_1000_usd": 5.7989,
+      "cost_basis": "https://openrouter.ai/moonshotai/kimi-k3.1-pro: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     },
+     "confidence": {
+      "right": 247,
+      "wrong": 41,
+      "idk": 0,
+      "aa_score": 71.52777777777777,
+      "hallucination_rate": 1.0,
+      "ece": 0.13899305555555552,
+      "auroc": 0.4946677199565518,
+      "confidence_right": 99.69635627530364,
+      "confidence_wrong": 99.46341463414635,
+      "rated": 288,
+      "no_confidence": 0
+     }
     }
    }
   },
@@ -14813,6 +14846,38 @@
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 961
      }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/inkling-2-mini-card-conf.json",
+     "questions": 288,
+     "right": 225,
+     "date": "2026-11-27",
+     "no_letter": 2,
+     "family_pass4": 0.3907407407407408,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 50.95,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 2.204,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 918
+     },
+     "confidence": {
+      "right": 225,
+      "wrong": 63,
+      "idk": 0,
+      "aa_score": 56.25,
+      "hallucination_rate": 1.0,
+      "ece": 0.1382167832167832,
+      "auroc": 0.6323497267759562,
+      "confidence_right": 93.10666666666667,
+      "confidence_wrong": 90.22950819672131,
+      "rated": 286,
+      "no_confidence": 2
+     }
     }
    },
    "maker_like": "Inkling 2 Small"
@@ -19018,6 +19083,96 @@
       "rated": 254,
       "no_confidence": 29
      }
+    },
+    "math_broken_conf_en": {
+     "run": "confidence/minicpm5-2b-minicpm5-2b.json",
+     "date": "2026-11-27",
+     "questions": 92,
+     "right": 87,
+     "total": 92,
+     "mean_conf_right": 93.63218390804597,
+     "mean_conf_wrong": 90.0,
+     "ece": 0.06359550561797753,
+     "auroc": 0.867816091954023,
+     "confident_wrong_broken_AE": 1,
+     "confident_wrong_sound": 0,
+     "no_letter": 4,
+     "no_confidence": 3
+    },
+    "physics_broken_conf_en": {
+     "run": "confidence/minicpm5-2b-minicpm5-2b.json",
+     "date": "2026-11-27",
+     "questions": 93,
+     "right": 66,
+     "total": 93,
+     "mean_conf_right": 86.63636363636364,
+     "mean_conf_wrong": 80.45454545454545,
+     "ece": 0.15363636363636368,
+     "auroc": 0.6177685950413223,
+     "confident_wrong_broken_AE": 3,
+     "confident_wrong_sound": 5,
+     "no_letter": 17,
+     "no_confidence": 16
+    },
+    "geometry_broken_conf_en": {
+     "run": "confidence/minicpm5-2b-minicpm5-2b.json",
+     "date": "2026-11-27",
+     "questions": 98,
+     "right": 91,
+     "total": 98,
+     "mean_conf_right": 92.35164835164835,
+     "mean_conf_wrong": 100.0,
+     "ece": 0.06478260869565218,
+     "auroc": 0.22527472527472528,
+     "confident_wrong_broken_AE": 0,
+     "confident_wrong_sound": 1,
+     "no_letter": 6,
+     "no_confidence": 6
+    },
+    "chemistry_broken_conf_en": {
+     "run": "confidence/minicpm5-2b-minicpm5-2b.json",
+     "date": "2026-11-27",
+     "questions": 95,
+     "right": 90,
+     "total": 95,
+     "mean_conf_right": 84.46666666666667,
+     "mean_conf_wrong": 84.0,
+     "ece": 0.1450526315789474,
+     "auroc": 0.7822222222222223,
+     "confident_wrong_broken_AE": 4,
+     "confident_wrong_sound": 1,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "biology_broken_conf_en": {
+     "run": "confidence/minicpm5-2b-minicpm5-2b.json",
+     "date": "2026-11-27",
+     "questions": 88,
+     "right": 68,
+     "total": 88,
+     "mean_conf_right": 92.61764705882354,
+     "mean_conf_wrong": 80.3125,
+     "ece": 0.15035714285714277,
+     "auroc": 0.7789522058823529,
+     "confident_wrong_broken_AE": 8,
+     "confident_wrong_sound": 4,
+     "no_letter": 4,
+     "no_confidence": 4
+    },
+    "logic_broken_conf_en": {
+     "run": "confidence/minicpm5-2b-minicpm5-2b.json",
+     "date": "2026-11-27",
+     "questions": 69,
+     "right": 57,
+     "total": 69,
+     "mean_conf_right": 95.47368421052632,
+     "mean_conf_wrong": 82.85714285714286,
+     "ece": 0.0940625,
+     "auroc": 0.5150375939849624,
+     "confident_wrong_broken_AE": 3,
+     "confident_wrong_sound": 2,
+     "no_letter": 5,
+     "no_confidence": 5
     }
    }
   },
@@ -24371,6 +24526,38 @@
       "cost_per_1000_usd": 1.0606,
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 442
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/qwen3-5-4b-nothink-conf.json",
+     "questions": 288,
+     "right": 80,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.027777777777777776,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 11.94,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 0.5406,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 225
+     },
+     "confidence": {
+      "right": 80,
+      "wrong": 208,
+      "idk": 0,
+      "aa_score": -44.44444444444444,
+      "hallucination_rate": 1.0,
+      "ece": 0.6504897959183674,
+      "auroc": 0.5813181602655287,
+      "confidence_right": 98.54054054054055,
+      "confidence_wrong": 93.83040935672514,
+      "rated": 245,
+      "no_confidence": 43
      }
     }
    }
