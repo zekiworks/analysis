@@ -17846,6 +17846,96 @@
       "rated": 232,
       "no_confidence": 47
      }
+    },
+    "math_broken_conf_en": {
+     "run": "confidence/qwen3.5-2b-qwen3-5-2b.json",
+     "date": "2026-11-27",
+     "questions": 92,
+     "right": 45,
+     "total": 92,
+     "mean_conf_right": 96.93181818181819,
+     "mean_conf_wrong": 75.0,
+     "ece": 0.07604166666666666,
+     "auroc": 0.5653409090909091,
+     "confident_wrong_broken_AE": 0,
+     "confident_wrong_sound": 2,
+     "no_letter": 47,
+     "no_confidence": 44
+    },
+    "physics_broken_conf_en": {
+     "run": "confidence/qwen3.5-2b-qwen3-5-2b.json",
+     "date": "2026-11-27",
+     "questions": 93,
+     "right": 54,
+     "total": 93,
+     "mean_conf_right": 92.05555555555556,
+     "mean_conf_wrong": 84.52941176470588,
+     "ece": 0.34147727272727274,
+     "auroc": 0.7576252723311547,
+     "confident_wrong_broken_AE": 15,
+     "confident_wrong_sound": 11,
+     "no_letter": 7,
+     "no_confidence": 5
+    },
+    "geometry_broken_conf_en": {
+     "run": "confidence/qwen3.5-2b-qwen3-5-2b.json",
+     "date": "2026-11-27",
+     "questions": 98,
+     "right": 87,
+     "total": 98,
+     "mean_conf_right": 89.81395348837209,
+     "mean_conf_wrong": 86.42857142857143,
+     "ece": 0.12139784946236556,
+     "auroc": 0.7009966777408638,
+     "confident_wrong_broken_AE": 0,
+     "confident_wrong_sound": 3,
+     "no_letter": 7,
+     "no_confidence": 5
+    },
+    "chemistry_broken_conf_en": {
+     "run": "confidence/qwen3.5-2b-qwen3-5-2b.json",
+     "date": "2026-11-27",
+     "questions": 95,
+     "right": 86,
+     "total": 95,
+     "mean_conf_right": 94.80232558139535,
+     "mean_conf_wrong": 90.44444444444444,
+     "ece": 0.10178947368421051,
+     "auroc": 0.7719638242894057,
+     "confident_wrong_broken_AE": 8,
+     "confident_wrong_sound": 0,
+     "no_letter": 1,
+     "no_confidence": 0
+    },
+    "biology_broken_conf_en": {
+     "run": "confidence/qwen3.5-2b-qwen3-5-2b.json",
+     "date": "2026-11-27",
+     "questions": 88,
+     "right": 57,
+     "total": 88,
+     "mean_conf_right": 90.78571428571429,
+     "mean_conf_wrong": 87.58620689655173,
+     "ece": 0.315764705882353,
+     "auroc": 0.6009852216748769,
+     "confident_wrong_broken_AE": 14,
+     "confident_wrong_sound": 8,
+     "no_letter": 4,
+     "no_confidence": 3
+    },
+    "logic_broken_conf_en": {
+     "run": "confidence/qwen3.5-2b-qwen3-5-2b.json",
+     "date": "2026-11-27",
+     "questions": 69,
+     "right": 35,
+     "total": 69,
+     "mean_conf_right": 94.08571428571429,
+     "mean_conf_wrong": 88.57142857142857,
+     "ece": 0.34875000000000006,
+     "auroc": 0.6448979591836734,
+     "confident_wrong_broken_AE": 4,
+     "confident_wrong_sound": 13,
+     "no_letter": 15,
+     "no_confidence": 13
     }
    }
   },
@@ -26348,6 +26438,38 @@
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 2178
      }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/qwen3-8-27b-bf16-hfe-conf.json",
+     "questions": 288,
+     "right": 259,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.5001234567901235,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 169.31,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 5.8107,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 2420
+     },
+     "confidence": {
+      "right": 259,
+      "wrong": 29,
+      "idk": 0,
+      "aa_score": 79.86111111111111,
+      "hallucination_rate": 1.0,
+      "ece": 0.04618055555555556,
+      "auroc": 0.6875915324191186,
+      "confidence_right": 95.25096525096525,
+      "confidence_wrong": 88.27586206896552,
+      "rated": 288,
+      "no_confidence": 0
+     }
     }
    }
   },
@@ -29266,6 +29388,38 @@
       "cost_per_1000_usd": 1.5627,
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 651
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/gemma-4-31b-it-hfe-conf.json",
+     "questions": 288,
+     "right": 232,
+     "date": "2026-11-27",
+     "no_letter": 21,
+     "family_pass4": 0.4166666666666667,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 84.97,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 2.7628,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 1150
+     },
+     "confidence": {
+      "right": 232,
+      "wrong": 56,
+      "idk": 0,
+      "aa_score": 61.111111111111114,
+      "hallucination_rate": 1.0,
+      "ece": 0.11793893129770983,
+      "auroc": 0.5139645300935624,
+      "confidence_right": 99.97835497835497,
+      "confidence_wrong": 99.83870967741936,
+      "rated": 262,
+      "no_confidence": 26
      }
     }
    }
