@@ -2828,9 +2828,39 @@
       "output_tokens_per_problem": 1431,
       "cost_per_1000_usd": 32.0053,
       "cost_basis": "https://ai.google.dev/gemini-api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     },
+     "second_judge": {
+      "judge": "GPT-6.2 Astra",
+      "single_try": 1.0,
+      "family_pass4": 1.0,
+      "families": 12
      }
     }
    }
+  },
+  {
+   "model": "gemini-3.8-flash",
+   "name": "Gemini 3.8 Flash",
+   "tag": "high · chat",
+   "kind": "chat",
+   "route": "Google Antigravity through Can's agbench bridge, thinking high; one prompt per request; nothing billed",
+   "sets": {}
+  },
+  {
+   "model": "openai-codex/gpt-6.2-sol",
+   "name": "GPT-6.2 Sol",
+   "tag": "xhigh · chat",
+   "kind": "chat",
+   "route": "ChatGPT subscription through omp, reasoning xhigh; one prompt per request; nothing billed",
+   "sets": {}
+  },
+  {
+   "model": "z-ai/glm-5.3",
+   "name": "GLM-5.3",
+   "tag": "max · chat · OpenRouter",
+   "kind": "chat",
+   "route": "OpenRouter, Fireworks endpoint, fallbacks off, reasoning max (as its Science rows), temperature 1.0; one prompt per request",
+   "sets": {}
   },
   {
    "model": "mai-code-2-flash",
@@ -24424,6 +24454,96 @@
       "rated": 276,
       "no_confidence": 12
      }
+    },
+    "math_broken_conf_en": {
+     "run": "confidence/qwen3.5-4b-qwen3-5-4b.json",
+     "date": "2026-11-27",
+     "questions": 92,
+     "right": 89,
+     "total": 92,
+     "mean_conf_right": 98.03370786516854,
+     "mean_conf_wrong": 95.0,
+     "ece": 0.008888888888888918,
+     "auroc": 0.8146067415730337,
+     "confident_wrong_broken_AE": 1,
+     "confident_wrong_sound": 0,
+     "no_letter": 2,
+     "no_confidence": 2
+    },
+    "physics_broken_conf_en": {
+     "run": "confidence/qwen3.5-4b-qwen3-5-4b.json",
+     "date": "2026-11-27",
+     "questions": 93,
+     "right": 83,
+     "total": 93,
+     "mean_conf_right": 97.26829268292683,
+     "mean_conf_wrong": 89.5,
+     "ece": 0.07293478260869561,
+     "auroc": 0.9134146341463415,
+     "confident_wrong_broken_AE": 9,
+     "confident_wrong_sound": 1,
+     "no_letter": 0,
+     "no_confidence": 1
+    },
+    "geometry_broken_conf_en": {
+     "run": "confidence/qwen3.5-4b-qwen3-5-4b.json",
+     "date": "2026-11-27",
+     "questions": 98,
+     "right": 95,
+     "total": 98,
+     "mean_conf_right": 97.29473684210527,
+     "mean_conf_wrong": 95.0,
+     "ece": 0.005918367346938716,
+     "auroc": 0.6508771929824562,
+     "confident_wrong_broken_AE": 2,
+     "confident_wrong_sound": 1,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "chemistry_broken_conf_en": {
+     "run": "confidence/qwen3.5-4b-qwen3-5-4b.json",
+     "date": "2026-11-27",
+     "questions": 95,
+     "right": 87,
+     "total": 95,
+     "mean_conf_right": 97.49425287356321,
+     "mean_conf_wrong": 92.5,
+     "ece": 0.054947368421052654,
+     "auroc": 0.8455459770114943,
+     "confident_wrong_broken_AE": 7,
+     "confident_wrong_sound": 0,
+     "no_letter": 1,
+     "no_confidence": 0
+    },
+    "biology_broken_conf_en": {
+     "run": "confidence/qwen3.5-4b-qwen3-5-4b.json",
+     "date": "2026-11-27",
+     "questions": 88,
+     "right": 76,
+     "total": 88,
+     "mean_conf_right": 97.3157894736842,
+     "mean_conf_wrong": 89.16666666666667,
+     "ece": 0.09840909090909084,
+     "auroc": 0.8278508771929824,
+     "confident_wrong_broken_AE": 8,
+     "confident_wrong_sound": 3,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "logic_broken_conf_en": {
+     "run": "confidence/qwen3.5-4b-qwen3-5-4b.json",
+     "date": "2026-11-27",
+     "questions": 69,
+     "right": 57,
+     "total": 69,
+     "mean_conf_right": 97.28070175438596,
+     "mean_conf_wrong": 93.33333333333333,
+     "ece": 0.15000000000000005,
+     "auroc": 0.6827485380116959,
+     "confident_wrong_broken_AE": 3,
+     "confident_wrong_sound": 8,
+     "no_letter": 0,
+     "no_confidence": 0
     }
    }
   },
@@ -27451,6 +27571,38 @@
       "cost_per_1000_usd": 3.9379,
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 1640
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/lfm2-5-24b-a2b-conf.json",
+     "questions": 288,
+     "right": 170,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.13950617283950617,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 152.95,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 4.4305,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 1845
+     },
+     "confidence": {
+      "right": 170,
+      "wrong": 118,
+      "idk": 0,
+      "aa_score": 18.055555555555557,
+      "hallucination_rate": 1.0,
+      "ece": 0.33628472222222217,
+      "auroc": 0.6726570289132602,
+      "confidence_right": 94.46470588235294,
+      "confidence_wrong": 90.05084745762711,
+      "rated": 288,
+      "no_confidence": 0
      }
     }
    }
