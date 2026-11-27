@@ -6322,10 +6322,10 @@
     "hfe_en": {
      "run": "hfe/deepseek-v4-1-flash-high.json",
      "questions": 288,
-     "right": 244,
+     "right": 246,
      "date": "2026-11-27",
-     "no_letter": 3,
-     "family_pass4": 0.23703703703703705,
+     "no_letter": 0,
+     "family_pass4": 0.25925925925925924,
      "families": 12,
      "draws": 6,
      "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
@@ -6333,9 +6333,9 @@
       "median_s_per_problem": 11.05,
       "problems_per_request": 1,
       "in_flight": 2,
-      "input_tokens_per_problem": 2465,
-      "output_tokens_per_problem": 1508,
-      "cost_per_1000_usd": 0.9252,
+      "input_tokens_per_problem": 2491,
+      "output_tokens_per_problem": 1547,
+      "cost_per_1000_usd": 0.9492,
       "cost_basis": "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017: tokens the route reported, priced at the API list price; nothing billed (subscription)"
      }
     },
@@ -17675,6 +17675,38 @@
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 2209
      }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/qwen3-5-2b-conf.json",
+     "questions": 288,
+     "right": 90,
+     "date": "2026-11-27",
+     "no_letter": 18,
+     "family_pass4": 0.027777777777777776,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 132.94,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 3.2782,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 1365
+     },
+     "confidence": {
+      "right": 90,
+      "wrong": 189,
+      "idk": 9,
+      "aa_score": -34.375,
+      "hallucination_rate": 0.9545454545454546,
+      "ece": 0.5794827586206897,
+      "auroc": 0.6707955195813915,
+      "confidence_right": 96.44444444444444,
+      "confidence_wrong": 89.90728476821192,
+      "rated": 232,
+      "no_confidence": 47
+     }
     }
    }
   },
@@ -18362,6 +18394,38 @@
       "cost_per_1000_usd": 0.5752,
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 240
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/qwen3-5-2b-nothink-conf.json",
+     "questions": 288,
+     "right": 51,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.0,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 8.38,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 0.5048,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 210
+     },
+     "confidence": {
+      "right": 51,
+      "wrong": 230,
+      "idk": 7,
+      "aa_score": -62.15277777777778,
+      "hallucination_rate": 0.9704641350210971,
+      "ece": 0.7056275303643724,
+      "auroc": 0.5853747906197655,
+      "confidence_right": 97.97916666666667,
+      "confidence_wrong": 88.07035175879398,
+      "rated": 247,
+      "no_confidence": 34
      }
     }
    }
@@ -20486,6 +20550,38 @@
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 57
      }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/gemma-4-e2b-it-conf.json",
+     "questions": 288,
+     "right": 43,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.0,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 2.22,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 0.0682,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 28
+     },
+     "confidence": {
+      "right": 43,
+      "wrong": 245,
+      "idk": 0,
+      "aa_score": -70.13888888888889,
+      "hallucination_rate": 1.0,
+      "ece": 0.8250922509225092,
+      "auroc": 0.5474296205630355,
+      "confidence_right": 97.44186046511628,
+      "confidence_wrong": 98.1140350877193,
+      "rated": 271,
+      "no_confidence": 17
+     }
     }
    }
   },
@@ -21126,6 +21222,38 @@
       "cost_per_1000_usd": 0.1186,
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 49
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/gemma-4-e4b-it-conf.json",
+     "questions": 288,
+     "right": 44,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.0,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 2.5,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 0.0934,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 39
+     },
+     "confidence": {
+      "right": 44,
+      "wrong": 243,
+      "idk": 1,
+      "aa_score": -69.09722222222223,
+      "hallucination_rate": 0.9959016393442623,
+      "ece": 0.8330526315789474,
+      "auroc": 0.5479536024141833,
+      "confidence_right": 99.6590909090909,
+      "confidence_wrong": 98.57676348547717,
+      "rated": 285,
+      "no_confidence": 2
      }
     }
    }
@@ -22160,6 +22288,38 @@
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 253
      }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/gemma-4-e2b-it-think-32k-conf.json",
+     "questions": 288,
+     "right": 91,
+     "date": "2026-11-27",
+     "no_letter": 1,
+     "family_pass4": 0.0,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 9.66,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 0.5764,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 240
+     },
+     "confidence": {
+      "right": 91,
+      "wrong": 196,
+      "idk": 1,
+      "aa_score": -36.458333333333336,
+      "hallucination_rate": 0.9949238578680203,
+      "ece": 0.6689247311827958,
+      "auroc": 0.5657007687758723,
+      "confidence_right": 99.9438202247191,
+      "confidence_wrong": 98.25263157894737,
+      "rated": 279,
+      "no_confidence": 8
+     }
     }
    }
   },
@@ -23193,6 +23353,38 @@
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 151
      }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/gemma-4-e4b-it-think-32k-conf.json",
+     "questions": 288,
+     "right": 92,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.0018518518518518517,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 15.21,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 0.3509,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 146
+     },
+     "confidence": {
+      "right": 92,
+      "wrong": 196,
+      "idk": 0,
+      "aa_score": -36.111111111111114,
+      "hallucination_rate": 1.0,
+      "ece": 0.6749477351916378,
+      "auroc": 0.5564102564102564,
+      "confidence_right": 100.0,
+      "confidence_wrong": 99.33846153846154,
+      "rated": 287,
+      "no_confidence": 1
+     }
     }
    }
   },
@@ -23880,6 +24072,38 @@
       "cost_per_1000_usd": 7.3151,
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 3046
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/qwen3-5-4b-conf.json",
+     "questions": 288,
+     "right": 166,
+     "date": "2026-11-27",
+     "no_letter": 2,
+     "family_pass4": 0.16666666666666666,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 148.26,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 4.0386,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 1682
+     },
+     "confidence": {
+      "right": 166,
+      "wrong": 122,
+      "idk": 0,
+      "aa_score": 15.277777777777779,
+      "hallucination_rate": 1.0,
+      "ece": 0.37757246376811593,
+      "auroc": 0.6610183189655172,
+      "confidence_right": 97.0375,
+      "confidence_wrong": 93.92241379310344,
+      "rated": 276,
+      "no_confidence": 12
      }
     }
    }
@@ -28460,6 +28684,38 @@
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 187
      }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/gemma-4-12b-it-conf.json",
+     "questions": 288,
+     "right": 122,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.009259259259259259,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 8.5,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 0.5245,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 218
+     },
+     "confidence": {
+      "right": 122,
+      "wrong": 166,
+      "idk": 0,
+      "aa_score": -15.277777777777779,
+      "hallucination_rate": 1.0,
+      "ece": 0.5593639575971732,
+      "auroc": 0.5167243661541595,
+      "confidence_right": 99.30327868852459,
+      "confidence_wrong": 98.85093167701864,
+      "rated": 283,
+      "no_confidence": 5
+     }
     }
    }
   },
@@ -29426,6 +29682,38 @@
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 3047
      }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/raon-1-nano-conf.json",
+     "questions": 288,
+     "right": 117,
+     "date": "2026-11-27",
+     "no_letter": 20,
+     "family_pass4": 0.17222222222222225,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 203.38,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 8.2056,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 3417
+     },
+     "confidence": {
+      "right": 117,
+      "wrong": 171,
+      "idk": 0,
+      "aa_score": -18.75,
+      "hallucination_rate": 1.0,
+      "ece": 0.5122178988326848,
+      "auroc": 0.5233644859813084,
+      "confidence_right": 92.6822429906542,
+      "confidence_wrong": 91.64666666666666,
+      "rated": 257,
+      "no_confidence": 31
+     }
     }
    }
   },
@@ -30113,6 +30401,38 @@
       "cost_per_1000_usd": 4.4903,
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 1870
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/raon-1-nano-nothink-conf.json",
+     "questions": 288,
+     "right": 88,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.0,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 14.21,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 3.6613,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 1524
+     },
+     "confidence": {
+      "right": 88,
+      "wrong": 195,
+      "idk": 5,
+      "aa_score": -37.15277777777778,
+      "hallucination_rate": 0.975,
+      "ece": 0.5381578947368422,
+      "auroc": 0.6769688644688645,
+      "confidence_right": 88.8095238095238,
+      "confidence_wrong": 83.81868131868133,
+      "rated": 266,
+      "no_confidence": 17
      }
     }
    }
