@@ -2918,7 +2918,61 @@
    "tag": "xhigh · chat",
    "kind": "chat",
    "route": "ChatGPT subscription through omp, reasoning xhigh; one prompt per request; nothing billed",
-   "sets": {}
+   "sets": {
+    "hfe_en": {
+     "run": "hfe/gpt-6-2-sol-xhigh.json",
+     "questions": 288,
+     "right": 283,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.8611111111111112,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 7.45,
+      "problems_per_request": 1,
+      "in_flight": 2,
+      "input_tokens_per_problem": 2405,
+      "output_tokens_per_problem": 128,
+      "cost_per_1000_usd": 3.9861,
+      "cost_basis": "https://developers.openai.com/api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/gpt-6-2-sol-xhigh-conf.json",
+     "questions": 288,
+     "right": 282,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.8611111111111112,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 7.67,
+      "problems_per_request": 1,
+      "in_flight": 2,
+      "input_tokens_per_problem": 2454,
+      "output_tokens_per_problem": 135,
+      "cost_per_1000_usd": 4.619,
+      "cost_basis": "https://developers.openai.com/api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     },
+     "confidence": {
+      "right": 282,
+      "wrong": 6,
+      "idk": 0,
+      "aa_score": 95.83333333333333,
+      "hallucination_rate": 1.0,
+      "ece": 0.020208333333333384,
+      "auroc": 0.8939125295508275,
+      "confidence_right": 99.95390070921985,
+      "confidence_wrong": 99.16666666666667,
+      "rated": 288,
+      "no_confidence": 0
+     }
+    }
+   }
   },
   {
    "model": "z-ai/glm-5.3",
@@ -2926,7 +2980,57 @@
    "tag": "max · chat · OpenRouter",
    "kind": "chat",
    "route": "OpenRouter, Fireworks endpoint, fallbacks off, reasoning max (as its Science rows), temperature 1.0; one prompt per request",
-   "sets": {}
+   "sets": {
+    "hfe_en": {
+     "run": "hfe/glm-5-3-openrouter.json",
+     "questions": 288,
+     "right": 252,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.6944444444444445,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 16.29,
+      "problems_per_request": 1,
+      "in_flight": 4,
+      "cost_per_1000_usd": 7.0196,
+      "cost_basis": "billed by OpenRouter (Fireworks endpoint, fallbacks off)"
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/glm-5-3-openrouter-conf.json",
+     "questions": 288,
+     "right": 262,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.638888888888889,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 17.42,
+      "problems_per_request": 1,
+      "in_flight": 4,
+      "cost_per_1000_usd": 8.2842,
+      "cost_basis": "billed by OpenRouter (Fireworks endpoint, fallbacks off)"
+     },
+     "confidence": {
+      "right": 262,
+      "wrong": 26,
+      "idk": 0,
+      "aa_score": 81.94444444444444,
+      "hallucination_rate": 1.0,
+      "ece": 0.046423611111111214,
+      "auroc": 0.565986494421609,
+      "confidence_right": 94.7442748091603,
+      "confidence_wrong": 92.3076923076923,
+      "rated": 288,
+      "no_confidence": 0
+     }
+    }
+   }
   },
   {
    "model": "mai-code-2-flash",
