@@ -2030,6 +2030,39 @@
       "cost_per_1000_usd": 14.9421,
       "cost_basis": "https://developers.openai.com/api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)"
      }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/gpt-6-2-astra-xhigh-conf.json",
+     "questions": 288,
+     "right": 285,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.8666666666666667,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 15.12,
+      "problems_per_request": 1,
+      "in_flight": 2,
+      "input_tokens_per_problem": 2455,
+      "output_tokens_per_problem": 131,
+      "cost_per_1000_usd": 11.9561,
+      "cost_basis": "https://developers.openai.com/api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     },
+     "confidence": {
+      "right": 285,
+      "wrong": 3,
+      "idk": 0,
+      "aa_score": 97.91666666666667,
+      "hallucination_rate": 1.0,
+      "ece": 0.00954861111111105,
+      "auroc": 0.7929824561403509,
+      "confidence_right": 99.91929824561403,
+      "confidence_wrong": 99.33333333333333,
+      "rated": 288,
+      "no_confidence": 0
+     }
     }
    }
   },
@@ -2834,6 +2867,39 @@
       "single_try": 1.0,
       "family_pass4": 1.0,
       "families": 12
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/gemini-4-neon-high-conf.json",
+     "questions": 288,
+     "right": 288,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 1.0,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 16.42,
+      "problems_per_request": 1,
+      "in_flight": 2,
+      "input_tokens_per_problem": 13424,
+      "output_tokens_per_problem": 1794,
+      "cost_per_1000_usd": 36.5312,
+      "cost_basis": "https://ai.google.dev/gemini-api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     },
+     "confidence": {
+      "right": 288,
+      "wrong": 0,
+      "idk": 0,
+      "aa_score": 100.0,
+      "hallucination_rate": null,
+      "ece": 0.01013888888888892,
+      "auroc": null,
+      "confidence_right": 98.98611111111111,
+      "confidence_wrong": null,
+      "rated": 288,
+      "no_confidence": 0
      }
     }
    }
@@ -23734,6 +23800,96 @@
       "rated": 287,
       "no_confidence": 1
      }
+    },
+    "math_broken_conf_en": {
+     "run": "confidence/gemma-4-e4b-it-gemma-4-e4b-it-think-32k.json",
+     "date": "2026-11-27",
+     "questions": 92,
+     "right": 82,
+     "total": 92,
+     "mean_conf_right": 99.8780487804878,
+     "mean_conf_wrong": 94.0,
+     "ece": 0.1010869565217392,
+     "auroc": 0.7914634146341464,
+     "confident_wrong_broken_AE": 7,
+     "confident_wrong_sound": 3,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "physics_broken_conf_en": {
+     "run": "confidence/gemma-4-e4b-it-gemma-4-e4b-it-think-32k.json",
+     "date": "2026-11-27",
+     "questions": 93,
+     "right": 64,
+     "total": 93,
+     "mean_conf_right": 99.84375,
+     "mean_conf_wrong": 91.03448275862068,
+     "ece": 0.2827956989247312,
+     "auroc": 0.7844827586206896,
+     "confident_wrong_broken_AE": 16,
+     "confident_wrong_sound": 11,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "geometry_broken_conf_en": {
+     "run": "confidence/gemma-4-e4b-it-gemma-4-e4b-it-think-32k.json",
+     "date": "2026-11-27",
+     "questions": 98,
+     "right": 87,
+     "total": 98,
+     "mean_conf_right": 99.88505747126437,
+     "mean_conf_wrong": 90.0,
+     "ece": 0.10000000000000009,
+     "auroc": 0.9038662486938349,
+     "confident_wrong_broken_AE": 7,
+     "confident_wrong_sound": 3,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "chemistry_broken_conf_en": {
+     "run": "confidence/gemma-4-e4b-it-gemma-4-e4b-it-think-32k.json",
+     "date": "2026-11-27",
+     "questions": 95,
+     "right": 82,
+     "total": 95,
+     "mean_conf_right": 99.9390243902439,
+     "mean_conf_wrong": 93.07692307692308,
+     "ece": 0.12684210526315792,
+     "auroc": 0.8428705440900562,
+     "confident_wrong_broken_AE": 12,
+     "confident_wrong_sound": 1,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "biology_broken_conf_en": {
+     "run": "confidence/gemma-4-e4b-it-gemma-4-e4b-it-think-32k.json",
+     "date": "2026-11-27",
+     "questions": 88,
+     "right": 65,
+     "total": 88,
+     "mean_conf_right": 100.0,
+     "mean_conf_wrong": 91.73913043478261,
+     "ece": 0.23977272727272736,
+     "auroc": 0.8260869565217391,
+     "confident_wrong_broken_AE": 13,
+     "confident_wrong_sound": 7,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "logic_broken_conf_en": {
+     "run": "confidence/gemma-4-e4b-it-gemma-4-e4b-it-think-32k.json",
+     "date": "2026-11-27",
+     "questions": 69,
+     "right": 53,
+     "total": 69,
+     "mean_conf_right": 99.62264150943396,
+     "mean_conf_wrong": 97.5,
+     "ece": 0.22898550724637687,
+     "auroc": 0.5530660377358491,
+     "confident_wrong_broken_AE": 3,
+     "confident_wrong_sound": 12,
+     "no_letter": 0,
+     "no_confidence": 0
     }
    }
   },
