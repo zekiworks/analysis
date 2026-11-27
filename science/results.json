@@ -2010,7 +2010,28 @@
    "tag": "xhigh · chat",
    "kind": "chat",
    "route": "ChatGPT subscription through omp, reasoning xhigh; one prompt per request; nothing billed",
-   "sets": {}
+   "sets": {
+    "hfe_en": {
+     "run": "hfe/gpt-6-2-astra-xhigh.json",
+     "questions": 288,
+     "right": 287,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.9444444444444445,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 10.23,
+      "problems_per_request": 1,
+      "in_flight": 2,
+      "input_tokens_per_problem": 2406,
+      "output_tokens_per_problem": 132,
+      "cost_per_1000_usd": 14.9421,
+      "cost_basis": "https://developers.openai.com/api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
+    }
+   }
   },
   {
    "model": "gemini-4-neon",
@@ -2787,6 +2808,26 @@
       "cost_basis": "https://ai.google.dev/gemini-api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)",
       "note": "batched, not comparable with one-per-request runs",
       "whole_run_problems": 250
+     }
+    },
+    "hfe_en": {
+     "run": "hfe/gemini-4-neon-high.json",
+     "questions": 288,
+     "right": 288,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 1.0,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 14.43,
+      "problems_per_request": 1,
+      "in_flight": 4,
+      "input_tokens_per_problem": 13279,
+      "output_tokens_per_problem": 1431,
+      "cost_per_1000_usd": 32.0053,
+      "cost_basis": "https://ai.google.dev/gemini-api/docs/pricing: tokens the route reported, priced at the API list price; nothing billed (subscription)"
      }
     }
    }
@@ -14886,6 +14927,96 @@
       "rated": 286,
       "no_confidence": 2
      }
+    },
+    "math_broken_conf_en": {
+     "run": "confidence/inkling-2-mini-inkling-2-mini-card.json",
+     "date": "2026-11-27",
+     "questions": 92,
+     "right": 91,
+     "total": 92,
+     "mean_conf_right": 96.75824175824175,
+     "mean_conf_wrong": 80.0,
+     "ece": 0.040760869565217385,
+     "auroc": 1.0,
+     "confident_wrong_broken_AE": 0,
+     "confident_wrong_sound": 1,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "physics_broken_conf_en": {
+     "run": "confidence/inkling-2-mini-inkling-2-mini-card.json",
+     "date": "2026-11-27",
+     "questions": 93,
+     "right": 93,
+     "total": 93,
+     "mean_conf_right": 94.3225806451613,
+     "mean_conf_wrong": null,
+     "ece": 0.05677419354838714,
+     "auroc": null,
+     "confident_wrong_broken_AE": 0,
+     "confident_wrong_sound": 0,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "geometry_broken_conf_en": {
+     "run": "confidence/inkling-2-mini-inkling-2-mini-card.json",
+     "date": "2026-11-27",
+     "questions": 98,
+     "right": 98,
+     "total": 98,
+     "mean_conf_right": 96.11224489795919,
+     "mean_conf_wrong": null,
+     "ece": 0.03887755102040824,
+     "auroc": null,
+     "confident_wrong_broken_AE": 0,
+     "confident_wrong_sound": 0,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "chemistry_broken_conf_en": {
+     "run": "confidence/inkling-2-mini-inkling-2-mini-card.json",
+     "date": "2026-11-27",
+     "questions": 95,
+     "right": 95,
+     "total": 95,
+     "mean_conf_right": 95.21052631578948,
+     "mean_conf_wrong": null,
+     "ece": 0.047894736842105226,
+     "auroc": null,
+     "confident_wrong_broken_AE": 0,
+     "confident_wrong_sound": 0,
+     "no_letter": 0,
+     "no_confidence": 0
+    },
+    "biology_broken_conf_en": {
+     "run": "confidence/inkling-2-mini-inkling-2-mini-card.json",
+     "date": "2026-11-27",
+     "questions": 88,
+     "right": 87,
+     "total": 88,
+     "mean_conf_right": 94.80459770114942,
+     "mean_conf_wrong": null,
+     "ece": 0.05195402298850571,
+     "auroc": null,
+     "confident_wrong_broken_AE": 0,
+     "confident_wrong_sound": 0,
+     "no_letter": 1,
+     "no_confidence": 1
+    },
+    "logic_broken_conf_en": {
+     "run": "confidence/inkling-2-mini-inkling-2-mini-card.json",
+     "date": "2026-11-27",
+     "questions": 69,
+     "right": 67,
+     "total": 69,
+     "mean_conf_right": 95.04477611940298,
+     "mean_conf_wrong": 91.5,
+     "ece": 0.038405797101449285,
+     "auroc": 0.7611940298507462,
+     "confident_wrong_broken_AE": 1,
+     "confident_wrong_sound": 1,
+     "no_letter": 0,
+     "no_confidence": 0
     }
    },
    "maker_like": "Inkling 2 Small"
@@ -29075,6 +29206,38 @@
       "cost_per_1000_usd": 5.6772,
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 2364
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/gemma-4-12b-it-think-32k-conf.json",
+     "questions": 288,
+     "right": 238,
+     "date": "2026-11-27",
+     "no_letter": 3,
+     "family_pass4": 0.44135802469135804,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 321.37,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 9.4079,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 3917
+     },
+     "confidence": {
+      "right": 238,
+      "wrong": 50,
+      "idk": 0,
+      "aa_score": 65.27777777777777,
+      "hallucination_rate": 1.0,
+      "ece": 0.1607017543859649,
+      "auroc": 0.5674950831396388,
+      "confidence_right": 99.76890756302521,
+      "confidence_wrong": 98.61702127659575,
+      "rated": 285,
+      "no_confidence": 3
      }
     }
    }
