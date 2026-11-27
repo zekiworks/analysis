@@ -4721,6 +4721,26 @@
       "note": "batched, not comparable with one-per-request runs",
       "whole_run_problems": 300
      }
+    },
+    "hfe_en": {
+     "run": "hfe/kimi-k3-1-pro-high.json",
+     "questions": 288,
+     "right": 258,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.5370370370370371,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 23.84,
+      "problems_per_request": 1,
+      "in_flight": 2,
+      "input_tokens_per_problem": 2463,
+      "output_tokens_per_problem": 490,
+      "cost_per_1000_usd": 5.4986,
+      "cost_basis": "https://openrouter.ai/moonshotai/kimi-k3.1-pro: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
     }
    }
   },
@@ -4772,6 +4792,50 @@
       "input_tokens_per_problem": 675,
       "output_tokens_per_problem": 363,
       "cost_per_1000_usd": 4.5276,
+      "cost_basis": "https://openrouter.ai/moonshotai/kimi-k3.1-pro: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
+    },
+    "chemistry_broken_en": {
+     "run": 1209,
+     "fix_runs": [],
+     "questions": 95,
+     "date": "2026-11-27",
+     "right": 94,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 50,
+     "broken": 45,
+     "broken_caught": 44,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 14.72,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "input_tokens_per_problem": 678,
+      "output_tokens_per_problem": 307,
+      "cost_per_1000_usd": 3.9669,
+      "cost_basis": "https://openrouter.ai/moonshotai/kimi-k3.1-pro: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
+    },
+    "biology_broken_en": {
+     "run": 1210,
+     "fix_runs": [],
+     "questions": 88,
+     "date": "2026-11-27",
+     "right": 86,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 49,
+     "broken": 38,
+     "broken_caught": 37,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 18.86,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "input_tokens_per_problem": 656,
+      "output_tokens_per_problem": 267,
+      "cost_per_1000_usd": 3.5203,
       "cost_basis": "https://openrouter.ai/moonshotai/kimi-k3.1-pro: tokens the route reported, priced at the API list price; nothing billed (subscription)"
      }
     },
@@ -6064,6 +6128,28 @@
       "cost_basis": "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017: tokens the route reported, priced at the API list price; nothing billed (subscription)"
      }
     },
+    "logic_broken_en": {
+     "run": 1208,
+     "fix_runs": [],
+     "questions": 69,
+     "date": "2026-11-27",
+     "right": 63,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 48,
+     "broken": 19,
+     "broken_caught": 15,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 15.97,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "input_tokens_per_problem": 623,
+      "output_tokens_per_problem": 2855,
+      "cost_per_1000_usd": 1.7496,
+      "cost_basis": "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
+    },
     "hfe_en": {
      "run": "hfe/deepseek-v4-1-flash-high.json",
      "questions": 288,
@@ -6082,6 +6168,39 @@
       "output_tokens_per_problem": 1508,
       "cost_per_1000_usd": 0.9252,
       "cost_basis": "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/deepseek-v4-1-flash-high-conf.json",
+     "questions": 288,
+     "right": 257,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.4407407407407407,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 10.43,
+      "problems_per_request": 1,
+      "in_flight": 2,
+      "input_tokens_per_problem": 2541,
+      "output_tokens_per_problem": 2174,
+      "cost_per_1000_usd": 1.3233,
+      "cost_basis": "https://openrouter.ai/deepseek/deepseek-v4.1-flash-1017: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     },
+     "confidence": {
+      "right": 257,
+      "wrong": 31,
+      "idk": 0,
+      "aa_score": 78.47222222222223,
+      "hallucination_rate": 1.0,
+      "ece": 0.07732638888888888,
+      "auroc": 0.6983808208861554,
+      "confidence_right": 97.41245136186771,
+      "confidence_wrong": 93.29032258064517,
+      "rated": 288,
+      "no_confidence": 0
      }
     }
    }
@@ -6345,6 +6464,39 @@
       "output_tokens_per_problem": 861,
       "cost_per_1000_usd": 7.638,
       "cost_basis": "https://openrouter.ai/qwen/qwen4-max: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/qwen4-max-high-conf.json",
+     "questions": 288,
+     "right": 257,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.5277777777777778,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 12.66,
+      "problems_per_request": 1,
+      "in_flight": 2,
+      "input_tokens_per_problem": 2560,
+      "output_tokens_per_problem": 821,
+      "cost_per_1000_usd": 7.5349,
+      "cost_basis": "https://openrouter.ai/qwen/qwen4-max: tokens the route reported, priced at the API list price; nothing billed (subscription)"
+     },
+     "confidence": {
+      "right": 257,
+      "wrong": 31,
+      "idk": 0,
+      "aa_score": 78.47222222222223,
+      "hallucination_rate": 1.0,
+      "ece": 0.03197879858657247,
+      "auroc": 0.6114187369051183,
+      "confidence_right": 93.26070038910505,
+      "confidence_wrong": 88.73076923076923,
+      "rated": 283,
+      "no_confidence": 5
      }
     }
    },
@@ -27955,13 +28107,13 @@
      "no_letter": 3,
      "per_request": 1,
      "timing": {
-      "median_s_per_problem": 246.1,
+      "median_s_per_problem": 277.65,
       "problems_per_request": 1,
       "in_flight": 16,
-      "gpu_seconds": 3702,
-      "cost_per_1000_usd": 14.7997,
+      "gpu_seconds": 6443,
+      "cost_per_1000_usd": 15.3674,
       "cost_basis": "GPU time while the run had requests in flight × $2.49 per GPU-hour ÷ problems (not an invoice)",
-      "whole_run_problems": 173
+      "whole_run_problems": 290
      }
     },
     "physics_exact_en": {
@@ -27972,13 +28124,13 @@
      "no_letter": 1,
      "per_request": 1,
      "timing": {
-      "median_s_per_problem": 246.1,
+      "median_s_per_problem": 277.65,
       "problems_per_request": 1,
       "in_flight": 16,
-      "gpu_seconds": 3702,
-      "cost_per_1000_usd": 14.7997,
+      "gpu_seconds": 6443,
+      "cost_per_1000_usd": 15.3674,
       "cost_basis": "GPU time while the run had requests in flight × $2.49 per GPU-hour ÷ problems (not an invoice)",
-      "whole_run_problems": 173
+      "whole_run_problems": 290
      }
     },
     "chemistry_exact_en": {
@@ -27989,13 +28141,47 @@
      "no_letter": 4,
      "per_request": 1,
      "timing": {
-      "median_s_per_problem": 246.1,
+      "median_s_per_problem": 277.65,
       "problems_per_request": 1,
       "in_flight": 16,
-      "gpu_seconds": 3702,
-      "cost_per_1000_usd": 14.7997,
+      "gpu_seconds": 6443,
+      "cost_per_1000_usd": 15.3674,
       "cost_basis": "GPU time while the run had requests in flight × $2.49 per GPU-hour ÷ problems (not an invoice)",
-      "whole_run_problems": 173
+      "whole_run_problems": 290
+     }
+    },
+    "biology_exact_en": {
+     "run": "exact/gemma-4-12b-it-sci50-gemma-4-12b-it-think-32k-en.json",
+     "date": "2026-11-27",
+     "questions": 50,
+     "right": 46,
+     "no_letter": 1,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 277.65,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 6443,
+      "cost_per_1000_usd": 15.3674,
+      "cost_basis": "GPU time while the run had requests in flight × $2.49 per GPU-hour ÷ problems (not an invoice)",
+      "whole_run_problems": 290
+     }
+    },
+    "geometry_exact_en": {
+     "run": "exact/gemma-4-12b-it-sci50-gemma-4-12b-it-think-32k-en.json",
+     "date": "2026-11-27",
+     "questions": 50,
+     "right": 45,
+     "no_letter": 5,
+     "per_request": 1,
+     "timing": {
+      "median_s_per_problem": 277.65,
+      "problems_per_request": 1,
+      "in_flight": 16,
+      "gpu_seconds": 6443,
+      "cost_per_1000_usd": 15.3674,
+      "cost_basis": "GPU time while the run had requests in flight × $2.49 per GPU-hour ÷ problems (not an invoice)",
+      "whole_run_problems": 290
      }
     },
     "hfe_en": {
@@ -30653,6 +30839,38 @@
       "cost_per_1000_usd": 3.5964,
       "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
       "gpu_seconds": 1498
+     }
+    },
+    "hfe_conf_en": {
+     "run": "hfe/granite-4-2-3b-nothink-conf.json",
+     "questions": 288,
+     "right": 103,
+     "date": "2026-11-27",
+     "no_letter": 0,
+     "family_pass4": 0.08333333333333333,
+     "families": 12,
+     "draws": 6,
+     "judge": "gemini-4-neon (temperature 0), HFE's judge prompt",
+     "timing": {
+      "median_s_per_problem": 1.57,
+      "problems_per_request": 1,
+      "in_flight": 32,
+      "cost_per_1000_usd": 2.0752,
+      "cost_basis": "GPU time from the first request to the last answer x $2.49 per GPU-hour",
+      "gpu_seconds": 864
+     },
+     "confidence": {
+      "right": 103,
+      "wrong": 175,
+      "idk": 10,
+      "aa_score": -25.0,
+      "hallucination_rate": 0.9459459459459459,
+      "ece": 0.5323018867924528,
+      "auroc": 0.6616666666666666,
+      "confidence_right": 95.17,
+      "confidence_wrong": 85.14545454545454,
+      "rated": 265,
+      "no_confidence": 13
      }
     }
    }
