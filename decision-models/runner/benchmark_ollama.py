@@ -4734,6 +4734,9 @@ ROUNDED_PROBABILITIES: dict[tuple[str, str], int] = {
     # joey-1 (Ümit #4578) through the loader of elephant-1 and mammoth-1, whose answers round to 6 places (qev/answers.py
     # _round at OneJev 81ce62f with the checkpoint's serve.patch, which joey-1 ships unchanged).
     ("baselabs", "baselabs/joey-1"): 6,
+    # bison-1 (Ümit #18345) through the same Base Labs loader as elephant-1 and mammoth-1, which rounds each option's
+    # probability to 6 places (Reading's English smoke run 1643: every value at most 6 places, |sum - 1| at most 1e-06).
+    ("baselabs", "baselabs/bison-1"): 6,
     # vera-medium-omni through its card's vera-serve (vera-s1 0.1.8, vera/schema.py line 110: each option's probability
     # rounded to 4 places; logic #8686), the rule of #1152 (Ümit #4057).
     ("di-serve", "vera-medium-omni"): 4,
