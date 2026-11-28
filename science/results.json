@@ -31894,6 +31894,165 @@
   {
    "model": "raon-1-nano",
    "name": "Raon-1 nano",
+   "tag": "thinking on · chat · 64k cap, cut-off replies asked again",
+   "kind": "chat",
+   "route": "vLLM on our GPU (logic's load, RTX PRO 6000), logic's Logic & Math settings for the row; the published run's answers, except the replies cut off at its 32,768-token cap, which were asked again with max_tokens 65,536; one question per request, answer line 'ANSWER: X'",
+   "sets": {
+    "math_en": {
+     "run": 1068,
+     "fix_runs": [
+      1248
+     ],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 45,
+     "no_letter": 3
+    },
+    "math_broken_en": {
+     "run": 1073,
+     "fix_runs": [
+      1249
+     ],
+     "questions": 92,
+     "date": "2026-11-26",
+     "right": 80,
+     "no_letter": 8,
+     "intact": 50,
+     "intact_right": 46,
+     "broken": 42,
+     "broken_caught": 34,
+     "flawed_on_intact": 3
+    },
+    "physics_en": {
+     "run": 1089,
+     "fix_runs": [
+      1250
+     ],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 31,
+     "no_letter": 8
+    },
+    "physics_broken_en": {
+     "run": 1094,
+     "fix_runs": [
+      1251
+     ],
+     "questions": 93,
+     "date": "2026-11-26",
+     "right": 49,
+     "no_letter": 21,
+     "intact": 50,
+     "intact_right": 25,
+     "broken": 43,
+     "broken_caught": 24,
+     "flawed_on_intact": 5
+    },
+    "chemistry_en": {
+     "run": 1081,
+     "fix_runs": [
+      1252
+     ],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 45,
+     "no_letter": 1
+    },
+    "chemistry_broken_en": {
+     "run": 1083,
+     "fix_runs": [
+      1253
+     ],
+     "questions": 95,
+     "date": "2026-11-26",
+     "right": 77,
+     "no_letter": 7,
+     "intact": 50,
+     "intact_right": 41,
+     "broken": 45,
+     "broken_caught": 36,
+     "flawed_on_intact": 4
+    },
+    "biology_en": {
+     "run": 1071,
+     "fix_runs": [
+      1254
+     ],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 31,
+     "no_letter": 6
+    },
+    "biology_broken_en": {
+     "run": 1074,
+     "fix_runs": [
+      1255
+     ],
+     "questions": 88,
+     "date": "2026-11-26",
+     "right": 54,
+     "no_letter": 15,
+     "intact": 50,
+     "intact_right": 30,
+     "broken": 38,
+     "broken_caught": 24,
+     "flawed_on_intact": 7
+    },
+    "geometry_en": {
+     "run": 1077,
+     "fix_runs": [
+      1256
+     ],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 44,
+     "no_letter": 4
+    },
+    "geometry_broken_en": {
+     "run": 1079,
+     "fix_runs": [
+      1257
+     ],
+     "questions": 98,
+     "date": "2026-11-26",
+     "right": 83,
+     "no_letter": 13,
+     "intact": 50,
+     "intact_right": 44,
+     "broken": 48,
+     "broken_caught": 39,
+     "flawed_on_intact": 1
+    },
+    "logic_en": {
+     "run": 1055,
+     "fix_runs": [
+      1258
+     ],
+     "questions": 50,
+     "date": "2026-11-26",
+     "right": 33,
+     "no_letter": 14
+    },
+    "logic_broken_en": {
+     "run": 1064,
+     "fix_runs": [
+      1259
+     ],
+     "questions": 69,
+     "date": "2026-11-26",
+     "right": 37,
+     "no_letter": 15,
+     "intact": 50,
+     "intact_right": 24,
+     "broken": 19,
+     "broken_caught": 13,
+     "flawed_on_intact": 11
+    }
+   }
+  },
+  {
+   "model": "raon-1-nano",
+   "name": "Raon-1 nano",
    "tag": "thinking off · chat",
    "kind": "chat",
    "route": "vLLM on our GPU (logic's load, RTX PRO 6000), logic's Logic & Math settings for the row; one question per request, answer line 'ANSWER: X'",
