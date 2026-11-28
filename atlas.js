@@ -298,7 +298,7 @@ function money(amount,upper){
  return (upper?'≤ ':'')+'$'+fmtNum(amount,precision);
 }
 function unavailable(r){
- if(r.status==='Not run')return 'Not run';
+ if(r.status==='Not run'||r.status==='Text only')return r.status; // 'Text only': a model that reads no images (Ümit #18190)
  if(r.section==='All benches'&&r.track==='Combined')return 'No combined measure';
  return 'Not reported';
 }
