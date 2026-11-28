@@ -7263,6 +7263,14 @@
    }
   },
   {
+   "model": "d1.3-ultra",
+   "name": "d1.3-ultra",
+   "tag": "API · decision",
+   "kind": "decision",
+   "route": "Liquid's API; one question per request",
+   "sets": {}
+  },
+  {
    "model": "d1.2-ultra",
    "name": "d1.2-ultra",
    "tag": "API · decision",
@@ -7725,6 +7733,1161 @@
    }
   },
   {
+   "model": "subq-snap-1.2",
+   "name": "SubQ Snap 1.2",
+   "tag": "API · decision",
+   "kind": "decision",
+   "route": "SubQ's Decisions API; one question per request",
+   "sets": {
+    "math_en": {
+     "run": 1317,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 25,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 11,
+      "cost_per_1000_usd": 0.1522,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "math_broken_en": {
+     "run": 1289,
+     "fix_runs": [],
+     "questions": 92,
+     "date": "2026-11-28",
+     "right": 35,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 18,
+     "broken": 42,
+     "broken_caught": 17,
+     "flawed_on_intact": 10,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 20,
+      "cost_per_1000_usd": 0.1504,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_en": {
+     "run": 1321,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 19,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 10,
+      "cost_per_1000_usd": 0.1383,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_broken_en": {
+     "run": 1293,
+     "fix_runs": [],
+     "questions": 93,
+     "date": "2026-11-28",
+     "right": 23,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 17,
+     "broken": 43,
+     "broken_caught": 6,
+     "flawed_on_intact": 4,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 20,
+      "cost_per_1000_usd": 0.1487,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_en": {
+     "run": 1327,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 22,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 11,
+      "cost_per_1000_usd": 0.1522,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_broken_en": {
+     "run": 1302,
+     "fix_runs": [],
+     "questions": 95,
+     "date": "2026-11-28",
+     "right": 27,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 21,
+     "broken": 45,
+     "broken_caught": 6,
+     "flawed_on_intact": 3,
+     "timing": {
+      "median_s_per_problem": 0.22,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 29,
+      "cost_per_1000_usd": 0.2111,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_en": {
+     "run": 1329,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 18,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 11,
+      "cost_per_1000_usd": 0.1522,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_broken_en": {
+     "run": 1307,
+     "fix_runs": [],
+     "questions": 88,
+     "date": "2026-11-28",
+     "right": 21,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 16,
+     "broken": 38,
+     "broken_caught": 5,
+     "flawed_on_intact": 8,
+     "timing": {
+      "median_s_per_problem": 0.22,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 27,
+      "cost_per_1000_usd": 0.2122,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_en": {
+     "run": 1324,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 12,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 11,
+      "cost_per_1000_usd": 0.1522,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_broken_en": {
+     "run": 1298,
+     "fix_runs": [],
+     "questions": 98,
+     "date": "2026-11-28",
+     "right": 15,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 6,
+     "broken": 48,
+     "broken_caught": 9,
+     "flawed_on_intact": 6,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 27,
+      "cost_per_1000_usd": 0.1906,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_en": {
+     "run": 1333,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 8,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 11,
+      "cost_per_1000_usd": 0.1522,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_broken_en": {
+     "run": 1312,
+     "fix_runs": [],
+     "questions": 69,
+     "date": "2026-11-28",
+     "right": 12,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 4,
+     "broken": 19,
+     "broken_caught": 8,
+     "flawed_on_intact": 18,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 15,
+      "cost_per_1000_usd": 0.1504,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "d1.2",
+   "name": "d1.2",
+   "tag": "API · decision",
+   "kind": "decision",
+   "route": "Liquid's API; one question per request",
+   "sets": {
+    "math_en": {
+     "run": 1320,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 33,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 14,
+      "cost_per_1000_usd": 0.1937,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "math_broken_en": {
+     "run": 1291,
+     "fix_runs": [],
+     "questions": 92,
+     "date": "2026-11-28",
+     "right": 38,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 34,
+     "broken": 42,
+     "broken_caught": 4,
+     "flawed_on_intact": 1,
+     "timing": {
+      "median_s_per_problem": 0.22,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 24,
+      "cost_per_1000_usd": 0.1804,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_en": {
+     "run": 1325,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 19,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.2,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 12,
+      "cost_per_1000_usd": 0.166,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_broken_en": {
+     "run": 1294,
+     "fix_runs": [],
+     "questions": 93,
+     "date": "2026-11-28",
+     "right": 21,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 17,
+     "broken": 43,
+     "broken_caught": 4,
+     "flawed_on_intact": 4,
+     "timing": {
+      "median_s_per_problem": 0.2,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 21,
+      "cost_per_1000_usd": 0.1562,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_en": {
+     "run": 1330,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 24,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 12,
+      "cost_per_1000_usd": 0.166,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_broken_en": {
+     "run": 1304,
+     "fix_runs": [],
+     "questions": 95,
+     "date": "2026-11-28",
+     "right": 25,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 24,
+     "broken": 45,
+     "broken_caught": 1,
+     "flawed_on_intact": 1,
+     "timing": {
+      "median_s_per_problem": 0.22,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 30,
+      "cost_per_1000_usd": 0.2184,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_en": {
+     "run": 1334,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 22,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 12,
+      "cost_per_1000_usd": 0.166,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_broken_en": {
+     "run": 1309,
+     "fix_runs": [],
+     "questions": 88,
+     "date": "2026-11-28",
+     "right": 24,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 21,
+     "broken": 38,
+     "broken_caught": 3,
+     "flawed_on_intact": 2,
+     "timing": {
+      "median_s_per_problem": 0.22,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 26,
+      "cost_per_1000_usd": 0.2044,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_en": {
+     "run": 1328,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 24,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 13,
+      "cost_per_1000_usd": 0.1798,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_broken_en": {
+     "run": 1299,
+     "fix_runs": [],
+     "questions": 98,
+     "date": "2026-11-28",
+     "right": 29,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 26,
+     "broken": 48,
+     "broken_caught": 3,
+     "flawed_on_intact": 4,
+     "timing": {
+      "median_s_per_problem": 0.23,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 29,
+      "cost_per_1000_usd": 0.2047,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_en": {
+     "run": 1336,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 12,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 12,
+      "cost_per_1000_usd": 0.166,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_broken_en": {
+     "run": 1314,
+     "fix_runs": [],
+     "questions": 69,
+     "date": "2026-11-28",
+     "right": 8,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 7,
+     "broken": 19,
+     "broken_caught": 1,
+     "flawed_on_intact": 8,
+     "timing": {
+      "median_s_per_problem": 0.21,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 18,
+      "cost_per_1000_usd": 0.1804,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "microsoft/microsoft-decision-1.1",
+   "name": "Microsoft-Decision-1.1",
+   "tag": "API · decision",
+   "kind": "decision",
+   "route": "OpenRouter's System One route; one question per request",
+   "sets": {
+    "math_en": {
+     "run": 1331,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 35,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.3,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 16,
+      "cost_per_1000_usd": 0.2213,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "math_broken_en": {
+     "run": 1287,
+     "fix_runs": [],
+     "questions": 92,
+     "date": "2026-11-28",
+     "right": 36,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 33,
+     "broken": 42,
+     "broken_caught": 3,
+     "flawed_on_intact": 3,
+     "timing": {
+      "median_s_per_problem": 0.31,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 29,
+      "cost_per_1000_usd": 0.218,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_en": {
+     "run": 1335,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 19,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.3,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 15,
+      "cost_per_1000_usd": 0.2075,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_broken_en": {
+     "run": 1295,
+     "fix_runs": [],
+     "questions": 93,
+     "date": "2026-11-28",
+     "right": 17,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 17,
+     "broken": 43,
+     "broken_caught": 0,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 0.3,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 29,
+      "cost_per_1000_usd": 0.2157,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_en": {
+     "run": 1339,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 20,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.3,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 15,
+      "cost_per_1000_usd": 0.2075,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_broken_en": {
+     "run": 1308,
+     "fix_runs": [],
+     "questions": 95,
+     "date": "2026-11-28",
+     "right": 21,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 20,
+     "broken": 45,
+     "broken_caught": 1,
+     "flawed_on_intact": 1,
+     "timing": {
+      "median_s_per_problem": 0.32,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 34,
+      "cost_per_1000_usd": 0.2475,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_en": {
+     "run": 1340,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 24,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.29,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 15,
+      "cost_per_1000_usd": 0.2075,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_broken_en": {
+     "run": 1316,
+     "fix_runs": [],
+     "questions": 88,
+     "date": "2026-11-28",
+     "right": 23,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 22,
+     "broken": 38,
+     "broken_caught": 1,
+     "flawed_on_intact": 1,
+     "timing": {
+      "median_s_per_problem": 0.31,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 27,
+      "cost_per_1000_usd": 0.2122,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_en": {
+     "run": 1337,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 21,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.3,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 15,
+      "cost_per_1000_usd": 0.2075,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_broken_en": {
+     "run": 1301,
+     "fix_runs": [],
+     "questions": 98,
+     "date": "2026-11-28",
+     "right": 23,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 23,
+     "broken": 48,
+     "broken_caught": 0,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 0.34,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 45,
+      "cost_per_1000_usd": 0.3176,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_en": {
+     "run": 1341,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 15,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.3,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 16,
+      "cost_per_1000_usd": 0.2213,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_broken_en": {
+     "run": 1326,
+     "fix_runs": [],
+     "questions": 69,
+     "date": "2026-11-28",
+     "right": 17,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 13,
+     "broken": 19,
+     "broken_caught": 4,
+     "flawed_on_intact": 6,
+     "timing": {
+      "median_s_per_problem": 0.3,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 21,
+      "cost_per_1000_usd": 0.2105,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "jev-1.14.0",
+   "name": "Jev 1.14",
+   "tag": "API · decision",
+   "kind": "decision",
+   "route": "TypeSafe's System One API; one question per request",
+   "sets": {
+    "math_en": {
+     "run": 1310,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 34,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.17,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 13,
+      "cost_per_1000_usd": 0.1798,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "math_broken_en": {
+     "run": 1288,
+     "fix_runs": [],
+     "questions": 92,
+     "date": "2026-11-28",
+     "right": 43,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 31,
+     "broken": 42,
+     "broken_caught": 12,
+     "flawed_on_intact": 7,
+     "timing": {
+      "median_s_per_problem": 0.16,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 15,
+      "cost_per_1000_usd": 0.1128,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_en": {
+     "run": 1311,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 20,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.16,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 10,
+      "cost_per_1000_usd": 0.1383,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_broken_en": {
+     "run": 1292,
+     "fix_runs": [],
+     "questions": 93,
+     "date": "2026-11-28",
+     "right": 19,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 17,
+     "broken": 43,
+     "broken_caught": 2,
+     "flawed_on_intact": 6,
+     "timing": {
+      "median_s_per_problem": 0.16,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 16,
+      "cost_per_1000_usd": 0.119,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_en": {
+     "run": 1315,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 18,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.16,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 8,
+      "cost_per_1000_usd": 0.1107,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_broken_en": {
+     "run": 1300,
+     "fix_runs": [],
+     "questions": 95,
+     "date": "2026-11-28",
+     "right": 25,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 18,
+     "broken": 45,
+     "broken_caught": 7,
+     "flawed_on_intact": 10,
+     "timing": {
+      "median_s_per_problem": 0.17,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 21,
+      "cost_per_1000_usd": 0.1529,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_en": {
+     "run": 1319,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 21,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.16,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 9,
+      "cost_per_1000_usd": 0.1245,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_broken_en": {
+     "run": 1303,
+     "fix_runs": [],
+     "questions": 88,
+     "date": "2026-11-28",
+     "right": 28,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 23,
+     "broken": 38,
+     "broken_caught": 5,
+     "flawed_on_intact": 5,
+     "timing": {
+      "median_s_per_problem": 0.17,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 21,
+      "cost_per_1000_usd": 0.1651,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_en": {
+     "run": 1313,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 18,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.16,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 8,
+      "cost_per_1000_usd": 0.1107,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_broken_en": {
+     "run": 1296,
+     "fix_runs": [],
+     "questions": 98,
+     "date": "2026-11-28",
+     "right": 27,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 15,
+     "broken": 48,
+     "broken_caught": 12,
+     "flawed_on_intact": 12,
+     "timing": {
+      "median_s_per_problem": 0.16,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 17,
+      "cost_per_1000_usd": 0.12,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_en": {
+     "run": 1323,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 14,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.17,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 9,
+      "cost_per_1000_usd": 0.1245,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_broken_en": {
+     "run": 1305,
+     "fix_runs": [],
+     "questions": 69,
+     "date": "2026-11-28",
+     "right": 20,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 12,
+     "broken": 19,
+     "broken_caught": 8,
+     "flawed_on_intact": 16,
+     "timing": {
+      "median_s_per_problem": 0.18,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 16,
+      "cost_per_1000_usd": 0.1604,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "drex-v2.0",
+   "name": "Drex 2.0",
+   "tag": "API · decision",
+   "kind": "decision",
+   "route": "Nace.AI's API; one question per request",
+   "sets": {
+    "math_en": {
+     "run": 1342,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 27,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.42,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 25,
+      "cost_per_1000_usd": 0.3458,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "math_broken_en": {
+     "run": 1290,
+     "fix_runs": [],
+     "questions": 92,
+     "date": "2026-11-28",
+     "right": 31,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 28,
+     "broken": 42,
+     "broken_caught": 3,
+     "flawed_on_intact": 1,
+     "timing": {
+      "median_s_per_problem": 0.42,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 39,
+      "cost_per_1000_usd": 0.2932,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_en": {
+     "run": 1345,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 24,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.43,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 24,
+      "cost_per_1000_usd": 0.332,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_broken_en": {
+     "run": 1297,
+     "fix_runs": [],
+     "questions": 93,
+     "date": "2026-11-28",
+     "right": 25,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 22,
+     "broken": 43,
+     "broken_caught": 3,
+     "flawed_on_intact": 1,
+     "timing": {
+      "median_s_per_problem": 0.44,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 54,
+      "cost_per_1000_usd": 0.4016,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_en": {
+     "run": 1355,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 28,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.42,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 25,
+      "cost_per_1000_usd": 0.3458,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_broken_en": {
+     "run": 1318,
+     "fix_runs": [],
+     "questions": 95,
+     "date": "2026-11-28",
+     "right": 32,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 29,
+     "broken": 45,
+     "broken_caught": 3,
+     "flawed_on_intact": 3,
+     "timing": {
+      "median_s_per_problem": 0.42,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 49,
+      "cost_per_1000_usd": 0.3568,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_en": {
+     "run": 1358,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 27,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.42,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 23,
+      "cost_per_1000_usd": 0.3182,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_broken_en": {
+     "run": 1332,
+     "fix_runs": [],
+     "questions": 88,
+     "date": "2026-11-28",
+     "right": 25,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 24,
+     "broken": 38,
+     "broken_caught": 1,
+     "flawed_on_intact": 1,
+     "timing": {
+      "median_s_per_problem": 0.43,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 44,
+      "cost_per_1000_usd": 0.3458,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_en": {
+     "run": 1350,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 19,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.42,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 27,
+      "cost_per_1000_usd": 0.3735,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_broken_en": {
+     "run": 1306,
+     "fix_runs": [],
+     "questions": 98,
+     "date": "2026-11-28",
+     "right": 20,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 15,
+     "broken": 48,
+     "broken_caught": 5,
+     "flawed_on_intact": 3,
+     "timing": {
+      "median_s_per_problem": 0.43,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 48,
+      "cost_per_1000_usd": 0.3388,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_en": {
+     "run": 1359,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 15,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.43,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 26,
+      "cost_per_1000_usd": 0.3597,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_broken_en": {
+     "run": 1338,
+     "fix_runs": [],
+     "questions": 69,
+     "date": "2026-11-28",
+     "right": 13,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 13,
+     "broken": 19,
+     "broken_caught": 0,
+     "flawed_on_intact": 0,
+     "timing": {
+      "median_s_per_problem": 0.42,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 34,
+      "cost_per_1000_usd": 0.3408,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
    "model": "gemini-decision-1",
    "name": "Gemini Decision 1",
    "tag": "API · decision",
@@ -7950,6 +9113,245 @@
       "in_flight": 1,
       "gpu_seconds": 17,
       "cost_per_1000_usd": 0.1704,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    }
+   }
+  },
+  {
+   "model": "baselabs/bison-1",
+   "name": "Bison 31B",
+   "tag": "decision",
+   "kind": "decision",
+   "route": "on our GPU (logic's load, RTX PRO 6000), Base Labs' own server; one question per request",
+   "sets": {}
+  },
+  {
+   "model": "baselabs/elephant-1",
+   "name": "Elephant 9B",
+   "tag": "decision",
+   "kind": "decision",
+   "route": "on our GPU (logic's load, RTX PRO 6000), Base Labs' own server; one question per request",
+   "sets": {
+    "math_en": {
+     "run": 1343,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 37,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.1,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 5,
+      "cost_per_1000_usd": 0.0692,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "math_broken_en": {
+     "run": 1344,
+     "fix_runs": [],
+     "questions": 92,
+     "date": "2026-11-28",
+     "right": 37,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 33,
+     "broken": 42,
+     "broken_caught": 4,
+     "flawed_on_intact": 4,
+     "timing": {
+      "median_s_per_problem": 0.09,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 7,
+      "cost_per_1000_usd": 0.0526,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_en": {
+     "run": 1346,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 18,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.09,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 4,
+      "cost_per_1000_usd": 0.0553,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "physics_broken_en": {
+     "run": 1347,
+     "fix_runs": [],
+     "questions": 93,
+     "date": "2026-11-28",
+     "right": 26,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 20,
+     "broken": 43,
+     "broken_caught": 6,
+     "flawed_on_intact": 7,
+     "timing": {
+      "median_s_per_problem": 0.09,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 8,
+      "cost_per_1000_usd": 0.0595,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_en": {
+     "run": 1348,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 31,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.11,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 5,
+      "cost_per_1000_usd": 0.0692,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "chemistry_broken_en": {
+     "run": 1349,
+     "fix_runs": [],
+     "questions": 95,
+     "date": "2026-11-28",
+     "right": 33,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 29,
+     "broken": 45,
+     "broken_caught": 4,
+     "flawed_on_intact": 2,
+     "timing": {
+      "median_s_per_problem": 0.1,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 10,
+      "cost_per_1000_usd": 0.0728,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_en": {
+     "run": 1351,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 30,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.11,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 5,
+      "cost_per_1000_usd": 0.0692,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "biology_broken_en": {
+     "run": 1352,
+     "fix_runs": [],
+     "questions": 88,
+     "date": "2026-11-28",
+     "right": 30,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 27,
+     "broken": 38,
+     "broken_caught": 3,
+     "flawed_on_intact": 5,
+     "timing": {
+      "median_s_per_problem": 0.1,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 8,
+      "cost_per_1000_usd": 0.0629,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_en": {
+     "run": 1353,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 26,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.11,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 6,
+      "cost_per_1000_usd": 0.083,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "geometry_broken_en": {
+     "run": 1354,
+     "fix_runs": [],
+     "questions": 98,
+     "date": "2026-11-28",
+     "right": 34,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 21,
+     "broken": 48,
+     "broken_caught": 13,
+     "flawed_on_intact": 12,
+     "timing": {
+      "median_s_per_problem": 0.09,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 9,
+      "cost_per_1000_usd": 0.0635,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_en": {
+     "run": 1356,
+     "fix_runs": [],
+     "questions": 50,
+     "date": "2026-11-28",
+     "right": 10,
+     "no_letter": 0,
+     "timing": {
+      "median_s_per_problem": 0.09,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 5,
+      "cost_per_1000_usd": 0.0692,
+      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
+     }
+    },
+    "logic_broken_en": {
+     "run": 1357,
+     "fix_runs": [],
+     "questions": 69,
+     "date": "2026-11-28",
+     "right": 17,
+     "no_letter": 0,
+     "intact": 50,
+     "intact_right": 8,
+     "broken": 19,
+     "broken_caught": 9,
+     "flawed_on_intact": 27,
+     "timing": {
+      "median_s_per_problem": 0.1,
+      "problems_per_request": 1,
+      "in_flight": 1,
+      "gpu_seconds": 8,
+      "cost_per_1000_usd": 0.0802,
       "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
      }
     }
@@ -8432,228 +9834,6 @@
      "broken": 21,
      "broken_caught": 0,
      "flawed_on_intact": 0
-    },
-    "math_en": {
-     "run": 684,
-     "fix_runs": [],
-     "questions": 50,
-     "date": "2026-11-24",
-     "right": 32,
-     "no_letter": 0,
-     "timing": {
-      "median_s_per_problem": 0.15,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 9,
-      "cost_per_1000_usd": 0.1245,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "math_broken_en": {
-     "run": 685,
-     "fix_runs": [],
-     "questions": 92,
-     "date": "2026-11-24",
-     "right": 36,
-     "no_letter": 0,
-     "intact": 50,
-     "intact_right": 30,
-     "broken": 42,
-     "broken_caught": 6,
-     "flawed_on_intact": 8,
-     "timing": {
-      "median_s_per_problem": 0.16,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 16,
-      "cost_per_1000_usd": 0.1203,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "physics_en": {
-     "run": 686,
-     "fix_runs": [],
-     "questions": 50,
-     "date": "2026-11-24",
-     "right": 19,
-     "no_letter": 0,
-     "timing": {
-      "median_s_per_problem": 0.16,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 8,
-      "cost_per_1000_usd": 0.1107,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "physics_broken_en": {
-     "run": 687,
-     "fix_runs": [],
-     "questions": 93,
-     "date": "2026-11-24",
-     "right": 19,
-     "no_letter": 0,
-     "intact": 50,
-     "intact_right": 17,
-     "broken": 43,
-     "broken_caught": 2,
-     "flawed_on_intact": 1,
-     "timing": {
-      "median_s_per_problem": 0.17,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 16,
-      "cost_per_1000_usd": 0.119,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "chemistry_en": {
-     "run": 688,
-     "fix_runs": [],
-     "questions": 50,
-     "date": "2026-11-24",
-     "right": 23,
-     "no_letter": 0,
-     "timing": {
-      "median_s_per_problem": 0.16,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 9,
-      "cost_per_1000_usd": 0.1245,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "chemistry_broken_en": {
-     "run": 689,
-     "fix_runs": [],
-     "questions": 95,
-     "date": "2026-11-24",
-     "right": 24,
-     "no_letter": 0,
-     "intact": 50,
-     "intact_right": 21,
-     "broken": 45,
-     "broken_caught": 3,
-     "flawed_on_intact": 5,
-     "timing": {
-      "median_s_per_problem": 0.16,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 16,
-      "cost_per_1000_usd": 0.1165,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "biology_en": {
-     "run": 690,
-     "fix_runs": [],
-     "questions": 50,
-     "date": "2026-11-24",
-     "right": 25,
-     "no_letter": 0,
-     "timing": {
-      "median_s_per_problem": 0.16,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 8,
-      "cost_per_1000_usd": 0.1107,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "biology_broken_en": {
-     "run": 691,
-     "fix_runs": [],
-     "questions": 88,
-     "date": "2026-11-24",
-     "right": 23,
-     "no_letter": 0,
-     "intact": 50,
-     "intact_right": 20,
-     "broken": 38,
-     "broken_caught": 3,
-     "flawed_on_intact": 1,
-     "timing": {
-      "median_s_per_problem": 0.16,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 15,
-      "cost_per_1000_usd": 0.1179,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "geometry_en": {
-     "run": 692,
-     "fix_runs": [],
-     "questions": 50,
-     "date": "2026-11-24",
-     "right": 20,
-     "no_letter": 0,
-     "timing": {
-      "median_s_per_problem": 0.15,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 8,
-      "cost_per_1000_usd": 0.1107,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "geometry_broken_en": {
-     "run": 693,
-     "fix_runs": [],
-     "questions": 98,
-     "date": "2026-11-24",
-     "right": 26,
-     "no_letter": 0,
-     "intact": 50,
-     "intact_right": 21,
-     "broken": 48,
-     "broken_caught": 5,
-     "flawed_on_intact": 4,
-     "timing": {
-      "median_s_per_problem": 0.16,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 16,
-      "cost_per_1000_usd": 0.1129,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "logic_en": {
-     "run": 694,
-     "fix_runs": [],
-     "questions": 50,
-     "date": "2026-11-24",
-     "right": 18,
-     "no_letter": 0,
-     "timing": {
-      "median_s_per_problem": 0.15,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 8,
-      "cost_per_1000_usd": 0.1107,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
-    },
-    "logic_broken_en": {
-     "run": 695,
-     "fix_runs": [],
-     "questions": 69,
-     "date": "2026-11-24",
-     "right": 19,
-     "no_letter": 0,
-     "intact": 50,
-     "intact_right": 15,
-     "broken": 19,
-     "broken_caught": 4,
-     "flawed_on_intact": 5,
-     "timing": {
-      "median_s_per_problem": 0.15,
-      "problems_per_request": 1,
-      "in_flight": 1,
-      "gpu_seconds": 11,
-      "cost_per_1000_usd": 0.1103,
-      "cost_basis": "GPU time from the run's start to its last answer × $2.49 per GPU-hour ÷ problems (not an invoice)"
-     }
     }
    }
   },
